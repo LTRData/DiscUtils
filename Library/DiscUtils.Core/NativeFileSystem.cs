@@ -545,7 +545,7 @@ public class NativeFileSystem : DiscFileSystem
         {
             path = path.Substring(1);
         }
-
+        
         File.SetAttributes(Path.Combine(BasePath, path), newValue);
     }
 
@@ -581,7 +581,14 @@ public class NativeFileSystem : DiscFileSystem
             path = path.Substring(1);
         }
 
-        return File.GetCreationTimeUtc(Path.Combine(BasePath, path));
+        var fullPath = Path.Combine(BasePath, path);
+
+        if (Directory.Exists(fullPath))
+        {
+            return Directory.GetCreationTimeUtc(fullPath);
+        }
+
+        return File.GetCreationTimeUtc(fullPath);
     }
 
     /// <summary>
@@ -601,7 +608,16 @@ public class NativeFileSystem : DiscFileSystem
             path = path.Substring(1);
         }
 
-        File.SetCreationTimeUtc(Path.Combine(BasePath, path), newTime);
+        var fullPath = Path.Combine(BasePath, path);
+
+        if (Directory.Exists(fullPath))
+        {
+            Directory.SetCreationTimeUtc(fullPath, newTime);
+        }
+        else
+        {
+            File.SetCreationTimeUtc(fullPath, newTime);
+        }
     }
 
     /// <summary>
@@ -636,7 +652,14 @@ public class NativeFileSystem : DiscFileSystem
             path = path.Substring(1);
         }
 
-        return File.GetLastAccessTimeUtc(Path.Combine(BasePath, path));
+        var fullPath = Path.Combine(BasePath, path);
+
+        if (Directory.Exists(fullPath))
+        {
+            return Directory.GetLastAccessTimeUtc(fullPath);
+        }
+
+        return File.GetLastAccessTimeUtc(fullPath);
     }
 
     /// <summary>
@@ -656,7 +679,16 @@ public class NativeFileSystem : DiscFileSystem
             path = path.Substring(1);
         }
 
-        File.SetLastAccessTimeUtc(Path.Combine(BasePath, path), newTime);
+        var fullPath = Path.Combine(BasePath, path);
+
+        if (Directory.Exists(fullPath))
+        {
+            Directory.SetLastAccessTimeUtc(fullPath, newTime);
+        }
+        else
+        {
+            File.SetLastAccessTimeUtc(fullPath, newTime);
+        }
     }
 
     /// <summary>
@@ -691,7 +723,14 @@ public class NativeFileSystem : DiscFileSystem
             path = path.Substring(1);
         }
 
-        return File.GetLastWriteTimeUtc(Path.Combine(BasePath, path));
+        var fullPath = Path.Combine(BasePath, path);
+
+        if (Directory.Exists(fullPath))
+        {
+            return Directory.GetLastWriteTimeUtc(fullPath);
+        }
+
+        return File.GetLastWriteTimeUtc(fullPath);
     }
 
     /// <summary>
@@ -711,7 +750,16 @@ public class NativeFileSystem : DiscFileSystem
             path = path.Substring(1);
         }
 
-        File.SetLastWriteTimeUtc(Path.Combine(BasePath, path), newTime);
+        var fullPath = Path.Combine(BasePath, path);
+
+        if (Directory.Exists(fullPath))
+        {
+            Directory.SetLastWriteTimeUtc(fullPath, newTime);
+        }
+        else
+        {
+            File.SetLastWriteTimeUtc(fullPath, newTime);
+        }
     }
 
     /// <summary>
