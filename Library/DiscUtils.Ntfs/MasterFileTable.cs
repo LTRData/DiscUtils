@@ -104,6 +104,7 @@ internal class MasterFileTable : IDiagnosticTraceable, IDisposable
     /// First MFT Index available for 'normal' files.
     /// </summary>
     private const uint FirstAvailableMftIndex = 24;
+
     private static readonly int FILE_MAGIC = EndianUtilities.ToInt32LittleEndian(Encoding.ASCII.GetBytes("FILE"), 0);
 
     private Bitmap _bitmap;
@@ -359,6 +360,15 @@ internal class MasterFileTable : IDiagnosticTraceable, IDisposable
 
     public FileRecord GetRecord(long index, bool ignoreMagic, bool ignoreBitmap)
     {
+        if (!ignoreBitmap && index < FirstAvailableMftIndex
+            && _bitmap is not null && !_bitmap.IsPresent(index))
+        {
+            Trace.WriteLine($"DiscUtils.Ntfs: Corrupt MFT bitmap, meta file {index} marked as not present.");
+
+            _bitmap.Dispose();
+            _bitmap = null;
+        }
+
         if (ignoreBitmap || _bitmap == null || _bitmap.IsPresent(index))
         {
             var result = _recordCache[index];

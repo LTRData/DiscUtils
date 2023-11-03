@@ -2653,7 +2653,8 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
 
     internal File GetFile(long index)
     {
-        var record = _context.Mft.GetRecord(index, false);
+        var record = _context.Mft.GetRecord(index, ignoreMagic: false);
+
         if (record == null)
         {
             return null;
