@@ -47,7 +47,21 @@ internal sealed class ParentLocator : IByteArraySerializable
     {
         Entries.Add("parent_linkage", parentUid);
         Entries.Add("relative_path", relativePath);
-        Entries.Add("absolute_win32_path", @"\\?\" + absolutePath);
+        if (absolutePath.Length > 3 && absolutePath[1] == ':' && absolutePath[2] == '\\')
+        {
+            absolutePath = $@"\\?\{absolutePath}";
+        }
+        else if (absolutePath.StartsWith(@"\\", StringComparison.Ordinal)
+            && !(absolutePath.StartsWith(@"\\?\", StringComparison.Ordinal)
+            || absolutePath.StartsWith(@"\\.\", StringComparison.Ordinal)))
+        {
+#if NET5_0_OR_GREATER
+            absolutePath = $@"\\?\UNC\{absolutePath.AsSpan(2)}";
+#else
+            absolutePath = $@"\\?\UNC\{absolutePath.Substring(2)}";
+#endif
+        }
+        Entries.Add("absolute_win32_path", absolutePath);
     }
 
     public int Size
