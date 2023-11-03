@@ -16,3 +16,4 @@ Tests/LibraryTests/TestResults/
 *.nupkg
 *.snupkg
 *~
+/testenvironments.json
