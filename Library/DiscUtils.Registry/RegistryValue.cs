@@ -30,7 +30,7 @@ namespace DiscUtils.Registry;
 /// <summary>
 /// A registry value.
 /// </summary>
-internal sealed class RegistryValue
+public sealed class RegistryValue
 {
     private readonly ValueCell _cell;
     private readonly RegistryHive _hive;
@@ -116,7 +116,7 @@ internal sealed class RegistryValue
     /// The raw value data as a byte array.
     /// </summary>
     /// <returns>The value as a raw byte array.</returns>
-    public Span<byte> GetData(Span<byte> maxBytes)
+    internal Span<byte> GetData(Span<byte> maxBytes)
     {
         if (_cell.DataLength < 0)
         {
@@ -140,7 +140,7 @@ internal sealed class RegistryValue
     /// </summary>
     /// <param name="data">The data to store.</param>
     /// <param name="valueType">The type of the data.</param>
-    public void SetData(ReadOnlySpan<byte> data, RegistryValueType valueType)
+    internal void SetData(ReadOnlySpan<byte> data, RegistryValueType valueType)
     {
         // If we can place the data in the DataIndex field, do that to save space / allocation
         if ((valueType == RegistryValueType.Dword || valueType == RegistryValueType.DwordBigEndian) && data.Length <= 4)

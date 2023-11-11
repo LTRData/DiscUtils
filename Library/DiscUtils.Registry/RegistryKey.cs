@@ -445,7 +445,8 @@ public sealed class RegistryKey
     /// </summary>
     /// <param name="name">The name of the value to delete.</param>
     /// <param name="throwOnMissingValue">Throws ArgumentException if <c>name</c> doesn't exist.</param>
-    public void DeleteValue(string name, bool throwOnMissingValue)
+    /// <returns>True if a value with specified name was found and deleted, false otherwise.</returns>
+    public bool DeleteValue(string name, bool throwOnMissingValue)
     {
         var foundValue = false;
 
@@ -495,6 +496,8 @@ public sealed class RegistryKey
         {
             throw new ArgumentException($"No such value: {name}", nameof(name));
         }
+
+        return foundValue;
     }
 
     /// <summary>
@@ -596,12 +599,14 @@ public sealed class RegistryKey
     /// Deletes a subkey and any child subkeys recursively. The string subkey is not case-sensitive.
     /// </summary>
     /// <param name="subkey">The subkey to delete.</param>
-    public void DeleteSubKeyTree(string subkey)
+    /// <returns>True if key was found and deleted, false otherwise.</returns>
+    public bool DeleteSubKeyTree(string subkey)
     {
         var subKeyObj = OpenSubKey(subkey);
+
         if (subKeyObj == null)
         {
-            return;
+            return false;
         }
 
         if ((subKeyObj.Flags & RegistryKeyFlags.Root) != 0)
@@ -615,6 +620,8 @@ public sealed class RegistryKey
         }
 
         DeleteSubKey(subkey);
+
+        return true;
     }
 
     /// <summary>
@@ -631,7 +638,9 @@ public sealed class RegistryKey
     /// </summary>
     /// <param name="subkey">The subkey to delete.</param>
     /// <param name="throwOnMissingSubKey"><c>true</c> to throw an argument exception if <c>subkey</c> doesn't exist.</param>
-    public void DeleteSubKey(string subkey, bool throwOnMissingSubKey)
+    /// <returns>True if a subkey was found and deleted, false otherwise.</returns>
+    /// <exception cref="InvalidOperationException">The key has subkeys</exception>
+    public bool DeleteSubKey(string subkey, bool throwOnMissingSubKey)
     {
         if (string.IsNullOrEmpty(subkey))
         {
@@ -647,7 +656,7 @@ public sealed class RegistryKey
             {
                 throw new ArgumentException("No such SubKey", nameof(subkey));
             }
-            return;
+            return false;
         }
 
         var subkeyCell = _hive.GetCell<KeyNodeCell>(subkeyCellIndex);
@@ -685,14 +694,17 @@ public sealed class RegistryKey
             UnlinkSubKey(subkey);
             _hive.FreeCell(subkeyCellIndex);
             _hive.UpdateCell(_cell, false);
+
+            return true;
         }
         else
         {
-            new RegistryKey(_hive, subkeyCell).DeleteSubKey(split[1], throwOnMissingSubKey);
+            return new RegistryKey(_hive, subkeyCell)
+                .DeleteSubKey(split[1], throwOnMissingSubKey);
         }
     }
 
-    private RegistryValue GetRegistryValue(string name)
+    public RegistryValue GetRegistryValue(string name)
     {
         if (name != null && name.Length == 0)
         {
