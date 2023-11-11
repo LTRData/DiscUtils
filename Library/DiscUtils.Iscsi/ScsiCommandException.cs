@@ -114,6 +114,11 @@ public class ScsiCommandException : IscsiException
     /// </summary>
     /// <param name="info">The serialization info.</param>
     /// <param name="context">Ther context.</param>
+#if !NETCOREAPP
+    [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
+#elif NET8_0 || NET8_0_OR_GREATER
+    [Obsolete]
+#endif
     protected ScsiCommandException(SerializationInfo info, StreamingContext context)
         : base(info, context)
     {
@@ -131,8 +136,10 @@ public class ScsiCommandException : IscsiException
     /// </summary>
     /// <param name="info">The serialization info.</param>
     /// <param name="context">The serialization context.</param>
-#if !NETCOREAPP2_0_OR_GREATER
+#if !NETCOREAPP
     [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
+#elif NET8_0 || NET8_0_OR_GREATER
+    [Obsolete]
 #endif
     public override void GetObjectData(SerializationInfo info, StreamingContext context)
     {

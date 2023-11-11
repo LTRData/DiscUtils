@@ -79,6 +79,11 @@ public sealed class Nfs3Exception : IOException
     /// </summary>
     /// <param name="info">The serialization info.</param>
     /// <param name="context">The streaming context.</param>
+#if !NETCOREAPP
+    [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
+#elif NET8_0 || NET8_0_OR_GREATER
+    [Obsolete]
+#endif
     private Nfs3Exception(SerializationInfo info, StreamingContext context)
         : base(info, context)
     {
@@ -95,8 +100,10 @@ public sealed class Nfs3Exception : IOException
     /// </summary>
     /// <param name="info">The object to populate with serialized data.</param>
     /// <param name="context">The context for this serialization.</param>
-#if !NETCOREAPP2_0_OR_GREATER
+#if !NETCOREAPP
     [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
+#elif NET8_0 || NET8_0_OR_GREATER
+    [Obsolete]
 #endif
     public override void GetObjectData(SerializationInfo info, StreamingContext context)
     {

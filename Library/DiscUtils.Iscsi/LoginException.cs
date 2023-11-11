@@ -25,6 +25,7 @@ using System;
 namespace DiscUtils.Iscsi;
 
 using System.Runtime.Serialization;
+using System.Security.Permissions;
 
 /// <summary>
 /// Exception thrown when an authentication exception occurs.
@@ -65,6 +66,11 @@ public class LoginException : IscsiException
     /// </summary>
     /// <param name="info">The serialization info.</param>
     /// <param name="context">Ther context.</param>
+#if !NETCOREAPP
+    [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
+#elif NET8_0 || NET8_0_OR_GREATER
+    [Obsolete]
+#endif
     protected LoginException(SerializationInfo info, StreamingContext context)
         : base(info, context)
     {

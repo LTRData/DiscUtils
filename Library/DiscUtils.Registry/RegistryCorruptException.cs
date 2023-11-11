@@ -25,6 +25,7 @@ using System;
 namespace DiscUtils.Registry;
 
 using System.Runtime.Serialization;
+using System.Security.Permissions;
 
 /// <summary>
 /// Exception thrown when some corruption is found in the registry hive.
@@ -57,6 +58,11 @@ public class RegistryCorruptException : Exception
     /// </summary>
     /// <param name="info">The serialization info.</param>
     /// <param name="context">The streaming context.</param>
+#if !NETCOREAPP
+    [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
+#elif NET8_0 || NET8_0_OR_GREATER
+    [Obsolete]
+#endif
     protected RegistryCorruptException(SerializationInfo info, StreamingContext context)
         : base(info, context)
     {

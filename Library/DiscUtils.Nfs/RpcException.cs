@@ -26,6 +26,7 @@ using System.IO;
 namespace DiscUtils.Nfs;
 
 using System.Runtime.Serialization;
+using System.Security.Permissions;
 
 /// <summary>
 /// Exception thrown when some invalid file system data is found, indicating probably corruption.
@@ -65,6 +66,11 @@ public sealed class RpcException : IOException
     /// </summary>
     /// <param name="info">The serialization info.</param>
     /// <param name="context">The streaming context.</param>
+#if !NETCOREAPP
+    [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
+#elif NET8_0 || NET8_0_OR_GREATER
+    [Obsolete]
+#endif
     private RpcException(SerializationInfo info, StreamingContext context)
         : base(info, context)
     {

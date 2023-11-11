@@ -23,6 +23,7 @@
 using System;
 
 using System.Runtime.Serialization;
+using System.Security.Permissions;
 
 namespace DiscUtils.Iscsi;
 
@@ -57,6 +58,11 @@ public class InvalidProtocolException : IscsiException
     /// </summary>
     /// <param name="info">The serialization info.</param>
     /// <param name="context">Ther context.</param>
+#if !NETCOREAPP
+    [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
+#elif NET8_0 || NET8_0_OR_GREATER
+    [Obsolete]
+#endif
     protected InvalidProtocolException(SerializationInfo info, StreamingContext context)
         : base(info, context)
     {

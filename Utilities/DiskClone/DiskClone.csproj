@@ -2,7 +2,7 @@
   
 
   <PropertyGroup>
-    <TargetFrameworks>net46;net48;net6.0-windows</TargetFrameworks>
+    <TargetFrameworks>net46;net48;net8.0-windows</TargetFrameworks>
     <DebugType>portable</DebugType>
     <OutputType>Exe</OutputType>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>

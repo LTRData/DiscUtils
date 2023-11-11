@@ -26,6 +26,7 @@ using System.IO;
 namespace DiscUtils.Iscsi;
 
 using System.Runtime.Serialization;
+using System.Security.Permissions;
 
 /// <summary>
 /// Base exception for any iSCSI-related failures.
@@ -58,6 +59,11 @@ public class IscsiException : IOException
     /// </summary>
     /// <param name="info">The serialization info.</param>
     /// <param name="context">Ther context.</param>
+#if !NETCOREAPP
+    [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
+#elif NET8_0 || NET8_0_OR_GREATER
+    [Obsolete]
+#endif
     protected IscsiException(SerializationInfo info, StreamingContext context)
         : base(info, context)
     {
