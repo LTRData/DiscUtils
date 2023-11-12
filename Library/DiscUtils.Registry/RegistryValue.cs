@@ -103,7 +103,26 @@ public sealed class RegistryValue
             var buffer = ArrayPool<byte>.Shared.Rent(_cell.DataLength & int.MaxValue);
             try
             {
-                return ConvertToObject(GetData(buffer), DataType);
+                return ConvertToObject(GetRawData(buffer), DataType);
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(buffer);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Gets raw binary value without interpretation as any particular data type.
+    /// </summary>
+    public byte[] RawValue
+    {
+        get
+        {
+            var buffer = ArrayPool<byte>.Shared.Rent(_cell.DataLength & int.MaxValue);
+            try
+            {
+                return GetRawData(buffer).ToArray();
             }
             finally
             {
@@ -116,7 +135,7 @@ public sealed class RegistryValue
     /// The raw value data as a byte array.
     /// </summary>
     /// <returns>The value as a raw byte array.</returns>
-    internal Span<byte> GetData(Span<byte> maxBytes)
+    internal Span<byte> GetRawData(Span<byte> maxBytes)
     {
         if (_cell.DataLength < 0)
         {
@@ -140,7 +159,7 @@ public sealed class RegistryValue
     /// </summary>
     /// <param name="data">The data to store.</param>
     /// <param name="valueType">The type of the data.</param>
-    internal void SetData(ReadOnlySpan<byte> data, RegistryValueType valueType)
+    public void SetRawData(ReadOnlySpan<byte> data, RegistryValueType valueType)
     {
         // If we can place the data in the DataIndex field, do that to save space / allocation
         if ((valueType == RegistryValueType.Dword || valueType == RegistryValueType.DwordBigEndian) && data.Length <= 4)
@@ -184,7 +203,7 @@ public sealed class RegistryValue
     public void SetValue(object value, RegistryValueType valueType)
     {
         var data = ConvertToData(value, valueType);
-        SetData(data.Span, valueType);
+        SetRawData(data.Span, valueType);
     }
 
     /// <summary>
@@ -281,7 +300,7 @@ public sealed class RegistryValue
         var buffer = ArrayPool<byte>.Shared.Rent(_cell.DataLength & int.MaxValue);
         try
         {
-            var data = GetData(buffer);
+            var data = GetRawData(buffer);
 
             switch (DataType)
             {

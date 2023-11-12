@@ -738,7 +738,7 @@ public sealed class RegistryKey
         return null;
     }
 
-    private RegistryValue AddRegistryValue(string name)
+    public RegistryValue AddRegistryValue(string name)
     {
         var valueListMem = ArrayPool<byte>.Shared.Rent(_cell.NumValues * 4);
         try
