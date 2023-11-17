@@ -10,7 +10,7 @@ This is a fork of https://github.com/DiscUtils/DiscUtils, a fork of https://gith
 
 This fork has the primary goal of modernized and optimized code, better compatibility with non-Windows platforms and much better performance at the cost of dropping support for older .NET Framework versions and some breaking interface changes compared to upstream DiscUtils. For example, there is support for `async` and `Span<byte>` versions of read and write on `Stream` objects throughout all I/O paths and methods for enumerating files in directories return `IEnumerable` objects instead of building temporary lists and arrays.
 
-All libraries target .NET Framework 4.6 and 4.8, .NET Standard 2.0 and 2.1 as well as .NET 6.0 and 7.0.
+All libraries target .NET Framework 4.6 and 4.8, .NET Standard 2.0 and 2.1 as well as .NET 6.0, 7.0 and 8.0.
 
 ### Implementation status
 
