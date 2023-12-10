@@ -38,12 +38,11 @@ internal sealed class NtfsFileStream : SparseStream
 
     private bool _isDirty;
 
-    public NtfsFileStream(NtfsFileSystem fileSystem, DirectoryEntry entry, AttributeType attrType, string attrName,
+    public NtfsFileStream(File file, AttributeType attrType, string attrName,
                           FileAccess access)
     {
-        _entry = entry;
-
-        _file = fileSystem.GetFile(entry.Reference);
+        _entry = file.DirectoryEntry.Value;
+        _file = file;
         _baseStream = _file.OpenStream(attrType, attrName, access);
     }
 

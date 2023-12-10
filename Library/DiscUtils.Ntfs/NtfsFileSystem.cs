@@ -2033,6 +2033,7 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
             {
                 throw new IOException("Attempt to open directory as a file");
             }
+
             var file = GetFile(entry.Value.Reference);
 
             if (file == null)
@@ -2054,7 +2055,7 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
                 }
             }
 
-            SparseStream stream = new NtfsFileStream(this, entry.Value, attributeType, attributeName, access);
+            var stream = new NtfsFileStream(file, attributeType, attributeName, access);
 
             if (mode == FileMode.Create || mode == FileMode.Truncate)
             {
