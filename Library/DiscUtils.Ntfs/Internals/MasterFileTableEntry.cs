@@ -155,6 +155,30 @@ public sealed class MasterFileTableEntry
         }
     }
 
+    public IEnumerable<GenericAttribute> EnumerateAttributes(AttributeType type)
+    {
+        foreach (var attr in _fileRecord.Attributes)
+        {
+            if (type == attr.AttributeType)
+            {
+                GenericAttribute attribute = null;
+
+                try
+                {
+                    attribute = GenericAttribute.FromAttributeRecord(_context, attr);
+                }
+                catch
+                {
+                }
+
+                if (attribute != null)
+                {
+                    yield return attribute;
+                }
+            }
+        }
+    }
+
     /// <summary>
     /// Opens an attribute as stream
     /// </summary>
@@ -168,6 +192,9 @@ public sealed class MasterFileTableEntry
 
     public IEnumerable<CookedDataRuns> GetCookedDataRuns(IAttributeLocator attr) =>
         File.GetCookedDataRuns(attr.Identifier, attr.AttributeType);
+
+    public long? GetInitializedDataSize(IAttributeLocator attr) =>
+        File.GetInitializedDataSize(attr.Identifier, attr.AttributeType);
 
     public IBuffer GetRawBuffer(IAttributeLocator attr) =>
         File.GetRawBuffer(attr.Identifier, attr.AttributeType);
