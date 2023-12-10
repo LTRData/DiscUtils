@@ -27,7 +27,9 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using DiscUtils.Internal;
+using DiscUtils.Ntfs.Internals;
 using DiscUtils.Streams;
 using DiscUtils.Streams.Compatibility;
 using Buffer = DiscUtils.Streams.Buffer;
@@ -95,6 +97,26 @@ internal class File
                     {
                         bestName = name;
                     }
+                }
+            }
+
+            return bestName;
+        }
+    }
+
+    public FileNameAttribute BestNameAttribute
+    {
+        get
+        {
+            FileNameAttribute bestName = null;
+
+            foreach (var attr in _records[0].Attributes
+                .Where(attr => attr.AttributeType == AttributeType.FileName)
+                .Select(attr => (FileNameAttribute)GenericAttribute.FromAttributeRecord(_context, attr)))
+            {
+                if (bestName is null || bestName.FileNameNamespace == NtfsNamespace.Dos)
+                {
+                    bestName = attr;
                 }
             }
 
@@ -548,6 +570,13 @@ internal class File
         return attr.RawBuffer;
     }
 
+    public long? GetInitializedDataSize(ushort attributeid, AttributeType type)
+    {
+        var attr = GetAttribute(attributeid, type);
+
+        return attr.Records.FirstOrDefault()?.InitializedDataLength;
+    }
+
     public void RemoveStream(NtfsStream stream)
     {
         RemoveAttribute(stream.Attribute);
@@ -857,6 +886,17 @@ internal class File
             {
                 _attributes.Add(NtfsAttribute.FromRecord(this, MftReference, record));
             }
+        }
+
+        // Workaround to expose allocated data in VSC meta files that have InitializedDataLength = 0
+        if (GetAttributes(AttributeType.Data).FirstOrDefault() is { } dataAttr
+            && dataAttr.PrimaryRecord.InitializedDataLength == 0
+            && StandardInformation.FileAttributes.HasFlag(NtfsFileAttributes.System)
+            && BestNameAttribute is { } nameAttr
+            && nameAttr.AllocatedSize > 0
+            && nameAttr.RealSize == 0)
+        {
+            dataAttr.PrimaryRecord.InitializedDataLength = dataAttr.PrimaryRecord.DataLength;
         }
     }
 
