@@ -1,21 +1,16 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-  
-
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>net48</TargetFrameworks>
   </PropertyGroup>
-  
-
   <ItemGroup>
-    <PackageReference Include="Microsoft.Build.Framework" Version="17.2.0" />
-    <PackageReference Include="Microsoft.Build.Tasks.Core" Version="17.2.0" />
+    <PackageReference Include="Microsoft.Build.Framework" Version="17.8.3" />
+    <PackageReference Include="Microsoft.Build.Tasks.Core" Version="17.8.3" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\DiscUtils.Common\DiscUtils.Common.csproj" />
     <ProjectReference Include="..\..\Library\DiscUtils.Core\DiscUtils.Core.csproj" />
     <ProjectReference Include="..\..\Library\DiscUtils.Iso9660\DiscUtils.Iso9660.csproj" />
     <ProjectReference Include="..\..\Library\DiscUtils.SquashFs\DiscUtils.SquashFs.csproj" />
   </ItemGroup>
-
 </Project>

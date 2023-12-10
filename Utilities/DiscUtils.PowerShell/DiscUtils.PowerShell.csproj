@@ -1,33 +1,26 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-  
-
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>net46;net48</TargetFrameworks>
   </PropertyGroup>
-
-
   <ItemGroup Condition=" '$(TargetFramework.CompareTo(`net5`))' &gt;= 0">
-    <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.0.8" />
+    <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.4.0" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\DiscUtils.Common\DiscUtils.Common.csproj" />
     <ProjectReference Include="..\..\Library\DiscUtils.Core\DiscUtils.Core.csproj" />
     <ProjectReference Include="..\..\Library\DiscUtils\DiscUtils.csproj" />
     <ProjectReference Include="..\..\Library\DiscUtils.FileSystems\DiscUtils.FileSystems.csproj" />
   </ItemGroup>
-
   <ItemGroup Condition=" '$(TargetFramework.CompareTo(`net5`))' &lt; 0">
     <PackageReference Include="Microsoft.PowerShell.5.ReferenceAssemblies" Version="1.1.0" />
     <Reference Include="System.Configuration.Install" />
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
-
   <ItemGroup>
     <Compile Update="SnapIn.cs" />
   </ItemGroup>
-
   <ItemGroup>
     <None Update="DiscUtils.Format.ps1xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -42,5 +35,4 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-
 </Project>
