@@ -375,6 +375,7 @@ internal sealed class NonResidentAttributeRecord : AttributeRecord
         _dataAllocatedSize = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x28));
         _dataRealSize = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x30));
         _initializedDataSize = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x38));
+
         if ((Flags & (AttributeFlags.Compressed | AttributeFlags.Sparse)) != 0 && _dataRunsOffset > 0x40)
         {
             _compressedSize = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x40));

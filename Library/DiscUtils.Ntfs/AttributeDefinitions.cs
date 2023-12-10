@@ -62,8 +62,8 @@ public sealed class AttributeDefinitions
     {
         _attrDefs = new Dictionary<AttributeType, AttributeDefinitionRecord>();
 
-        Span<byte> buffer = stackalloc byte[AttributeDefinitionRecord.Size];
         using var s = file.OpenStream(AttributeType.Data, null, FileAccess.Read);
+        Span<byte> buffer = stackalloc byte[AttributeDefinitionRecord.Size];
         while (s.ReadMaximum(buffer) == AttributeDefinitionRecord.Size)
         {
             var record = new AttributeDefinitionRecord();
