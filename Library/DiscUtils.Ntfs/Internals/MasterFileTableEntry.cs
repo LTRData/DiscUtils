@@ -184,8 +184,17 @@ public sealed class MasterFileTableEntry
     /// </summary>
     /// <param name="attr">Attribute to open</param>
     /// <param name="access">Access</param>
-    public SparseStream Open(IAttributeLocator attr, FileAccess access) =>
-        File.OpenStream(attr.Identifier, attr.AttributeType, access);
+    public SparseStream Open(IAttributeLocator attr, FileAccess access)
+    {
+        var directoryEntry = File.DirectoryEntry;
+
+        if (directoryEntry is null)
+        {
+            return null;
+        }
+
+        return new NtfsFileStream(File, directoryEntry.Value, attr.AttributeType, attr.Identifier, access);
+    }
 
     public IEnumerable<Range<long, long>> GetClusters(IAttributeLocator attr) =>
         File.GetClusters(attr.Identifier, attr.AttributeType);

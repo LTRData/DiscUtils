@@ -42,7 +42,7 @@ internal sealed class Connection : IDisposable
     /// </summary>
     private readonly Dictionary<string, string> _negotiatedParameters;
 
-    private readonly Stream _stream;
+    private readonly NetworkStream _stream;
 
     public Connection(Session session, TargetAddress address, Authenticator[] authenticators)
     {

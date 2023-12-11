@@ -33,7 +33,7 @@ namespace LibraryTests
     /// </summary>
     class InMemoryFileSystem : DiscFileSystem
     {
-        private IDictionary<string, SparseMemoryBuffer> _files;
+        private Dictionary<string, SparseMemoryBuffer> _files;
 
         public InMemoryFileSystem()
         {

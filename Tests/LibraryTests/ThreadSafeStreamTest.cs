@@ -75,7 +75,7 @@ namespace LibraryTests
             try
             {
                 tss.SetLength(10);
-                Assert.True(false, "SetLength should fail");
+                Assert.Fail("SetLength should fail");
             }
             catch (NotSupportedException)
             {
@@ -137,7 +137,7 @@ namespace LibraryTests
             try
             {
                 altView.ReadByte();
-                Assert.True(false, "Disposed stream didn't stop view");
+                Assert.Fail("Disposed stream didn't stop view");
             }
             catch (ObjectDisposedException)
             {

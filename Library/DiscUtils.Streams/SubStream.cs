@@ -232,7 +232,7 @@ public class SubStream : MappedStream
     {
         if (_position + buffer.Length > _length)
         {
-            throw new ArgumentOutOfRangeException(nameof(buffer.Length), "Attempt to write beyond end of substream");
+            throw new ArgumentOutOfRangeException(nameof(buffer), "Attempt to write beyond end of substream");
         }
 
         _parent.Position = _first + _position;
@@ -244,7 +244,7 @@ public class SubStream : MappedStream
     {
         if (_position + buffer.Length > _length)
         {
-            throw new ArgumentOutOfRangeException(nameof(buffer.Length), "Attempt to write beyond end of substream");
+            throw new ArgumentOutOfRangeException(nameof(buffer), "Attempt to write beyond end of substream");
         }
 
         _parent.Position = _first + _position;

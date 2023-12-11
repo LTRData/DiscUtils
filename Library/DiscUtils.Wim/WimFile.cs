@@ -120,7 +120,7 @@ public class WimFile
     {
         var i = 0;
 
-        using (Stream s = OpenResourceStream(_fileHeader.OffsetTableHeader))
+        using (var s = OpenResourceStream(_fileHeader.OffsetTableHeader))
         {
             long numRead = 0;
             Span<byte> resBuffer = stackalloc byte[ResourceInfo.Size];
@@ -151,12 +151,12 @@ public class WimFile
     {
         var hashHash = EndianUtilities.ToUInt32LittleEndian(hash, 0);
 
-        if (!_resources.ContainsKey(hashHash))
+        if (!_resources.TryGetValue(hashHash, out var headers))
         {
             return null;
         }
 
-        foreach (var header in _resources[hashHash])
+        foreach (var header in headers)
         {
             if (Utilities.AreEqual(header.Hash, hash))
             {
@@ -196,12 +196,14 @@ public class WimFile
 
             var hashHash = EndianUtilities.ToUInt32LittleEndian(info.Hash, 0);
 
-            if (!_resources.ContainsKey(hashHash))
+            if (!_resources.TryGetValue(hashHash, out var res))
             {
-                _resources[hashHash] = new List<ResourceInfo>(1);
+                res = new List<ResourceInfo>(1);
+
+                _resources[hashHash] = res;
             }
 
-            _resources[hashHash].Add(info);
+            res.Add(info);
         }
     }
 }

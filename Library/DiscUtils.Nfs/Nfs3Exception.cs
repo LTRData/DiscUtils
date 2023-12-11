@@ -81,7 +81,7 @@ public sealed class Nfs3Exception : IOException
     /// <param name="context">The streaming context.</param>
 #if !NETCOREAPP
     [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
-#elif NET8_0 || NET8_0_OR_GREATER
+#elif NET8_0_OR_GREATER
     [Obsolete]
 #endif
     private Nfs3Exception(SerializationInfo info, StreamingContext context)
@@ -102,8 +102,8 @@ public sealed class Nfs3Exception : IOException
     /// <param name="context">The context for this serialization.</param>
 #if !NETCOREAPP
     [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
-#elif NET8_0 || NET8_0_OR_GREATER
-    [Obsolete]
+#elif NET8_0_OR_GREATER
+    [Obsolete("Deprecated serialization")]
 #endif
     public override void GetObjectData(SerializationInfo info, StreamingContext context)
     {

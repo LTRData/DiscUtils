@@ -68,7 +68,7 @@ public sealed class RpcException : IOException
     /// <param name="context">The streaming context.</param>
 #if !NETCOREAPP
     [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
-#elif NET8_0 || NET8_0_OR_GREATER
+#elif NET8_0_OR_GREATER
     [Obsolete]
 #endif
     private RpcException(SerializationInfo info, StreamingContext context)

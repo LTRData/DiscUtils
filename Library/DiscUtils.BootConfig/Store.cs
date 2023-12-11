@@ -31,7 +31,7 @@ namespace DiscUtils.BootConfig;
 /// </summary>
 public class Store
 {
-    private readonly BaseStorage _store;
+    private readonly DiscUtilsRegistryStorage _store;
 
     /// <summary>
     /// Initializes a new instance of the Store class.

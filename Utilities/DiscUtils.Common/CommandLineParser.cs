@@ -20,6 +20,7 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
+using LTRData.Extensions.Buffers;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -142,7 +143,7 @@ public class CommandLineParser
 
         while (i < args.Length)
         {
-            if (args[i].StartsWith("-") || (Path.DirectorySeparatorChar != '/' && args[i].StartsWith("/")))
+            if (args[i].StartsWith('-') || (Path.DirectorySeparatorChar != '/' && args[i].StartsWith('/')))
             {
                 var switchName = args[i].Substring(1);
                 var foundMatch = false;

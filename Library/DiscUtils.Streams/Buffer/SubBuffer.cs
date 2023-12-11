@@ -185,7 +185,7 @@ public class SubBuffer : Buffer
     {
         if (pos + buffer.Length > _length)
         {
-            throw new ArgumentOutOfRangeException(nameof(buffer.Length), "Attempt to write beyond end of substream");
+            throw new ArgumentOutOfRangeException(nameof(buffer), "Attempt to write beyond end of substream");
         }
 
         return _parent.WriteAsync(pos + _first, buffer, cancellationToken);
@@ -200,7 +200,7 @@ public class SubBuffer : Buffer
     {
         if (pos + buffer.Length > _length)
         {
-            throw new ArgumentOutOfRangeException(nameof(buffer.Length), "Attempt to write beyond end of substream");
+            throw new ArgumentOutOfRangeException(nameof(buffer), "Attempt to write beyond end of substream");
         }
 
         _parent.Write(pos + _first, buffer);

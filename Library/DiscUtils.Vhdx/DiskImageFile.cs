@@ -743,7 +743,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
         }
     }
 
-    private IEnumerable<StreamExtent> BatControlledFileExtents()
+    private List<StreamExtent> BatControlledFileExtents()
     {
         _batStream.Position = 0;
         var batData = _batStream.ReadExactly((int)_batStream.Length);

@@ -140,7 +140,7 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
             buffer[i] = 0xFF;
         }
 
-        using (Stream s = OpenFile("$LogFile", FileMode.Open, FileAccess.ReadWrite))
+        using (var s = OpenFile("$LogFile", FileMode.Open, FileAccess.ReadWrite))
         {
             while (s.Position != s.Length)
             {
@@ -1428,11 +1428,9 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
             try
             {
                 newRp.WriteTo(contentBuffer, 0);
-                using (Stream contentStream = stream.Value.Open(FileAccess.ReadWrite))
-                {
-                    contentStream.Write(contentBuffer, 0, newRp.Size);
-                    contentStream.SetLength(newRp.Size);
-                }
+                using var contentStream = stream.Value.Open(FileAccess.ReadWrite);
+                contentStream.Write(contentBuffer, 0, newRp.Size);
+                contentStream.SetLength(newRp.Size);
             }
             finally
             {
@@ -2014,12 +2012,14 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
             var dirEntryPath = ParsePath(path, out var attributeName, out var attributeType);
 
             var entry = GetDirectoryEntry(dirEntryPath);
+
             if (entry == null)
             {
                 if (mode == FileMode.Open)
                 {
                     throw new FileNotFoundException("No such file", path);
                 }
+
                 entry = CreateNewFile(dirEntryPath, options);
             }
             else if (mode == FileMode.CreateNew)
@@ -2027,7 +2027,7 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
                 throw new IOException("File already exists");
             }
 
-            if (string.IsNullOrEmpty(attributeName) &&
+            if (string.IsNullOrWhiteSpace(attributeName) &&
                 (entry.Value.Details.FileAttributes & FileAttributes.Directory) != 0 &&
                 attributeType == AttributeType.Data)
             {
@@ -2045,7 +2045,7 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
 
             if (ntfsStream == null)
             {
-                if (mode == FileMode.Create || mode == FileMode.OpenOrCreate)
+                if (mode is FileMode.Create or FileMode.OpenOrCreate)
                 {
                     ntfsStream = file.CreateStream(attributeType, attributeName);
                 }
@@ -2055,9 +2055,9 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
                 }
             }
 
-            var stream = new NtfsFileStream(file, attributeType, attributeName, access);
+            var stream = new NtfsFileStream(file, entry.Value, attributeType, attributeName, access);
 
-            if (mode == FileMode.Create || mode == FileMode.Truncate)
+            if (mode is FileMode.Create or FileMode.Truncate)
             {
                 stream.SetLength(0);
             }
@@ -2605,12 +2605,12 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
 
     internal Directory GetDirectory(long index)
     {
-        return (Directory)GetFile(index);
+        return GetFile(index) as Directory;
     }
 
     internal Directory GetDirectory(FileRecordReference fileReference)
     {
-        return (Directory)GetFile(fileReference);
+        return GetFile(fileReference) as Directory;
     }
 
     internal File GetFile(FileRecordReference fileReference)

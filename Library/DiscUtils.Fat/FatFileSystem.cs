@@ -1409,9 +1409,8 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
     internal void ForgetDirectory(DirectoryEntry entry)
     {
         var index = entry.FirstCluster;
-        if (index != 0 && _dirCache.ContainsKey(index))
+        if (index != 0 && _dirCache.TryGetValue(index, out var dir))
         {
-            var dir = _dirCache[index];
             _dirCache.Remove(index);
             dir.Dispose();
         }

@@ -36,7 +36,7 @@ public sealed class DiscImageFile : VirtualDiskLayer
 
     private readonly OpticalFormat _format;
 
-    private IDisposable _toDispose;
+    private Stream _toDispose;
 
     /// <summary>
     /// Initializes a new instance of the DiscImageFile class.

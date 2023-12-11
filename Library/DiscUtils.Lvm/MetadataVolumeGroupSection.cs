@@ -22,6 +22,7 @@
 
 namespace DiscUtils.Lvm;
 
+using LTRData.Extensions.Buffers;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -86,7 +87,7 @@ internal class MetadataVolumeGroupSection
                                 "read" => VolumeGroupStatus.Read,
                                 "write" => VolumeGroupStatus.Write,
                                 "resizeable" => VolumeGroupStatus.Resizeable,
-                                _ => throw new ArgumentOutOfRangeException("status", "Unexpected status in volume group metadata"),
+                                _ => throw new InvalidOperationException("Unexpected status in volume group metadata"),
                             };
                         }
                         break;
@@ -138,13 +139,13 @@ internal class MetadataVolumeGroupSection
         while ((line = Metadata.ReadLine(data)) != null)
         {
             if (line == String.Empty) continue;
-            if (line.EndsWith("{"))
+            if (line.EndsWith('{'))
             {
                 var pv = new MetadataLogicalVolumeSection();
                 pv.Parse(line, data);
                 yield return pv;
             }
-            else if (line.EndsWith("}"))
+            else if (line.EndsWith('}'))
             {
                 break;
             }
@@ -157,13 +158,13 @@ internal class MetadataVolumeGroupSection
         while ((line = Metadata.ReadLine(data)) != null)
         {
             if (line == String.Empty) continue;
-            if (line.EndsWith("{"))
+            if (line.EndsWith('{'))
             {
                 var pv = new MetadataPhysicalVolumeSection();
                 pv.Parse(line, data);
                 yield return pv;
             }
-            else if (line.EndsWith("}"))
+            else if (line.EndsWith('}'))
             {
                 break;
             }

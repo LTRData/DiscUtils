@@ -75,7 +75,7 @@ namespace LibraryTests.Xva
                 diskContent.Position = i * 10;
                 if ((byte)(i ^ (i >> 8) ^ (i >> 16) ^ (i >> 24)) != diskContent.ReadByte())
                 {
-                    Assert.True(false, $"Mismatch at offset {i}");
+                    Assert.Fail($"Mismatch at offset {i}");
                 }
             }
         }

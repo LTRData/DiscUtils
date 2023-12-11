@@ -475,7 +475,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
         }
 
         var basePath = Utilities.GetDirectoryFromPath(path);
-        FileLocator locator = new DiscFileLocator(fileSystem, basePath);
+        var locator = new DiscFileLocator(fileSystem, basePath);
         var parentLocator = locator.GetRelativeLocator(Utilities.GetDirectoryFromPath(parent));
 
         using var parentFile = new DiskImageFile(parentLocator, Utilities.GetFileFromPath(parent),
@@ -995,9 +995,11 @@ public sealed class DiskImageFile : VirtualDiskLayer
             var hdr = HostedSparseExtentHeader.Read(header);
             if (hdr.DescriptorOffset != 0)
             {
-                Stream descriptorStream = new SubStream(s, hdr.DescriptorOffset * Sizes.Sector,
+                var descriptorStream = new SubStream(s, hdr.DescriptorOffset * Sizes.Sector,
                     hdr.DescriptorSize * Sizes.Sector);
+
                 _descriptor = new DescriptorFile(descriptorStream);
+                
                 if (_access != FileAccess.Read)
                 {
                     _descriptor.ContentId = (uint)_rng.Next();

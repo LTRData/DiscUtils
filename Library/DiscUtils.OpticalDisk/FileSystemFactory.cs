@@ -44,7 +44,7 @@ internal class FileSystemFactory : VfsFileSystemFactory
         }
     }
 
-    private DiscFileSystem OpenUdf(Stream stream, VolumeInfo volumeInfo, FileSystemParameters parameters)
+    private UdfReader OpenUdf(Stream stream, VolumeInfo volumeInfo, FileSystemParameters parameters)
     {
         if (volumeInfo != null)
         {
@@ -53,7 +53,7 @@ internal class FileSystemFactory : VfsFileSystemFactory
         return new UdfReader(stream);
     }
 
-    private DiscFileSystem OpenIso(Stream stream, VolumeInfo volumeInfo, FileSystemParameters parameters)
+    private CDReader OpenIso(Stream stream, VolumeInfo volumeInfo, FileSystemParameters parameters)
     {
         return new CDReader(stream, true, true);
     }

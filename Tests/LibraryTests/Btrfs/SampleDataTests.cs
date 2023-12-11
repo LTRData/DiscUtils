@@ -62,10 +62,10 @@ namespace LibraryTests.Btrfs
             Assert.Equal("test\n", GetFileContent(@"\subvolumefolder\subvolumefile", subvolume));
         }
 
-        private static void IsAllZero(string path, IFileSystem fs)
+        private static void IsAllZero(string path, DiscFileSystem fs)
         {
             var fileInfo = fs.GetFileInfo(path);
-            var buffer = new byte[4*Sizes.OneKiB];
+            var buffer = new byte[4 * Sizes.OneKiB];
             using var file = fileInfo.OpenRead();
             var count = file.Read(buffer, 0, buffer.Length);
             for (var i = 0; i < count; i++)
@@ -81,7 +81,7 @@ namespace LibraryTests.Btrfs
             return file.ReadToEnd();
         }
 
-        private static string GetFileChecksum(string path, IFileSystem fs)
+        private static string GetFileChecksum(string path, DiscFileSystem fs)
         {
             var fileInfo = fs.GetFileInfo(path);
             using var md5 = MD5.Create();

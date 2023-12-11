@@ -200,7 +200,7 @@ public sealed class DiskBuilder : DiskImageBuilder
             return extents;
         }
 
-        private static BuilderExtent ExtentForStruct(IByteArraySerializable structure, long position)
+        private static BuilderBufferExtent ExtentForStruct(IByteArraySerializable structure, long position)
         {
             var buffer = new byte[structure.Size];
             structure.WriteTo(buffer);

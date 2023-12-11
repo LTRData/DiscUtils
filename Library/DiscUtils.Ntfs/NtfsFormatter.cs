@@ -121,7 +121,7 @@ internal class NtfsFormatter
                 numMftMirrorClusters, true);
 
             var logFile = CreateSystemFile(MasterFileTable.LogFileIndex);
-            using (Stream s = logFile.OpenStream(AttributeType.Data, null, FileAccess.ReadWrite))
+            using (var s = logFile.OpenStream(AttributeType.Data, null, FileAccess.ReadWrite))
             {
                 s.SetLength(Math.Min(Math.Max(2 * Sizes.OneMiB, totalClusters / 500 * _clusterSize),
                     64 * Sizes.OneMiB));

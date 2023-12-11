@@ -114,7 +114,7 @@ internal class NtfsAttributeBuffer : Buffer, IMappedBuffer
         var numRead = 0;
         while (numRead < toRead)
         {
-            IBuffer extentBuffer = _attribute.RawBuffer;
+            var extentBuffer = _attribute.RawBuffer;
 
             var justRead = extentBuffer.Read(pos + numRead, buffer, offset + numRead, toRead - numRead);
             if (justRead == 0)
@@ -165,7 +165,7 @@ internal class NtfsAttributeBuffer : Buffer, IMappedBuffer
         var numRead = 0;
         while (numRead < toRead)
         {
-            IBuffer extentBuffer = _attribute.RawBuffer;
+            var extentBuffer = _attribute.RawBuffer;
 
             var justRead = await extentBuffer.ReadAsync(pos + numRead, buffer.Slice(numRead, toRead - numRead), cancellationToken).ConfigureAwait(false);
             if (justRead == 0)
@@ -216,7 +216,7 @@ internal class NtfsAttributeBuffer : Buffer, IMappedBuffer
         var numRead = 0;
         while (numRead < toRead)
         {
-            IBuffer extentBuffer = _attribute.RawBuffer;
+            var extentBuffer = _attribute.RawBuffer;
 
             var justRead = extentBuffer.Read(pos + numRead, buffer.Slice(numRead, toRead - numRead));
             if (justRead == 0)

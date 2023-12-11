@@ -569,7 +569,7 @@ public class NfsFileSystem : DiscFileSystem
                 result |= FileAttributes.Normal;
             }
 
-            if (Utilities.GetFileFromPath(path).StartsWith(".", StringComparison.Ordinal))
+            if (Utilities.GetFileFromPath(path).StartsWith('.'))
             {
                 result |= FileAttributes.Hidden;
             }

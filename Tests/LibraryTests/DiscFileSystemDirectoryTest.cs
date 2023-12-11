@@ -274,10 +274,10 @@ namespace LibraryTests
 
             fs.CreateDirectory($"SOMEDIR{sep}CHILD{sep}GCHILD");
             fs.CreateDirectory($"AAA.DIR");
-            using (Stream s = fs.OpenFile($"FOO.TXT", FileMode.Create)) { }
-            using (Stream s = fs.OpenFile($"SOMEDIR{sep}CHILD.TXT", FileMode.Create)) { }
-            using (Stream s = fs.OpenFile($"SOMEDIR{sep}FOO.TXT", FileMode.Create)) { }
-            using (Stream s = fs.OpenFile($"SOMEDIR{sep}CHILD{sep}GCHILD{sep}BAR.TXT", FileMode.Create)) { }
+            using (var s = fs.OpenFile($"FOO.TXT", FileMode.Create)) { }
+            using (var s = fs.OpenFile($"SOMEDIR{sep}CHILD.TXT", FileMode.Create)) { }
+            using (var s = fs.OpenFile($"SOMEDIR{sep}FOO.TXT", FileMode.Create)) { }
+            using (var s = fs.OpenFile($"SOMEDIR{sep}CHILD{sep}GCHILD{sep}BAR.TXT", FileMode.Create)) { }
 
             Assert.Single(fs.Root.GetFiles());
             Assert.Equal("FOO.TXT", fs.Root.GetFiles().First().FullName);
@@ -298,10 +298,10 @@ namespace LibraryTests
 
             fs.CreateDirectory($"SOMEDIR{sep}CHILD{sep}GCHILD");
             fs.CreateDirectory($"AAA.EXT");
-            using (Stream s = fs.OpenFile($"FOO.TXT", FileMode.Create)) { }
-            using (Stream s = fs.OpenFile($"SOMEDIR{sep}CHILD.EXT", FileMode.Create)) { }
-            using (Stream s = fs.OpenFile($"SOMEDIR{sep}FOO.TXT", FileMode.Create)) { }
-            using (Stream s = fs.OpenFile($"SOMEDIR{sep}CHILD{sep}GCHILD{sep}BAR.TXT", FileMode.Create)) { }
+            using (var s = fs.OpenFile($"FOO.TXT", FileMode.Create)) { }
+            using (var s = fs.OpenFile($"SOMEDIR{sep}CHILD.EXT", FileMode.Create)) { }
+            using (var s = fs.OpenFile($"SOMEDIR{sep}FOO.TXT", FileMode.Create)) { }
+            using (var s = fs.OpenFile($"SOMEDIR{sep}CHILD{sep}GCHILD{sep}BAR.TXT", FileMode.Create)) { }
 
             Assert.Equal(3, fs.Root.GetFileSystemInfos().Count());
 

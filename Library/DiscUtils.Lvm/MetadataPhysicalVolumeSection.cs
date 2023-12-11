@@ -22,6 +22,7 @@
 
 namespace DiscUtils.Lvm;
 
+using LTRData.Extensions.Buffers;
 using System;
 using System.IO;
 
@@ -63,7 +64,7 @@ internal class MetadataPhysicalVolumeSection
                                 "read" => PhysicalVolumeStatus.Read,
                                 "write" => PhysicalVolumeStatus.Write,
                                 "allocatable" => PhysicalVolumeStatus.Allocatable,
-                                _ => throw new ArgumentOutOfRangeException("status", "Unexpected status in physical volume metadata"),
+                                _ => throw new InvalidOperationException("Unexpected status in physical volume metadata"),
                             };
                         }
                         break;
@@ -83,7 +84,7 @@ internal class MetadataPhysicalVolumeSection
                         throw new ArgumentOutOfRangeException(parameter.Key.ToString(), "Unexpected parameter in global metadata");
                 }
             }
-            else if (line.EndsWith("}"))
+            else if (line.EndsWith('}'))
             {
                 break;
             }

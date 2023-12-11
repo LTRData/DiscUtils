@@ -101,7 +101,7 @@ class Program : ProgramBase
 
         // Copy the OS boot code into memory, so we can apply it when formatting the new disk
         byte[] bootCode;
-        using (Stream bootStream = sourceNtfs.OpenFile("$Boot", FileMode.Open, FileAccess.Read))
+        using (var bootStream = sourceNtfs.OpenFile("$Boot", FileMode.Open, FileAccess.Read))
         {
             bootCode = new byte[bootStream.Length];
             var totalRead = 0;
@@ -239,8 +239,8 @@ class Program : ProgramBase
             return;
         }
 
-        using (Stream s = sourceNtfs.OpenFile(path, FileMode.Open, FileAccess.Read))
-        using (Stream d = destNtfs.OpenFile(path, FileMode.Create, FileAccess.ReadWrite))
+        using (var s = sourceNtfs.OpenFile(path, FileMode.Open, FileAccess.Read))
+        using (var d = destNtfs.OpenFile(path, FileMode.Create, FileAccess.ReadWrite))
         {
             d.SetLength(s.Length);
             var numRead = s.Read(_copyBuffer, 0, _copyBuffer.Length);

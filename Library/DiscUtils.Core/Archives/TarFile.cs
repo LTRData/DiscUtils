@@ -22,6 +22,7 @@
 
 namespace DiscUtils.Archives;
 
+using LTRData.Extensions.Buffers;
 using Streams;
 using System;
 using System.Buffers;
@@ -157,8 +158,8 @@ public class TarFile : IDisposable
     public bool DirExists(string path)
     {
         var searchStr = path;
-        searchStr = searchStr.Replace(@"\", "/");
-        searchStr = searchStr.EndsWith(@"/", StringComparison.Ordinal) ? searchStr : searchStr + @"/";
+        searchStr = searchStr.Replace('\\', '/');
+        searchStr = searchStr.EndsWith('/') ? searchStr : $"{searchStr}/";
 
         foreach (var filePath in _files.Keys)
         {
@@ -174,8 +175,8 @@ public class TarFile : IDisposable
     public IEnumerable<TarFileRecord> GetFiles(string dir)
     {
         var searchStr = dir;
-        searchStr = searchStr.Replace(@"\", "/");
-        searchStr = searchStr.EndsWith(@"/", StringComparison.Ordinal) ? searchStr : searchStr + @"/";
+        searchStr = searchStr.Replace('\\', '/');
+        searchStr = searchStr.EndsWith('/') ? searchStr : $"{searchStr}/";
 
         foreach (var filePath in _files.Keys)
         {

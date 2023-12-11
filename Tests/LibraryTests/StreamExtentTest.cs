@@ -275,7 +275,7 @@ namespace LibraryTests
                     str += $" - different at index {failedIndex}";
                 }
 
-                Assert.True(false, str);
+                Assert.Fail(str);
             }
         }
     }

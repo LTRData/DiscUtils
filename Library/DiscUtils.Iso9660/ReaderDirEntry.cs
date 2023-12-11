@@ -27,6 +27,7 @@ using System.Text;
 using DiscUtils.Internal;
 using DiscUtils.Streams;
 using DiscUtils.Vfs;
+using LTRData.Extensions.Buffers;
 
 namespace DiscUtils.Iso9660;
 
@@ -138,7 +139,7 @@ internal sealed class ReaderDirEntry : VfsDirEntry
                     attrs = Utilities.FileAttributesFromUnixFileType((UnixFileType)((pfi.FileMode >> 12) & 0xF));
                 }
 
-                if (_fileName.StartsWith(".", StringComparison.Ordinal))
+                if (_fileName.StartsWith('.'))
                 {
                     attrs |= FileAttributes.Hidden;
                 }

@@ -181,7 +181,8 @@ internal sealed class SubKeyHashedListCell : ListCell
         foreach (var index in Find(name, 0))
         {
             var cell = _hive.GetCell<KeyNodeCell>(_subKeyIndexes[index]);
-            if (cell.Name.ToUpperInvariant() == name.ToUpperInvariant())
+
+            if (cell.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
             {
                 return index;
             }

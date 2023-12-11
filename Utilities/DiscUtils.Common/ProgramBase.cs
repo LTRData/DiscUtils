@@ -160,7 +160,7 @@ public abstract class ProgramBase
 
         if ((stdSwitches & StandardSwitches.FileNameEncoding) != 0)
         {
-            _filenameEncodingSwitch = new CommandLineSwitch(new string[]{"ne"}, "nameencoding", "encoding", "The encoding used for filenames in the file system (aka the codepage), e.g. UTF-8 or IBM437.  This is ignored for file systems have fixed/defined encodings.");
+            _filenameEncodingSwitch = new CommandLineSwitch(shortSwitches, "nameencoding", "encoding", "The encoding used for filenames in the file system (aka the codepage), e.g. UTF-8 or IBM437.  This is ignored for file systems have fixed/defined encodings.");
             _parser.AddSwitch(_filenameEncodingSwitch);
         }
 
@@ -187,7 +187,7 @@ public abstract class ProgramBase
             _parser.AddSwitch(_verboseSwitch);
         }
 
-        _helpSwitch = new CommandLineSwitch(new string[] { "h", "?" }, "help", null, "Show this help.");
+        _helpSwitch = new CommandLineSwitch(shortSwitchesArray, "help", null, "Show this help.");
         _parser.AddSwitch(_helpSwitch);
         _quietSwitch = new CommandLineSwitch("q", "quiet", null, "Run quietly.");
         _parser.AddSwitch(_quietSwitch);
@@ -394,6 +394,9 @@ public abstract class ProgramBase
             return appVersion;
         }
     }
+
+    private static readonly string[] shortSwitches = new string[] { "ne" };
+    private static readonly string[] shortSwitchesArray = new string[] { "h", "?" };
 
     [Flags]
     protected internal enum StandardSwitches

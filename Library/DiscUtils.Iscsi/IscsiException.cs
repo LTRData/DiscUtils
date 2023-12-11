@@ -61,8 +61,8 @@ public class IscsiException : IOException
     /// <param name="context">Ther context.</param>
 #if !NETCOREAPP
     [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
-#elif NET8_0 || NET8_0_OR_GREATER
-    [Obsolete]
+#elif NET8_0_OR_GREATER
+    [Obsolete("Deprecated serialization")]
 #endif
     protected IscsiException(SerializationInfo info, StreamingContext context)
         : base(info, context)

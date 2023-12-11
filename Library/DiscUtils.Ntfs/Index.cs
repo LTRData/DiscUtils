@@ -54,7 +54,7 @@ internal class Index : IDisposable
         _root = _file.GetStream(AttributeType.IndexRoot, _name).Value.GetContent<IndexRoot>();
         _comparer = _root.GetCollator(upCase);
 
-        using (Stream s = _file.OpenStream(AttributeType.IndexRoot, _name, FileAccess.Read))
+        using (var s = _file.OpenStream(AttributeType.IndexRoot, _name, FileAccess.Read))
         {
             var buffer = s.Length <= 1024 ? stackalloc byte[(int)s.Length] : new byte[s.Length];
             s.ReadExactly(buffer);
@@ -448,7 +448,7 @@ internal class Index : IDisposable
         {
             _root.WriteTo(buffer);
             _rootNode.WriteTo(buffer.AsSpan(_root.Size));
-            using Stream s = _file.OpenStream(AttributeType.IndexRoot, _name, FileAccess.Write);
+            using var s = _file.OpenStream(AttributeType.IndexRoot, _name, FileAccess.Write);
             s.Position = 0;
             s.Write(buffer, 0, bufferSize);
             s.SetLength(s.Position);

@@ -244,7 +244,7 @@ internal class MasterFileTable : IDiagnosticTraceable, IDisposable
 
         var bitmapStream = _self.CreateStream(AttributeType.Bitmap, null, firstBitmapCluster,
             numBitmapClusters, (uint)bpb.BytesPerCluster);
-        using (Stream s = bitmapStream.Open(FileAccess.ReadWrite))
+        using (var s = bitmapStream.Open(FileAccess.ReadWrite))
         {
             Wipe(s);
             s.SetLength(8);

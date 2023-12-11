@@ -1,4 +1,5 @@
 ﻿using DiscUtils.Streams;
+using LTRData.Extensions.Buffers;
 using System;
 using System.IO;
 using System.IO.Compression;
@@ -65,7 +66,7 @@ public class ZipFileSystem : VirtualFileSystem
 
             path = path.Replace('/', '\\');
 
-            if (path.EndsWith(@"\", StringComparison.Ordinal))
+            if (path.EndsWith('\\'))
             {
                 path = path.TrimEnd('\\');
 

@@ -382,7 +382,7 @@ public static class Utilities
 
     public static bool Is8Dot3Char(char ch)
     {
-        return (ch >= 'A' && ch <= 'Z') || (ch >= '0' && ch <= '9') || "_^$~!#%£-{}()@'`&".IndexOf(ch) != -1;
+        return (ch >= 'A' && ch <= 'Z') || (ch >= '0' && ch <= '9') || "_^$~!#%£-{}()@'`&".Contains(ch);
     }
 
     /// <summary>

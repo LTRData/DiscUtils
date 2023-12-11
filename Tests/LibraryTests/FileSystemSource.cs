@@ -51,7 +51,7 @@ namespace LibraryTests
             }
         }
 
-        private static DiscFileSystem FatFileSystem()
+        private static DiscUtils.Fat.FatFileSystem FatFileSystem()
         {
             var buffer = new SparseMemoryBuffer(4096);
             var ms = new SparseMemoryStream();

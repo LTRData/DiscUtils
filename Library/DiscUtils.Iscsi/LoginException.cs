@@ -68,7 +68,7 @@ public class LoginException : IscsiException
     /// <param name="context">Ther context.</param>
 #if !NETCOREAPP
     [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
-#elif NET8_0 || NET8_0_OR_GREATER
+#elif NET8_0_OR_GREATER
     [Obsolete]
 #endif
     protected LoginException(SerializationInfo info, StreamingContext context)

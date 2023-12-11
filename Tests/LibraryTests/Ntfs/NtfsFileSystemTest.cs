@@ -146,7 +146,7 @@ namespace LibraryTests.Ntfs
         {
             // 'Big' files have clusters
             var ntfs = FileSystemSource.NtfsFileSystem();
-            using (Stream s = ntfs.OpenFile(@"file", FileMode.Create, FileAccess.ReadWrite))
+            using (var s = ntfs.OpenFile(@"file", FileMode.Create, FileAccess.ReadWrite))
             {
                 s.Write(new byte[(int)ntfs.ClusterSize], 0, (int)ntfs.ClusterSize);
             }
@@ -156,7 +156,7 @@ namespace LibraryTests.Ntfs
             Assert.Equal(1, ranges[0].Count);
 
             // Short files have no clusters (stored in MFT)
-            using (Stream s = ntfs.OpenFile(@"file2", FileMode.Create, FileAccess.ReadWrite))
+            using (var s = ntfs.OpenFile(@"file2", FileMode.Create, FileAccess.ReadWrite))
             {
                 s.WriteByte(1);
             }
@@ -169,7 +169,7 @@ namespace LibraryTests.Ntfs
         {
             // 'Big' files have clusters
             var ntfs = FileSystemSource.NtfsFileSystem();
-            using (Stream s = ntfs.OpenFile(@"file", FileMode.Create, FileAccess.ReadWrite))
+            using (var s = ntfs.OpenFile(@"file", FileMode.Create, FileAccess.ReadWrite))
             {
                 await s.WriteAsync(new byte[(int)ntfs.ClusterSize], CancellationToken.None);
             }
@@ -179,7 +179,7 @@ namespace LibraryTests.Ntfs
             Assert.Equal(1, ranges[0].Count);
 
             // Short files have no clusters (stored in MFT)
-            using (Stream s = ntfs.OpenFile(@"file2", FileMode.Create, FileAccess.ReadWrite))
+            using (var s = ntfs.OpenFile(@"file2", FileMode.Create, FileAccess.ReadWrite))
             {
                 s.WriteByte(1);
             }
@@ -192,7 +192,7 @@ namespace LibraryTests.Ntfs
         {
             // 'Big' files have clusters
             var ntfs = FileSystemSource.NtfsFileSystem();
-            using (Stream s = ntfs.OpenFile(@"file", FileMode.Create, FileAccess.ReadWrite))
+            using (var s = ntfs.OpenFile(@"file", FileMode.Create, FileAccess.ReadWrite))
             {
                 s.Write(new byte[(int)ntfs.ClusterSize]);
             }
@@ -202,7 +202,7 @@ namespace LibraryTests.Ntfs
             Assert.Equal(1, ranges[0].Count);
 
             // Short files have no clusters (stored in MFT)
-            using (Stream s = ntfs.OpenFile(@"file2", FileMode.Create, FileAccess.ReadWrite))
+            using (var s = ntfs.OpenFile(@"file2", FileMode.Create, FileAccess.ReadWrite))
             {
                 s.WriteByte(1);
             }
@@ -218,7 +218,7 @@ namespace LibraryTests.Ntfs
             var ntfs = NtfsFileSystem.Format(ms, "", diskGeometry, 0, diskGeometry.TotalSectorsLong);
 
             // Check non-resident attribute
-            using (Stream s = ntfs.OpenFile(@"file", FileMode.Create, FileAccess.ReadWrite))
+            using (var s = ntfs.OpenFile(@"file", FileMode.Create, FileAccess.ReadWrite))
             {
                 var data = new byte[(int)ntfs.ClusterSize];
                 data[0] = 0xAE;
@@ -237,7 +237,7 @@ namespace LibraryTests.Ntfs
             Assert.Equal(0x8D, ms.ReadByte());
 
             // Check resident attribute
-            using (Stream s = ntfs.OpenFile(@"file2", FileMode.Create, FileAccess.ReadWrite))
+            using (var s = ntfs.OpenFile(@"file2", FileMode.Create, FileAccess.ReadWrite))
             {
                 s.WriteByte(0xBA);
                 s.WriteByte(0x82);
@@ -260,7 +260,7 @@ namespace LibraryTests.Ntfs
         public void ManyAttributes()
         {
             var ntfs = FileSystemSource.NtfsFileSystem();
-            using (Stream s = ntfs.OpenFile(@"file", FileMode.Create, FileAccess.ReadWrite))
+            using (var s = ntfs.OpenFile(@"file", FileMode.Create, FileAccess.ReadWrite))
             {
                 s.WriteByte(32);
             }
@@ -270,14 +270,14 @@ namespace LibraryTests.Ntfs
                 ntfs.CreateHardLink("file", $"hl{i}");
             }
 
-            using (Stream s = ntfs.OpenFile("hl35", FileMode.Open, FileAccess.ReadWrite))
+            using (var s = ntfs.OpenFile("hl35", FileMode.Open, FileAccess.ReadWrite))
             {
                 Assert.Equal(32, s.ReadByte());
                 s.Position = 0;
                 s.WriteByte(12);
             }
 
-            using (Stream s = ntfs.OpenFile("hl5", FileMode.Open, FileAccess.ReadWrite))
+            using (var s = ntfs.OpenFile("hl5", FileMode.Open, FileAccess.ReadWrite))
             {
                 Assert.Equal(12, s.ReadByte());
             }
@@ -300,20 +300,20 @@ namespace LibraryTests.Ntfs
             var ntfs = FileSystemSource.NtfsFileSystem();
 
             // Check we can find a short name in the same directory
-            using (Stream s = ntfs.OpenFile("ALongFileName.txt", FileMode.CreateNew)) {}
+            using (var s = ntfs.OpenFile("ALongFileName.txt", FileMode.CreateNew)) {}
             ntfs.SetShortName("ALongFileName.txt", "ALONG~01.TXT");
             Assert.Equal("ALONG~01.TXT", ntfs.GetShortName("ALongFileName.txt"));
             Assert.True(ntfs.FileExists("ALONG~01.TXT"));
 
             // Check path handling
             ntfs.CreateDirectory("DIR");
-            using (Stream s = ntfs.OpenFile(@"DIR\ALongFileName2.txt", FileMode.CreateNew)) { }
+            using (var s = ntfs.OpenFile(@"DIR\ALongFileName2.txt", FileMode.CreateNew)) { }
             ntfs.SetShortName(@"DIR\ALongFileName2.txt", "ALONG~02.TXT");
             Assert.Equal("ALONG~02.TXT", ntfs.GetShortName(@"DIR\ALongFileName2.txt"));
             Assert.True(ntfs.FileExists(@"DIR\ALONG~02.TXT"));
 
             // Check we can open a file by the short name
-            using (Stream s = ntfs.OpenFile("ALONG~01.TXT", FileMode.Open)) { }
+            using (var s = ntfs.OpenFile("ALONG~01.TXT", FileMode.Open)) { }
 
             // Delete the long name, and make sure the file is gone
             ntfs.DeleteFile("ALONG~01.TXT");
@@ -329,7 +329,7 @@ namespace LibraryTests.Ntfs
         {
             var ntfs = FileSystemSource.NtfsFileSystem();
 
-            using (Stream s = ntfs.OpenFile("ALongFileName.txt", FileMode.CreateNew)) { }
+            using (var s = ntfs.OpenFile("ALongFileName.txt", FileMode.CreateNew)) { }
             Assert.Equal(1, ntfs.GetHardLinkCount("ALongFileName.txt"));
 
             ntfs.CreateHardLink("ALongFileName.txt", "AHardLink.TXT");
@@ -349,13 +349,13 @@ namespace LibraryTests.Ntfs
         {
             var ntfs = FileSystemSource.NtfsFileSystem();
 
-            using (Stream s = ntfs.OpenFile("ALongFileName.txt", FileMode.CreateNew)) { }
+            using (var s = ntfs.OpenFile("ALongFileName.txt", FileMode.CreateNew)) { }
             Assert.False(ntfs.HasHardLinks("ALongFileName.txt"));
 
             ntfs.CreateHardLink("ALongFileName.txt", "AHardLink.TXT");
             Assert.True(ntfs.HasHardLinks("ALongFileName.txt"));
 
-            using (Stream s = ntfs.OpenFile("ALongFileName2.txt", FileMode.CreateNew)) { }
+            using (var s = ntfs.OpenFile("ALongFileName2.txt", FileMode.CreateNew)) { }
 
             // If we enumerate short names, then the initial long name results in two 'hardlinks'
             ntfs.NtfsOptions.HideDosFileNames = false;
@@ -367,7 +367,7 @@ namespace LibraryTests.Ntfs
         {
             var ntfs = FileSystemSource.NtfsFileSystem();
 
-            using (Stream s = ntfs.OpenFile("ALongFileName.txt", FileMode.CreateNew)) { }
+            using (var s = ntfs.OpenFile("ALongFileName.txt", FileMode.CreateNew)) { }
 
             Assert.True(ntfs.FileExists("ALONGF~1.TXT"));
 

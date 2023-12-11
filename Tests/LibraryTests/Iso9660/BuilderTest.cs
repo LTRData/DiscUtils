@@ -70,7 +70,7 @@ namespace LibraryTests.Iso9660
                 {
                     if (memoryStream[i] != bootImg.ReadByte())
                     {
-                        Assert.True(false, "Boot image corrupted");
+                        Assert.Fail("Boot image corrupted");
                     }
                 }
             }

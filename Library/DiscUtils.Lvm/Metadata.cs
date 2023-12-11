@@ -148,7 +148,7 @@ internal class Metadata
 
     internal static string RemoveComment(string line)
     {
-        var index = line.IndexOf("#", StringComparison.Ordinal);
+        var index = line.IndexOf('#');
         if (index < 0) return line;
         return line.Substring(0, index);
     }

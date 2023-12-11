@@ -312,7 +312,7 @@ public sealed class NtfsFileSystemChecker : DiscFileSystemChecker
         var root = file.GetStream(AttributeType.IndexRoot, name).Value.GetContent<IndexRoot>();
 
         byte[] rootBuffer;
-        using (Stream s = file.OpenStream(AttributeType.IndexRoot, name, FileAccess.Read))
+        using (var s = file.OpenStream(AttributeType.IndexRoot, name, FileAccess.Read))
         {
             rootBuffer = s.ReadExactly((int)s.Length);
         }

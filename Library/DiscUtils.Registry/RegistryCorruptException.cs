@@ -60,8 +60,8 @@ public class RegistryCorruptException : Exception
     /// <param name="context">The streaming context.</param>
 #if !NETCOREAPP
     [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
-#elif NET8_0 || NET8_0_OR_GREATER
-    [Obsolete]
+#elif NET8_0_OR_GREATER
+    [Obsolete("Deprecated serialization")]
 #endif
     protected RegistryCorruptException(SerializationInfo info, StreamingContext context)
         : base(info, context)

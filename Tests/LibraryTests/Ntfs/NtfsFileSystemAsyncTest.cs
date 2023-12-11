@@ -42,7 +42,7 @@ namespace LibraryTests.Ntfs
         {
             // 'Big' files have clusters
             var ntfs = FileSystemSource.NtfsFileSystem();
-            using (Stream s = ntfs.OpenFile(@"file", FileMode.Create, FileAccess.ReadWrite))
+            using (var s = ntfs.OpenFile(@"file", FileMode.Create, FileAccess.ReadWrite))
             {
                 await s.WriteAsync(new byte[(int)ntfs.ClusterSize]);
             }
@@ -52,7 +52,7 @@ namespace LibraryTests.Ntfs
             Assert.Equal(1, ranges[0].Count);
 
             // Short files have no clusters (stored in MFT)
-            using (Stream s = ntfs.OpenFile(@"file2", FileMode.Create, FileAccess.ReadWrite))
+            using (var s = ntfs.OpenFile(@"file2", FileMode.Create, FileAccess.ReadWrite))
             {
                 await s.WriteAsync(new byte[] { 0x01 });
             }
@@ -68,7 +68,7 @@ namespace LibraryTests.Ntfs
             var ntfs = NtfsFileSystem.Format(ms, "", diskGeometry, 0, diskGeometry.TotalSectorsLong);
 
             // Check non-resident attribute
-            using (Stream s = ntfs.OpenFile(@"file", FileMode.Create, FileAccess.ReadWrite))
+            using (var s = ntfs.OpenFile(@"file", FileMode.Create, FileAccess.ReadWrite))
             {
                 var data = new byte[(int)ntfs.ClusterSize];
                 data[0] = 0xAE;
@@ -87,7 +87,7 @@ namespace LibraryTests.Ntfs
             Assert.Equal(0x8D, ms.ReadByte());
 
             // Check resident attribute
-            using (Stream s = ntfs.OpenFile(@"file2", FileMode.Create, FileAccess.ReadWrite))
+            using (var s = ntfs.OpenFile(@"file2", FileMode.Create, FileAccess.ReadWrite))
             {
                 s.WriteByte(0xBA);
                 s.WriteByte(0x82);

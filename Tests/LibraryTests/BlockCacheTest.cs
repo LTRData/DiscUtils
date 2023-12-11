@@ -40,7 +40,7 @@ namespace LibraryTests
             {
                 cacheStream.Position = 0;
                 cacheStream.ReadByte();
-                Assert.True(false, "Cache stream should have failed - disposed");
+                Assert.Fail("Cache stream should have failed - disposed");
             }
             catch (ObjectDisposedException)
             {
@@ -50,7 +50,7 @@ namespace LibraryTests
             {
                 ms.Position = 0;
                 ms.ReadByte();
-                Assert.True(false, "Cache stream should have failed - disposed");
+                Assert.Fail("Cache stream should have failed - disposed");
             }
             catch (ObjectDisposedException)
             {
@@ -309,7 +309,7 @@ namespace LibraryTests
             {
                 if (buffer[i + offset] != (byte)(i + seqOffset))
                 {
-                    Assert.True(false, $"Expected {(byte)(i + seqOffset)} at index {i + offset}, was {buffer[i + offset]}");
+                    Assert.Fail($"Expected {(byte)(i + seqOffset)} at index {i + offset}, was {buffer[i + offset]}");
                 }
             }
         }

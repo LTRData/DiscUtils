@@ -91,7 +91,7 @@ class Program : ProgramBase
         }
     }
 
-    private void CopyDirectory(DiscDirectoryInfo source, DirectoryInfo target, bool recurse)
+    private static void CopyDirectory(DiscDirectoryInfo source, DirectoryInfo target, bool recurse)
     {
         if (recurse)
         {

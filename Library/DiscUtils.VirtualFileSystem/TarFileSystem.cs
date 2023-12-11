@@ -1,6 +1,7 @@
 ﻿using DiscUtils.Archives;
 using DiscUtils.Internal;
 using DiscUtils.Streams;
+using LTRData.Extensions.Buffers;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -58,14 +59,14 @@ public class TarFileSystem : VirtualFileSystem
         {
             var path = file.Name;
 
-            if (path.StartsWith(".", StringComparison.Ordinal))
+            if (path.StartsWith('.'))
             {
                 path = path.Substring(1);
             }
 
             path = path.Replace('/', '\\');
 
-            if (path.EndsWith(@"\", StringComparison.Ordinal))
+            if (path.EndsWith('\\'))
             {
                 path = path.TrimEnd('\\');
 

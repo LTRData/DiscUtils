@@ -70,7 +70,7 @@ internal class File : IVfsFile
         return extents.Select(extent => extent.GetExtent(Context));
     }
 
-    private IBuffer BufferFromExtentList(IEnumerable<ExtentData> extents)
+    private StreamBuffer BufferFromExtentList(IEnumerable<ExtentData> extents)
     {
         var builderExtents = new List<BuilderExtent>(extents is ICollection list ? list.Count : 1);
 

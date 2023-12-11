@@ -26,6 +26,7 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
+using LTRData.Extensions.Buffers;
 
 internal class MetadataSegmentSection
 {
@@ -133,7 +134,7 @@ internal class MetadataSegmentSection
                         throw new ArgumentOutOfRangeException(parameter.Key.ToString(), "Unexpected parameter in global metadata");
                 }
             }
-            else if (line.EndsWith("}"))
+            else if (line.EndsWith('}'))
             {
                 return;
             }
@@ -149,8 +150,8 @@ internal class MetadataSegmentSection
         string line;
         while ((line = Metadata.ReadLine(data)) != null)
         {
-            if (line == String.Empty) continue;
-            if (line.EndsWith("]"))
+            if (line == string.Empty) continue;
+            if (line.EndsWith(']'))
             {
                 yield break;
             }

@@ -63,7 +63,7 @@ namespace LibraryTests
             {
                 if (readMbr[i] != (byte)i)
                 {
-                    Assert.True(false, $"Mismatch on byte {i}, expected {(byte)i} was {readMbr[i]}");
+                    Assert.Fail($"Mismatch on byte {i}, expected {(byte)i} was {readMbr[i]}");
                 }
             }
         }

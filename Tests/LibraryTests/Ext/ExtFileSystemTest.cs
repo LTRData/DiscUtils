@@ -21,17 +21,17 @@ namespace LibraryTests.Ext
                 s =>
                 {
                     Assert.Equal("bar", s.Name);
-                    Assert.True((s.Attributes & FileAttributes.Directory) != 0);
+                    Assert.NotEqual<FileAttributes>(0, s.Attributes & FileAttributes.Directory);
                 },
                 s =>
                 {
                     Assert.Equal("foo", s.Name);
-                    Assert.True((s.Attributes & FileAttributes.Directory) != 0);
+                    Assert.NotEqual<FileAttributes>(0, s.Attributes & FileAttributes.Directory);
                 },
                 s =>
                 {
                     Assert.Equal("lost+found", s.Name);
-                    Assert.True((s.Attributes & FileAttributes.Directory) != 0);
+                    Assert.NotEqual<FileAttributes>(0, s.Attributes & FileAttributes.Directory);
                 });
 
             Assert.Empty(fs.Root.GetDirectories("foo").First().GetFileSystemInfos());
@@ -41,12 +41,12 @@ namespace LibraryTests.Ext
                 s =>
                 {
                     Assert.Equal("blah.txt", s.Name);
-                    Assert.True((s.Attributes & FileAttributes.Directory) == 0);
+                    Assert.Equal<FileAttributes>(0, s.Attributes & FileAttributes.Directory);
                 },
                 s =>
                 {
                     Assert.Equal("testdir1", s.Name);
-                    Assert.True((s.Attributes & FileAttributes.Directory) != 0);
+                    Assert.NotEqual<FileAttributes>(0, s.Attributes & FileAttributes.Directory);
                 });
 
             var sep = Path.DirectorySeparatorChar;

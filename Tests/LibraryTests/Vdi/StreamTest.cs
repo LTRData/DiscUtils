@@ -115,7 +115,7 @@ namespace LibraryTests.Vdi
             {
                 if (buffer[i] != content[i])
                 {
-                    Assert.True(false, "Corrupt stream contents");
+                    Assert.Fail("Corrupt stream contents");
                 }
             }
         }
@@ -134,7 +134,7 @@ namespace LibraryTests.Vdi
             try
             {
                 contentStream.Position = 0;
-                Assert.True(false, "Able to use stream after disposed");
+                Assert.Fail("Able to use stream after disposed");
             }
             catch(ObjectDisposedException) { }
         }

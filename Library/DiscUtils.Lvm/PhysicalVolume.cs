@@ -47,7 +47,7 @@ internal class PhysicalVolume
         content.ReadExactly(buffer);
         PvHeader = new PvHeader();
         PvHeader.ReadFrom(buffer.Slice((int)physicalVolumeLabel.Offset));
-        if (PvHeader.MetadataDiskAreas.Any())
+        if (PvHeader.MetadataDiskAreas.Count > 0)
         {
             var area = PvHeader.MetadataDiskAreas[0];
             var metadata = new VolumeGroupMetadata();

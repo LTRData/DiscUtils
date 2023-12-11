@@ -190,7 +190,7 @@ namespace LibraryTests.Fat
         {
             var fs = FatFileSystem.FormatFloppy(new MemoryStream(), FloppyDiskType.HighDensity, "FLOPPY_IMG ");
 
-            using (Stream s = fs.OpenFile("FOO.TXT", FileMode.Create, FileAccess.ReadWrite))
+            using (var s = fs.OpenFile("FOO.TXT", FileMode.Create, FileAccess.ReadWrite))
             {
                 var w = new StreamWriter(s);
                 w.WriteLine("FOO - some sample text");
@@ -211,7 +211,7 @@ namespace LibraryTests.Fat
             fs.CreateDirectory(@"AAA");
             fs.CreateDirectory(@"BAR");
             using (Stream t = fs.OpenFile($"BAR{sep}AAA.TXT", FileMode.Create, FileAccess.ReadWrite)) { }
-            using (Stream s = fs.OpenFile($"BAR{sep}FOO.TXT", FileMode.Create, FileAccess.ReadWrite))
+            using (var s = fs.OpenFile($"BAR{sep}FOO.TXT", FileMode.Create, FileAccess.ReadWrite))
             {
                 var w = new StreamWriter(s);
                 w.WriteLine("FOO - some sample text");

@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using DiscUtils.Streams;
 using System.Linq;
 using System.Runtime.InteropServices;
+using LTRData.Extensions.Buffers;
 
 internal class MetadataLogicalVolumeSection
 {
@@ -74,7 +75,7 @@ internal class MetadataLogicalVolumeSection
                                 "read" => LogicalVolumeStatus.Read,
                                 "write" => LogicalVolumeStatus.Write,
                                 "visible" => LogicalVolumeStatus.Visible,
-                                _ => throw new ArgumentOutOfRangeException("status", "Unexpected status in physical volume metadata"),
+                                _ => throw new InvalidOperationException("Unexpected status in physical volume metadata"),
                             };
                         }
                         break;
@@ -94,13 +95,13 @@ internal class MetadataLogicalVolumeSection
                         throw new ArgumentOutOfRangeException(parameter.Key.ToString(), "Unexpected parameter in global metadata");
                 }
             }
-            else if (line.EndsWith("{"))
+            else if (line.EndsWith('{'))
             {
                 var segment = new MetadataSegmentSection();
                 segment.Parse(line, data);
                 segments.Add(segment);
             }
-            else if (line.EndsWith("}"))
+            else if (line.EndsWith('}'))
             {
                 break;
             }
@@ -132,7 +133,7 @@ internal class MetadataLogicalVolumeSection
         return Open;
     }
 
-    private SparseStream Open()
+    private ConcatStream Open()
     {
         if ((Status & LogicalVolumeStatus.Read) == 0)
             throw new IOException("volume is not readable");
@@ -166,7 +167,7 @@ internal class MetadataLogicalVolumeSection
         return new ConcatStream(Ownership.Dispose, streams);
     }
 
-    private SparseStream OpenSegment(MetadataSegmentSection segment)
+    private SubStream OpenSegment(MetadataSegmentSection segment)
     {
         if (segment.Stripes.Length != 1)
         {

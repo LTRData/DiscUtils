@@ -461,7 +461,7 @@ internal readonly struct UpperCase : IComparer<string>
             EndianUtilities.WriteBytesLittleEndian(c, bytes.Slice(i * 2));
         }
 
-        using (Stream s = file.OpenStream(AttributeType.Data, null, FileAccess.ReadWrite))
+        using (var s = file.OpenStream(AttributeType.Data, null, FileAccess.ReadWrite))
         {
             s.Write(bytes);
         }

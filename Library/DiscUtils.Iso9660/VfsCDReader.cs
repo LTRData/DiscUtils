@@ -381,9 +381,9 @@ internal class VfsCDReader : VfsReadOnlyFileSystem<ReaderDirEntry, File, ReaderD
             (path, entry) =>
             {
                 IList<string> paths = null;
-                if (fileIdToPaths.ContainsKey(entry.UniqueCacheId))
+                if (fileIdToPaths.TryGetValue(entry.UniqueCacheId, out var value))
                 {
-                    paths = fileIdToPaths[entry.UniqueCacheId];
+                    paths = value;
                 }
 
                 if (paths == null)
