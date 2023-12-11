@@ -152,7 +152,14 @@ internal class File
                 record.Flags |= NtfsFileAttributes.Directory;
             }
 
-            return new DirectoryEntry(_context.GetDirectoryByRef(record.ParentDirectory), MftReference, record);
+            var parentDir = _context.GetDirectoryByRef(record.ParentDirectory);
+
+            if (parentDir is null)
+            {
+                return null;
+            }
+
+            return new DirectoryEntry(parentDir, MftReference, record);
         }
     }
 
@@ -887,17 +894,6 @@ internal class File
                 _attributes.Add(NtfsAttribute.FromRecord(this, MftReference, record));
             }
         }
-
-        // Workaround to expose allocated data in VSC meta files that have InitializedDataLength = 0
-        if (GetAttributes(AttributeType.Data).FirstOrDefault() is { } dataAttr
-            && dataAttr.PrimaryRecord.InitializedDataLength == 0
-            && StandardInformation.FileAttributes.HasFlag(NtfsFileAttributes.System)
-            && BestNameAttribute is { } nameAttr
-            && nameAttr.AllocatedSize > 0
-            && nameAttr.RealSize == 0)
-        {
-            dataAttr.PrimaryRecord.InitializedDataLength = dataAttr.PrimaryRecord.DataLength;
-        }
     }
 
     private bool SplitAttribute(FileRecord record)
@@ -1277,6 +1273,17 @@ internal class File
                 }
             }
 #endif
+
+            // Workaround to expose allocated data in VSC meta files that have InitializedDataLength = 0
+            if (attr.PrimaryRecord.InitializedDataLength == 0
+                && string.IsNullOrWhiteSpace(attr.PrimaryRecord.Name)
+                && _file.StandardInformation.FileAttributes.HasFlag(NtfsFileAttributes.System)
+                && _file.BestNameAttribute is { } nameAttr
+                && nameAttr.AllocatedSize > 0
+                && nameAttr.RealSize == 0)
+            {
+                attr.PrimaryRecord.InitializedDataLength = attr.PrimaryRecord.DataLength;
+            }
 
             _wrapped = attr.Open(access);
         }
