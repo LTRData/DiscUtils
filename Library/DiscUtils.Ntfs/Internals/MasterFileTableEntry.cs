@@ -193,7 +193,7 @@ public sealed class MasterFileTableEntry
             return null;
         }
 
-        return new NtfsFileStream(File, directoryEntry.Value, attr.AttributeType, attr.Identifier, access);
+        return NtfsFileStream.Open(File, directoryEntry.Value, attr.AttributeType, attr.Identifier, access);
     }
 
     public IEnumerable<Range<long, long>> GetClusters(IAttributeLocator attr) =>

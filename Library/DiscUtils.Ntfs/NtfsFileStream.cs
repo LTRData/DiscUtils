@@ -32,26 +32,60 @@ namespace DiscUtils.Ntfs;
 internal sealed class NtfsFileStream : SparseStream
 {
     private SparseStream _baseStream;
+
+    public SparseStream BaseStream => _baseStream;
+
     private readonly DirectoryEntry _entry;
 
     private readonly File _file;
 
     private bool _isDirty;
 
-    public NtfsFileStream(File file, DirectoryEntry entry, AttributeType attrType, string attrName,
+    public static SparseStream Open(File file, DirectoryEntry entry, AttributeType attrType, string attrName,
                           FileAccess access)
     {
-        _entry = entry;
-        _file = file;
-        _baseStream = _file.OpenStream(attrType, attrName, access);
+        var baseStream = file.OpenStream(attrType, attrName, access);
+
+        if (baseStream is null)
+        {
+            return null;
+        }
+
+        if (file.Context.ReadOnly)
+        {
+            return baseStream;
+        }
+        else
+        {
+            return new NtfsFileStream(entry, file, baseStream);
+        }
     }
 
-    public NtfsFileStream(File file, DirectoryEntry entry, AttributeType attrType, ushort attrId,
-                          FileAccess access)
+    private NtfsFileStream(DirectoryEntry entry, File file, SparseStream baseStream)
     {
         _entry = entry;
         _file = file;
-        _baseStream = _file.OpenStream(attrId, attrType, access);
+        _baseStream = baseStream;
+    }
+
+    public static SparseStream Open(File file, DirectoryEntry entry, AttributeType attrType, ushort attrId,
+                          FileAccess access)
+    {
+        var baseStream = file.OpenStream(attrId, attrType, access);
+
+        if (baseStream is null)
+        {
+            return null;
+        }
+
+        if (file.Context.ReadOnly)
+        {
+            return baseStream;
+        }
+        else
+        {
+            return new NtfsFileStream(entry, file, baseStream);
+        }
     }
 
     public override bool CanRead

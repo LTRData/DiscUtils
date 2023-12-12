@@ -2055,7 +2055,12 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
                 }
             }
 
-            var stream = new NtfsFileStream(file, entry.Value, attributeType, attributeName, access);
+            var stream = NtfsFileStream.Open(file, entry.Value, attributeType, attributeName, access);
+
+            if (stream is null)
+            {
+                throw new InvalidFileSystemException("File system corrupt");
+            }
 
             if (mode is FileMode.Create or FileMode.Truncate)
             {
