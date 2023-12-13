@@ -21,6 +21,7 @@
 //
 
 using System;
+using System.Buffers;
 using System.Diagnostics;
 using System.IO;
 using DiscUtils.Core.WindowsSecurity.AccessControl;
@@ -78,36 +79,45 @@ internal sealed class SecurityDescriptors : IDiagnosticTraceable
         writer.WriteLine($"{indent}SECURITY DESCRIPTORS");
 
         using var s = _file.OpenStream(AttributeType.Data, "$SDS", FileAccess.Read);
-        
+
+        byte[] allocated = null;
+
         var buffer = s.Length <= 1024
             ? stackalloc byte[(int)s.Length]
-            : new byte[s.Length];
+            : (allocated = ArrayPool<byte>.Shared.Rent((int)s.Length)).AsSpan(0, (int)s.Length);
 
-        s.ReadExactly(buffer);
-
-        foreach (var entry in _idIndex.Entries)
+        try
         {
-            var pos = (int)entry.Value.SdsOffset;
+            s.ReadExactly(buffer);
 
-            var rec = new SecurityDescriptorRecord();
-            if (!rec.Read(buffer.Slice(pos)))
+            foreach (var entry in _idIndex.Entries)
             {
-                break;
-            }
+                var pos = (int)entry.Value.SdsOffset;
 
-            var secDescStr = "--unknown--";
-            if (rec.SecurityDescriptor[0] != 0)
-            {
-                var sd = new RawSecurityDescriptor(rec.SecurityDescriptor, 0);
-                secDescStr = sd.GetSddlForm(AccessControlSections.All);
-            }
+                var rec = new SecurityDescriptorRecord();
+                if (!rec.Read(buffer.Slice(pos)))
+                {
+                    break;
+                }
 
-            writer.WriteLine($"{indent}  SECURITY DESCRIPTOR RECORD");
-            writer.WriteLine($"{indent}           Hash: {rec.Hash}");
-            writer.WriteLine($"{indent}             Id: {rec.Id}");
-            writer.WriteLine($"{indent}    File Offset: {rec.OffsetInFile}");
-            writer.WriteLine($"{indent}           Size: {rec.EntrySize}");
-            writer.WriteLine($"{indent}          Value: {secDescStr}");
+                var secDescStr = "--unknown--";
+                if (rec.SecurityDescriptor[0] != 0)
+                {
+                    var sd = new RawSecurityDescriptor(rec.SecurityDescriptor, 0);
+                    secDescStr = sd.GetSddlForm(AccessControlSections.All);
+                }
+
+                writer.WriteLine($"{indent}  SECURITY DESCRIPTOR RECORD");
+                writer.WriteLine($"{indent}           Hash: {rec.Hash}");
+                writer.WriteLine($"{indent}             Id: {rec.Id}");
+                writer.WriteLine($"{indent}    File Offset: {rec.OffsetInFile}");
+                writer.WriteLine($"{indent}           Size: {rec.EntrySize}");
+                writer.WriteLine($"{indent}          Value: {secDescStr}");
+            }
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(allocated);
         }
     }
 
@@ -132,18 +142,30 @@ internal sealed class SecurityDescriptors : IDiagnosticTraceable
 
     private static bool SecurityDescriptorsEqual(SecurityDescriptor securityDescriptor, ReadOnlySpan<byte> bytes)
     {
+        byte[] allocated = null;
+
         var storedByteForm = securityDescriptor.Size <= 1024
             ? stackalloc byte[securityDescriptor.Size]
-            : new byte[securityDescriptor.Size];
+            : (allocated = ArrayPool<byte>.Shared.Rent(securityDescriptor.Size)).AsSpan(0, securityDescriptor.Size);
 
-        securityDescriptor.WriteTo(storedByteForm);
-
-        if (bytes.SequenceEqual(storedByteForm))
+        try
         {
-            return true;
-        }
+            securityDescriptor.WriteTo(storedByteForm);
 
-        return false;
+            if (bytes.SequenceEqual(storedByteForm))
+            {
+                return true;
+            }
+
+            return false;
+        }
+        finally
+        {
+            if (allocated is not null)
+            {
+                ArrayPool<byte>.Shared.Return(allocated);
+            }
+        }
     }
 
     public uint AddDescriptor(RawSecurityDescriptor newDescriptor)
@@ -151,96 +173,120 @@ internal sealed class SecurityDescriptors : IDiagnosticTraceable
         // Search to see if this is a known descriptor
         var newDescObj = new SecurityDescriptor(newDescriptor);
         var newHash = newDescObj.CalcHash();
-        
+
+        byte[] allocated = null;
+
         var newByteForm = newDescObj.Size <= 1024
             ? stackalloc byte[newDescObj.Size]
-            : new byte[newDescObj.Size];
+            : (allocated = ArrayPool<byte>.Shared.Rent(newDescObj.Size)).AsSpan(0, newDescObj.Size);
 
-        newDescObj.WriteTo(newByteForm);
-
-        foreach (var entry in _hashIndex.FindAll(new HashFinder(newHash)))
+        try
         {
-            var stored = ReadDescriptor(entry.Value);
+            newDescObj.WriteTo(newByteForm);
 
-            if (SecurityDescriptorsEqual(stored, newByteForm))
+            foreach (var entry in _hashIndex.FindAll(new HashFinder(newHash)))
             {
-                return entry.Value.Id;
+                var stored = ReadDescriptor(entry.Value);
+
+                if (SecurityDescriptorsEqual(stored, newByteForm))
+                {
+                    return entry.Value.Id;
+                }
+            }
+
+            var offset = _nextSpace;
+
+            // Write the new descriptor to the end of the existing descriptors
+            var record = new SecurityDescriptorRecord
+            {
+                SecurityDescriptor = newByteForm.ToArray(),
+                Hash = newHash,
+                Id = _nextId
+            };
+
+            // If we'd overflow into our duplicate block, skip over it to the
+            // start of the next block
+            if ((offset + record.Size) / BlockSize % 2 == 1)
+            {
+                _nextSpace = MathUtilities.RoundUp(offset, BlockSize * 2);
+                offset = _nextSpace;
+            }
+
+            record.OffsetInFile = offset;
+
+            byte[] allocated2 = null;
+
+            var buffer = record.Size <= 1024
+                ? stackalloc byte[record.Size]
+                : (allocated2 = ArrayPool<byte>.Shared.Rent(record.Size)).AsSpan(0, record.Size);
+
+            try
+            {
+                record.WriteTo(buffer);
+
+                using (var s = _file.OpenStream(AttributeType.Data, "$SDS", FileAccess.ReadWrite))
+                {
+                    s.Position = _nextSpace;
+                    s.Write(buffer);
+                    s.Position = BlockSize + _nextSpace;
+                    s.Write(buffer);
+                }
+
+                // Make the next descriptor land at the end of this one
+                _nextSpace = MathUtilities.RoundUp(_nextSpace + buffer.Length, 16);
+                _nextId++;
+            }
+            finally
+            {
+                if (allocated2 is not null)
+                {
+                    ArrayPool<byte>.Shared.Return(allocated2);
+                }
+            }
+
+            // Update the indexes
+            var hashIndexData = new HashIndexData
+            {
+                Hash = record.Hash,
+                Id = record.Id,
+                SdsOffset = record.OffsetInFile,
+                SdsLength = (int)record.EntrySize
+            };
+
+            var hashIndexKey = new HashIndexKey
+            {
+                Hash = record.Hash,
+                Id = record.Id
+            };
+
+            _hashIndex[hashIndexKey] = hashIndexData;
+
+            var idIndexData = new IdIndexData
+            {
+                Hash = record.Hash,
+                Id = record.Id,
+                SdsOffset = record.OffsetInFile,
+                SdsLength = (int)record.EntrySize
+            };
+
+            var idIndexKey = new IdIndexKey
+            {
+                Id = record.Id
+            };
+
+            _idIndex[idIndexKey] = idIndexData;
+
+            _file.UpdateRecordInMft();
+
+            return record.Id;
+        }
+        finally
+        {
+            if (allocated is not null)
+            {
+                ArrayPool<byte>.Shared.Return(allocated);
             }
         }
-
-        var offset = _nextSpace;
-
-        // Write the new descriptor to the end of the existing descriptors
-        var record = new SecurityDescriptorRecord
-        {
-            SecurityDescriptor = newByteForm.ToArray(),
-            Hash = newHash,
-            Id = _nextId
-        };
-
-        // If we'd overflow into our duplicate block, skip over it to the
-        // start of the next block
-        if ((offset + record.Size) / BlockSize % 2 == 1)
-        {
-            _nextSpace = MathUtilities.RoundUp(offset, BlockSize * 2);
-            offset = _nextSpace;
-        }
-
-        record.OffsetInFile = offset;
-
-        var buffer = record.Size <= 1024
-            ? stackalloc byte[record.Size]
-            : new byte[record.Size];
-
-        record.WriteTo(buffer);
-
-        using (var s = _file.OpenStream(AttributeType.Data, "$SDS", FileAccess.ReadWrite))
-        {
-            s.Position = _nextSpace;
-            s.Write(buffer);
-            s.Position = BlockSize + _nextSpace;
-            s.Write(buffer);
-        }
-
-        // Make the next descriptor land at the end of this one
-        _nextSpace = MathUtilities.RoundUp(_nextSpace + buffer.Length, 16);
-        _nextId++;
-
-        // Update the indexes
-        var hashIndexData = new HashIndexData
-        {
-            Hash = record.Hash,
-            Id = record.Id,
-            SdsOffset = record.OffsetInFile,
-            SdsLength = (int)record.EntrySize
-        };
-
-        var hashIndexKey = new HashIndexKey
-        {
-            Hash = record.Hash,
-            Id = record.Id
-        };
-
-        _hashIndex[hashIndexKey] = hashIndexData;
-
-        var idIndexData = new IdIndexData
-        {
-            Hash = record.Hash,
-            Id = record.Id,
-            SdsOffset = record.OffsetInFile,
-            SdsLength = (int)record.EntrySize
-        };
-
-        var idIndexKey = new IdIndexKey
-        {
-            Id = record.Id
-        };
-
-        _idIndex[idIndexKey] = idIndexData;
-
-        _file.UpdateRecordInMft();
-
-        return record.Id;
     }
 
     private SecurityDescriptor ReadDescriptor(IndexData data)

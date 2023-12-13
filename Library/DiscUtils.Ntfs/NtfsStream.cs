@@ -21,6 +21,7 @@
 //
 
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -85,13 +86,25 @@ internal readonly struct NtfsStream
     public void SetContent<T>(T value)
         where T : IByteArraySerializable, IDiagnosticTraceable, new()
     {
+        byte[] allocated = null;
+
         var buffer = value.Size <= 1024
             ? stackalloc byte[value.Size]
-            : new byte[value.Size];
+            : (allocated = ArrayPool<byte>.Shared.Rent(value.Size)).AsSpan(0, value.Size);
 
-        value.WriteTo(buffer);
+        try
+        {
+            value.WriteTo(buffer);
 
-        SetContent(buffer);
+            SetContent(buffer);
+        }
+        finally
+        {
+            if (allocated is not null)
+            {
+                ArrayPool<byte>.Shared.Return(allocated);
+            }
+        }
     }
 
     /// <summary>

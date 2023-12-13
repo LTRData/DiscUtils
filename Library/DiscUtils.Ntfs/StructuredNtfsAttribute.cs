@@ -20,6 +20,8 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
+using System;
+using System.Buffers;
 using System.IO;
 using DiscUtils.Streams;
 
@@ -64,14 +66,26 @@ internal class StructuredNtfsAttribute<T> : NtfsAttribute
 
     public void Save()
     {
+        byte[] allocated = null;
+
         var buffer = _structure.Size <= 1024
             ? stackalloc byte[_structure.Size]
-            : new byte[_structure.Size];
+            : (allocated = ArrayPool<byte>.Shared.Rent(_structure.Size)).AsSpan(0, _structure.Size);
 
-        _structure.WriteTo(buffer);
-        using var s = Open(FileAccess.Write);
-        s.Write(buffer);
-        s.SetLength(buffer.Length);
+        try
+        {
+            _structure.WriteTo(buffer);
+            using var s = Open(FileAccess.Write);
+            s.Write(buffer);
+            s.SetLength(buffer.Length);
+        }
+        finally
+        {
+            if (allocated is not null)
+            {
+                ArrayPool<byte>.Shared.Return(allocated);
+            }
+        }
     }
 
     public override string ToString()

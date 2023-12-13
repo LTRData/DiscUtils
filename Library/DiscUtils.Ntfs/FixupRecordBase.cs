@@ -64,23 +64,22 @@ internal abstract class FixupRecordBase
 
     public void FromStream(Stream stream, int length, bool ignoreMagic = false)
     {
-        if (length <= 1024)
+        byte[] allocated = null;
+
+        var buffer = length <= 1024
+            ? stackalloc byte[length]
+            : (allocated = ArrayPool<byte>.Shared.Rent(length)).AsSpan(0, length);
+
+        try
         {
-            Span<byte> buffer = stackalloc byte[length];
             stream.ReadExactly(buffer);
             FromBytes(buffer, ignoreMagic);
         }
-        else
+        finally
         {
-            var buffer = ArrayPool<byte>.Shared.Rent(length);
-            try
+            if (allocated is not null)
             {
-                stream.ReadExactly(buffer, 0, length);
-                FromBytes(buffer.AsSpan(0, length), ignoreMagic);
-            }
-            finally
-            {
-                ArrayPool<byte>.Shared.Return(buffer);
+                ArrayPool<byte>.Shared.Return(allocated);
             }
         }
     }
@@ -139,25 +138,23 @@ internal abstract class FixupRecordBase
 
     public void ToStream(Stream stream, int length)
     {
-        if (length <= 1024)
+        byte[] allocated = null;
+
+        var buffer = length <= 1024
+            ? stackalloc byte[length]
+            : (allocated = ArrayPool<byte>.Shared.Rent(length)).AsSpan(0, length);
+
+        try
         {
-            Span<byte> buffer = stackalloc byte[length];
             buffer.Clear();
             ToBytes(buffer);
             stream.Write(buffer);
         }
-        else
+        finally
         {
-            var buffer = ArrayPool<byte>.Shared.Rent(length);
-            try
+            if (allocated is not null)
             {
-                Array.Clear(buffer, 0, length);
-                ToBytes(buffer);
-                stream.Write(buffer, 0, length);
-            }
-            finally
-            {
-                ArrayPool<byte>.Shared.Return(buffer);
+                ArrayPool<byte>.Shared.Return(allocated);
             }
         }
     }

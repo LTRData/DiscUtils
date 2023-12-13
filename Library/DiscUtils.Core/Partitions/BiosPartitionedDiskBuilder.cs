@@ -107,7 +107,7 @@ public class BiosPartitionedDiskBuilder : StreamBuilder
 
         byte[] allocated = null;
 
-        var sector = _biosGeometry.BytesPerSector <= 512
+        var sector = _biosGeometry.BytesPerSector <= 1024
             ? stackalloc byte[_biosGeometry.BytesPerSector]
             : (allocated = ArrayPool<byte>.Shared.Rent(_biosGeometry.BytesPerSector)).AsSpan(0, _biosGeometry.BytesPerSector);
 

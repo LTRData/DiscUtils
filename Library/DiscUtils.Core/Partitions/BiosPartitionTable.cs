@@ -95,7 +95,7 @@ public sealed class BiosPartitionTable : PartitionTable
 
             byte[] allocated = null;
 
-            var bootSector = _diskGeometry.BytesPerSector <= 512
+            var bootSector = _diskGeometry.BytesPerSector <= 1024
                 ? stackalloc byte[_diskGeometry.BytesPerSector]
                 : (allocated = ArrayPool<byte>.Shared.Rent(_diskGeometry.BytesPerSector)).AsSpan(0, _diskGeometry.BytesPerSector);
 
@@ -257,7 +257,7 @@ public sealed class BiosPartitionTable : PartitionTable
 
         byte[] allocated = null;
 
-        var bootSector = diskGeometry.BytesPerSector <= 512
+        var bootSector = diskGeometry.BytesPerSector <= 1024
             ? stackalloc byte[diskGeometry.BytesPerSector]
             : (allocated = ArrayPool<byte>.Shared.Rent(diskGeometry.BytesPerSector)).AsSpan(0, diskGeometry.BytesPerSector);
 
@@ -571,7 +571,7 @@ public sealed class BiosPartitionTable : PartitionTable
 
         byte[] allocated = null;
 
-        var bootSector = _diskGeometry.BytesPerSector <= 512
+        var bootSector = _diskGeometry.BytesPerSector <= 1024
             ? stackalloc byte[_diskGeometry.BytesPerSector]
             : (allocated = ArrayPool<byte>.Shared.Rent(_diskGeometry.BytesPerSector)).AsSpan(0, _diskGeometry.BytesPerSector);
 
@@ -701,7 +701,7 @@ public sealed class BiosPartitionTable : PartitionTable
 
         byte[] allocated = null;
 
-        var bootSector = _diskGeometry.BytesPerSector <= 512
+        var bootSector = _diskGeometry.BytesPerSector <= 1024
             ? stackalloc byte[_diskGeometry.BytesPerSector]
             : (allocated = ArrayPool<byte>.Shared.Rent(_diskGeometry.BytesPerSector)).AsSpan(0, _diskGeometry.BytesPerSector);
 
@@ -731,7 +731,7 @@ public sealed class BiosPartitionTable : PartitionTable
 
         byte[] allocated = null;
 
-        var bootSector = _diskGeometry.BytesPerSector <= 512
+        var bootSector = _diskGeometry.BytesPerSector <= 1024
             ? stackalloc byte[_diskGeometry.BytesPerSector]
             : (allocated = ArrayPool<byte>.Shared.Rent(_diskGeometry.BytesPerSector)).AsSpan(0, _diskGeometry.BytesPerSector);
 
@@ -830,7 +830,7 @@ public sealed class BiosPartitionTable : PartitionTable
 
         byte[] allocated = null;
 
-        var bootSector = _diskGeometry.BytesPerSector <= 512
+        var bootSector = _diskGeometry.BytesPerSector <= 1024
             ? stackalloc byte[_diskGeometry.BytesPerSector]
             : (allocated = ArrayPool<byte>.Shared.Rent(_diskGeometry.BytesPerSector)).AsSpan(0, _diskGeometry.BytesPerSector);
 

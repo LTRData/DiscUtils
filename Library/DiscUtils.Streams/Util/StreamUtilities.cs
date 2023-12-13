@@ -514,23 +514,22 @@ public static class StreamUtilities
     {
         var result = new T();
 
-        if (result.Size <= 1024)
+        byte[] allocated = null;
+
+        var buffer = result.Size <= 1024
+            ? stackalloc byte[result.Size]
+            : (allocated = ArrayPool<byte>.Shared.Rent(result.Size)).AsSpan(0, result.Size);
+
+        try
         {
-            Span<byte> buffer = stackalloc byte[result.Size];
             stream.ReadExactly(buffer);
             result.ReadFrom(buffer);
         }
-        else
+        finally
         {
-            var buffer = ArrayPool<byte>.Shared.Rent(result.Size);
-            try
+            if (allocated is not null)
             {
-                stream.ReadExactly(buffer, 0, result.Size);
-                result.ReadFrom(buffer.AsSpan(0, result.Size));
-            }
-            finally
-            {
-                ArrayPool<byte>.Shared.Return(buffer);
+                ArrayPool<byte>.Shared.Return(allocated);
             }
         }
 
@@ -598,23 +597,22 @@ public static class StreamUtilities
     public static void ReadFrom<T>(this T result, Stream stream)
         where T : class, IByteArraySerializable
     {
-        if (result.Size <= 1024)
+        byte[] allocated = null;
+
+        var buffer = result.Size <= 1024
+            ? stackalloc byte[result.Size]
+            : (allocated = ArrayPool<byte>.Shared.Rent(result.Size)).AsSpan(0, result.Size);
+
+        try
         {
-            Span<byte> buffer = stackalloc byte[result.Size];
             stream.ReadExactly(buffer);
             result.ReadFrom(buffer);
         }
-        else
+        finally
         {
-            var buffer = ArrayPool<byte>.Shared.Rent(result.Size);
-            try
+            if (allocated is not null)
             {
-                stream.ReadExactly(buffer, 0, result.Size);
-                result.ReadFrom(buffer.AsSpan(0, result.Size));
-            }
-            finally
-            {
-                ArrayPool<byte>.Shared.Return(buffer);
+                ArrayPool<byte>.Shared.Return(allocated);
             }
         }
     }
@@ -630,23 +628,22 @@ public static class StreamUtilities
     public static void ReadFrom<T>(this T result, Stream stream, int length)
         where T : class, IByteArraySerializable
     {
-        if (length <= 1024)
+        byte[] allocated = null;
+
+        var buffer = length <= 1024
+            ? stackalloc byte[length]
+            : (allocated = ArrayPool<byte>.Shared.Rent(length)).AsSpan(0, length);
+
+        try
         {
-            Span<byte> buffer = stackalloc byte[length];
             stream.ReadExactly(buffer);
             result.ReadFrom(buffer);
         }
-        else
+        finally
         {
-            var buffer = ArrayPool<byte>.Shared.Rent(length);
-            try
+            if (allocated is not null)
             {
-                stream.ReadExactly(buffer, 0, length);
-                result.ReadFrom(buffer.AsSpan(0, length));
-            }
-            finally
-            {
-                ArrayPool<byte>.Shared.Return(buffer);
+                ArrayPool<byte>.Shared.Return(allocated);
             }
         }
     }
@@ -661,23 +658,22 @@ public static class StreamUtilities
     public static void ReadFrom<T>(this ref T result, Stream stream)
         where T : struct, IByteArraySerializable
     {
-        if (result.Size <= 1024)
+        byte[] allocated = null;
+
+        var buffer = result.Size <= 1024
+            ? stackalloc byte[result.Size]
+            : (allocated = ArrayPool<byte>.Shared.Rent(result.Size)).AsSpan(0, result.Size);
+
+        try
         {
-            Span<byte> buffer = stackalloc byte[result.Size];
             stream.ReadExactly(buffer);
             result.ReadFrom(buffer);
         }
-        else
+        finally
         {
-            var buffer = ArrayPool<byte>.Shared.Rent(result.Size);
-            try
+            if (allocated is not null)
             {
-                stream.ReadExactly(buffer, 0, result.Size);
-                result.ReadFrom(buffer.AsSpan(0, result.Size));
-            }
-            finally
-            {
-                ArrayPool<byte>.Shared.Return(buffer);
+                ArrayPool<byte>.Shared.Return(allocated);
             }
         }
     }
@@ -693,23 +689,22 @@ public static class StreamUtilities
     public static void ReadFrom<T>(this ref T result, Stream stream, int length)
         where T : struct, IByteArraySerializable
     {
-        if (length <= 1024)
+        byte[] allocated = null;
+
+        var buffer = length <= 1024
+            ? stackalloc byte[length]
+            : (allocated = ArrayPool<byte>.Shared.Rent(length)).AsSpan(0, length);
+
+        try
         {
-            Span<byte> buffer = stackalloc byte[length];
             stream.ReadExactly(buffer);
             result.ReadFrom(buffer);
         }
-        else
+        finally
         {
-            var buffer = ArrayPool<byte>.Shared.Rent(length);
-            try
+            if (allocated is not null)
             {
-                stream.ReadExactly(buffer, 0, length);
-                result.ReadFrom(buffer.AsSpan(0, length));
-            }
-            finally
-            {
-                ArrayPool<byte>.Shared.Return(buffer);
+                ArrayPool<byte>.Shared.Return(allocated);
             }
         }
     }
@@ -724,27 +719,24 @@ public static class StreamUtilities
     public static T ReadStruct<T>(this Stream stream, int length)
         where T : IByteArraySerializable, new()
     {
-        if (length <= 1024)
+        byte[] allocated = null;
+
+        var buffer = length <= 1024
+            ? stackalloc byte[length]
+            : (allocated = ArrayPool<byte>.Shared.Rent(length)).AsSpan(0, length);
+
+        try
         {
-            Span<byte> buffer = stackalloc byte[length];
             stream.ReadExactly(buffer);
             var result = new T();
             result.ReadFrom(buffer);
             return result;
         }
-        else
+        finally
         {
-            var buffer = ArrayPool<byte>.Shared.Rent(length);
-            try
+            if (allocated is not null)
             {
-                stream.ReadExactly(buffer, 0, length);
-                var result = new T();
-                result.ReadFrom(buffer.AsSpan(0, length));
-                return result;
-            }
-            finally
-            {
-                ArrayPool<byte>.Shared.Return(buffer);
+                ArrayPool<byte>.Shared.Return(allocated);
             }
         }
     }
@@ -758,24 +750,22 @@ public static class StreamUtilities
     public static void WriteStruct<T>(this Stream stream, T obj)
         where T : IByteArraySerializable
     {
-        if (obj.Size <= 1024)
+        byte[] allocated = null;
+
+        var buffer = obj.Size <= 1024
+            ? stackalloc byte[obj.Size]
+            : (allocated = ArrayPool<byte>.Shared.Rent(obj.Size)).AsSpan(0, obj.Size);
+
+        try
         {
-            Span<byte> buffer = stackalloc byte[obj.Size];
             obj.WriteTo(buffer);
             stream.Write(buffer);
         }
-        else
+        finally
         {
-            var buffer = ArrayPool<byte>.Shared.Rent(obj.Size);
-            try
+            if (allocated is not null)
             {
-                var span = buffer.AsSpan(0, obj.Size);
-                obj.WriteTo(span);
-                stream.Write(buffer, 0, span.Length);
-            }
-            finally
-            {
-                ArrayPool<byte>.Shared.Return(buffer);
+                ArrayPool<byte>.Shared.Return(allocated);
             }
         }
     }
