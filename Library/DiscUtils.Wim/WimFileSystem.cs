@@ -711,7 +711,7 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
             path = Path.DirectorySeparatorChar + path;
         }
 
-        return GetEntry(GetDirectory(0), path.AsMemory().Split('/', '\\').ToArray());
+        return GetEntry(GetDirectory(0), path.AsMemory().Split(Utilities.PathSeparators).ToArray());
     }
 
     private DirectoryEntry GetEntry(List<DirectoryEntry> dir, ReadOnlyMemory<char>[] path)
