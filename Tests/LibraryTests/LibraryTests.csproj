@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Swap\Data\" />
+    <Folder Include="Wim\Data\" />
   </ItemGroup>
   <ItemGroup>
     <None Update="plist.xml">
