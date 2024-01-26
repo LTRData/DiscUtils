@@ -207,7 +207,7 @@ public static class Utilities
     /// <returns>The combined path.</returns>
     public static string CombinePaths(string a, string b)
     {
-#if NET461_OR_GREATER || NETSTANDARD || NETCOREAPP
+#if NETSTANDARD || NETCOREAPP
         return Path.Combine(a, b);
 #else
         if (string.IsNullOrEmpty(a) || (b.Length > 0 && b[0] == '\\'))
