@@ -15,10 +15,13 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework.CompareTo(`net461`))' &gt;= 0">
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="*" />
     <PackageReference Include="Microsoft.Bcl.HashCode" Version="*" />
   </ItemGroup>
-  
+
+  <ItemGroup Condition="'$(TargetFramework.CompareTo(`net5`))' &gt;= 0">
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="*" />
+  </ItemGroup>
+
   <ItemGroup>
     <Folder Include="System\" />
   </ItemGroup>
