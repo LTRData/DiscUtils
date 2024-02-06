@@ -776,23 +776,12 @@ public abstract class VirtualDisk :
             path = Path.GetFullPath(path);
         }
 
-        // Built-in Uri class does cope well with query params on file Uris, so do some
-        // parsing ourselves...
-        if (path.Length >= 1 && (path[0] == '\\' || path[0] == '/'))
-        {
-            var builder = new UriBuilder($"file://{path.Replace('\\', '/')}");
-            return builder.Uri;
-        }
-        if (path.StartsWith("//", StringComparison.OrdinalIgnoreCase))
+        if (path.StartsWith("//", StringComparison.Ordinal))
         {
             var builder = new UriBuilder($"file:{path}");
             return builder.Uri;
         }
-        if (path.Length >= 2 && path[1] == ':')
-        {
-            var builder = new UriBuilder($"file:///{path.Replace('\\', '/')}");
-            return builder.Uri;
-        }
+
         return new Uri(path);
     }
 }
