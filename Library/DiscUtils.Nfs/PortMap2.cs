@@ -58,8 +58,7 @@ internal sealed class PortMap2 : RpcProgram
         var reply = DoSend(ms);
         if (reply.Header.IsSuccess)
         {
-            var port = new PortMap2Port(reply.BodyReader);
-            return (int)reply.BodyReader.ReadUInt32();
+            return reply.BodyReader.ReadInt32();
         }
         throw new RpcException(reply.Header.ReplyHeader);
     }
