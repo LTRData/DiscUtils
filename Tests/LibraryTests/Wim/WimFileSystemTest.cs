@@ -36,7 +36,7 @@ public class WinFileSystemTest
     [Fact]
     public void ReadFilteredDirectory()
     {
-        const string ExpectedDirectoryPath = "\\TestData\\Foo";
+        var ExpectedDirectoryPath = @$"{Path.DirectorySeparatorChar}TestData{Path.DirectorySeparatorChar}Foo";
 
         using var fileStream = File.OpenRead(testDataPath);
         var wimFile = new WimFile(fileStream);
