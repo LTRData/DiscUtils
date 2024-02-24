@@ -261,6 +261,9 @@ public sealed class CDBuilder : StreamBuilder, IFileSystemBuilder
         long bootCatalogPos = 0;
         if (_bootEntry != null)
         {
+            // Boot catalog MUST be at beginning
+            bootCatalogPos = focus;
+            focus += IsoUtilities.SectorSize;
             var bootImagePos = focus;
             var realBootImage = PatchBootImage(_bootImage, (uint)(DiskStart / IsoUtilities.SectorSize),
                 (uint)(bootImagePos / IsoUtilities.SectorSize));
@@ -268,15 +271,22 @@ public sealed class CDBuilder : StreamBuilder, IFileSystemBuilder
             fixedRegions.Add(bootImageExtent);
             focus += MathUtilities.RoundUp(bootImageExtent.Length, IsoUtilities.SectorSize);
 
-            bootCatalogPos = focus;
             var bootCatalog = new byte[IsoUtilities.SectorSize];
             var bve = new BootValidationEntry();
             bve.WriteTo(bootCatalog, 0x00);
             _bootEntry.ImageStart = (uint)MathUtilities.Ceil(bootImagePos, IsoUtilities.SectorSize);
-            _bootEntry.SectorCount = (ushort)MathUtilities.Ceil(_bootImage.Length, Sizes.Sector);
+            if (_bootEntry.BootMediaType != BootDeviceEmulation.NoEmulation)
+            {
+                _bootEntry.SectorCount = 1;
+            }
+            else
+            {
+                _bootEntry.SectorCount = (ushort)MathUtilities.Ceil(_bootImage.Length, Sizes.Sector);
+            }
             _bootEntry.WriteTo(bootCatalog, 0x20);
             fixedRegions.Add(new BuilderBufferExtent(bootCatalogPos, bootCatalog));
-            focus += IsoUtilities.SectorSize;
+            
+            // Don't add to focus, we already skipped the length of the bootCatalog
         }
 
         // ####################################################################
@@ -552,7 +562,7 @@ public sealed class CDBuilder : StreamBuilder, IFileSystemBuilder
             }
             else
             {
-                if (!(next is BuildDirectoryInfo nextAsBuildDirectoryInfo))
+                if (next is not BuildDirectoryInfo nextAsBuildDirectoryInfo)
                 {
                     throw new IOException("File with conflicting name exists");
                 }
