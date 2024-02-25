@@ -275,13 +275,13 @@ public sealed class CDBuilder : StreamBuilder, IFileSystemBuilder
             var bve = new BootValidationEntry();
             bve.WriteTo(bootCatalog, 0x00);
             _bootEntry.ImageStart = (uint)MathUtilities.Ceil(bootImagePos, IsoUtilities.SectorSize);
-            if (_bootEntry.BootMediaType != BootDeviceEmulation.NoEmulation)
+            if (_bootEntry.BootMediaType == BootDeviceEmulation.NoEmulation)
             {
-                _bootEntry.SectorCount = 1;
+                _bootEntry.SectorCount = (ushort)MathUtilities.Ceil(_bootImage.Length, Sizes.Sector);
             }
             else
             {
-                _bootEntry.SectorCount = (ushort)MathUtilities.Ceil(_bootImage.Length, Sizes.Sector);
+                _bootEntry.SectorCount = 1;
             }
             _bootEntry.WriteTo(bootCatalog, 0x20);
             fixedRegions.Add(new BuilderBufferExtent(bootCatalogPos, bootCatalog));

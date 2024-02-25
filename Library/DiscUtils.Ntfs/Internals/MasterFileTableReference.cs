@@ -83,7 +83,7 @@ public readonly struct MasterFileTableReference
     /// <returns><code>true</code> if the other object is equivalent, else <code>false</code>.</returns>
     public override bool Equals(object obj)
     {
-        if (obj == null || !(obj is MasterFileTableReference))
+        if (obj == null || obj is not MasterFileTableReference)
         {
             return false;
         }

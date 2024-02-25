@@ -51,17 +51,17 @@ internal class PathTable : BuilderExtent
     public override void PrepareForRead()
     {
         _readCache = new byte[Length];
-        int pos = 0;
+        var pos = 0;
 
-        List<BuildDirectoryInfo> sortedList = new List<BuildDirectoryInfo>(_dirs);
+        var sortedList = new List<BuildDirectoryInfo>(_dirs);
         sortedList.Sort(BuildDirectoryInfo.PathTableSortComparison);
 
-        Dictionary<BuildDirectoryInfo, ushort> dirNumbers = new Dictionary<BuildDirectoryInfo, ushort>(_dirs.Count);
+        var dirNumbers = new Dictionary<BuildDirectoryInfo, ushort>(_dirs.Count);
         ushort i = 1;
-        foreach (BuildDirectoryInfo di in sortedList)
+        foreach (var di in sortedList)
         {
             dirNumbers[di] = i++;
-            PathTableRecord ptr = new PathTableRecord();
+            var ptr = new PathTableRecord();
             ptr.DirectoryIdentifier = di.PickName(null, _enc);
             ptr.LocationOfExtent = _locations[di];
             ptr.ParentDirectoryNumber = dirNumbers[di.Parent];
@@ -72,9 +72,9 @@ internal class PathTable : BuilderExtent
 
     public override int Read(long diskOffset, byte[] buffer, int offset, int count)
     {
-        long relPos = diskOffset - Start;
+        var relPos = diskOffset - Start;
 
-        int numRead = (int)Math.Min(count, _readCache.Length - relPos);
+        var numRead = (int)Math.Min(count, _readCache.Length - relPos);
 
         System.Buffer.BlockCopy(_readCache, (int)relPos, buffer, offset, numRead);
 
@@ -83,9 +83,9 @@ internal class PathTable : BuilderExtent
 
     public override int Read(long diskOffset, Span<byte> buffer)
     {
-        long relPos = diskOffset - Start;
+        var relPos = diskOffset - Start;
 
-        int numRead = (int)Math.Min(buffer.Length, _readCache.Length - relPos);
+        var numRead = (int)Math.Min(buffer.Length, _readCache.Length - relPos);
 
         _readCache.AsSpan((int)relPos, numRead).CopyTo(buffer);
 
@@ -100,7 +100,7 @@ internal class PathTable : BuilderExtent
     private static uint CalcLength(Encoding enc, List<BuildDirectoryInfo> dirs)
     {
         uint length = 0;
-        foreach (BuildDirectoryInfo di in dirs)
+        foreach (var di in dirs)
         {
             length += di.GetPathTableEntrySize(enc);
         }

@@ -498,7 +498,6 @@ internal class VfsCDReader : VfsReadOnlyFileSystem<ReaderDirEntry, File, ReaderD
                 }
                 return sectorCount;
         }
-
     }
 
     public Stream OpenBootImage()
