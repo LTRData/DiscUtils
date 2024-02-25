@@ -4,7 +4,7 @@
     <TargetFrameworks>net46;net48</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup Condition=" '$(TargetFramework.CompareTo(`net5`))' &gt;= 0">
-    <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.4.0" />
+    <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.4.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DiscUtils.Common\DiscUtils.Common.csproj" />

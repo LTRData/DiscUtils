@@ -18,20 +18,22 @@
     <ProjectReference Include="..\..\Library\DiscUtils.Core\DiscUtils.Core.csproj" />
     <ProjectReference Include="..\..\Library\DiscUtils\DiscUtils.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
-    <PackageReference Include="System.IO.Compression" Version="4.3.0" />
-    <PackageReference Include="xunit.extensibility.core" Version="2.6.3" />
-    <PackageReference Include="xunit" Version="2.6.3" />
-  </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework.CompareTo(`net462`))' &lt; 0">
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.*" />
+    <PackageReference Include="System.IO.Compression" Version="4.3.*" />
+    <PackageReference Include="xunit.extensibility.core" Version="2.6.*" />
+    <PackageReference Include="xunit" Version="2.6.*" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework.CompareTo(`net462`))' &gt;= 0">
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.5">
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="*" />
+    <PackageReference Include="System.IO.Compression" Version="*" />
+    <PackageReference Include="xunit.extensibility.core" Version="*" />
+    <PackageReference Include="xunit" Version="*" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="*">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
