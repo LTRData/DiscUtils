@@ -28,19 +28,18 @@ namespace DiscUtils.Vhdx;
 internal sealed class LogEntryHeader : IByteArraySerializable
 {
     public const uint LogEntrySignature = 0x65676F6C;
+    public const int ByteCount = 64;
 
-    //private byte[] _data;
-    public uint Checksum;
-    public uint DescriptorCount;
-    public uint EntryLength;
-    public ulong FlushedFileOffset;
-    public ulong LastFileOffset;
-    public Guid LogGuid;
-    public uint Reserved;
-    public ulong SequenceNumber;
-
-    public uint Signature;
-    public uint Tail;
+    public uint Checksum { get; private set; }
+    public uint DescriptorCount { get; private set; }
+    public uint EntryLength { get; private set; }
+    public ulong FlushedFileOffset { get; private set; }
+    public ulong LastFileOffset { get; private set; }
+    public Guid LogGuid { get; private set; }
+    public uint Reserved { get; private set; }
+    public ulong SequenceNumber { get; private set; }
+    public uint Signature { get; private set; }
+    public uint Tail { get; private set; }
 
     public bool IsValid
     {
@@ -49,13 +48,11 @@ internal sealed class LogEntryHeader : IByteArraySerializable
 
     public int Size
     {
-        get { return 64; }
+        get { return ByteCount; }
     }
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
-        //_data = buffer.Slice(0, Size).ToArray();
-
         Signature = EndianUtilities.ToUInt32LittleEndian(buffer);
         Checksum = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(4));
         EntryLength = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(8));
@@ -67,7 +64,7 @@ internal sealed class LogEntryHeader : IByteArraySerializable
         FlushedFileOffset = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(48));
         LastFileOffset = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(56));
 
-        return Size;
+        return ByteCount;
     }
 
     void IByteArraySerializable.WriteTo(Span<byte> buffer)
