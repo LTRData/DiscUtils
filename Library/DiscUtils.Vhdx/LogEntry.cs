@@ -33,9 +33,9 @@ namespace DiscUtils.Vhdx;
 
 internal sealed class LogEntry
 {
-    public const int LogSectorSize = (int)(4 * Sizes.OneKiB);
-    private readonly List<Descriptor> _descriptors = new List<Descriptor>();
+    public const int LogSectorSize = 4 * Sizes.OneKiB;
 
+    private readonly List<Descriptor> _descriptors = new List<Descriptor>();
     private readonly LogEntryHeader _header;
 
     private LogEntry(long position, LogEntryHeader header, List<Descriptor> descriptors)
@@ -101,90 +101,84 @@ internal sealed class LogEntry
     {
         var position = logStream.Position;
 
-        var sectorBuffer = ArrayPool<byte>.Shared.Rent(LogSectorSize);
+        var bytesToRead = LogEntryHeader.ByteCount;
+        Span<byte> headerBuffer = stackalloc byte[bytesToRead];
+        if (logStream.ReadMaximum(headerBuffer) != bytesToRead)
+        {
+            entry = null;
+            return false;
+        }
+
+        var header = new LogEntryHeader();
+        header.ReadFrom(headerBuffer);
+
+        if (!header.IsValid)
+        {
+            entry = null;
+            return false;
+        }
+
+        var entryLength = checked((int)header.EntryLength);
+        var logEntryBuffer = ArrayPool<byte>.Shared.Rent(entryLength);
+
         try
         {
-            if (logStream.ReadMaximum(sectorBuffer, 0, LogSectorSize) != LogSectorSize)
+            headerBuffer.CopyTo(logEntryBuffer);
+
+            bytesToRead = entryLength - LogEntryHeader.ByteCount;
+            if (logStream.ReadMaximum(logEntryBuffer, LogEntryHeader.ByteCount, bytesToRead) != bytesToRead)
             {
                 entry = null;
                 return false;
             }
 
-            var sig = EndianUtilities.ToUInt32LittleEndian(sectorBuffer, 0);
-            if (sig != LogEntryHeader.LogEntrySignature)
+            Array.Clear(logEntryBuffer, 4, sizeof(uint));
+            if (header.Checksum !=
+                Crc32LittleEndian.Compute(Crc32Algorithm.Castagnoli, logEntryBuffer, 0, entryLength))
             {
                 entry = null;
                 return false;
             }
 
-            var header = new LogEntryHeader();
-            header.ReadFrom(sectorBuffer.AsSpan(0, LogSectorSize));
+            var dataPos = MathUtilities.RoundUp((int)header.DescriptorCount * 32 + 64, LogSectorSize);
 
-            if (!header.IsValid || header.EntryLength > logStream.Length)
+            var descriptors = new List<Descriptor>();
+            for (var i = 0; i < header.DescriptorCount; ++i)
             {
-                entry = null;
-                return false;
-            }
+                var offset = i * 32 + 64;
+                Descriptor descriptor;
 
-            var logEntryBuffer = ArrayPool<byte>.Shared.Rent(checked((int)header.EntryLength));
-            try
-            {
-                System.Buffer.BlockCopy(sectorBuffer, 0, logEntryBuffer, 0, LogSectorSize);
+                var descriptorSig = EndianUtilities.ToUInt32LittleEndian(logEntryBuffer, offset);
+                switch (descriptorSig)
+                {
+                    case Descriptor.ZeroDescriptorSignature:
+                        descriptor = new ZeroDescriptor();
+                        break;
+                    case Descriptor.DataDescriptorSignature:
+                        descriptor = new DataDescriptor(logEntryBuffer, dataPos);
+                        dataPos += LogSectorSize;
+                        break;
+                    default:
+                        entry = null;
+                        return false;
+                }
 
-                logStream.ReadExactly(logEntryBuffer, LogSectorSize, checked((int)(header.EntryLength - LogSectorSize)));
-
-                EndianUtilities.WriteBytesLittleEndian(0, logEntryBuffer, 4);
-                if (header.Checksum !=
-                    Crc32LittleEndian.Compute(Crc32Algorithm.Castagnoli, logEntryBuffer, 0, (int)header.EntryLength))
+                descriptor.ReadFrom(logEntryBuffer, offset);
+                if (!descriptor.IsValid(header.SequenceNumber))
                 {
                     entry = null;
                     return false;
                 }
 
-                var dataPos = MathUtilities.RoundUp((int)header.DescriptorCount * 32 + 64, LogSectorSize);
-
-                var descriptors = new List<Descriptor>();
-                for (var i = 0; i < header.DescriptorCount; ++i)
-                {
-                    var offset = i * 32 + 64;
-                    Descriptor descriptor;
-
-                    var descriptorSig = EndianUtilities.ToUInt32LittleEndian(logEntryBuffer, offset);
-                    switch (descriptorSig)
-                    {
-                        case Descriptor.ZeroDescriptorSignature:
-                            descriptor = new ZeroDescriptor();
-                            break;
-                        case Descriptor.DataDescriptorSignature:
-                            descriptor = new DataDescriptor(logEntryBuffer, dataPos);
-                            dataPos += LogSectorSize;
-                            break;
-                        default:
-                            entry = null;
-                            return false;
-                    }
-
-                    descriptor.ReadFrom(logEntryBuffer, offset);
-                    if (!descriptor.IsValid(header.SequenceNumber))
-                    {
-                        entry = null;
-                        return false;
-                    }
-
-                    descriptors.Add(descriptor);
-                }
-
-                entry = new LogEntry(position, header, descriptors);
-                return true;
+                descriptors.Add(descriptor);
             }
-            finally
-            {
-                ArrayPool<byte>.Shared.Return(logEntryBuffer);
-            }
+
+            entry = new LogEntry(position, header, descriptors);
+            return true;
         }
         finally
         {
-            ArrayPool<byte>.Shared.Return(sectorBuffer);
+            ArrayPool<byte>.Shared.Return(logEntryBuffer);
         }
     }
 
