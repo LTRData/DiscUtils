@@ -34,8 +34,7 @@ namespace LibraryTests.Vhdx
         [Fact]
         public void ReplayLog()
         {
-            using var fs = File.OpenRead(Path.Combine("..", "..", "LibraryTests", "Vhdx", "Data", "vhdx-log-replay.zip"));
-            using var vhdx = ZipUtilities.ReadFileFromZip(fs);
+            using var vhdx = Helpers.Helpers.LoadTestDataFileFromGZipFile("Vhdx", "vhdx-log-replay.vhdx.gz");
             using var diskImage = new DiskImageFile(vhdx, Ownership.Dispose);
             using var disk = new Disk(new List<DiskImageFile> { diskImage }, Ownership.Dispose);
             Assert.True(disk.IsPartitioned);

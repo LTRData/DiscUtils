@@ -15,8 +15,7 @@ namespace LibraryTests.Lvm
         public void Lvm2VhdxZip()
         {
             SetupHelper.SetupComplete();
-            using var fs = File.OpenRead(Path.Combine("..", "..", "LibraryTests", "Lvm", "Data", "lvm2.zip"));
-            using var vhdx = ZipUtilities.ReadFileFromZip(fs);
+            using var vhdx = Helpers.Helpers.LoadTestDataFileFromGZipFile("Lvm", "lvm2.vhdx.gz");
             using var diskImage = new DiskImageFile(vhdx, Ownership.Dispose);
             using var disk = new Disk(new List<DiskImageFile> { diskImage }, Ownership.Dispose);
             var manager = new VolumeManager(disk);

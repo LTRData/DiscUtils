@@ -16,8 +16,7 @@ namespace LibraryTests.Swap
         public void SwapVhdxGzip()
         {
             SetupHelper.SetupComplete();
-            using var fs = File.OpenRead(Path.Combine("..", "..", "LibraryTests", "Swap", "Data", "swap.zip"));
-            using var vhdx = ZipUtilities.ReadFileFromZip(fs);
+            using var vhdx = Helpers.Helpers.LoadTestDataFileFromGZipFile("Swap", "swap.vhdx.gz");
             using var diskImage = new DiskImageFile(vhdx, Ownership.Dispose);
             using var disk = new Disk(new List<DiskImageFile> { diskImage }, Ownership.Dispose);
             var manager = new VolumeManager(disk);

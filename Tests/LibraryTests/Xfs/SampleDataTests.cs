@@ -19,8 +19,7 @@ namespace LibraryTests.Xfs
         public void XfsVhdxZip()
         {
             SetupHelper.SetupComplete();
-            using var fs = File.OpenRead(Path.Combine("..", "..", "LibraryTests", "Xfs", "Data", "xfs.zip"));
-            using var vhdx = ZipUtilities.ReadFileFromZip(fs);
+            using var vhdx = Helpers.Helpers.LoadTestDataFileFromGZipFile("Xfs", "xfs.vhdx.gz");
             using var diskImage = new DiskImageFile(vhdx, Ownership.Dispose);
             using var disk = new Disk(new List<DiskImageFile> { diskImage }, Ownership.Dispose);
             var manager = new VolumeManager(disk);
@@ -47,8 +46,7 @@ namespace LibraryTests.Xfs
         public void Xfs5VhdxZip()
         {
             SetupHelper.SetupComplete();
-            using var fs = File.OpenRead(Path.Combine("..", "..", "LibraryTests", "Xfs", "Data", "xfs5.zip"));
-            using var vhdx = ZipUtilities.ReadFileFromZip(fs);
+            using var vhdx = Helpers.Helpers.LoadTestDataFileFromGZipFile("Xfs", "xfs5.vhdx.gz");
             using var diskImage = new DiskImageFile(vhdx, Ownership.Dispose);
             using var disk = new Disk(new List<DiskImageFile> { diskImage }, Ownership.Dispose);
             var manager = new VolumeManager(disk);

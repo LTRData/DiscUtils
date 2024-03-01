@@ -11,8 +11,7 @@ namespace LibraryTests.Iso9660
         [Fact]
         public void AppleTestZip()
         {
-            using var fs = File.OpenRead(Path.Combine("..", "..", "LibraryTests", "Iso9660", "Data", "apple-test.zip"));
-            using var iso = ZipUtilities.ReadFileFromZip(fs);
+            using var iso = Helpers.Helpers.LoadTestDataFileFromGZipFile("Iso9660", "apple-test.iso.gz");
             using var cr = new CDReader(iso, false);
 
             var dir = cr.GetDirectoryInfo("sub-directory");

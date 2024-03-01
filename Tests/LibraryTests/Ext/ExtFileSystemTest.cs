@@ -13,7 +13,7 @@ namespace LibraryTests.Ext
         [Fact]
         public void LoadFileSystem()
         {
-            using var data = Helpers.Helpers.LoadDataFile("data.ext4.dat");
+            using var data = Helpers.Helpers.LoadTestDataFileFromGZipFile("Ext", "data.ext4.dat.gz");
             using var fs = new ExtFileSystem(data, new FileSystemParameters());
 
             Assert.Collection(fs.Root.GetFileSystemInfos()

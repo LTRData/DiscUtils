@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
 
 namespace LibraryTests.Helpers
 {
@@ -10,35 +9,32 @@ namespace LibraryTests.Helpers
         public static byte[] ReadAll(this Stream stream)
         {
             using var ms = new MemoryStream();
+
             stream.CopyTo(ms);
+
             return ms.ToArray();
         }
 
-        public static Stream LoadDataFile(string name)
+        public static Stream LoadTestDataFileFromGZipFile(string projectName, string dataFileName)
         {
-            var assembly = typeof(Helpers).Assembly;
+            using var fs = File.OpenRead(Path.Combine("..", "..", "LibraryTests", projectName, "Data", dataFileName));
+            using var gz = new GZipStream(fs, CompressionMode.Decompress);
 
-            var formattedName = $"{assembly.GetName().Name}._Data.{name}";
-            if (assembly.GetManifestResourceNames().Contains(formattedName))
-                return assembly.GetManifestResourceStream(formattedName);
+            MemoryStream ms = new MemoryStream();
 
-            // Try GZ
-            formattedName += ".gz";
-
-            if (assembly.GetManifestResourceNames().Contains(formattedName))
+            try
             {
-                var ms = new MemoryStream();
-
-                using (var stream = assembly.GetManifestResourceStream(formattedName))
-                using (var gz = new GZipStream(stream, CompressionMode.Decompress))
-                    gz.CopyTo(ms);
-
-                ms.Seek(0, SeekOrigin.Begin);
-
-                return ms;
+                gz.CopyTo(ms);
+            }
+            catch (Exception)
+            {
+                ms.Dispose();
+                throw;
             }
 
-            throw new Exception($"Unable to locate embedded resource {name}");
+            ms.Seek(0, SeekOrigin.Begin);
+
+            return ms;
         }
     }
 }
