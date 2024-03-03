@@ -54,7 +54,7 @@ namespace LibraryTests.Iso9660
         [Fact]
         public void BootImage()
         {
-            var bytes = new byte[3 * Sizes.OneMiB];
+            var bytes = new byte[3133440];
 
             for(var i = 0; i < bytes.Length; ++i)
             {

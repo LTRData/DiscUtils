@@ -445,7 +445,7 @@ internal class VfsCDReader : VfsReadOnlyFileSystem<ReaderDirEntry, File, ReaderD
         {
             var partition = disk.Partitions.Single();
 
-            var imageSize = (partition.LastSector + 1) * Sizes.Sector;
+            var imageSize = partition.LastSector + 1;
 
             return imageSize;
         }
