@@ -21,7 +21,9 @@
 //
 
 using System.IO;
+using DiscUtils;
 using DiscUtils.Iso9660;
+using DiscUtils.Partitions;
 using DiscUtils.Streams;
 using Xunit;
 
@@ -52,26 +54,31 @@ namespace LibraryTests.Iso9660
         [Fact]
         public void BootImage()
         {
-            var bytes = new byte[33 * 512];
+            var bytes = new byte[3 * Sizes.OneMiB];
+
             for(var i = 0; i < bytes.Length; ++i)
             {
                 bytes[i] = (byte)i;
             }
 
-            EndianUtilities.WriteBytesLittleEndian(512, bytes, 11);
-            bytes[16] = 1;
-            EndianUtilities.WriteBytesLittleEndian(0, bytes, 19);
-            EndianUtilities.WriteBytesLittleEndian(bytes.Length / 512, bytes, 32);
+            var stream = new MemoryStream(bytes);
+
+            var partitionTable = BiosPartitionTable.Initialize(stream, Geometry.FromCapacity(stream.Length));
+
+            partitionTable.Create(WellKnownPartitionType.WindowsFat, active: true);
 
             var builder = new CDBuilder();
-            builder.SetBootImage(new MemoryStream(bytes), BootDeviceEmulation.HardDisk, 0x543);
+
+            builder.SetBootImage(stream, BootDeviceEmulation.HardDisk, 0x543);
 
             var fs = new CDReader(builder.Build(), false);
+
             Assert.True(fs.HasBootImage);
 
             using (var bootImg = fs.OpenBootImage())
             {
                 Assert.Equal(bytes.Length, bootImg.Length);
+
                 for (var i = 0; i < bootImg.Length; ++i)
                 {
                     if (bytes[i] != bootImg.ReadByte())

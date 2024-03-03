@@ -24,6 +24,8 @@ using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using DiscUtils.Partitions;
 using DiscUtils.Streams;
 using DiscUtils.Vfs;
 using LTRData.Extensions.Buffers;
@@ -421,6 +423,39 @@ internal class VfsCDReader : VfsReadOnlyFileSystem<ReaderDirEntry, File, ReaderD
     }
 
     /// <summary>
+    /// Detects size of hard disk emulation image from partition table.
+    /// </summary>
+    /// <param name="stream">The stream to inspect.</param>
+    /// <returns><c>Sector count</c> if the stream appears to be a FAT file system, else <c>0</c>.</returns>
+    public static long DetectSectorCountFromPartitionTable(Stream stream)
+    {
+        if (stream.Length < 512)
+        {
+            return 0;
+        }
+
+        stream.Position = 0;
+
+        Span<byte> bytes = stackalloc byte[512];
+        stream.ReadExactly(bytes);
+
+        var disk = new BiosPartitionTable(stream, Geometry.Null);
+
+        try
+        {
+            var partition = disk.Partitions.Single();
+
+            var imageSize = (partition.LastSector + 1) * Sizes.Sector;
+
+            return imageSize;
+        }
+        catch
+        {
+            throw new InvalidOperationException("Invalid hard disk emulation boot image - needs exactly one partition");
+        }
+    }
+
+    /// <summary>
     /// Detects size of FAT file system from a disk's boot sector.
     /// </summary>
     /// <param name="stream">The stream to inspect.</param>
@@ -433,8 +468,12 @@ internal class VfsCDReader : VfsReadOnlyFileSystem<ReaderDirEntry, File, ReaderD
         }
 
         stream.Position = 0;
-        var bytes = stream.ReadExactly(512);
-        var bpbBytesPerSec = EndianUtilities.ToUInt16LittleEndian(bytes, 11);
+
+        Span<byte> bytes = stackalloc byte[512];
+        stream.ReadExactly(bytes);
+        
+        var bpbBytesPerSec = EndianUtilities.ToUInt16LittleEndian(bytes.Slice(11));
+        
         if (bpbBytesPerSec != 512)
         {
             return 0;
@@ -446,8 +485,8 @@ internal class VfsCDReader : VfsReadOnlyFileSystem<ReaderDirEntry, File, ReaderD
             return 0;
         }
 
-        var bpbTotSec16 = EndianUtilities.ToUInt16LittleEndian(bytes, 19);
-        var bpbTotSec32 = EndianUtilities.ToUInt32LittleEndian(bytes, 32);
+        var bpbTotSec16 = EndianUtilities.ToUInt16LittleEndian(bytes.Slice(19));
+        var bpbTotSec32 = EndianUtilities.ToUInt32LittleEndian(bytes.Slice(32));
 
         if (!((bpbTotSec16 == 0) ^ (bpbTotSec32 == 0)))
         {
@@ -484,19 +523,34 @@ internal class VfsCDReader : VfsReadOnlyFileSystem<ReaderDirEntry, File, ReaderD
             case BootDeviceEmulation.Diskette2880KiB:
                 return 2880 * 1024 / Sizes.Sector;
             case BootDeviceEmulation.HardDisk:
+                {
+                    var initialEntry = GetBootInitialEntry();
+                    var BytesToStart = initialEntry.ImageStart * IsoUtilities.SectorSize;
+                    var sectorCount = DetectSectorCountFromPartitionTable(
+                        new SubStream(_data, BytesToStart, Sizes.Sector)
+                        );
+                    // Invalid length read from BootSector
+                    if (sectorCount == 0 || sectorCount * Sizes.Sector + BytesToStart > _data.Length)
+                    {
+                        sectorCount = initialEntry.SectorCount;
+                    }
+                    return sectorCount;
+                }
             case BootDeviceEmulation.NoEmulation:
             default:
-                var initialEntry = GetBootInitialEntry();
-                var BytesToStart = initialEntry.ImageStart * IsoUtilities.SectorSize;
-                var sectorCount = DetectSectorCountFromBootSector(
-                    new SubStream(_data, BytesToStart, Sizes.Sector)
-                    );
-                // Invalid length read from BootSector
-                if (sectorCount == 0 || sectorCount * Sizes.Sector + BytesToStart > _data.Length)
                 {
-                    sectorCount = initialEntry.SectorCount;
+                    var initialEntry = GetBootInitialEntry();
+                    var BytesToStart = initialEntry.ImageStart * IsoUtilities.SectorSize;
+                    var sectorCount = DetectSectorCountFromBootSector(
+                        new SubStream(_data, BytesToStart, Sizes.Sector)
+                        );
+                    // Invalid length read from BootSector
+                    if (sectorCount == 0 || sectorCount * Sizes.Sector + BytesToStart > _data.Length)
+                    {
+                        sectorCount = initialEntry.SectorCount;
+                    }
+                    return sectorCount;
                 }
-                return sectorCount;
         }
     }
 
