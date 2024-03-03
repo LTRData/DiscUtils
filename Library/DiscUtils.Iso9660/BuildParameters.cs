@@ -26,9 +26,12 @@ internal class BuildParameters
 {
     public BuildParameters()
     {
+        ManufacturerId = ".NET DiscUtils";
         VolumeIdentifier = string.Empty;
         UseJoliet = true;
     }
+
+    public string ManufacturerId { get; set; }
 
     public bool UseJoliet { get; set; }
 
