@@ -61,7 +61,9 @@ internal sealed class SubKeyHashedListCell : ListCell
 
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {
-        _hashType = EndianUtilities.BytesToString(buffer.Slice(0, 2));
+        var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
+
+        _hashType = latin1Encoding.GetString(buffer.Slice(0, 2));
         _numElements = EndianUtilities.ToInt16LittleEndian(buffer.Slice(2));
 
         _subKeyIndexes = new List<int>(_numElements);
@@ -77,7 +79,10 @@ internal sealed class SubKeyHashedListCell : ListCell
 
     public override void WriteTo(Span<byte> buffer)
     {
-        EndianUtilities.StringToBytes(_hashType, buffer.Slice(0, 2));
+        EncodingUtilities
+            .GetLatin1Encoding()
+            .GetBytes(_hashType, buffer.Slice(0, 2));
+
         EndianUtilities.WriteBytesLittleEndian(_numElements, buffer.Slice(0x2));
         for (var i = 0; i < _numElements; ++i)
         {

@@ -49,7 +49,9 @@ internal class PreHeaderRecord
 
     public int Read(ReadOnlySpan<byte> buffer)
     {
-        FileInfo = EndianUtilities.BytesToString(buffer.Slice(0, 64)).TrimEnd('\0');
+        var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
+
+        FileInfo = latin1Encoding.GetString(buffer.Slice(0, 64)).TrimEnd('\0');
         Signature = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(64));
         Version = new FileVersion(EndianUtilities.ToUInt32LittleEndian(buffer.Slice(68)));
         return Size;
@@ -71,7 +73,9 @@ internal class PreHeaderRecord
 
     public void Write(Span<byte> buffer)
     {
-        EndianUtilities.StringToBytes(FileInfo, buffer.Slice(0, 64));
+        var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
+
+        latin1Encoding.GetBytes(FileInfo.AsSpan(), buffer.Slice(0, 64));
         EndianUtilities.WriteBytesLittleEndian(Signature, buffer.Slice(64));
         EndianUtilities.WriteBytesLittleEndian(Version.Value, buffer.Slice(68));
     }

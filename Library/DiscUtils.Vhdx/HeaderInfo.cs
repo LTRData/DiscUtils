@@ -117,7 +117,10 @@ public sealed class HeaderInfo
         {
             Span<byte> buffer = stackalloc byte[4];
             EndianUtilities.WriteBytesLittleEndian(_header.Signature, buffer);
-            return EndianUtilities.BytesToString(buffer);
+
+            return EncodingUtilities
+                .GetLatin1Encoding()
+                .GetString(buffer);
         }
     }
 

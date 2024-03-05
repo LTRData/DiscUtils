@@ -20,11 +20,10 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-namespace DiscUtils.Archives;
-
-using Streams;
 using System;
-using System.Linq;
+using DiscUtils.Streams;
+
+namespace DiscUtils.Archives;
 
 public sealed class TarHeader
 {
@@ -69,7 +68,9 @@ public sealed class TarHeader
 
     public TarHeader(ReadOnlySpan<byte> buffer)
     {
-        FileName = EndianUtilities.BytesToString(ReadNullTerminatedString(buffer.Slice(0, 100)));
+        var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
+
+        FileName = latin1Encoding.GetString(ReadNullTerminatedString(buffer.Slice(0, 100)));
         FileMode = (UnixFilePermissions)OctalToLong(ReadNullTerminatedString(buffer.Slice(100, 8)));
         OwnerId = (int)OctalToLong(ReadNullTerminatedString(buffer.Slice(108, 8)));
         GroupId = (int)OctalToLong(ReadNullTerminatedString(buffer.Slice(116, 8)));
@@ -77,11 +78,11 @@ public sealed class TarHeader
         ModificationTime = DateTimeOffset.FromUnixTimeSeconds((uint)OctalToLong(ReadNullTerminatedString(buffer.Slice(136, 12))));
         CheckSum = (int)OctalToLong(ReadNullTerminatedString(buffer.Slice(148, 8)));
         FileType = (UnixFileType)buffer[156];
-        LinkName = EndianUtilities.BytesToString(ReadNullTerminatedString(buffer.Slice(157, 100)));
-        Magic = EndianUtilities.BytesToString(ReadNullTerminatedString(buffer.Slice(257, 6)));
+        LinkName = latin1Encoding.GetString(ReadNullTerminatedString(buffer.Slice(157, 100)));
+        Magic = latin1Encoding.GetString(ReadNullTerminatedString(buffer.Slice(257, 6)));
         Version = (int)OctalToLong(ReadNullTerminatedString(buffer.Slice(263, 2)));
-        OwnerName = EndianUtilities.BytesToString(ReadNullTerminatedString(buffer.Slice(265, 32)));
-        GroupName = EndianUtilities.BytesToString(ReadNullTerminatedString(buffer.Slice(297, 32)));
+        OwnerName = latin1Encoding.GetString(ReadNullTerminatedString(buffer.Slice(265, 32)));
+        GroupName = latin1Encoding.GetString(ReadNullTerminatedString(buffer.Slice(297, 32)));
         DevMajor = (int)OctalToLong(ReadNullTerminatedString(buffer.Slice(329, 8)));
         DevMinor = (int)OctalToLong(ReadNullTerminatedString(buffer.Slice(337, 8)));
 
@@ -89,8 +90,7 @@ public sealed class TarHeader
 
         if (!prefix.IsEmpty)
         {
-            var parentPath = EndianUtilities.BytesToString(prefix);
-            FileName = $"{parentPath}/{FileName}";
+            FileName = $"{latin1Encoding.GetString(prefix)}/{FileName}";
         }
 
         LastAccessTime = DateTimeOffset.FromUnixTimeSeconds((uint)OctalToLong(ReadNullTerminatedString(buffer.Slice(476, 12))));
@@ -153,9 +153,11 @@ public sealed class TarHeader
     {
         buffer.Clear();
 
+        var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
+
         if (FileName.Length < 100)
         {
-            EndianUtilities.StringToBytes(FileName, buffer.Slice(0, 99));
+            latin1Encoding.GetBytes(FileName, buffer.Slice(0, 99));
         }
         else
         {
@@ -167,17 +169,17 @@ public sealed class TarHeader
             }
 
             var prefix = FileName.AsSpan(0, split);
-            EndianUtilities.StringToBytes(prefix, buffer.Slice(345, 130));
+            latin1Encoding.GetBytes(prefix, buffer.Slice(345, 130));
 
             var filename = FileName.AsSpan(split + 1);
-            EndianUtilities.StringToBytes(filename, buffer.Slice(0, 99));
+            latin1Encoding.GetBytes(filename, buffer.Slice(0, 99));
         }
 
-        EndianUtilities.StringToBytes(LongToOctal((long)FileMode, 7), buffer.Slice(100, 7));
-        EndianUtilities.StringToBytes(LongToOctal(OwnerId, 7), buffer.Slice(108, 7));
-        EndianUtilities.StringToBytes(LongToOctal(GroupId, 7), buffer.Slice(116, 7));
-        EndianUtilities.StringToBytes(LongToOctal(FileLength, 11), buffer.Slice(124, 11));
-        EndianUtilities.StringToBytes(LongToOctal(ModificationTime.ToUnixTimeSeconds(), 11), buffer.Slice(136, 11));
+        latin1Encoding.GetBytes(LongToOctal((long)FileMode, 7), buffer.Slice(100, 7));
+        latin1Encoding.GetBytes(LongToOctal(OwnerId, 7), buffer.Slice(108, 7));
+        latin1Encoding.GetBytes(LongToOctal(GroupId, 7), buffer.Slice(116, 7));
+        latin1Encoding.GetBytes(LongToOctal(FileLength, 11), buffer.Slice(124, 11));
+        latin1Encoding.GetBytes(LongToOctal(ModificationTime.ToUnixTimeSeconds(), 11), buffer.Slice(136, 11));
 
         buffer.Slice(148, 8).Fill((byte)' ');
 
@@ -189,7 +191,7 @@ public sealed class TarHeader
             checkSum += buffer[i];
         }
 
-        EndianUtilities.StringToBytes(LongToOctal(checkSum, 7), buffer.Slice(148, 7));
+        latin1Encoding.GetBytes(LongToOctal(checkSum, 7), buffer.Slice(148, 7));
         buffer[155] = 0;
     }
 

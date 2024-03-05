@@ -52,17 +52,19 @@ internal class PrivateHeader
 
     public void ReadFrom(ReadOnlySpan<byte> buffer)
     {
-        Signature = EndianUtilities.BytesToString(buffer.Slice(0x00, 8));
+        var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
+
+        Signature = latin1Encoding.GetString(buffer.Slice(0x00, 8));
         Checksum = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x08));
         Version = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x0C));
         Timestamp = DateTime.FromFileTimeUtc(EndianUtilities.ToInt64BigEndian(buffer.Slice(0x10)));
         Unknown2 = EndianUtilities.ToInt64BigEndian(buffer.Slice(0x18));
         Unknown3 = EndianUtilities.ToInt64BigEndian(buffer.Slice(0x20));
         Unknown4 = EndianUtilities.ToInt64BigEndian(buffer.Slice(0x28));
-        DiskId = EndianUtilities.BytesToString(buffer.Slice(0x30, 0x40)).Trim('\0');
-        HostId = EndianUtilities.BytesToString(buffer.Slice(0x70, 0x40)).Trim('\0');
-        DiskGroupId = EndianUtilities.BytesToString(buffer.Slice(0xB0, 0x40)).Trim('\0');
-        DiskGroupName = EndianUtilities.BytesToString(buffer.Slice(0xF0, 31)).Trim('\0');
+        DiskId = latin1Encoding.GetString(buffer.Slice(0x30, 0x40)).Trim('\0');
+        HostId = latin1Encoding.GetString(buffer.Slice(0x70, 0x40)).Trim('\0');
+        DiskGroupId = latin1Encoding.GetString(buffer.Slice(0xB0, 0x40)).Trim('\0');
+        DiskGroupName = latin1Encoding.GetString(buffer.Slice(0xF0, 31)).Trim('\0');
         Unknown5 = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x10F));
         DataStartLba = EndianUtilities.ToInt64BigEndian(buffer.Slice(0x11B));
         DataSizeLba = EndianUtilities.ToInt64BigEndian(buffer.Slice(0x123));

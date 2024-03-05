@@ -360,7 +360,9 @@ internal static class IsoUtilities
             return DateTime.MinValue;
         }
 
-        var strForm = EndianUtilities.BytesToString(data.Slice(0, 16));
+        var strForm = EncodingUtilities
+            .GetLatin1Encoding()
+            .GetString(data.Slice(0, 16));
 
         // Work around bugs in burning software that may use zero bytes (rather than '0' characters)
         strForm = strForm.Replace('\0', '0');
@@ -398,7 +400,11 @@ internal static class IsoUtilities
         }
 
         var strForm = dateTime.ToString("yyyyMMddHHmmssff", CultureInfo.InvariantCulture);
-        EndianUtilities.StringToBytes(strForm, buffer.Slice(0, 16));
+
+        EncodingUtilities
+            .GetLatin1Encoding()
+            .GetBytes(strForm, buffer.Slice(0, 16));
+        
         buffer[16] = 0;
     }
 

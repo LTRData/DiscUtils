@@ -20,15 +20,15 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-namespace DiscUtils.Lvm;
-
 using System;
 using System.IO;
 using System.Collections.Generic;
-using DiscUtils.Streams;
 using System.Linq;
 using System.Runtime.InteropServices;
+using DiscUtils.Streams;
 using LTRData.Extensions.Buffers;
+
+namespace DiscUtils.Lvm;
 
 internal class MetadataLogicalVolumeSection
 {
@@ -43,12 +43,12 @@ internal class MetadataLogicalVolumeSection
     public List<MetadataSegmentSection> Segments;
     private Dictionary<string, PhysicalVolume> _pvs;
     private ulong _extentSize;
+
     internal void Parse(string head, TextReader data)
     {
         var segments = new List<MetadataSegmentSection>();
         Name = head.AsSpan().Trim().TrimEnd('{').TrimEnd().ToString();
         string line;
-        Span<byte> guid = stackalloc byte[16];
         
         while ((line = Metadata.ReadLine(data)) != null)
         {
@@ -60,7 +60,13 @@ internal class MetadataLogicalVolumeSection
                 {
                     case "id":
                         Id = Metadata.ParseStringValue(parameter.Value.Span);
-                        EndianUtilities.StringToBytes(Id.Replace("-", String.Empty), guid);
+
+                        Span<byte> guid = stackalloc byte[16];
+
+                        EncodingUtilities
+                            .GetLatin1Encoding()
+                            .GetBytes(Id.Replace("-", String.Empty).AsSpan(0, 16), guid);
+
                         // Mark it as a version 4 GUID
                         guid[7] = (byte)((guid[7] | 0x40) & 0x4f);
                         guid[8] = (byte)((guid[8] | 0x80) & 0xbf);

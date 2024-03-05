@@ -1498,7 +1498,9 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
         bootSector[2] = 0x90;
 
         // OEM Name
-        EndianUtilities.StringToBytes("DISCUTIL", bootSector.Slice(3, 8));
+        EncodingUtilities
+            .GetLatin1Encoding()
+            .GetBytes("DISCUTIL", bootSector.Slice(3, 8));
 
         // Bytes Per Sector (512)
         bootSector[11] = 0;
@@ -1610,11 +1612,13 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
         // Volume Id
         EndianUtilities.WriteBytesLittleEndian(volId, bootSector.Slice(3));
 
+        var encoding = EncodingUtilities.GetLatin1Encoding();
+
         // Volume Label
-        EndianUtilities.StringToBytes(label.PadRight(11, ' ').AsSpan(0, 11), bootSector.Slice(7, 11));
+        encoding.GetBytes(label.PadRight(11, ' ').AsSpan(0, 11), bootSector.Slice(7, 11));
 
         // File System Type
-        EndianUtilities.StringToBytes(fsType, bootSector.Slice(18, 8));
+        encoding.GetBytes(fsType, bootSector.Slice(18, 8));
     }
 
     private static FatType DetectFATType(byte[] bpb)
@@ -1927,7 +1931,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
         }
         else
         {
-            throw new ArgumentException("Unrecognised Floppy Disk type", nameof(type));
+            throw new ArgumentException("Unrecognized Floppy Disk type", nameof(type));
         }
 
         stream.Write(bpb);

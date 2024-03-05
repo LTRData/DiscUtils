@@ -25,6 +25,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using DiscUtils.Internal;
+using DiscUtils.Streams;
 using DiscUtils.Streams.Compatibility;
 
 namespace DiscUtils.Fat;
@@ -105,7 +106,7 @@ internal sealed class FileName : IEquatable<FileName>
 
         Span<byte> bytes = stackalloc byte[encoding.GetByteCount(name)];
         
-        encoding.GetBytes(name.AsSpan(), bytes);
+        encoding.GetBytes(name, bytes);
 
         if (bytes.Length == 0)
         {

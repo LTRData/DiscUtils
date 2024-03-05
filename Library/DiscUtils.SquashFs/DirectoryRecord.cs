@@ -45,11 +45,13 @@ internal class DirectoryRecord : IByteArraySerializable
 
     public void WriteTo(Span<byte> buffer)
     {
+        var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
+
         EndianUtilities.WriteBytesLittleEndian(Offset, buffer);
         EndianUtilities.WriteBytesLittleEndian(InodeNumber, buffer.Slice(2));
         EndianUtilities.WriteBytesLittleEndian((ushort)Type, buffer.Slice(4));
         EndianUtilities.WriteBytesLittleEndian((ushort)(Name.Length - 1), buffer.Slice(6));
-        EndianUtilities.StringToBytes(Name, buffer.Slice(8, Name.Length));
+        latin1Encoding.GetBytes(Name, buffer.Slice(8, Name.Length));
     }
 
     public static DirectoryRecord ReadFrom(MetablockReader reader)

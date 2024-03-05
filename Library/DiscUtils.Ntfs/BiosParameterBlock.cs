@@ -22,9 +22,10 @@
 
 using System;
 using System.Buffers;
-using System.Globalization;
 using System.IO;
+using System.Text;
 using System.Runtime.InteropServices;
+
 using System.Security.Cryptography;
 using DiscUtils.Streams;
 using DiscUtils.Streams.Compatibility;
@@ -132,9 +133,11 @@ internal class BiosParameterBlock
 
     internal static BiosParameterBlock FromBytes(ReadOnlySpan<byte> bytes)
     {
+        var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
+
         var bpb = new BiosParameterBlock
         {
-            OemId = EndianUtilities.BytesToString(bytes.Slice(0x03, 8)),
+            OemId = latin1Encoding.GetString(bytes.Slice(0x03, 8)),
             BytesPerSector = EndianUtilities.ToUInt16LittleEndian(bytes.Slice(0x0B)),
             TotalSectors16 = EndianUtilities.ToUInt16LittleEndian(bytes.Slice(0x13)),
             TotalSectors32 = EndianUtilities.ToUInt32LittleEndian(bytes.Slice(0x20)),
@@ -166,7 +169,9 @@ internal class BiosParameterBlock
 
     internal void ToBytes(Span<byte> buffer)
     {
-        EndianUtilities.StringToBytes(OemId, buffer.Slice(0x03, 8));
+        var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
+
+        latin1Encoding.GetBytes(OemId, buffer.Slice(0x03, 8));
         EndianUtilities.WriteBytesLittleEndian(BytesPerSector, buffer.Slice(0x0B));
         buffer[0x0D] = EncodeSingleByteSize(SectorsPerCluster);
         EndianUtilities.WriteBytesLittleEndian(ReservedSectors, buffer.Slice(0x0E));

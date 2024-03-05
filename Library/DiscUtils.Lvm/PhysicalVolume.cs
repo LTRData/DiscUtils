@@ -24,10 +24,8 @@ namespace DiscUtils.Lvm;
 
 using System;
 using System.IO;
-using System.Linq;
 using DiscUtils.Partitions;
 using DiscUtils.Streams;
-using DiscUtils.Streams.Compatibility;
 
 internal class PhysicalVolume
 {
@@ -94,7 +92,10 @@ internal class PhysicalVolume
                 return false;
             }
 
-            var label = EndianUtilities.BytesToString(buffer, 0x0, 0x8);
+            var label = EncodingUtilities
+                .GetLatin1Encoding()
+                .GetString(buffer, 0x0, 0x8);
+
             if (label == PhysicalVolumeLabel.LABEL_ID)
             {
                 pvLabel = new PhysicalVolumeLabel();

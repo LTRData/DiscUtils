@@ -20,8 +20,9 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-using DiscUtils.Streams;
 using System;
+using DiscUtils.Streams;
+using DiscUtils.Streams.Compatibility;
 
 namespace DiscUtils.Vhd;
 
@@ -50,19 +51,22 @@ internal class ParentLocator
 
     public static ParentLocator FromBytes(ReadOnlySpan<byte> data)
     {
-        var result = new ParentLocator
+        var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
+
+        return new ParentLocator
         {
-            PlatformCode = EndianUtilities.BytesToString(data.Slice(0, 4)),
+            PlatformCode = latin1Encoding.GetString(data.Slice(0, 4)),
             PlatformDataSpace = EndianUtilities.ToInt32BigEndian(data.Slice(4)),
             PlatformDataLength = EndianUtilities.ToInt32BigEndian(data.Slice(8)),
             PlatformDataOffset = EndianUtilities.ToInt64BigEndian(data.Slice(16))
         };
-        return result;
     }
 
     internal void ToBytes(Span<byte> data)
     {
-        EndianUtilities.StringToBytes(PlatformCode, data.Slice(0, 4));
+        var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
+
+        latin1Encoding.GetBytes(PlatformCode.AsSpan(), data.Slice(0, 4));
         EndianUtilities.WriteBytesBigEndian(PlatformDataSpace, data.Slice(4));
         EndianUtilities.WriteBytesBigEndian(PlatformDataLength, data.Slice(8));
         EndianUtilities.WriteBytesBigEndian((uint)0, data.Slice(12));

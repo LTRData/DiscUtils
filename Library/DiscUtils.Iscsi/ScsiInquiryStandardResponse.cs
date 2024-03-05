@@ -58,12 +58,13 @@ internal class ScsiInquiryStandardResponse : ScsiResponse
             return;
         }
 
+        var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
+
         DeviceType = (LunClass)(buffer[0] & 0x1F);
         Removable = (buffer[1] & 0x80) != 0;
         SpecificationVersion = buffer[2];
-
-        VendorId = EndianUtilities.BytesToString(buffer, 8, 8);
-        ProductId = EndianUtilities.BytesToString(buffer, 16, 16);
-        ProductRevision = EndianUtilities.BytesToString(buffer, 32, 4);
+        VendorId = latin1Encoding.GetString(buffer, 8, 8);
+        ProductId = latin1Encoding.GetString(buffer, 16, 16);
+        ProductRevision = latin1Encoding.GetString(buffer, 32, 4);
     }
 }

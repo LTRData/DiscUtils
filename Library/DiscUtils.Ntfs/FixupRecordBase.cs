@@ -86,7 +86,10 @@ internal abstract class FixupRecordBase
 
     public void FromBytes(Span<byte> buffer, bool ignoreMagic = false)
     {
-        var diskMagic = EndianUtilities.BytesToString(buffer.Slice(0x00, 4));
+        var diskMagic = EncodingUtilities
+            .GetLatin1Encoding()
+            .GetString(buffer.Slice(0x00, 4));
+
         if (Magic == null)
         {
             Magic = diskMagic;
@@ -125,7 +128,10 @@ internal abstract class FixupRecordBase
 
         ProtectBuffer(buffer);
 
-        EndianUtilities.StringToBytes(Magic, buffer.Slice(0x00, 4));
+        EncodingUtilities
+            .GetLatin1Encoding()
+            .GetBytes(Magic, buffer.Slice(0x00, 4));
+
         EndianUtilities.WriteBytesLittleEndian(UpdateSequenceOffset, buffer.Slice(0x04));
         EndianUtilities.WriteBytesLittleEndian(UpdateSequenceCount, buffer.Slice(0x06));
 

@@ -85,7 +85,10 @@ internal abstract class DatabaseRecord
     {
         int length = buffer[offset];
 
-        var result = EndianUtilities.BytesToString(buffer, offset + 1, length);
+        var result = EncodingUtilities
+            .GetLatin1Encoding()
+            .GetString(buffer, offset + 1, length);
+
         offset += length + 1;
         return result;
     }
@@ -116,7 +119,10 @@ internal abstract class DatabaseRecord
     protected static string ReadString(byte[] buffer, int len, ref int offset)
     {
         offset += len;
-        return EndianUtilities.BytesToString(buffer, offset - len, len);
+
+        return EncodingUtilities
+            .GetLatin1Encoding()
+            .GetString(buffer, offset - len, len);
     }
 
     protected static Guid ReadBinaryGuid(byte[] buffer, ref int offset)
@@ -129,7 +135,9 @@ internal abstract class DatabaseRecord
 
     protected virtual void DoReadFrom(ReadOnlySpan<byte> buffer)
     {
-        Signature = EndianUtilities.BytesToString(buffer.Slice(0x00, 4));
+        var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
+
+        Signature = latin1Encoding.GetString(buffer.Slice(0x00, 4));
         Label = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x04));
         Counter = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x08));
         Valid = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x0C));

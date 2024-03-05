@@ -596,121 +596,6 @@ public static class EndianUtilities
     }
 
     /// <summary>
-    /// Primitive conversion from Unicode to ASCII that preserves special characters.
-    /// </summary>
-    /// <param name="value">The string to convert.</param>
-    /// <param name="dest">The buffer to fill.</param>
-    /// <param name="offset">The start of the string in the buffer.</param>
-    /// <param name="count">The number of characters to convert.</param>
-    /// <remarks>The built-in ASCIIEncoding converts characters of codepoint > 127 to ?,
-    /// this preserves those code points by removing the top 16 bits of each character.</remarks>
-    public static void StringToBytes(string value, byte[] dest, int offset, int count)
-    {
-        Encoding.GetEncoding(28591).GetBytes(value, 0, Math.Min(count, value.Length), dest, offset);
-    }
-
-    /// <summary>
-    /// Primitive conversion from Unicode to ASCII that preserves special characters.
-    /// </summary>
-    /// <param name="value">The string to convert.</param>
-    /// <param name="dest">The buffer to fill.</param>
-    /// <remarks>The built-in ASCIIEncoding converts characters of codepoint > 127 to ?,
-    /// this preserves those code points by removing the top 16 bits of each character.</remarks>
-    public static void StringToBytes(string value, Span<byte> dest)
-    {
-#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP
-        Encoding.GetEncoding(28591).GetBytes(value.AsSpan(0, Math.Min(dest.Length, value.Length)), dest);
-#else
-        var buffer = ArrayPool<byte>.Shared.Rent(dest.Length);
-        try
-        {
-            Array.Clear(buffer, 0, dest.Length);
-            StringToBytes(value, buffer, 0, dest.Length);
-            buffer.AsSpan(0, dest.Length).CopyTo(dest);
-        }
-        finally
-        {
-            ArrayPool<byte>.Shared.Return(buffer);
-        }
-#endif
-    }
-
-    /// <summary>
-    /// Primitive conversion from Unicode to ASCII that preserves special characters.
-    /// </summary>
-    /// <param name="value">The string to convert.</param>
-    /// <param name="dest">The buffer to fill.</param>
-    /// <remarks>The built-in ASCIIEncoding converts characters of codepoint > 127 to ?,
-    /// this preserves those code points by removing the top 16 bits of each character.</remarks>
-    public static int StringToBytes(ReadOnlySpan<char> value, Span<byte> dest)
-    {
-#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP
-        return Encoding.GetEncoding(28591).GetBytes(value.Slice(0, Math.Min(dest.Length, value.Length)), dest);
-#else
-        var chars = ArrayPool<char>.Shared.Rent(value.Length);
-        try
-        {
-            value.CopyTo(chars);
-            var buffer = ArrayPool<byte>.Shared.Rent(dest.Length);
-            try
-            {
-                Array.Clear(buffer, 0, dest.Length);
-                var numBytes = Encoding.GetEncoding(28591).GetBytes(chars, 0, value.Length, buffer, 0);
-                buffer.AsSpan(0, numBytes).CopyTo(dest);
-                return numBytes;
-            }
-            finally
-            {
-                ArrayPool<byte>.Shared.Return(buffer);
-            }
-        }
-        finally
-        {
-            ArrayPool<char>.Shared.Return(chars);
-        }
-#endif
-    }
-
-    /// <summary>
-    /// Primitive conversion from ASCII to Unicode that preserves special characters.
-    /// </summary>
-    /// <param name="data">The data to convert.</param>
-    /// <param name="offset">The first byte to convert.</param>
-    /// <param name="count">The number of bytes to convert.</param>
-    /// <returns>The string.</returns>
-    /// <remarks>The built-in ASCIIEncoding converts characters of codepoint > 127 to ?,
-    /// this preserves those code points.</remarks>
-    public static string BytesToString(byte[] data, int offset, int count)
-    {
-        return Encoding.GetEncoding(28591).GetString(data, offset, count);
-    }
-
-    /// <summary>
-    /// Primitive conversion from ASCII to Unicode that preserves special characters.
-    /// </summary>
-    /// <param name="data">The data to convert.</param>
-    /// <returns>The string.</returns>
-    /// <remarks>The built-in ASCIIEncoding converts characters of codepoint > 127 to ?,
-    /// this preserves those code points.</remarks>
-    public static string BytesToString(ReadOnlySpan<byte> data)
-    {
-#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP
-        return Encoding.GetEncoding(28591).GetString(data);
-#else
-        var buffer = ArrayPool<byte>.Shared.Rent(data.Length);
-        try
-        {
-            data.CopyTo(buffer);
-            return Encoding.GetEncoding(28591).GetString(buffer, 0, data.Length);
-        }
-        finally
-        {
-            ArrayPool<byte>.Shared.Return(buffer);
-        }
-#endif
-    }
-
-    /// <summary>
     /// Primitive conversion from ASCII to Unicode that stops at a null-terminator.
     /// </summary>
     /// <param name="data">The data to convert.</param>
@@ -728,7 +613,7 @@ public static class EndianUtilities
             count = z - offset;
         }
 
-        return Encoding.GetEncoding(28591).GetString(data, offset, count);
+        return EncodingUtilities.GetLatin1Encoding().GetString(data, offset, count);
     }
 
     /// <summary>
@@ -748,13 +633,13 @@ public static class EndianUtilities
         }
 
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP
-        return Encoding.GetEncoding(28591).GetString(data);
+        return EncodingUtilities.GetLatin1Encoding().GetString(data);
 #else
         var buffer = ArrayPool<byte>.Shared.Rent(data.Length);
         try
         {
             data.CopyTo(buffer);
-            return Encoding.GetEncoding(28591).GetString(buffer, 0, data.Length);
+            return EncodingUtilities.GetLatin1Encoding().GetString(buffer, 0, data.Length);
         }
         finally
         {

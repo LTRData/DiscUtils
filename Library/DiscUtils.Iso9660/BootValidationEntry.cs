@@ -46,7 +46,9 @@ internal class BootValidationEntry
 
         HeaderId = _data[0];
         PlatformId = _data[1];
-        ManfId = EndianUtilities.BytesToString(_data, 4, 24).AsSpan().TrimEnd('\0').TrimEnd(' ').ToString();
+        ManfId = EncodingUtilities
+            .GetLatin1Encoding()
+            .GetString(_data, 4, 24).AsSpan().TrimEnd('\0').TrimEnd(' ').ToString();
     }
 
     public bool ChecksumValid
@@ -68,7 +70,11 @@ internal class BootValidationEntry
         Array.Clear(buffer, offset, 0x20);
         buffer[offset + 0x00] = HeaderId;
         buffer[offset + 0x01] = PlatformId;
-        EndianUtilities.StringToBytes(ManfId, buffer, offset + 0x04, 24);
+
+        EncodingUtilities
+            .GetLatin1Encoding()
+            .GetBytes(ManfId, 0, ManfId.Length, buffer, offset + 4);
+
         buffer[offset + 0x1E] = 0x55;
         buffer[offset + 0x1F] = 0xAA;
         EndianUtilities.WriteBytesLittleEndian(CalcChecksum(buffer, offset), buffer, offset + 0x1C);

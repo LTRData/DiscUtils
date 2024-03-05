@@ -44,7 +44,10 @@ internal abstract class SystemUseEntry
             return null;
         }
 
-        var name = EndianUtilities.BytesToString(data.Slice(0, 2));
+        var name = EncodingUtilities
+            .GetLatin1Encoding()
+            .GetString(data.Slice(0, 2));
+
         length = data[2];
         var version = data[3];
 

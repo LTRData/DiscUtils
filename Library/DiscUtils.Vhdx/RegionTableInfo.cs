@@ -67,7 +67,10 @@ public sealed class RegionTableInfo : ICollection<RegionInfo>
         {
             Span<byte> buffer = stackalloc byte[4];
             EndianUtilities.WriteBytesLittleEndian(_table.Signature, buffer);
-            return EndianUtilities.BytesToString(buffer);
+
+            return EncodingUtilities
+                .GetLatin1Encoding()
+                .GetString(buffer);
         }
     }
 

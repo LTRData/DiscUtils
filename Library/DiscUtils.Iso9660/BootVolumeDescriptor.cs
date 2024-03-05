@@ -20,8 +20,8 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-using DiscUtils.Streams;
 using System;
+using DiscUtils.Streams;
 
 namespace DiscUtils.Iso9660;
 
@@ -50,7 +50,10 @@ internal class BootVolumeDescriptor : BaseVolumeDescriptor
     {
         base.WriteTo(buffer);
 
-        EndianUtilities.StringToBytes(ElToritoSystemIdentifier, buffer.Slice(7, 0x20));
+        EncodingUtilities
+            .GetLatin1Encoding()
+            .GetBytes(ElToritoSystemIdentifier, buffer.Slice(7, 0x20));
+
         EndianUtilities.WriteBytesLittleEndian(CatalogSector, buffer.Slice(0x47));
     }
 }

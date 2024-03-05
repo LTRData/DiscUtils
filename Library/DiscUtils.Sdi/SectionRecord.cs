@@ -20,8 +20,8 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-using DiscUtils.Streams;
 using System;
+using DiscUtils.Streams;
 
 namespace DiscUtils.Sdi;
 
@@ -37,7 +37,9 @@ internal class SectionRecord
 
     public void ReadFrom(ReadOnlySpan<byte> buffer)
     {
-        SectionType = EndianUtilities.BytesToString(buffer.Slice(0, 8)).TrimEnd('\0');
+        var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
+
+        SectionType = latin1Encoding.GetString(buffer.Slice(0, 8)).TrimEnd('\0');
         Attr = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(8));
         Offset = EndianUtilities.ToInt64LittleEndian(buffer.Slice(16));
         Size = EndianUtilities.ToInt64LittleEndian(buffer.Slice(24));

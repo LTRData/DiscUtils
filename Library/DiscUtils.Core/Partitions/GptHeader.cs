@@ -77,7 +77,9 @@ internal class GptHeader
 
     public bool ReadFrom(ReadOnlySpan<byte> buffer)
     {
-        Signature = EndianUtilities.BytesToString(buffer.Slice(0, 8));
+        var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
+
+        Signature = latin1Encoding.GetString(buffer.Slice(0, 8));
         Version = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(8));
         HeaderSize = EndianUtilities.ToInt32LittleEndian(buffer.Slice(12));
         Crc = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(16));
@@ -111,7 +113,10 @@ internal class GptHeader
         Buffer.CopyTo(buffer);
 
         // Next, write the fields
-        EndianUtilities.StringToBytes(Signature, buffer.Slice(0, 8));
+        EncodingUtilities
+            .GetLatin1Encoding()
+            .GetBytes(Signature, buffer.Slice(0, 8));
+
         EndianUtilities.WriteBytesLittleEndian(Version, buffer.Slice(8));
         EndianUtilities.WriteBytesLittleEndian(HeaderSize, buffer.Slice(12));
         EndianUtilities.WriteBytesLittleEndian((uint)0, buffer.Slice(16));

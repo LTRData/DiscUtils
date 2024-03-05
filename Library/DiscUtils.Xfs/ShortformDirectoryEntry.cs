@@ -20,10 +20,10 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-namespace DiscUtils.Xfs;
-
-using DiscUtils.Streams;
 using System;
+using DiscUtils.Streams;
+
+namespace DiscUtils.Xfs;
 
 internal class ShortformDirectoryEntry : IByteArraySerializable, IDirectoryEntry
 {
@@ -81,6 +81,8 @@ internal class ShortformDirectoryEntry : IByteArraySerializable, IDirectoryEntry
     /// <inheritdoc />
     public override string ToString()
     {
-        return $"{Inode}: {EndianUtilities.BytesToString(Name, 0, NameLength)}";
+        var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
+
+        return $"{Inode}: {latin1Encoding.GetString(Name, 0, NameLength)}";
     }
 }

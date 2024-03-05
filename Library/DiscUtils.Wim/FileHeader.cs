@@ -46,7 +46,9 @@ internal class FileHeader : IByteArraySerializable
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
-        Tag = EndianUtilities.BytesToString(buffer.Slice(0, 8));
+        var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
+
+        Tag = latin1Encoding.GetString(buffer.Slice(0, 8));
         HeaderSize = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(8));
         Version = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(12));
         Flags = (FileFlags)EndianUtilities.ToUInt32LittleEndian(buffer.Slice(16));

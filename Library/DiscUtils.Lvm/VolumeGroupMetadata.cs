@@ -20,12 +20,12 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-namespace DiscUtils.Lvm;
-
 using DiscUtils.Streams;
 using System;
 using System.Collections.Generic;
 using System.IO;
+
+namespace DiscUtils.Lvm;
 
 internal class VolumeGroupMetadata : IByteArraySerializable
 {
@@ -47,9 +47,11 @@ internal class VolumeGroupMetadata : IByteArraySerializable
     /// <inheritdoc />
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
+        var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
+
         Crc = EndianUtilities.ToUInt32LittleEndian(buffer);
         CalculatedCrc = PhysicalVolume.CalcCrc(buffer.Slice(0x4, PhysicalVolume.SECTOR_SIZE - 0x4));
-        Magic = EndianUtilities.BytesToString(buffer.Slice(0x4, 0x10));
+        Magic = latin1Encoding.GetString(buffer.Slice(0x4, 0x10));
         Version = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x14));
         Start = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x18));
         Length = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x20));
@@ -71,7 +73,7 @@ internal class VolumeGroupMetadata : IByteArraySerializable
             var checksum = PhysicalVolume.CalcCrc(buffer.Slice((int) location.Offset, (int) location.Length));
             if (location.Checksum != checksum)
                 throw new IOException("invalid metadata checksum");
-            Metadata = EndianUtilities.BytesToString(buffer.Slice((int)location.Offset, (int)location.Length));
+            Metadata = latin1Encoding.GetString(buffer.Slice((int)location.Offset, (int)location.Length));
             ParsedMetadata = Lvm.Metadata.Parse(Metadata);
             break;
         }
