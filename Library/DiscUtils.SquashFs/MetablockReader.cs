@@ -173,14 +173,17 @@ internal sealed class MetablockReader
     public string ReadString(int len)
     {
         var block = _context.ReadMetaBlock(_start + _currentBlockStart);
+        var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
 
         if (block.Available - _currentOffset < len)
         {
             Span<byte> buffer = stackalloc byte[len];
             buffer = buffer.Slice(0, Read(buffer));
-            return EndianUtilities.BytesToString(buffer);
+            return latin1Encoding.GetString(buffer);
         }
-        var result = EndianUtilities.BytesToString(block.Data, _currentOffset, len);
+
+        var result = latin1Encoding.GetString(block.Data, _currentOffset, len);
+
         _currentOffset += len;
         return result;
     }

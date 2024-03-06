@@ -20,12 +20,12 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-namespace DiscUtils.Lvm;
-
 using DiscUtils.Streams;
 using System;
 using System.Collections.Generic;
 using System.Text;
+
+namespace DiscUtils.Lvm;
 
 internal class PvHeader : IByteArraySerializable
 {
@@ -71,15 +71,16 @@ internal class PvHeader : IByteArraySerializable
 
     private static string ReadUuid(ReadOnlySpan<byte> buffer)
     {
-        var sb = new StringBuilder()
-        .Append(EndianUtilities.BytesToString(buffer.Slice(0, 0x6))).Append('-')
-        .Append(EndianUtilities.BytesToString(buffer.Slice(0x6, 0x4))).Append('-')
-        .Append(EndianUtilities.BytesToString(buffer.Slice(0xA, 0x4))).Append('-')
-        .Append(EndianUtilities.BytesToString(buffer.Slice(0xE, 0x4))).Append('-')
-        .Append(EndianUtilities.BytesToString(buffer.Slice(0x12, 0x4))).Append('-')
-        .Append(EndianUtilities.BytesToString(buffer.Slice(0x16, 0x4))).Append('-')
-        .Append(EndianUtilities.BytesToString(buffer.Slice(0x1A, 0x6)));
-        
-        return sb.ToString();
+        var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
+
+        return new StringBuilder()
+            .Append(latin1Encoding.GetString(buffer.Slice(0, 0x6))).Append('-')
+            .Append(latin1Encoding.GetString(buffer.Slice(0x6, 0x4))).Append('-')
+            .Append(latin1Encoding.GetString(buffer.Slice(0xA, 0x4))).Append('-')
+            .Append(latin1Encoding.GetString(buffer.Slice(0xE, 0x4))).Append('-')
+            .Append(latin1Encoding.GetString(buffer.Slice(0x12, 0x4))).Append('-')
+            .Append(latin1Encoding.GetString(buffer.Slice(0x16, 0x4))).Append('-')
+            .Append(latin1Encoding.GetString(buffer.Slice(0x1A, 0x6)))
+            .ToString();
     }
 }

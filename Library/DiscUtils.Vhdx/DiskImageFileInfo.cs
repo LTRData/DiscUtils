@@ -210,7 +210,10 @@ public sealed class DiskImageFileInfo
         {
             Span<byte> buffer = stackalloc byte[8];
             EndianUtilities.WriteBytesLittleEndian(_fileHeader.Signature, buffer);
-            return EndianUtilities.BytesToString(buffer);
+
+            return EncodingUtilities
+                .GetLatin1Encoding()
+                .GetString(buffer);
         }
     }
 }

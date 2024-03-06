@@ -80,6 +80,8 @@ internal sealed class KeyNodeCell : Cell
 
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {
+        var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
+
         Flags = (RegistryKeyFlags)EndianUtilities.ToUInt16LittleEndian(buffer.Slice(0x02));
         Timestamp = DateTime.FromFileTimeUtc(EndianUtilities.ToInt64LittleEndian(buffer.Slice(0x04)));
         ParentIndex = EndianUtilities.ToInt32LittleEndian(buffer.Slice(0x10));
@@ -95,14 +97,16 @@ internal sealed class KeyNodeCell : Cell
         IndexInParent = EndianUtilities.ToInt32LittleEndian(buffer.Slice(0x44));
         int nameLength = EndianUtilities.ToInt16LittleEndian(buffer.Slice(0x48));
         ClassNameLength = EndianUtilities.ToInt16LittleEndian(buffer.Slice(0x4A));
-        Name = EndianUtilities.BytesToString(buffer.Slice(0x4C, nameLength));
+        Name = latin1Encoding.GetString(buffer.Slice(0x4C, nameLength));
 
         return 0x4C + nameLength;
     }
 
     public override void WriteTo(Span<byte> buffer)
     {
-        EndianUtilities.StringToBytes("nk", buffer.Slice(0, 2));
+        var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
+
+        latin1Encoding.GetBytes("nk", buffer.Slice(0, 2));
         EndianUtilities.WriteBytesLittleEndian((ushort)Flags, buffer.Slice(0x02));
         EndianUtilities.WriteBytesLittleEndian(Timestamp.ToFileTimeUtc(), buffer.Slice(0x04));
         EndianUtilities.WriteBytesLittleEndian(ParentIndex, buffer.Slice(0x10));
@@ -115,7 +119,7 @@ internal sealed class KeyNodeCell : Cell
         EndianUtilities.WriteBytesLittleEndian(IndexInParent, buffer.Slice(0x44));
         EndianUtilities.WriteBytesLittleEndian((ushort)Name.Length, buffer.Slice(0x48));
         EndianUtilities.WriteBytesLittleEndian(ClassNameLength, buffer.Slice(0x4A));
-        EndianUtilities.StringToBytes(Name, buffer.Slice(0x4C, Name.Length));
+        latin1Encoding.GetBytes(Name, buffer.Slice(0x4C, Name.Length));
     }
 
     public override string ToString()

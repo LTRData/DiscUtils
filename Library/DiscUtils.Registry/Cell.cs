@@ -20,8 +20,8 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-using DiscUtils.Streams;
 using System;
+using DiscUtils.Streams;
 
 namespace DiscUtils.Registry;
 
@@ -45,7 +45,10 @@ internal abstract class Cell : IByteArraySerializable
 
     internal static Cell Parse(RegistryHive hive, int index, ReadOnlySpan<byte> buffer)
     {
-        var type = EndianUtilities.BytesToString(buffer.Slice(0, 2));
+        var type = EncodingUtilities
+            .GetLatin1Encoding()
+            .GetString(buffer.Slice(0, 2));
+
         Cell result = type switch
         {
             "nk" => new KeyNodeCell(index),

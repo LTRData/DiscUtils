@@ -73,9 +73,10 @@ internal sealed class SecurityCell : Cell
 
     public override void WriteTo(Span<byte> buffer)
     {
+        var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
         var sd = SecurityDescriptor.GetSecurityDescriptorBinaryForm();
 
-        EndianUtilities.StringToBytes("sk", buffer.Slice(0, 2));
+        latin1Encoding.GetBytes("sk", buffer.Slice(0, 2));
         EndianUtilities.WriteBytesLittleEndian(PreviousIndex, buffer.Slice(0x04));
         EndianUtilities.WriteBytesLittleEndian(NextIndex, buffer.Slice(0x08));
         EndianUtilities.WriteBytesLittleEndian(UsageCount, buffer.Slice(0x0C));

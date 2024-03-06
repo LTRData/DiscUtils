@@ -53,17 +53,28 @@ public class SwapHeader : IByteArraySerializable
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
-        Magic = EndianUtilities.BytesToString(buffer.Slice(PageSize - 10, 10));
-        if (Magic != Magic1 && Magic != Magic2) return Size;
+        Magic = EncodingUtilities
+            .GetLatin1Encoding()
+            .GetString(buffer.Slice(PageSize - 10, 10));
+
+        if (Magic != Magic1 && Magic != Magic2)
+        {
+            return Size;
+        }
 
         Version = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x400));
         LastPage = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x404));
         BadPages = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x408));
         Uuid = EndianUtilities.ToGuidLittleEndian(buffer.Slice(0x40c));
+
         var volume = buffer.Slice(0x41c, 16);
         var nullIndex = volume.IndexOf((byte)0);
+
         if (nullIndex > 0)
+        {
             Volume = Encoding.UTF8.GetString(volume.Slice(0, nullIndex));
+        }
+
         return Size;
     }
 

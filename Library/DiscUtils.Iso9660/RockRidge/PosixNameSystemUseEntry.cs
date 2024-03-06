@@ -20,8 +20,8 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-using DiscUtils.Streams;
 using System;
+using DiscUtils.Streams;
 
 namespace DiscUtils.Iso9660;
 
@@ -35,6 +35,8 @@ internal sealed class PosixNameSystemUseEntry : SystemUseEntry
         CheckAndSetCommonProperties(name, length, version, 5, 1);
 
         Flags = data[4];
-        NameData = EndianUtilities.BytesToString(data.Slice(5, length - 5));
+        NameData = EncodingUtilities
+            .GetLatin1Encoding()
+            .GetString(data.Slice(5, length - 5));
     }
 }

@@ -20,14 +20,14 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-namespace DiscUtils.Archives;
-
 using LTRData.Extensions.Buffers;
-using Streams;
+using DiscUtils.Streams;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
+
+namespace DiscUtils.Archives;
 
 /// <summary>
 /// Minimal tar file format implementation.
@@ -75,7 +75,11 @@ public class TarFile : IDisposable
                 try
                 {
                     _fileStream.ReadExactly(buffer, 0, (int)hdr.FileLength);
-                    long_path = EndianUtilities.BytesToString(TarHeader.ReadNullTerminatedString(buffer.AsSpan(0, (int)hdr.FileLength)));
+
+                    long_path = EncodingUtilities
+                        .GetLatin1Encoding()
+                        .GetString(TarHeader.ReadNullTerminatedString(buffer.AsSpan(0, (int)hdr.FileLength)));
+
                     _fileStream.Position += -(buffer.Length & 511) & 511;
                 }
                 finally
@@ -225,7 +229,9 @@ public class TarFile : IDisposable
                 {
                     archive.ReadExactly(data, 0, (int)hdr.FileLength);
 
-                    long_path = EndianUtilities.BytesToString(TarHeader.ReadNullTerminatedString(data.AsSpan(0, (int)hdr.FileLength)));
+                    long_path = EncodingUtilities
+                        .GetLatin1Encoding()
+                        .GetString(TarHeader.ReadNullTerminatedString(data.AsSpan(0, (int)hdr.FileLength)));
                 }
                 finally
                 {

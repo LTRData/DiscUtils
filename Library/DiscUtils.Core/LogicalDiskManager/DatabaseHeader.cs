@@ -53,15 +53,17 @@ internal class DatabaseHeader
 
     public void ReadFrom(ReadOnlySpan<byte> buffer)
     {
-        Signature = EndianUtilities.BytesToString(buffer.Slice(0x00, 4));
+        var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
+
+        Signature = latin1Encoding.GetString(buffer.Slice(0x00, 4));
         NumVBlks = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x04));
         BlockSize = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x08));
         HeaderSize = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x0C));
         Unknown1 = EndianUtilities.ToUInt16BigEndian(buffer.Slice(0x10));
         VersionNum = EndianUtilities.ToUInt16BigEndian(buffer.Slice(0x12));
         VersionDenom = EndianUtilities.ToUInt16BigEndian(buffer.Slice(0x14));
-        GroupName = EndianUtilities.BytesToString(buffer.Slice(0x16, 31)).Trim('\0');
-        DiskGroupId = EndianUtilities.BytesToString(buffer.Slice(0x35, 0x40)).Trim('\0');
+        GroupName = latin1Encoding.GetString(buffer.Slice(0x16, 31)).Trim('\0');
+        DiskGroupId = latin1Encoding.GetString(buffer.Slice(0x35, 0x40)).Trim('\0');
 
         // May be wrong way round...
         CommittedSequence = EndianUtilities.ToInt64BigEndian(buffer.Slice(0x75));

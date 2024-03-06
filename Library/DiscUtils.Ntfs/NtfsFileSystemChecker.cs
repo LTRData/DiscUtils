@@ -426,7 +426,10 @@ public sealed class NtfsFileSystemChecker : DiscFileSystemChecker
         {
             mftStream.ReadExactly(recordData);
 
-            var magic = EndianUtilities.BytesToString(recordData, 0, 4);
+            var magic = EncodingUtilities
+                .GetLatin1Encoding()
+                .GetString(recordData, 0, 4);
+
             if (magic != "FILE")
             {
                 if (bitmap.IsPresent(index))

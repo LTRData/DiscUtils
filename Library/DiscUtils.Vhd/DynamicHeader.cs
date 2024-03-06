@@ -86,9 +86,11 @@ internal class DynamicHeader
 
     public static DynamicHeader FromBytes(ReadOnlySpan<byte> data)
     {
+        var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
+
         var result = new DynamicHeader
         {
-            Cookie = EndianUtilities.BytesToString(data.Slice(0, 8)),
+            Cookie = latin1Encoding.GetString(data.Slice(0, 8)),
             DataOffset = EndianUtilities.ToInt64BigEndian(data.Slice(8)),
             TableOffset = EndianUtilities.ToInt64BigEndian(data.Slice(16)),
             HeaderVersion = EndianUtilities.ToUInt32BigEndian(data.Slice(24)),
@@ -98,9 +100,9 @@ internal class DynamicHeader
             ParentUniqueId = EndianUtilities.ToGuidBigEndian(data.Slice(40)),
             ParentTimestamp = Footer.EpochUtc.AddSeconds(EndianUtilities.ToUInt32BigEndian(data.Slice(56))),
             ParentUnicodeName = Encoding.BigEndianUnicode.GetString(data.Slice(64, 512)).TrimEnd('\0'),
-
             ParentLocators = new ParentLocator[8]
         };
+
         for (var i = 0; i < 8; ++i)
         {
             result.ParentLocators[i] = ParentLocator.FromBytes(data.Slice(576 + i * 24));
@@ -111,7 +113,9 @@ internal class DynamicHeader
 
     public void ToBytes(Span<byte> data)
     {
-        EndianUtilities.StringToBytes(Cookie, data.Slice(0, 8));
+        var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
+
+        latin1Encoding.GetBytes(Cookie.AsSpan(), data.Slice(0, 8));
         EndianUtilities.WriteBytesBigEndian(DataOffset, data.Slice(8));
         EndianUtilities.WriteBytesBigEndian(TableOffset, data.Slice(16));
         EndianUtilities.WriteBytesBigEndian(HeaderVersion, data.Slice(24));

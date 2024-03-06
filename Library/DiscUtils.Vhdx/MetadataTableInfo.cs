@@ -59,7 +59,10 @@ public sealed class MetadataTableInfo : ICollection<MetadataInfo>
         {
             Span<byte> buffer = stackalloc byte[8];
             EndianUtilities.WriteBytesLittleEndian(_table.Signature, buffer);
-            return EndianUtilities.BytesToString(buffer);
+
+            return EncodingUtilities
+                .GetLatin1Encoding()
+                .GetString(buffer);
         }
     }
 

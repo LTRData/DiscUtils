@@ -22,6 +22,7 @@
 
 using System;
 using DiscUtils.Streams;
+using DiscUtils.Streams.Compatibility;
 
 namespace DiscUtils.Vhd;
 
@@ -143,16 +144,18 @@ internal class Footer
 
     public static Footer FromBytes(ReadOnlySpan<byte> buffer)
     {
-        var result = new Footer
+        var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
+
+        return new Footer
         {
-            Cookie = EndianUtilities.BytesToString(buffer.Slice(0, 8)),
+            Cookie = latin1Encoding.GetString(buffer.Slice(0, 8)),
             Features = EndianUtilities.ToUInt32BigEndian(buffer.Slice(8)),
             FileFormatVersion = EndianUtilities.ToUInt32BigEndian(buffer.Slice(12)),
             DataOffset = EndianUtilities.ToInt64BigEndian(buffer.Slice(16)),
             Timestamp = EpochUtc.AddSeconds(EndianUtilities.ToUInt32BigEndian(buffer.Slice(24))),
-            CreatorApp = EndianUtilities.BytesToString(buffer.Slice(28, 4)),
+            CreatorApp = latin1Encoding.GetString(buffer.Slice(28, 4)),
             CreatorVersion = EndianUtilities.ToUInt32BigEndian(buffer.Slice(32)),
-            CreatorHostOS = EndianUtilities.BytesToString(buffer.Slice(36, 4)),
+            CreatorHostOS = latin1Encoding.GetString(buffer.Slice(36, 4)),
             OriginalSize = EndianUtilities.ToInt64BigEndian(buffer.Slice(40)),
             CurrentSize = EndianUtilities.ToInt64BigEndian(buffer.Slice(48)),
             Geometry = new Geometry(EndianUtilities.ToUInt16BigEndian(buffer.Slice(56)), buffer[58], buffer[59]),
@@ -161,20 +164,20 @@ internal class Footer
             UniqueId = EndianUtilities.ToGuidBigEndian(buffer.Slice(68)),
             SavedState = buffer[84]
         };
-
-        return result;
     }
 
     public void ToBytes(Span<byte> buffer)
     {
-        EndianUtilities.StringToBytes(Cookie, buffer.Slice(0, 8));
+        var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
+
+        latin1Encoding.GetBytes(Cookie.AsSpan(), buffer.Slice(0, 8));
         EndianUtilities.WriteBytesBigEndian(Features, buffer.Slice(8));
         EndianUtilities.WriteBytesBigEndian(FileFormatVersion, buffer.Slice(12));
         EndianUtilities.WriteBytesBigEndian(DataOffset, buffer.Slice(16));
         EndianUtilities.WriteBytesBigEndian((uint)(Timestamp - EpochUtc).TotalSeconds, buffer.Slice(24));
-        EndianUtilities.StringToBytes(CreatorApp, buffer.Slice(28, 4));
+        latin1Encoding.GetBytes(CreatorApp.AsSpan(), buffer.Slice(28, 4));
         EndianUtilities.WriteBytesBigEndian(CreatorVersion, buffer.Slice(32));
-        EndianUtilities.StringToBytes(CreatorHostOS, buffer.Slice(36, 4));
+        latin1Encoding.GetBytes(CreatorHostOS.AsSpan(), buffer.Slice(36, 4));
         EndianUtilities.WriteBytesBigEndian(OriginalSize, buffer.Slice(40));
         EndianUtilities.WriteBytesBigEndian(CurrentSize, buffer.Slice(48));
         EndianUtilities.WriteBytesBigEndian((ushort)Geometry.Cylinders, buffer.Slice(56));

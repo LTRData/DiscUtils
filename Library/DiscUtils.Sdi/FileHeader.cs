@@ -45,7 +45,9 @@ internal class FileHeader
 
     public void ReadFrom(ReadOnlySpan<byte> buffer)
     {
-        Tag = EndianUtilities.BytesToString(buffer.Slice(0, 8));
+        Tag = EncodingUtilities
+            .GetLatin1Encoding()
+            .GetString(buffer.Slice(0, 8));
 
         if (Tag != "$SDI0001")
         {

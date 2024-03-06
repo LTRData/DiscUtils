@@ -20,9 +20,9 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-using DiscUtils.Streams.Compatibility;
 using System;
 using System.Text;
+using DiscUtils.Streams;
 
 namespace DiscUtils.Iso9660;
 

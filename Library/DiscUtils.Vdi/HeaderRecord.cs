@@ -106,11 +106,13 @@ internal class HeaderRecord
 
     public int Read(FileVersion version, ReadOnlySpan<byte> buffer)
     {
+        var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
+
         if (version.Major == 0)
         {
             ImageType = (ImageType)EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0));
             Flags = (ImageFlags)EndianUtilities.ToUInt32LittleEndian(buffer.Slice(4));
-            Comment = EndianUtilities.BytesToString(buffer.Slice(8, 256)).TrimEnd('\0');
+            Comment = latin1Encoding.GetString(buffer.Slice(8, 256)).TrimEnd('\0');
             LegacyGeometry = new GeometryRecord();
             LegacyGeometry.Read(buffer.Slice(264));
             DiskSize = EndianUtilities.ToInt64LittleEndian(buffer.Slice(280));
@@ -131,7 +133,7 @@ internal class HeaderRecord
             HeaderSize = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0));
             ImageType = (ImageType)EndianUtilities.ToUInt32LittleEndian(buffer.Slice(4));
             Flags = (ImageFlags)EndianUtilities.ToUInt32LittleEndian(buffer.Slice(8));
-            Comment = EndianUtilities.BytesToString(buffer.Slice(12, 256)).TrimEnd('\0');
+            Comment = latin1Encoding.GetString(buffer.Slice(12, 256)).TrimEnd('\0');
             BlocksOffset = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(268));
             DataOffset = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(272));
             LegacyGeometry = new GeometryRecord();
@@ -183,11 +185,13 @@ internal class HeaderRecord
 
     public int Write(Span<byte> buffer)
     {
+        var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
+
         if (_fileVersion.Major == 0)
         {
             EndianUtilities.WriteBytesLittleEndian((uint)ImageType, buffer.Slice(0));
             EndianUtilities.WriteBytesLittleEndian((uint)Flags, buffer.Slice(4));
-            EndianUtilities.StringToBytes(Comment, buffer.Slice(8, 256));
+            latin1Encoding.GetBytes(Comment.AsSpan(), buffer.Slice(8, 256));
             LegacyGeometry.Write(buffer.Slice(264));
             EndianUtilities.WriteBytesLittleEndian(DiskSize, buffer.Slice(280));
             EndianUtilities.WriteBytesLittleEndian(BlockSize, buffer.Slice(288));
@@ -202,7 +206,7 @@ internal class HeaderRecord
             EndianUtilities.WriteBytesLittleEndian(HeaderSize, buffer.Slice(0));
             EndianUtilities.WriteBytesLittleEndian((uint)ImageType, buffer.Slice(4));
             EndianUtilities.WriteBytesLittleEndian((uint)Flags, buffer.Slice(8));
-            EndianUtilities.StringToBytes(Comment, buffer.Slice(12, 256));
+            latin1Encoding.GetBytes(Comment.AsSpan(), buffer.Slice(12, 256));
             EndianUtilities.WriteBytesLittleEndian(BlocksOffset, buffer.Slice(268));
             EndianUtilities.WriteBytesLittleEndian(DataOffset, buffer.Slice(272));
             LegacyGeometry.Write(buffer.Slice(276));

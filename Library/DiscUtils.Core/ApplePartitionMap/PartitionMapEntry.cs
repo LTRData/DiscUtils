@@ -84,12 +84,14 @@ internal sealed class PartitionMapEntry : PartitionInfo, IByteArraySerializable
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
+        var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
+
         Signature = EndianUtilities.ToUInt16BigEndian(buffer);
         MapEntries = EndianUtilities.ToUInt32BigEndian(buffer.Slice(4));
         PhysicalBlockStart = EndianUtilities.ToUInt32BigEndian(buffer.Slice(8));
         PhysicalBlocks = EndianUtilities.ToUInt32BigEndian(buffer.Slice(12));
-        Name = EndianUtilities.BytesToString(buffer.Slice(16, 32)).TrimEnd('\0');
-        Type = EndianUtilities.BytesToString(buffer.Slice(48, 32)).TrimEnd('\0');
+        Name = latin1Encoding.GetString(buffer.Slice(16, 32)).TrimEnd('\0');
+        Type = latin1Encoding.GetString(buffer.Slice(48, 32)).TrimEnd('\0');
         LogicalBlockStart = EndianUtilities.ToUInt32BigEndian(buffer.Slice(80));
         LogicalBlocks = EndianUtilities.ToUInt32BigEndian(buffer.Slice(84));
         Flags = EndianUtilities.ToUInt32BigEndian(buffer.Slice(88));

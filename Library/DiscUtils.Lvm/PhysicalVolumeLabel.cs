@@ -20,10 +20,10 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-namespace DiscUtils.Lvm;
-
 using DiscUtils.Streams;
 using System;
+
+namespace DiscUtils.Lvm;
 
 internal class PhysicalVolumeLabel : IByteArraySerializable
 {
@@ -43,12 +43,15 @@ internal class PhysicalVolumeLabel : IByteArraySerializable
     /// <inheritdoc />
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
-        Label = EndianUtilities.BytesToString(buffer.Slice(0, 0x8));
+        var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
+
+        Label = latin1Encoding.GetString(buffer.Slice(0, 0x8));
         Sector = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x8));
         Crc = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x10));
         CalculatedCrc = PhysicalVolume.CalcCrc(buffer.Slice(0x14, PhysicalVolume.SECTOR_SIZE - 0x14));
         Offset = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x14));
-        Label2 = EndianUtilities.BytesToString(buffer.Slice(0x18, 0x8));
+        Label2 = latin1Encoding.GetString(buffer.Slice(0x18, 0x8));
+
         return Size;
     }
 

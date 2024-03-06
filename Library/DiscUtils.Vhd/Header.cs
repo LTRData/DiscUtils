@@ -40,11 +40,12 @@ internal class Header
 
     public static Header FromBytes(ReadOnlySpan<byte> data)
     {
-        var result = new Header
+        var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
+
+        return new Header
         {
-            Cookie = EndianUtilities.BytesToString(data.Slice(0, 8)),
+            Cookie = latin1Encoding.GetString(data.Slice(0, 8)),
             DataOffset = EndianUtilities.ToInt64BigEndian(data.Slice(8))
         };
-        return result;
     }
 }

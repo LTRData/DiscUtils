@@ -1,5 +1,4 @@
-﻿using LTRData.Extensions.Async;
-using System;
+﻿using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
@@ -8,6 +7,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using LTRData.Extensions.Async;
 
 namespace DiscUtils.Streams.Compatibility;
 
@@ -157,44 +157,6 @@ public static class CompatExtensions
         finally
         {
             ArrayPool<byte>.Shared.Return(bytesBuffer);
-        }
-    }
-
-    public static string GetString(this Encoding encoding, ReadOnlySpan<byte> bytes)
-    {
-        var buffer = ArrayPool<byte>.Shared.Rent(bytes.Length);
-        try
-        {
-            bytes.CopyTo(buffer);
-            return encoding.GetString(buffer, 0, bytes.Length);
-        }
-        finally
-        {
-            ArrayPool<byte>.Shared.Return(buffer);
-        }
-    }
-
-    public static int GetBytes(this Encoding encoding, ReadOnlySpan<char> chars, Span<byte> bytes)
-    {
-        var str = ArrayPool<char>.Shared.Rent(chars.Length);
-        try
-        {
-            chars.CopyTo(str);
-            var buffer = ArrayPool<byte>.Shared.Rent(encoding.GetByteCount(str, 0, chars.Length));
-            try
-            {
-                var length = encoding.GetBytes(str, 0, chars.Length, buffer, 0);
-                buffer.AsSpan(0, length).CopyTo(bytes);
-                return length;
-            }
-            finally
-            {
-                ArrayPool<byte>.Shared.Return(buffer);
-            }
-        }
-        finally
-        {
-            ArrayPool<char>.Shared.Return(str);
         }
     }
 

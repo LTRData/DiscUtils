@@ -20,8 +20,8 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-using DiscUtils.Streams;
 using System;
+using DiscUtils.Streams;
 
 namespace DiscUtils.Registry;
 
@@ -64,7 +64,9 @@ internal sealed class ValueCell : Cell
 
         if ((_flags & ValueFlags.Named) != 0)
         {
-            Name = EndianUtilities.BytesToString(buffer.Slice(0x14, nameLen)).Trim('\0');
+            Name = EncodingUtilities
+                .GetLatin1Encoding()
+                .GetString(buffer.Slice(0x14, nameLen)).Trim('\0');
         }
 
         return 0x14 + nameLen;
@@ -85,7 +87,9 @@ internal sealed class ValueCell : Cell
             nameLen = Name.Length;
         }
 
-        EndianUtilities.StringToBytes("vk", buffer.Slice(0, 2));
+        var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
+
+        latin1Encoding.GetBytes("vk", buffer.Slice(0, 2));
         EndianUtilities.WriteBytesLittleEndian(nameLen, buffer.Slice(0x02));
         EndianUtilities.WriteBytesLittleEndian(DataLength, buffer.Slice(0x04));
         EndianUtilities.WriteBytesLittleEndian(DataIndex, buffer.Slice(0x08));
@@ -93,7 +97,7 @@ internal sealed class ValueCell : Cell
         EndianUtilities.WriteBytesLittleEndian((ushort)_flags, buffer.Slice(0x10));
         if (nameLen != 0)
         {
-            EndianUtilities.StringToBytes(Name, buffer.Slice(0x14, nameLen));
+            latin1Encoding.GetBytes(Name, buffer.Slice(0x14, nameLen));
         }
     }
 }

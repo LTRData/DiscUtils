@@ -69,7 +69,9 @@ internal sealed class SubKeyIndirectListCell : ListCell
 
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {
-        ListType = EndianUtilities.BytesToString(buffer.Slice(0, 2));
+        var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
+
+        ListType = latin1Encoding.GetString(buffer.Slice(0, 2));
         int numElements = EndianUtilities.ToInt16LittleEndian(buffer.Slice(2));
         CellIndexes = new List<int>(numElements);
 
@@ -83,7 +85,10 @@ internal sealed class SubKeyIndirectListCell : ListCell
 
     public override void WriteTo(Span<byte> buffer)
     {
-        EndianUtilities.StringToBytes(ListType, buffer.Slice(0, 2));
+        EncodingUtilities
+            .GetLatin1Encoding()
+            .GetBytes(ListType, buffer.Slice(0, 2));
+
         EndianUtilities.WriteBytesLittleEndian((ushort)CellIndexes.Count, buffer.Slice(2));
         for (var i = 0; i < CellIndexes.Count; ++i)
         {
