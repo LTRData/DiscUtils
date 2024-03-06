@@ -89,7 +89,7 @@ internal sealed class ValueCell : Cell
 
         var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
 
-        latin1Encoding.GetBytes("vk", buffer.Slice(0, 2));
+        "vk"u8.CopyTo(buffer.Slice(0, 2));
         EndianUtilities.WriteBytesLittleEndian(nameLen, buffer.Slice(0x02));
         EndianUtilities.WriteBytesLittleEndian(DataLength, buffer.Slice(0x04));
         EndianUtilities.WriteBytesLittleEndian(DataIndex, buffer.Slice(0x08));

@@ -106,7 +106,7 @@ internal sealed class KeyNodeCell : Cell
     {
         var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
 
-        latin1Encoding.GetBytes("nk", buffer.Slice(0, 2));
+        "nk"u8.CopyTo(buffer.Slice(0, 2));
         EndianUtilities.WriteBytesLittleEndian((ushort)Flags, buffer.Slice(0x02));
         EndianUtilities.WriteBytesLittleEndian(Timestamp.ToFileTimeUtc(), buffer.Slice(0x04));
         EndianUtilities.WriteBytesLittleEndian(ParentIndex, buffer.Slice(0x10));

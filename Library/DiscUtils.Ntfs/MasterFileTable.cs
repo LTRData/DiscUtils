@@ -105,7 +105,7 @@ internal class MasterFileTable : IDiagnosticTraceable, IDisposable
     /// </summary>
     private const uint FirstAvailableMftIndex = 24;
 
-    private static readonly int FILE_MAGIC = EndianUtilities.ToInt32LittleEndian(Encoding.ASCII.GetBytes("FILE"), 0);
+    private static readonly int FILE_MAGIC = EndianUtilities.ToInt32LittleEndian("FILE"u8);
 
     private Bitmap _bitmap;
     private int _bytesPerSector;

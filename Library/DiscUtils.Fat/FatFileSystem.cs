@@ -1498,9 +1498,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
         bootSector[2] = 0x90;
 
         // OEM Name
-        EncodingUtilities
-            .GetLatin1Encoding()
-            .GetBytes("DISCUTIL", bootSector.Slice(3, 8));
+        "DISCUTIL"u8.CopyTo(bootSector.Slice(3, 8));
 
         // Bytes Per Sector (512)
         bootSector[11] = 0;

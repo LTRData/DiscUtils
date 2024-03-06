@@ -76,7 +76,7 @@ internal sealed class SecurityCell : Cell
         var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
         var sd = SecurityDescriptor.GetSecurityDescriptorBinaryForm();
 
-        latin1Encoding.GetBytes("sk", buffer.Slice(0, 2));
+        "sk"u8.CopyTo(buffer.Slice(0, 2));
         EndianUtilities.WriteBytesLittleEndian(PreviousIndex, buffer.Slice(0x04));
         EndianUtilities.WriteBytesLittleEndian(NextIndex, buffer.Slice(0x08));
         EndianUtilities.WriteBytesLittleEndian(UsageCount, buffer.Slice(0x0C));
