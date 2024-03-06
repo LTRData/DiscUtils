@@ -99,67 +99,6 @@ public static class CompatExtensions
 
 #if !NETSTANDARD2_1_OR_GREATER && !NETCOREAPP
 
-    public static int GetCharCount(this Decoder decoder, ReadOnlySpan<byte> bytes, bool flush)
-    {
-        var buffer = ArrayPool<byte>.Shared.Rent(bytes.Length);
-        try
-        {
-            bytes.CopyTo(buffer);
-            return decoder.GetCharCount(buffer, 0, bytes.Length);
-        }
-        finally
-        {
-            ArrayPool<byte>.Shared.Return(buffer);
-        }
-    }
-
-    public static int GetChars(this Decoder decoder, ReadOnlySpan<byte> bytes, Span<char> chars, bool flush)
-    {
-        var bytesBuffer = ArrayPool<byte>.Shared.Rent(bytes.Length);
-        try
-        {
-            var charsBuffer = ArrayPool<char>.Shared.Rent(chars.Length);
-            try
-            {
-                bytes.CopyTo(bytesBuffer);
-                var i = decoder.GetChars(bytesBuffer, 0, bytes.Length, charsBuffer, 0);
-                charsBuffer.AsSpan(0, i).CopyTo(chars);
-                return i;
-            }
-            finally
-            {
-                ArrayPool<char>.Shared.Return(charsBuffer);
-            }
-        }
-        finally
-        {
-            ArrayPool<byte>.Shared.Return(bytesBuffer);
-        }
-    }
-
-    public static void Convert(this Encoder decoder, ReadOnlySpan<char> chars, Span<byte> bytes, bool flush, out int charsUsed, out int bytesUsed, out bool completed)
-    {
-        var bytesBuffer = ArrayPool<byte>.Shared.Rent(bytes.Length);
-        try
-        {
-            var charsBuffer = ArrayPool<char>.Shared.Rent(chars.Length);
-            try
-            {
-                chars.CopyTo(charsBuffer);
-                decoder.Convert(charsBuffer, 0, chars.Length, bytesBuffer, 0, bytes.Length, flush, out charsUsed, out bytesUsed, out completed);
-                bytesBuffer.AsSpan(0, bytesUsed).CopyTo(bytes);
-            }
-            finally
-            {
-                ArrayPool<char>.Shared.Return(charsBuffer);
-            }
-        }
-        finally
-        {
-            ArrayPool<byte>.Shared.Return(bytesBuffer);
-        }
-    }
-
     public static void NextBytes(this Random random, Span<byte> buffer)
     {
         var bytes = new byte[buffer.Length];
