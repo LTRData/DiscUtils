@@ -9,12 +9,13 @@ public static class EncodingUtilities
     /// by its codepage 28591, and by its Windows codepage 1252.
     /// </summary>
     /// <returns>Encoding</returns>
-    public static Encoding GetLatin1Encoding()
-    {
 #if NET6_0_OR_GREATER
-        return Encoding.Latin1;
+    public static Encoding GetLatin1Encoding()
+        => Encoding.Latin1;
 #else
-        return Encoding.GetEncoding("Latin1");
+    public static Encoding GetLatin1Encoding()
+        => latin1 ??= Encoding.GetEncoding("Latin1");
+
+    private static Encoding latin1;
 #endif
-    }
 }
