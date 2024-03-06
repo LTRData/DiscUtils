@@ -33,7 +33,7 @@ namespace DiscUtils.Btrfs;
 internal class SuperBlock : IByteArraySerializable
 {
     public static readonly int Length = 0x1000;
-    public static readonly ulong BtrfsMagic = BitConverter.ToUInt64(Encoding.ASCII.GetBytes("_BHRfS_M"),0);
+    public static readonly ulong BtrfsMagic = EndianUtilities.ToUInt64LittleEndian("_BHRfS_M"u8);
 
     /// <summary>
     /// Checksum of everything past this field (from 20 to 1000)
