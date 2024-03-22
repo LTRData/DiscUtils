@@ -35,6 +35,7 @@ public static class EncodingExtensions
             ArrayPool<char>.Shared.Return(str);
         }
     }
+
     public static string GetString(this Encoding encoding, ReadOnlySpan<byte> bytes)
     {
         var buffer = ArrayPool<byte>.Shared.Rent(bytes.Length);
