@@ -44,18 +44,12 @@ public sealed class RegistryValue
     /// <summary>
     /// Gets the type of the value.
     /// </summary>
-    public RegistryValueType DataType
-    {
-        get { return _cell.DataType; }
-    }
+    public RegistryValueType DataType => _cell.DataType;
 
     /// <summary>
     /// Gets the name of the value, or empty string if unnamed.
     /// </summary>
-    public string Name
-    {
-        get { return _cell.Name ?? string.Empty; }
-    }
+    public string Name => _cell.Name ?? string.Empty;
 
     /// <summary>
     /// Gets the value data mapped to a .net object.
@@ -100,7 +94,7 @@ public sealed class RegistryValue
     {
         get
         {
-            var buffer = ArrayPool<byte>.Shared.Rent(_cell.DataLength & int.MaxValue);
+            var buffer = ArrayPool<byte>.Shared.Rent(RawLength);
             try
             {
                 return ConvertToObject(GetRawData(buffer), DataType);
@@ -113,13 +107,19 @@ public sealed class RegistryValue
     }
 
     /// <summary>
+    /// Gets size in bytes of raw value data
+    /// </summary>
+    /// <returns>Size in bytes of raw value data</returns>
+    public int RawLength => _cell.DataLength & int.MaxValue;
+
+    /// <summary>
     /// Gets raw binary value without interpretation as any particular data type.
     /// </summary>
     public byte[] RawValue
     {
         get
         {
-            var buffer = ArrayPool<byte>.Shared.Rent(_cell.DataLength & int.MaxValue);
+            var buffer = ArrayPool<byte>.Shared.Rent(RawLength);
             try
             {
                 return GetRawData(buffer).ToArray();
@@ -219,20 +219,45 @@ public sealed class RegistryValue
             case RegistryValueType.String:
             case RegistryValueType.ExpandString:
             case RegistryValueType.Link:
+                if (data.Length == 0)
+                {
+                    return null;
+                }
+
                 return EndianUtilities.LittleEndianUnicodeBytesToString(data).Trim('\0');
 
             case RegistryValueType.Dword:
+                if (data.Length == 0)
+                {
+                    return null;
+                }
+
                 return EndianUtilities.ToInt32LittleEndian(data);
 
             case RegistryValueType.DwordBigEndian:
+                if (data.Length == 0)
+                {
+                    return null;
+                }
+
                 return EndianUtilities.ToInt32BigEndian(data);
 
             case RegistryValueType.MultiString:
+                if (data.Length == 0)
+                {
+                    return null;
+                }
+
                 var multiString = EndianUtilities.LittleEndianUnicodeBytesToString(data).TrimEnd('\0');
                 return multiString.Split('\0');
 
             case RegistryValueType.Qword:
-                return string.Empty + EndianUtilities.ToUInt64LittleEndian(data);
+                if (data.Length == 0)
+                {
+                    return null;
+                }
+
+                return EndianUtilities.ToUInt64LittleEndian(data);
 
             default:
                 return data.ToArray();
@@ -297,7 +322,7 @@ public sealed class RegistryValue
 
     private string DataAsString()
     {
-        var buffer = ArrayPool<byte>.Shared.Rent(_cell.DataLength & int.MaxValue);
+        var buffer = ArrayPool<byte>.Shared.Rent(RawLength);
         try
         {
             var data = GetRawData(buffer);
