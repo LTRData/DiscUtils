@@ -46,13 +46,14 @@ internal class MetadataLogicalVolumeSection
 
     internal void Parse(string head, TextReader data)
     {
+        Span<byte> guidBuffer = stackalloc byte[16];
         var segments = new List<MetadataSegmentSection>();
         Name = head.AsSpan().Trim().TrimEnd('{').TrimEnd().ToString();
         string line;
         
         while ((line = Metadata.ReadLine(data)) != null)
         {
-            if (line == String.Empty) continue;
+            if (line == "") continue;
             if (line.AsSpan().Contains("=".AsSpan(), StringComparison.Ordinal))
             {
                 var parameter = Metadata.ParseParameter(line.AsMemory());
@@ -61,16 +62,14 @@ internal class MetadataLogicalVolumeSection
                     case "id":
                         Id = Metadata.ParseStringValue(parameter.Value.Span);
 
-                        Span<byte> guid = stackalloc byte[16];
-
                         EncodingUtilities
                             .GetLatin1Encoding()
-                            .GetBytes(Id.Replace("-", String.Empty).AsSpan(0, 16), guid);
+                            .GetBytes(Id.Replace("-", "").AsSpan(0, 16), guidBuffer);
 
                         // Mark it as a version 4 GUID
-                        guid[7] = (byte)((guid[7] | 0x40) & 0x4f);
-                        guid[8] = (byte)((guid[8] | 0x80) & 0xbf);
-                        Identity = MemoryMarshal.Read<Guid>(guid);
+                        guidBuffer[7] = (byte)((guidBuffer[7] | 0x40) & 0x4f);
+                        guidBuffer[8] = (byte)((guidBuffer[8] | 0x80) & 0xbf);
+                        Identity = MemoryMarshal.Read<Guid>(guidBuffer);
                         break;
                     case "status":
                         var values = Metadata.ParseArrayValue(parameter.Value.Span);
