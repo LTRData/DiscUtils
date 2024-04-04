@@ -1,5 +1,5 @@
 ﻿//
-// Copyright (c) 2008-2011, Kenneth Bell
+// Copyright (c) 2008-2024, Kenneth Bell, Olof Lagerkvist
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
@@ -30,6 +30,7 @@ using DiscUtils.Compression;
 using DiscUtils.Internal;
 using DiscUtils.Streams;
 using DiscUtils.Streams.Compatibility;
+using LTRData.Extensions.Buffers;
 
 namespace DiscUtils.SquashFs;
 
@@ -395,7 +396,7 @@ public sealed class SquashFileSystemBuilder : StreamBuilder, IFileSystemBuilder
             Magic = SuperBlock.SquashFsMagic,
             CreationTime = DateTime.Now,
             BlockSize = (uint)_context.DataBlockSize,
-            Compression = 1 // DEFLATE
+            Compression = SuperBlock.CompressionType.ZLib
         };
         superBlock.BlockSizeLog2 = (ushort)MathUtilities.Log2(superBlock.BlockSize);
         superBlock.MajorVersion = 4;
@@ -408,8 +409,9 @@ public sealed class SquashFileSystemBuilder : StreamBuilder, IFileSystemBuilder
         fragWriter.Flush();
         superBlock.RootInode = GetRoot().InodeRef;
         superBlock.InodesCount = _nextInode - 1;
-        superBlock.FragmentsCount = (uint)fragWriter.FragmentCount;
+        superBlock.FragmentsCount = (uint)fragWriter.FragmentBlocksCount;
         superBlock.UidGidCount = (ushort)idWriter.IdCount;
+        superBlock.Flags = SuperBlock.SuperBlockFlags.NoXAttrs | SuperBlock.SuperBlockFlags.FragmentsAlwaysGenerated;
 
         superBlock.InodeTableStart = output.Position;
         inodeWriter.Persist(output);
@@ -421,115 +423,33 @@ public sealed class SquashFileSystemBuilder : StreamBuilder, IFileSystemBuilder
         superBlock.LookupTableStart = -1;
         superBlock.UidGidTableStart = idWriter.Persist();
         superBlock.ExtendedAttrsTableStart = -1;
+
         superBlock.BytesUsed = output.Position;
 
         // Pad to 4KB
         var end = MathUtilities.RoundUp(output.Position, 4 * Sizes.OneKiB);
         if (end != output.Position)
         {
-            var padding = new byte[(int)(end - output.Position)];
-            output.Write(padding, 0, padding.Length);
+            Span<byte> padding = stackalloc byte[(int)(end - output.Position)];
+            padding.Clear();
+            output.Write(padding);
         }
 
         // Go back and write the superblock
         output.Position = 0;
-        var buffer = new byte[superBlock.Size];
+        Span<byte> buffer = stackalloc byte[superBlock.Size];
         superBlock.WriteTo(buffer);
-        output.Write(buffer, 0, buffer.Length);
+        output.Write(buffer);
         output.Position = end;
     }
 
-    /// <summary>
-    /// Writes the file system to an existing stream.
-    /// </summary>
-    /// <param name="output">The stream to write to.</param>
-    /// <param name="cancellationToken"></param>
-    /// <remarks>The <c>output</c> stream must support seeking and writing.</remarks>
-    public async override Task BuildAsync(Stream output, CancellationToken cancellationToken)
+    public override Task BuildAsync(Stream output, CancellationToken cancellationToken)
     {
-        if (output == null)
-        {
-            throw new ArgumentNullException(nameof(output));
-        }
+        cancellationToken.ThrowIfCancellationRequested();
 
-        if (!output.CanWrite)
-        {
-            throw new ArgumentException("Output stream must be writable", nameof(output));
-        }
+        Build(output);
 
-        if (!output.CanSeek)
-        {
-            throw new ArgumentException("Output stream must support seeking", nameof(output));
-        }
-
-        _context = new BuilderContext
-        {
-            RawStream = output,
-            DataBlockSize = DefaultBlockSize,
-            IoBuffer = new byte[DefaultBlockSize]
-        };
-
-        var inodeWriter = new MetablockWriter();
-        var dirWriter = new MetablockWriter();
-        var fragWriter = new FragmentWriter(_context);
-        var idWriter = new IdTableWriter(_context);
-
-        _context.AllocateInode = AllocateInode;
-        _context.AllocateId = idWriter.AllocateId;
-        _context.WriteDataBlock = WriteDataBlock;
-        _context.WriteFragment = fragWriter.WriteFragment;
-        _context.InodeWriter = inodeWriter;
-        _context.DirectoryWriter = dirWriter;
-
-        _nextInode = 1;
-
-        var superBlock = new SuperBlock
-        {
-            Magic = SuperBlock.SquashFsMagic,
-            CreationTime = DateTime.Now,
-            BlockSize = (uint)_context.DataBlockSize,
-            Compression = 1 // DEFLATE
-        };
-        superBlock.BlockSizeLog2 = (ushort)MathUtilities.Log2(superBlock.BlockSize);
-        superBlock.MajorVersion = 4;
-        superBlock.MinorVersion = 0;
-
-        output.Position = superBlock.Size;
-
-        GetRoot().Reset();
-        GetRoot().Write(_context);
-        fragWriter.Flush();
-        superBlock.RootInode = GetRoot().InodeRef;
-        superBlock.InodesCount = _nextInode - 1;
-        superBlock.FragmentsCount = (uint)fragWriter.FragmentCount;
-        superBlock.UidGidCount = (ushort)idWriter.IdCount;
-
-        superBlock.InodeTableStart = output.Position;
-        inodeWriter.Persist(output);
-
-        superBlock.DirectoryTableStart = output.Position;
-        dirWriter.Persist(output);
-
-        superBlock.FragmentTableStart = fragWriter.Persist();
-        superBlock.LookupTableStart = -1;
-        superBlock.UidGidTableStart = idWriter.Persist();
-        superBlock.ExtendedAttrsTableStart = -1;
-        superBlock.BytesUsed = output.Position;
-
-        // Pad to 4KB
-        var end = MathUtilities.RoundUp(output.Position, 4 * Sizes.OneKiB);
-        if (end != output.Position)
-        {
-            var padding = new byte[(int)(end - output.Position)];
-            await output.WriteAsync(padding, cancellationToken).ConfigureAwait(false);
-        }
-
-        // Go back and write the superblock
-        output.Position = 0;
-        var buffer = new byte[superBlock.Size];
-        superBlock.WriteTo(buffer);
-        await output.WriteAsync(buffer, cancellationToken).ConfigureAwait(false);
-        output.Position = end;
+        return Task.CompletedTask;
     }
 
     /// <summary>
@@ -552,32 +472,37 @@ public sealed class SquashFileSystemBuilder : StreamBuilder, IFileSystemBuilder
     /// a flag indicating compression (or not).
     /// </returns>
     private uint WriteDataBlock(byte[] buffer, int offset, int count)
+        => WriteDataBlock(buffer.AsSpan(offset, count));
+
+    private uint WriteDataBlock(ReadOnlySpan<byte> buffer)
     {
+        const int SQUASHFS_COMPRESSED_BIT = 1 << 24;
+
         var compressed = new MemoryStream();
         using (var compStream = new ZlibStream(compressed, CompressionMode.Compress, true))
         {
-            compStream.Write(buffer, offset, count);
+            compStream.Write(buffer);
         }
 
-        byte[] writeData;
-        int writeOffset;
-        int writeLen;
-        if (compressed.Length < count)
+        ReadOnlySpan<byte> writeData;
+        int returnValue;
+
+        if (compressed.Length < buffer.Length)
         {
-            writeData = compressed.ToArray();
-            writeOffset = 0;
-            writeLen = (int)compressed.Length;
+            var compressedData = compressed.AsSpan();
+            compressedData[1] = 0xda;
+            writeData = compressedData;
+            returnValue = writeData.Length;
         }
         else
         {
             writeData = buffer;
-            writeOffset = offset;
-            writeLen = count | 0x01000000;
+            returnValue = writeData.Length | SQUASHFS_COMPRESSED_BIT; // Flag to indicate uncompressed buffer
         }
 
-        _context.RawStream.Write(writeData, writeOffset, writeLen & 0xFFFFFF);
+        _context.RawStream.Write(writeData);
 
-        return (uint)writeLen;
+        return (uint)returnValue;
     }
 
     /// <summary>

@@ -48,6 +48,8 @@ internal sealed class FragmentWriter
 
     public int FragmentCount { get; private set; }
 
+    public int FragmentBlocksCount => _fragmentBlocks.Count;
+
     public void Flush()
     {
         if (_currentOffset != 0)

@@ -1,5 +1,5 @@
 ﻿//
-// Copyright (c) 2008-2011, Kenneth Bell
+// Copyright (c) 2008-2024, Kenneth Bell, Olof Lagerkvist
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
@@ -26,6 +26,7 @@ using System.IO.Compression;
 using DiscUtils.Compression;
 using DiscUtils.Streams;
 using DiscUtils.Streams.Compatibility;
+using LTRData.Extensions.Buffers;
 
 namespace DiscUtils.SquashFs;
 
@@ -58,13 +59,19 @@ internal sealed class MetablockWriter : IDisposable
     }
 
     public void Write(byte[] buffer, int offset, int count)
+        => Write(buffer.AsSpan(offset, count));
+
+    public void Write(ReadOnlySpan<byte> buffer)
     {
         var totalStored = 0;
 
-        while (totalStored < count)
+        while (totalStored < buffer.Length)
         {
-            var toCopy = Math.Min(_currentBlock.Length - _currentOffset, count - totalStored);
-            System.Buffer.BlockCopy(buffer, offset + totalStored, _currentBlock, _currentOffset, toCopy);
+            var toCopy = Math.Min(_currentBlock.Length - _currentOffset, buffer.Length - totalStored);
+            var sourceSlice = buffer.Slice(totalStored, toCopy);
+            var destinationSlice = new Span<byte>(_currentBlock, _currentOffset, toCopy);
+            sourceSlice.CopyTo(destinationSlice);
+
             _currentOffset += toCopy;
             totalStored += toCopy;
 
@@ -83,7 +90,7 @@ internal sealed class MetablockWriter : IDisposable
             NextBlock();
         }
 
-        output.Write(_buffer.ToArray(), 0, (int)_buffer.Length);
+        output.Write(_buffer.AsSpan());
     }
 
     internal long DistanceFrom(MetadataRef startPos)
@@ -94,29 +101,33 @@ internal sealed class MetablockWriter : IDisposable
 
     private void NextBlock()
     {
+        const int SQUASHFS_COMPRESSED_BIT = 1 << 15;
+
         var compressed = new MemoryStream();
         using (var compStream = new ZlibStream(compressed, CompressionMode.Compress, true))
         {
             compStream.Write(_currentBlock, 0, _currentOffset);
         }
 
-        byte[] writeData;
+        Span<byte> writeData;
         ushort writeLen;
+
         if (compressed.Length < _currentOffset)
         {
-            writeData = compressed.ToArray();
+            var compressedData = compressed.AsSpan();
+            writeData = compressedData;
             writeLen = (ushort)compressed.Length;
         }
         else
         {
             writeData = _currentBlock;
-            writeLen = (ushort)(_currentOffset | 0x8000);
+            writeLen = (ushort)(_currentOffset | SQUASHFS_COMPRESSED_BIT);
         }
 
         Span<byte> header = stackalloc byte[2];
         EndianUtilities.WriteBytesLittleEndian(writeLen, header);
         _buffer.Write(header);
-        _buffer.Write(writeData, 0, writeLen & 0x7FFF);
+        _buffer.Write(writeData.Slice(0, writeLen & 0x7FFF));
 
         ++_currentBlockNum;
     }

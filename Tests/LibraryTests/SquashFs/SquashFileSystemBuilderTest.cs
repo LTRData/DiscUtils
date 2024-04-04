@@ -21,8 +21,10 @@
 //
 
 using System.IO;
+using System.Linq;
 using DiscUtils;
 using DiscUtils.SquashFs;
+using LibraryTests.Helpers;
 using Xunit;
 
 namespace LibraryTests.SquashFs
@@ -35,14 +37,40 @@ namespace LibraryTests.SquashFs
             var fsImage = new MemoryStream();
 
             var builder = new SquashFileSystemBuilder();
-            builder.AddFile("file", new MemoryStream(new byte[] { 1, 2, 3, 4 }));
+            var fileData = "Contents of a test file."u8.ToArray();
+            builder.AddFile("file", fileData);
             builder.Build(fsImage);
 
             var reader = new SquashFileSystemReader(fsImage);
             Assert.Single(reader.GetFileSystemEntries("\\"));
-            Assert.Equal(4, reader.GetFileLength("file"));
             Assert.True(reader.FileExists("file"));
+            Assert.Equal(fileData.LongLength, reader.GetFileLength("file"));
+            var fileVerifyData = reader.OpenFile("file", FileMode.Open).ReadAll();
+            Assert.Equal(fileData, fileVerifyData);
             Assert.False(reader.DirectoryExists("file"));
+            Assert.False(reader.FileExists("otherfile"));
+        }
+
+        [Fact]
+        public void TwoFiles()
+        {
+            var fsImage = new MemoryStream();
+
+            var builder = new SquashFileSystemBuilder();
+            var fileData1 = "This is file 1.\n"u8.ToArray();
+            var fileData2 = "This is file 2.\n"u8.ToArray();
+            builder.AddFile("file1.txt", fileData1);
+            builder.AddFile("file2.txt", fileData2);
+            builder.Build(fsImage);
+
+            var reader = new SquashFileSystemReader(fsImage);
+            Assert.Equal(2, reader.GetFileSystemEntries("\\").Count());
+            Assert.Equal(fileData1.LongLength, reader.GetFileLength("file1.txt"));
+            var fileVerifyData1 = reader.OpenFile("file1.txt", FileMode.Open).ReadAll();
+            Assert.Equal(fileData1, fileVerifyData1);
+            var fileVerifyData2 = reader.OpenFile("file2.txt", FileMode.Open).ReadAll();
+            Assert.Equal(fileData2, fileVerifyData2);
+            Assert.False(reader.DirectoryExists("file1.txt"));
             Assert.False(reader.FileExists("otherfile"));
         }
 

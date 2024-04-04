@@ -1,5 +1,5 @@
 ﻿//
-// Copyright (c) 2008-2011, Kenneth Bell
+// Copyright (c) 2008-2024, Kenneth Bell, Olof Lagerkvist
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
@@ -27,15 +27,42 @@ namespace DiscUtils.SquashFs;
 
 internal class SuperBlock : IByteArraySerializable
 {
+    public enum CompressionType : ushort
+    {
+        Unknown,
+        ZLib,
+        LZMA,
+        Lzo,
+        Xz,
+        Lz4,
+        ZStd
+    }
+
+    [Flags]
+    public enum SuperBlockFlags : ushort
+    {
+        UncompressedInodes = 0x0001,
+        UncompressedBlocks = 0x0002,
+        UncompressedFragments = 0x0008,
+        FragmentsNotUsed = 0x0010,
+        FragmentsAlwaysGenerated = 0x0020,
+        DeduplicatedData = 0x0040,
+        NFSExportTableExists = 0x0080,
+        UncompressedXAttrs = 0x0100,
+        NoXAttrs = 0x0200,
+        CompressorOptionsPresent = 0x0400,
+        UncompressedIdTable = 0x0800
+    }
+
     public const uint SquashFsMagic = 0x73717368;
     public uint BlockSize;
     public ushort BlockSizeLog2;
     public long BytesUsed;
-    public ushort Compression;
+    public CompressionType Compression;
     public DateTime CreationTime;
     public long DirectoryTableStart;
     public long ExtendedAttrsTableStart;
-    public ushort Flags;
+    public SuperBlockFlags Flags;
     public uint FragmentsCount;
     public long FragmentTableStart;
     public uint InodesCount;
@@ -63,9 +90,9 @@ internal class SuperBlock : IByteArraySerializable
         CreationTime = DateTimeOffset.FromUnixTimeSeconds(EndianUtilities.ToUInt32LittleEndian(buffer.Slice(8))).DateTime;
         BlockSize = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(12));
         FragmentsCount = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(16));
-        Compression = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(20));
+        Compression = (CompressionType)EndianUtilities.ToUInt16LittleEndian(buffer.Slice(20));
         BlockSizeLog2 = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(22));
-        Flags = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(24));
+        Flags = (SuperBlockFlags)EndianUtilities.ToUInt16LittleEndian(buffer.Slice(24));
         UidGidCount = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(26));
         MajorVersion = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(28));
         MinorVersion = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(30));
@@ -88,9 +115,9 @@ internal class SuperBlock : IByteArraySerializable
         EndianUtilities.WriteBytesLittleEndian(Convert.ToUInt32(new DateTimeOffset(CreationTime).ToUnixTimeSeconds()), buffer.Slice(8));
         EndianUtilities.WriteBytesLittleEndian(BlockSize, buffer.Slice(12));
         EndianUtilities.WriteBytesLittleEndian(FragmentsCount, buffer.Slice(16));
-        EndianUtilities.WriteBytesLittleEndian(Compression, buffer.Slice(20));
+        EndianUtilities.WriteBytesLittleEndian((ushort)Compression, buffer.Slice(20));
         EndianUtilities.WriteBytesLittleEndian(BlockSizeLog2, buffer.Slice(22));
-        EndianUtilities.WriteBytesLittleEndian(Flags, buffer.Slice(24));
+        EndianUtilities.WriteBytesLittleEndian((ushort)Flags, buffer.Slice(24));
         EndianUtilities.WriteBytesLittleEndian(UidGidCount, buffer.Slice(26));
         EndianUtilities.WriteBytesLittleEndian(MajorVersion, buffer.Slice(28));
         EndianUtilities.WriteBytesLittleEndian(MinorVersion, buffer.Slice(30));

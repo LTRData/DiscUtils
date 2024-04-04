@@ -59,7 +59,7 @@ internal class VfsSquashFileSystemReader : VfsReadOnlyFileSystem<DirectoryEntry,
             throw new IOException("Invalid SquashFS filesystem - magic mismatch");
         }
 
-        if (_context.SuperBlock.Compression != 1)
+        if (_context.SuperBlock.Compression != SuperBlock.CompressionType.ZLib)
         {
             throw new IOException("Unsupported compression used");
         }
