@@ -22,7 +22,7 @@
 
 namespace DiscUtils.SquashFs;
 
-internal struct MetadataRef
+internal readonly struct MetadataRef
 {
     public MetadataRef(long value)
     {

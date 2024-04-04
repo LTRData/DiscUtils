@@ -22,7 +22,7 @@
 
 namespace DiscUtils.Net.Dns;
 
-internal struct MessageFlags
+internal readonly struct MessageFlags
 {
     public MessageFlags(ushort value)
     {

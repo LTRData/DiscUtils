@@ -196,7 +196,7 @@ internal struct IndexRoot : IByteArraySerializable, IDiagnosticTraceable
         }
     }
 
-    private struct FileNameComparer : IComparer<byte[]>
+    private readonly struct FileNameComparer : IComparer<byte[]>
     {
         private readonly UpperCase _stringComparer;
 

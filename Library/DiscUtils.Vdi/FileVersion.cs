@@ -22,7 +22,7 @@
 
 namespace DiscUtils.Vdi;
 
-internal struct FileVersion
+internal readonly struct FileVersion
 {
     public FileVersion(uint value)
     {

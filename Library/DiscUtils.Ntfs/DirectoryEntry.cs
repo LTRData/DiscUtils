@@ -25,7 +25,7 @@ using LTRData.Extensions.Buffers;
 
 namespace DiscUtils.Ntfs;
 
-internal struct DirectoryEntry
+internal readonly struct DirectoryEntry
 {
     private readonly Directory _directory;
 
