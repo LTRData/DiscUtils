@@ -20,7 +20,7 @@ namespace LibraryTests.Helpers
             using var fs = File.OpenRead(Path.Combine("..", "..", "LibraryTests", projectName, "Data", dataFileName));
             using var gz = new GZipStream(fs, CompressionMode.Decompress);
 
-            MemoryStream ms = new MemoryStream();
+            var ms = new MemoryStream();
 
             try
             {

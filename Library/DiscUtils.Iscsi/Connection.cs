@@ -30,6 +30,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DiscUtils.Streams;
 using DiscUtils.Streams.Compatibility;
+using LTRData.Extensions.Buffers;
 
 namespace DiscUtils.Iscsi;
 
@@ -449,7 +450,7 @@ internal sealed class Connection : IDisposable
                 ms.Write(resp.TextData, 0, resp.TextData.Length);
             }
 
-            settings.ReadFrom(ms.ToArray(), 0, (int)ms.Length);
+            settings.ReadFrom(ms.AsSpan());
         }
         else if (resp.TextData != null)
         {
@@ -528,7 +529,7 @@ internal sealed class Connection : IDisposable
                         ms.Write(resp.TextData, 0, resp.TextData.Length);
                     }
 
-                    settings.ReadFrom(ms.ToArray(), 0, (int)ms.Length);
+                    settings.ReadFrom(ms.AsSpan());
                 }
                 else
                 {
@@ -597,7 +598,7 @@ internal sealed class Connection : IDisposable
                 ms.Write(resp.TextData, 0, resp.TextData.Length);
             }
 
-            settings.ReadFrom(ms.ToArray(), 0, (int)ms.Length);
+            settings.ReadFrom(ms.AsSpan());
         }
         else if (resp.TextData != null)
         {
@@ -654,7 +655,7 @@ internal sealed class Connection : IDisposable
                         ms.Write(resp.TextData, 0, resp.TextData.Length);
                     }
 
-                    settings.ReadFrom(ms.ToArray(), 0, (int)ms.Length);
+                    settings.ReadFrom(ms.AsSpan());
                 }
                 else
                 {

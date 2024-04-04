@@ -20,6 +20,8 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
+using DiscUtils.Streams;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -95,14 +97,17 @@ internal class TextBuffer
     }
 
     public void ReadFrom(byte[] buffer, int offset, int length)
+        => ReadFrom(buffer.AsSpan(offset, length));
+
+    public void ReadFrom(ReadOnlySpan<byte> buffer)
     {
-        if (buffer == null)
+        if (buffer.IsEmpty)
         {
             return;
         }
 
-        var end = offset + length;
-        var i = offset;
+        var end = 0 + buffer.Length;
+        var i = 0;
         while (i < end)
         {
             var nameStart = i;
@@ -116,7 +121,7 @@ internal class TextBuffer
                 throw new InvalidProtocolException("Invalid text buffer");
             }
 
-            var name = Encoding.ASCII.GetString(buffer, nameStart, i - nameStart);
+            var name = Encoding.ASCII.GetString(buffer.Slice(nameStart, i - nameStart));
 
             ++i;
             var valueStart = i;
@@ -125,7 +130,7 @@ internal class TextBuffer
                 ++i;
             }
 
-            var value = Encoding.ASCII.GetString(buffer, valueStart, i - valueStart);
+            var value = Encoding.ASCII.GetString(buffer.Slice(valueStart, i - valueStart));
             ++i;
 
             Add(name, value);
