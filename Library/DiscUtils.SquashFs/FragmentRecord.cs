@@ -48,6 +48,6 @@ internal class FragmentRecord : IByteArraySerializable
     {
         EndianUtilities.WriteBytesLittleEndian(StartBlock, buffer);
         EndianUtilities.WriteBytesLittleEndian(CompressedSize, buffer.Slice(8));
-        EndianUtilities.WriteBytesLittleEndian(0, buffer.Slice(12));
+        buffer.Slice(12).Clear();
     }
 }
