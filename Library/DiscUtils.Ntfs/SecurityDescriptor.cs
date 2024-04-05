@@ -76,7 +76,7 @@ internal sealed class SecurityDescriptor : IByteArraySerializable, IDiagnosticTr
         }
         else
         {
-            buffer.Slice(0x10).Clear();
+            buffer.Slice(0x10, sizeof(int)).Clear();
         }
 
         var sysAcl = Descriptor.SystemAcl;
@@ -88,7 +88,7 @@ internal sealed class SecurityDescriptor : IByteArraySerializable, IDiagnosticTr
         }
         else
         {
-            buffer.Slice(0x0C).Clear();
+            buffer.Slice(0x0C, sizeof(int)).Clear();
         }
 
         EndianUtilities.WriteBytesLittleEndian(pos, buffer.Slice(0x04));
