@@ -135,6 +135,7 @@ internal class DirectoryEntry
             {
                 return (uint)(_firstClusterHi << 16) | _firstClusterLo;
             }
+
             return _firstClusterLo;
         }
 

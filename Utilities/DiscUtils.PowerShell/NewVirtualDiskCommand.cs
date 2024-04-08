@@ -90,14 +90,20 @@ public class NewVirtualDiskCommand : PSCmdlet
         if (parentObj.BaseObject is DirectoryInfo)
         {
             var path = Path.Combine(((DirectoryInfo)parentObj.BaseObject).FullName, child);
-            using (var realDisk = VirtualDisk.CreateDisk(type, variant, path, size, default, null, useAsync: false)) { }
+            using (var realDisk = VirtualDisk.CreateDisk(type, variant, path, size, default, null, useAsync: false))
+            {
+            }
+
             disk = new OnDemandVirtualDisk(path, FileAccess.ReadWrite);
         }
         else if (parentObj.BaseObject is DiscDirectoryInfo)
         {
             var ddi = (DiscDirectoryInfo)parentObj.BaseObject;
             var path = Path.Combine(ddi.FullName, child);
-            using (var realDisk = VirtualDisk.CreateDisk(ddi.FileSystem, type, variant, path, size, default, null)) { }
+            using (var realDisk = VirtualDisk.CreateDisk(ddi.FileSystem, type, variant, path, size, default, null))
+            {
+            }
+
             disk = new OnDemandVirtualDisk(ddi.FileSystem, path, FileAccess.ReadWrite);
         }
         else
@@ -146,14 +152,20 @@ public class NewVirtualDiskCommand : PSCmdlet
             if (parentObj.BaseObject is DirectoryInfo)
             {
                 var path = Path.Combine(((DirectoryInfo)parentObj.BaseObject).FullName, child);
-                using (baseDisk.CreateDifferencingDisk(path, useAsync: false)) { }
+                using (baseDisk.CreateDifferencingDisk(path, useAsync: false))
+                {
+                }
+
                 newDisk = new OnDemandVirtualDisk(path, FileAccess.ReadWrite);
             }
             else if (parentObj.BaseObject is DiscDirectoryInfo)
             {
                 var ddi = (DiscDirectoryInfo)parentObj.BaseObject;
                 var path = Path.Combine(ddi.FullName, child);
-                using (baseDisk.CreateDifferencingDisk(ddi.FileSystem, path)) { }
+                using (baseDisk.CreateDifferencingDisk(ddi.FileSystem, path))
+                {
+                }
+
                 newDisk = new OnDemandVirtualDisk(ddi.FileSystem, path, FileAccess.ReadWrite);
             }
             else

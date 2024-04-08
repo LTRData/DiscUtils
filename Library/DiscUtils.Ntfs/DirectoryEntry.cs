@@ -54,6 +54,7 @@ internal readonly struct DirectoryEntry
             {
                 return $"{fileName}.";
             }
+
             return fileName;
         }
     }

@@ -20,7 +20,6 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-namespace DiscUtils.Xfs;
 
 using System;
 using System.IO;
@@ -29,6 +28,7 @@ using DiscUtils.Streams;
 using System.Linq;
 using System.Collections;
 
+namespace DiscUtils.Xfs;
 internal struct Inode : IByteArraySerializable
 {
     public Inode(ulong number, Context context) : this()
@@ -259,6 +259,7 @@ internal struct Inode : IByteArraySerializable
         {
             dfLength = Forkoff * 8;
         }
+
         DataFork = EndianUtilities.ToByteArray(buffer.Slice(dfOffset, dfLength));
         return Size;
     }
@@ -285,6 +286,7 @@ internal struct Inode : IByteArraySerializable
             offset += extent.ReadFrom(DataFork.AsSpan(offset));
             result[i] = extent;
         }
+
         return result;
     }
 
@@ -307,6 +309,7 @@ internal struct Inode : IByteArraySerializable
             var extents = tree.GetExtents();
             return BufferFromExtentList(context, extents);
         }
+
         throw new NotImplementedException();
     }
 
@@ -344,6 +347,7 @@ internal struct Inode : IByteArraySerializable
             var substream = new SubStream(context.RawStream, blockOffset, (long)extent.BlockCount*context.SuperBlock.Blocksize);
             builderExtents.Add(new BuilderSparseStreamExtent((long) extent.StartOffset * context.SuperBlock.Blocksize, substream));
         }
+
         return new StreamBuffer(new ExtentStream((long) this.Length, builderExtents), Ownership.Dispose);
     }
 }

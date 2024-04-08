@@ -216,6 +216,7 @@ internal class VfsCDReader : VfsReadOnlyFileSystem<ReaderDirEntry, File, ReaderD
             {
                 return initialEntry.ImageStart * IsoUtilities.SectorSize;
             }
+
             return 0;
         }
     }
@@ -499,6 +500,7 @@ internal class VfsCDReader : VfsReadOnlyFileSystem<ReaderDirEntry, File, ReaderD
         {
             return 0;
         }
+
         return (ushort)totalSectors;
     }
 
@@ -534,6 +536,7 @@ internal class VfsCDReader : VfsReadOnlyFileSystem<ReaderDirEntry, File, ReaderD
                     {
                         sectorCount = initialEntry.SectorCount;
                     }
+
                     return sectorCount;
                 }
             case BootDeviceEmulation.NoEmulation:
@@ -549,6 +552,7 @@ internal class VfsCDReader : VfsReadOnlyFileSystem<ReaderDirEntry, File, ReaderD
                     {
                         sectorCount = initialEntry.SectorCount;
                     }
+
                     return sectorCount;
                 }
         }
@@ -563,6 +567,7 @@ internal class VfsCDReader : VfsReadOnlyFileSystem<ReaderDirEntry, File, ReaderD
             return new SubStream(_data, initialEntry.ImageStart * IsoUtilities.SectorSize,
                 sectorCount * Sizes.Sector);
         }
+
         throw new InvalidOperationException("No valid boot image");
     }
 
@@ -572,6 +577,7 @@ internal class VfsCDReader : VfsReadOnlyFileSystem<ReaderDirEntry, File, ReaderD
         {
             return new ReaderDirectory(Context, dirEntry);
         }
+
         return new File(Context, dirEntry);
     }
 
@@ -599,6 +605,7 @@ internal class VfsCDReader : VfsReadOnlyFileSystem<ReaderDirEntry, File, ReaderD
             context.SuspDetected = false;
             return;
         }
+
         context.SuspDetected = true;
 
         var suspRecords = new SuspRecords(context, rootSelfRecord.SystemUseData);

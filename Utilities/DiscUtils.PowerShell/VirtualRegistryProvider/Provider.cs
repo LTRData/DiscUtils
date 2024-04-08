@@ -70,6 +70,7 @@ public sealed class Provider : NavigationCmdletProvider, IDynamicPropertyCmdletP
                 drive));
             return null;
         }
+
         var filePath = mountPaths[0];
         var relPath = mountPaths.Length > 1 ? mountPaths[1] : "";
         var access = dynParams.ReadWrite.IsPresent ? FileAccess.ReadWrite : FileAccess.Read;

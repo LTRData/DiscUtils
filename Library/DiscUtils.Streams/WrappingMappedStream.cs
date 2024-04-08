@@ -77,10 +77,12 @@ public class WrappingMappedStream<T> : MappedStream
             {
                 return _extents;
             }
+
             if (WrappedStream is SparseStream sparse)
             {
                 return sparse.Extents;
             }
+
             return SingleValueEnumerable.Get(new StreamExtent(0, WrappedStream.Length));
         }
     }
@@ -104,6 +106,7 @@ public class WrappingMappedStream<T> : MappedStream
         {
             return mapped.MapContent(start, length);
         }
+
         return SingleValueEnumerable.Get(new StreamExtent(start, length));
     }
 

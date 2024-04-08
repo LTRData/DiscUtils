@@ -22,10 +22,9 @@
 
 using System.Collections.Generic;
 
+using InternalMasterFileTable = DiscUtils.Ntfs.MasterFileTable;
+
 namespace DiscUtils.Ntfs.Internals;
-
-using InternalMasterFileTable = Ntfs.MasterFileTable;
-
 /// <summary>
 /// Provides read-only access to the Master File Table of an NTFS file system.
 /// </summary>
@@ -119,6 +118,7 @@ public sealed class MasterFileTable
             {
                 return new MasterFileTableEntry(_context, mftRecord);
             }
+
             return null;
         }
     }

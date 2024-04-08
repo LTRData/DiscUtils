@@ -102,6 +102,7 @@ internal class ChunkItem : BaseItem
             Stripes[i] = new Stripe();
             offset += Stripes[i].ReadFrom(buffer.Slice(offset));
         }
+
         return Size;
     }
 }

@@ -72,6 +72,7 @@ class Disk : VirtualDisk
             {
                 _stream = new DiskStream(_handle);
             }
+
             return _stream;
         }
     }

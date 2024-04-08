@@ -21,7 +21,6 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-namespace DiscUtils.Xfs;
 
 using System.Collections.Generic;
 using System.IO;
@@ -30,6 +29,7 @@ using DiscUtils.Streams;
 using DiscUtils.Vfs;
 using LTRData.Extensions.Buffers;
 
+namespace DiscUtils.Xfs;
 [VfsFileSystemFactory]
 internal class FileSystemFactory : VfsFileSystemFactory
 {

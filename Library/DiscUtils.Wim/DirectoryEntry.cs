@@ -55,6 +55,7 @@ internal class DirectoryEntry
             {
                 return $"{FileName}.";
             }
+
             return FileName;
         }
     }

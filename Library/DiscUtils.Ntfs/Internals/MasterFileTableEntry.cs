@@ -23,10 +23,9 @@
 using System.Collections.Generic;
 using System.IO;
 
+using DiscUtils.Streams;
+
 namespace DiscUtils.Ntfs.Internals;
-
-using Streams;
-
 /// <summary>
 /// An entry within the Master File Table.
 /// </summary>

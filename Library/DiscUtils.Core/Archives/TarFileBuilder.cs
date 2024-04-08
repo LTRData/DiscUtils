@@ -20,13 +20,13 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-namespace DiscUtils.Archives;
 
-using Streams;
+using DiscUtils.Streams;
 using System;
 using System.Collections.Generic;
 using System.IO;
 
+namespace DiscUtils.Archives;
 /// <summary>
 /// Builder to create UNIX Tar archive files.
 /// </summary>

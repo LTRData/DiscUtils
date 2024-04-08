@@ -61,6 +61,7 @@ internal class LeafNode:NodeHeader
                     break;
             }
         }
+
         return Size;
     }
 
@@ -92,9 +93,14 @@ internal class LeafNode:NodeHeader
         for (var i = 0; i < Items.Length; i++)
         {
             if (Items[i].Key.ObjectId > key.ObjectId)
+            {
                 break;
+            }
+
             if (Items[i].Key.ObjectId == key.ObjectId && Items[i].Key.ItemType == key.ItemType)
+            {
                 yield return NodeData[i];
+            }
         }
     }
 }

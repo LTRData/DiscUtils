@@ -95,26 +95,32 @@ public sealed class MetadataInfo
             {
                 return "File Parameters";
             }
+
             if (_entry.ItemId == MetadataTable.LogicalSectorSizeGuid)
             {
                 return "Logical Sector Size";
             }
+
             if (_entry.ItemId == MetadataTable.Page83DataGuid)
             {
                 return "SCSI Page 83 Data";
             }
+
             if (_entry.ItemId == MetadataTable.ParentLocatorGuid)
             {
                 return "Parent Locator";
             }
+
             if (_entry.ItemId == MetadataTable.PhysicalSectorSizeGuid)
             {
                 return "Physical Sector Size";
             }
+
             if (_entry.ItemId == MetadataTable.VirtualDiskSizeGuid)
             {
                 return "Virtual Disk Size";
             }
+
             return null;
         }
     }

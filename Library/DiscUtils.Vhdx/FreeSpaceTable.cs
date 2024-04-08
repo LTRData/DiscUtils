@@ -102,6 +102,7 @@ internal sealed class FreeSpaceTable
                 start = extent.Start;
                 return true;
             }
+
             if (extent.Length > length)
             {
                 _freeExtents[i] = new StreamExtent(extent.Start + length, extent.Length - length);

@@ -62,12 +62,15 @@ public sealed class DiskImageFileInfo
                 {
                     return null;
                 }
+
                 return new HeaderInfo(_vhdxHeader2);
             }
+
             if (_vhdxHeader2 == null)
             {
                 return new HeaderInfo(_vhdxHeader1);
             }
+
             return
                 new HeaderInfo(_vhdxHeader1.SequenceNumber > _vhdxHeader2.SequenceNumber
                     ? _vhdxHeader1

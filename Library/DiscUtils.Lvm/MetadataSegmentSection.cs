@@ -20,7 +20,6 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-namespace DiscUtils.Lvm;
 
 using System;
 using System.IO;
@@ -28,6 +27,7 @@ using System.Collections.Generic;
 using System.Linq;
 using LTRData.Extensions.Buffers;
 
+namespace DiscUtils.Lvm;
 internal class MetadataSegmentSection
 {
     public string Name;
@@ -43,7 +43,11 @@ internal class MetadataSegmentSection
         string line;
         while ((line = Metadata.ReadLine(data)) != null)
         {
-            if (line == String.Empty) continue;
+            if (line == String.Empty)
+            {
+                continue;
+            }
+
             if (line.AsSpan().Contains("=".AsSpan(), StringComparison.Ordinal))
             {
                 var parameter = Metadata.ParseParameter(line.AsMemory());
@@ -120,6 +124,7 @@ internal class MetadataSegmentSection
                                 Type = SegmentType.Thin;
                                 break;
                         }
+
                         break;
                     case "stripe_count":
                         StripeCount = Metadata.ParseNumericValue(parameter.Value.Span);
@@ -129,6 +134,7 @@ internal class MetadataSegmentSection
                         {
                             Stripes = ParseStripesSection(data).ToArray();
                         }
+
                         break;
                     default:
                         throw new ArgumentOutOfRangeException(parameter.Key.ToString(), "Unexpected parameter in global metadata");
@@ -150,11 +156,16 @@ internal class MetadataSegmentSection
         string line;
         while ((line = Metadata.ReadLine(data)) != null)
         {
-            if (line == string.Empty) continue;
+            if (line == string.Empty)
+            {
+                continue;
+            }
+
             if (line.EndsWith(']'))
             {
                 yield break;
             }
+
             var pv = new MetadataStripe();
             pv.Parse(line);
             yield return pv;

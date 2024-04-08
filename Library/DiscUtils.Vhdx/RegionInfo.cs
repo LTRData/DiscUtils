@@ -86,10 +86,12 @@ public sealed class RegionInfo
             {
                 return "BAT";
             }
+
             if (_entry.Guid == RegionEntry.MetadataRegionGuid)
             {
                 return "Metadata Region";
             }
+
             return null;
         }
     }

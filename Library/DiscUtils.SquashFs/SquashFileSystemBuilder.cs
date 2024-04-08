@@ -586,6 +586,7 @@ public sealed class SquashFileSystemBuilder : StreamBuilder, IFileSystemBuilder
             {
                 n++;
             }
+
             return n;
         }
     }
@@ -602,6 +603,7 @@ public sealed class SquashFileSystemBuilder : StreamBuilder, IFileSystemBuilder
                     n += file.Inode.FileSize;
                 }
             }
+
             return n;
         }
     }

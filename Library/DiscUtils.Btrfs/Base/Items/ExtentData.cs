@@ -119,7 +119,10 @@ internal class ExtentData : BaseItem
     public Stream GetStream(Context context)
     {
         if (Encryption)
+        {
             throw new IOException("Extent encryption is not supported");
+        }
+
         Stream stream;
         switch (Type)
         {
@@ -138,12 +141,14 @@ internal class ExtentData : BaseItem
                     var physicalAddress = context.MapToPhysical(address);
                     stream = new SubStream(context.RawStream, Ownership.None, (long)(physicalAddress + ExtentOffset), (long)ExtentSize);
                 }
+
                 break;
             case ExtentDataType.PreAlloc:
                 throw new NotImplementedException();
             default:
                 throw new IOException("invalid extent type");
         }
+
         switch (Compression)
         {
             case ExtentDataCompression.None:
@@ -177,19 +182,23 @@ internal class ExtentData : BaseItem
                         parts.Add(SparseStream.FromStream(uncompressed, Ownership.Dispose));
                         processed += partLength;
                     }
+
                     stream = new ConcatStream(Ownership.Dispose, parts);
                     break;
                 }
             default:
                 throw new IOException($"Unsupported extent compression ({Compression})");
         }
+
         return stream;
     }
 
     public StreamExtent GetExtent(Context context)
     {
         if (Encryption)
+        {
             throw new IOException("Extent encryption is not supported");
+        }
 
         switch (Type)
         {

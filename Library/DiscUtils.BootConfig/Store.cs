@@ -80,6 +80,7 @@ public class Store
         {
             return new BcdObject(_store, id);
         }
+
         return null;
     }
 

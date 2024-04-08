@@ -20,10 +20,10 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-namespace DiscUtils.Xfs;
 
 using System;
 
+namespace DiscUtils.Xfs;
 /// <summary>
 /// Additional version flags if MOREBITSBIT is set in <see cref="SuperBlock.Version"/>.
 /// </summary>

@@ -130,6 +130,7 @@ namespace LibraryTests
                 {
                     throw new IOException("File already exists");
                 }
+
                 return _files[path].OpenStream() as SparseStream;
             }
             else

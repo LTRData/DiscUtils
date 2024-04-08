@@ -50,6 +50,7 @@ public class CommandLineParser
         {
             throw new InvalidOperationException("Multi parameter already set");
         }
+
         _multiParam = multiParameter;
     }
 
@@ -70,14 +71,17 @@ public class CommandLineParser
         {
             Console.Write(" <switches>");
         }
+
         foreach (var el in _params)
         {
             Console.Write($" {el.CommandLineText}");
         }
+
         if (_multiParam != null)
         {
             Console.WriteLine($" {_multiParam.CommandLineText}");
         }
+
         Console.WriteLine();
         Console.WriteLine();
 
@@ -88,6 +92,7 @@ public class CommandLineParser
         {
             maxNameLen = Math.Max(maxNameLen, p.NameDisplayLength);
         }
+
         if (_multiParam != null)
         {
             maxNameLen = Math.Max(maxNameLen, _multiParam.NameDisplayLength);
@@ -98,6 +103,7 @@ public class CommandLineParser
             p.WriteDescription(Console.Out, $"  {{0,-{maxNameLen}}}  {{1}}", 74 - maxNameLen);
             Console.WriteLine();
         }
+
         if (_multiParam != null)
         {
             _multiParam.WriteDescription(Console.Out, $"  {{0,-{maxNameLen}}}  {{1}}", 74 - maxNameLen);
@@ -129,6 +135,7 @@ public class CommandLineParser
                 {
                     Console.WriteLine($"  {line}");
                 }
+
                 Console.WriteLine();
             }
         }
@@ -192,12 +199,14 @@ public class CommandLineParser
                 return false;
             }
         }
+
         if (_multiParam != null)
         {
             if (!_multiParam.IsValid)
             {
                 return false;
             }
+
             if (!_multiParam.IsOptional && !_multiParam.IsPresent)
             {
                 return false;

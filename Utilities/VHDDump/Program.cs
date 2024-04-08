@@ -112,6 +112,7 @@ class Program : ProgramBase
             {
                 Console.Write("{0}\n                      ", parentLocation);
             }
+
             Console.WriteLine();
         }
     }

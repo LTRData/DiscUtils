@@ -9,7 +9,9 @@ internal static class EncodingHelper
     public static void RegisterEncodings()
     {
         if (_registered)
+        {
             return;
+        }
 
         _registered = true;
 
@@ -26,6 +28,7 @@ internal static class EncodingHelper
         {
             fileName = fileName.Replace(c, '_');
         }
+
         return fileName;
     }
 }

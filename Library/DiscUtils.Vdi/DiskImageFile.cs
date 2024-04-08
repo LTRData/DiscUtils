@@ -92,10 +92,12 @@ public sealed class DiskImageFile : VirtualDiskLayer
             {
                 return _header.LChsGeometry.ToGeometry(_header.DiskSize);
             }
+
             if (_header.LegacyGeometry.Cylinders != 0)
             {
                 return _header.LegacyGeometry.ToGeometry(_header.DiskSize);
             }
+
             return GeometryRecord.FromCapacity(_header.DiskSize).ToGeometry(_header.DiskSize);
         }
     }

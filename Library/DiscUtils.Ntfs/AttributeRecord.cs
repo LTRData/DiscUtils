@@ -109,10 +109,12 @@ internal abstract class AttributeRecord : IComparable<AttributeRecord>
             length = 0;
             return null;
         }
+
         if (buffer[0x08] != 0x00)
         {
             return new NonResidentAttributeRecord(buffer, out length);
         }
+
         return new ResidentAttributeRecord(buffer, out length);
     }
 
@@ -122,10 +124,12 @@ internal abstract class AttributeRecord : IComparable<AttributeRecord>
         {
             return -1;
         }
+
         if (x.StartVcn == y.StartVcn)
         {
             return 0;
         }
+
         return 1;
     }
 

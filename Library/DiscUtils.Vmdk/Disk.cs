@@ -537,6 +537,7 @@ public sealed class Disk : VirtualDisk
                 _ => DiskCreateType.VmfsSparse,
             };
         }
+
         return DiskCreateType.MonolithicSparse;
     }
 

@@ -89,6 +89,7 @@ public class SubStream : MappedStream
             {
                 return OffsetExtents(parentAsSparse.GetExtentsInRange(_first, _length));
             }
+
             return SingleValueEnumerable.Get(new StreamExtent(0, _length));
         }
     }

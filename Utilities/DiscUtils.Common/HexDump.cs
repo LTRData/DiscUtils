@@ -92,6 +92,7 @@ public static class HexDump
                     {
                         break;
                     }
+
                     numLoaded += bytesRead;
                 }
 
@@ -124,6 +125,7 @@ public static class HexDump
                             {
                                 output.Write(" ");
                             }
+
                             output.Write($" {buffer[i + j]:x2}");
                         }
 
@@ -134,8 +136,10 @@ public static class HexDump
                             {
                                 output.Write(" ");
                             }
+
                             output.Write((buffer[i + j] >= 32 && buffer[i + j] < 127) ? (char)buffer[i + j] : '.');
                         }
+
                         output.Write('|');
 
                         output.WriteLine();

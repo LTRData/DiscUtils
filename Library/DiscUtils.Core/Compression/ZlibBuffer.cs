@@ -118,6 +118,7 @@ internal class ZlibBuffer : Buffer
         {
             _stream?.Dispose();
         }
+
         base.Dispose(disposing);
     }
 }

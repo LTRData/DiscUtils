@@ -43,6 +43,7 @@ internal sealed class DiskGroupRecord : DatabaseRecord
         {
             GroupGuidString = ReadVarString(buffer, ref pos);
         }
+
         Unknown1 = ReadUInt(buffer, ref pos);
     }
 }

@@ -55,10 +55,16 @@ internal class Context : VfsContext
     internal NodeHeader GetFsTree(ulong treeId)
     {
         if (FsTrees.TryGetValue(treeId, out var tree))
+        {
             return tree;
+        }
+
         var rootItem = RootTreeRoot.FindFirst<RootItem>(new Key(treeId, ItemType.RootItem), this);
         if (rootItem == null)
+        {
             return null;
+        }
+
         tree = ReadTree(rootItem.ByteNr, rootItem.Level);
         FsTrees[treeId] = tree;
         return tree;
@@ -71,28 +77,59 @@ internal class Context : VfsContext
             var nodes = ChunkTreeRoot.Find<ChunkItem>(new Key(ReservedObjectId.FirstChunkTree, ItemType.ChunkItem), this);
             foreach(var chunk in nodes)
             {
-                if (chunk.Key.ItemType != ItemType.ChunkItem) continue;
-                if (chunk.Key.Offset > logical) continue;
-                if (chunk.Key.Offset + chunk.ChunkSize < logical) continue;
+                if (chunk.Key.ItemType != ItemType.ChunkItem)
+                {
+                    continue;
+                }
+
+                if (chunk.Key.Offset > logical)
+                {
+                    continue;
+                }
+
+                if (chunk.Key.Offset + chunk.ChunkSize < logical)
+                {
+                    continue;
+                }
+
                 CheckStriping(chunk.Type);
                 if (chunk.StripeCount < 1)
+                {
                     throw new IOException("Invalid stripe count in ChunkItem");
+                }
+
                 var stripe = chunk.Stripes[0];
                 return stripe.Offset + (logical - chunk.Key.Offset);
             }
         }
+
         foreach (var chunk in SuperBlock.SystemChunkArray)
         {
-            if (chunk.Key.ItemType != ItemType.ChunkItem) continue;
-            if (chunk.Key.Offset > logical) continue;
-            if (chunk.Key.Offset  + chunk.ChunkSize < logical) continue;
+            if (chunk.Key.ItemType != ItemType.ChunkItem)
+            {
+                continue;
+            }
+
+            if (chunk.Key.Offset > logical)
+            {
+                continue;
+            }
+
+            if (chunk.Key.Offset  + chunk.ChunkSize < logical)
+            {
+                continue;
+            }
 
             CheckStriping(chunk.Type);
             if (chunk.StripeCount <1)
+            {
                 throw new IOException("Invalid stripe count in ChunkItem");
+            }
+
             var stripe = chunk.Stripes[0];
             return stripe.Offset + (logical - chunk.Key.Offset);
         }
+
         throw new IOException("no matching ChunkItem found");
     }
 
@@ -111,9 +148,15 @@ internal class Context : VfsContext
     internal void VerifyChecksum(ReadOnlySpan<byte> checksum, ReadOnlySpan<byte> data)
     {
         if (!Options.VerifyChecksums)
+        {
             return;
+        }
+
         if (SuperBlock.ChecksumType != ChecksumType.Crc32C)
+        {
             throw new NotImplementedException($"Unsupported ChecksumType {SuperBlock.ChecksumType}");
+        }
+
         var crc = new Crc32LittleEndian(Crc32Algorithm.Castagnoli);
         crc.Process(data);
         Span<byte> calculated = stackalloc byte[4];
@@ -121,20 +164,33 @@ internal class Context : VfsContext
         for (var i = 0; i < calculated.Length; i++)
         {
             if (calculated[i] != checksum[i])
+            {
                 throw new IOException("Invalid checksum");
+            }
         }
     }
 
     private static void CheckStriping(BlockGroupFlag flags)
     {
         if ((flags & BlockGroupFlag.Raid0) == BlockGroupFlag.Raid0)
+        {
             throw new IOException("Raid0 not supported");
+        }
+
         if ((flags & BlockGroupFlag.Raid10) == BlockGroupFlag.Raid0)
+        {
             throw new IOException("Raid10 not supported");
+        }
+
         if ((flags & BlockGroupFlag.Raid5) == BlockGroupFlag.Raid0)
+        {
             throw new IOException("Raid5 not supported");
+        }
+
         if ((flags & BlockGroupFlag.Raid6) == BlockGroupFlag.Raid0)
+        {
             throw new IOException("Raid6 not supported");
+        }
     }
 
     internal BaseItem FindKey(ReservedObjectId objectId, ItemType type)

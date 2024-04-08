@@ -69,6 +69,7 @@ internal class NtfsAttribute : IDiagnosticTraceable
             {
                 return FirstExtent.AllocatedLength;
             }
+
             return firstExtent.CompressedDataSize;
         }
 
@@ -89,6 +90,7 @@ internal class NtfsAttribute : IDiagnosticTraceable
             {
                 return 0;
             }
+
             return firstExtent.CompressionUnitSize;
         }
 
@@ -119,6 +121,7 @@ internal class NtfsAttribute : IDiagnosticTraceable
                         // Resident attribute, so there can only be one...
                         return extent.Value;
                     }
+
                     if (nonResident.StartVcn == 0)
                     {
                         return extent.Value;
@@ -316,6 +319,7 @@ internal class NtfsAttribute : IDiagnosticTraceable
         {
             return false;
         }
+
         if (oldRef.Equals(Reference) || _extents.Count == 0)
         {
             _primaryRecord = record;

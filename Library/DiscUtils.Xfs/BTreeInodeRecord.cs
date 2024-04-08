@@ -22,11 +22,10 @@
 
 using System.Collections;
 
-namespace DiscUtils.Xfs;
-
 using DiscUtils.Streams;
 using System;
 
+namespace DiscUtils.Xfs;
 internal class BTreeInodeRecord: IByteArraySerializable
 {
     /// <summary>

@@ -20,13 +20,13 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-namespace DiscUtils.Lvm;
 
 using System;
 using System.IO;
 using DiscUtils.Partitions;
 using DiscUtils.Streams;
 
+namespace DiscUtils.Lvm;
 internal class PhysicalVolume
 {
     public const ushort SECTOR_SIZE = 512;
@@ -68,7 +68,11 @@ internal class PhysicalVolume
     public static bool TryOpen(Stream content, out PhysicalVolume pv)
     {
         pv = null;
-        if (!SearchLabel(content, out var label)) return false;
+        if (!SearchLabel(content, out var label))
+        {
+            return false;
+        }
+
         pv = new PhysicalVolume(label, content);
         
         return true;
@@ -105,19 +109,23 @@ internal class PhysicalVolume
                     //Invalid PV Sector;
                     return false;
                 }
+
                 if (pvLabel.Crc != pvLabel.CalculatedCrc)
                 {
                     //Invalid PV CRC
                     return false;
                 }
+
                 if (pvLabel.Label2 != PhysicalVolumeLabel.LVM2_LABEL)
                 {
                     //Invalid LVM2 Label
                     return false;
                 }
+
                 return true;
             }
         }
+
         return false;
     }
 
@@ -142,6 +150,7 @@ internal class PhysicalVolume
             crc = (crc >> 4) ^ crctab[crc & 0xf];
             i++;
         }
+
         return crc;
 
     }

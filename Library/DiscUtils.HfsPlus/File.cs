@@ -207,6 +207,7 @@ internal class File : IVfsFileWithStreams
                         throw new NotSupportedException($"The HfsPlus compression type {compressionAttribute.CompressionType} is not supported by DiscUtils.HfsPlus");
                 }
             }
+
             return new FileBuffer(Context, fileInfo.DataFork, fileInfo.FileId);
         }
     }
@@ -243,6 +244,7 @@ internal class File : IVfsFileWithStreams
                     throw new NotSupportedException($"The HfsPlus compression type {compressionAttribute.CompressionType} is not supported by DiscUtils.HfsPlus");
             }
         }
+
         return new FileBuffer(Context, fileInfo.DataFork, fileInfo.FileId).EnumerateAllocationExtents();
     }
 

@@ -227,6 +227,7 @@ internal sealed class DynamicDiskBuilder : StreamBuilder
                 _bitmapStream.Position = position;
                 return _bitmapStream.Read(block, offset, count);
             }
+
             _content.Position = position - _bitmapStream.Length;
             return _content.Read(block, offset, count);
         }
@@ -239,6 +240,7 @@ internal sealed class DynamicDiskBuilder : StreamBuilder
                 _bitmapStream.Position = position;
                 return _bitmapStream.Read(block);
             }
+
             _content.Position = position - _bitmapStream.Length;
             return _content.Read(block);
         }

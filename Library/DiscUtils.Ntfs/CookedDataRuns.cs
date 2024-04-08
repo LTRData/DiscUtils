@@ -64,6 +64,7 @@ public class CookedDataRuns
             {
                 return null;
             }
+
             return _runs[_runs.Count - 1];
         }
     }
@@ -76,6 +77,7 @@ public class CookedDataRuns
             {
                 return 0;
             }
+
             var lastRun = _runs.Count - 1;
             return _runs[lastRun].StartVcn + _runs[lastRun].Length;
         }
@@ -93,6 +95,7 @@ public class CookedDataRuns
                 {
                     return numRuns - 1;
                 }
+
                 throw new IOException("Looking for VCN outside of data runs");
             }
 

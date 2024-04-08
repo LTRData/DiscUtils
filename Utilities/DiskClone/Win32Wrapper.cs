@@ -36,6 +36,7 @@ internal static class Win32Wrapper
         {
             throw new Win32Exception();
         }
+
         return handle;
     }
 
@@ -46,6 +47,7 @@ internal static class Win32Wrapper
         {
             throw new Win32Exception();
         }
+
         return buffer;
     }
 
@@ -56,6 +58,7 @@ internal static class Win32Wrapper
         {
             throw new Win32Exception();
         }
+
         return buffer;
     }
 
@@ -66,6 +69,7 @@ internal static class Win32Wrapper
         {
             throw new Win32Exception();
         }
+
         return capacity;
     }
 }

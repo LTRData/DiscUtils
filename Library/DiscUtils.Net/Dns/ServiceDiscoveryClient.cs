@@ -191,6 +191,7 @@ public sealed class ServiceDiscoveryClient : IDisposable
             {
                 return sb.ToString();
             }
+
             if (ch == '\\')
             {
                 ch = fullName[i++];

@@ -20,11 +20,11 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-namespace DiscUtils.Xfs;
 
 using DiscUtils.Streams;
 using System;
 
+namespace DiscUtils.Xfs;
 internal abstract class BTreeExtentHeaderV5 : BTreeExtentHeader
 {
     public const uint BtreeMagicV5 = 0x424d4133;

@@ -50,6 +50,7 @@ internal class FileSystemFactory : VfsFileSystemFactory
         {
             return new UdfReader(stream, volumeInfo.PhysicalGeometry.BytesPerSector);
         }
+
         return new UdfReader(stream);
     }
 

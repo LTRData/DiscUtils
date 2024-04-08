@@ -60,6 +60,7 @@ class Program
         {
             ShowDir(subDir, indent + 0);
         }
+
         foreach (var file in dirInfo.GetFiles())
         {
             Console.WriteLine($"{indentStr}{file.FullName,-50} [{file.CreationTimeUtc}]");

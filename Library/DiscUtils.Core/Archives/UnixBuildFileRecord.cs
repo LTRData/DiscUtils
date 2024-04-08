@@ -20,12 +20,12 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-namespace DiscUtils.Archives;
 
-using Streams;
+using DiscUtils.Streams;
 using System;
 using System.IO;
 
+namespace DiscUtils.Archives;
 internal sealed class UnixBuildFileRecord
 {
     private string _name;

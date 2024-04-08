@@ -90,6 +90,7 @@ public sealed class RawAcl : GenericAcl
             {
                 return false;
             }
+
             list.Add(newAce);
             pos += newAce.BinaryLength;
         }
@@ -113,6 +114,7 @@ public sealed class RawAcl : GenericAcl
             {
                 len += ace.BinaryLength;
             }
+
             return len;
         }
     }

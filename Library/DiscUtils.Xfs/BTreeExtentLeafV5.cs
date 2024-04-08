@@ -20,12 +20,12 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-namespace DiscUtils.Xfs;
 
 using System;
 using System.Collections.Generic;
 using System.IO;
 
+namespace DiscUtils.Xfs;
 internal class BTreeExtentLeafV5 : BTreeExtentHeaderV5
 {
     public Extent[] Extents { get; private set; }
@@ -39,7 +39,10 @@ internal class BTreeExtentLeafV5 : BTreeExtentHeaderV5
     {
         var offset = base.ReadFrom(buffer);
         if (Level != 0)
+        {
             throw new IOException("invalid B+tree level - expected 0");
+        }
+
         Extents = new Extent[NumberOfRecords];
         for (var i = 0; i < NumberOfRecords; i++)
         {
@@ -47,6 +50,7 @@ internal class BTreeExtentLeafV5 : BTreeExtentHeaderV5
             offset += rec.ReadFrom(buffer.Slice(offset));
             Extents[i] = rec;
         }
+
         return Size;
     }
 

@@ -62,6 +62,7 @@ internal class ShortformDirectoryEntry : IByteArraySerializable, IDirectoryEntry
             FType = (DirectoryFType)buffer[offset];
             offset++;
         }
+
         if (_useShortInode)
         {
             Inode = EndianUtilities.ToUInt32BigEndian(buffer.Slice(offset));
@@ -70,6 +71,7 @@ internal class ShortformDirectoryEntry : IByteArraySerializable, IDirectoryEntry
         {
             Inode = EndianUtilities.ToUInt64BigEndian(buffer.Slice(offset));
         }
+
         return Size;
     }
 

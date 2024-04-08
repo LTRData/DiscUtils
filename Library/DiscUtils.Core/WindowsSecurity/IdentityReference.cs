@@ -21,18 +21,30 @@ public abstract class IdentityReference
     public static bool operator ==(IdentityReference left, IdentityReference right)
     {
         if (((object)left) == null)
+        {
             return (((object)right) == null);
+        }
+
         if (((object)right) == null)
+        {
             return false;
+        }
+
         return (left.Value == right.Value);
     }
 
     public static bool operator !=(IdentityReference left, IdentityReference right)
     {
         if (((object)left) == null)
+        {
             return (((object)right) != null);
+        }
+
         if (((object)right) == null)
+        {
             return true;
+        }
+
         return (left.Value != right.Value);
     }
 }

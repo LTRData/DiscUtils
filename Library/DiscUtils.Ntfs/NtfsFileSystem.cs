@@ -31,11 +31,10 @@ using DiscUtils.Streams.Compatibility;
 using System.Buffers;
 using LTRData.Extensions.Buffers;
 
-namespace DiscUtils.Ntfs;
-
 using DirectoryIndexEntry =
-    KeyValuePair<FileNameRecord, FileRecordReference>;
+    System.Collections.Generic.KeyValuePair<DiscUtils.Ntfs.FileNameRecord, DiscUtils.Ntfs.FileRecordReference>;
 
+namespace DiscUtils.Ntfs;
 /// <summary>
 /// Class for accessing NTFS file systems.
 /// </summary>
@@ -97,14 +96,17 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
             {
                 cacheSettings.ReadCacheSize = cacheSettings.BlockSize;
             }
+
             if (cacheSettings.LargeReadSize < cacheSettings.BlockSize)
             {
                 cacheSettings.LargeReadSize = cacheSettings.BlockSize;
             }
+
             if (cacheSettings.OptimumReadSize < cacheSettings.BlockSize)
             {
                 cacheSettings.OptimumReadSize = cacheSettings.BlockSize;
             }
+
             _context.RawStream = new BlockCacheStream(SparseStream.FromStream(stream, Ownership.None),
                 Ownership.None, cacheSettings);
         }
@@ -453,6 +455,7 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
                 {
                     throw new FileNotFoundException($"No such attribute: {attributeName}", path);
                 }
+
                 file.RemoveStream(attrStream.Value);
             }
         }
@@ -472,6 +475,7 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
             {
                 return true;
             }
+
             var dirEntry = GetDirectoryEntry(path);
             return dirEntry != null && (dirEntry.Value.Details.FileAttributes & FileAttributes.Directory) != 0;
         }
@@ -773,6 +777,7 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
             {
                 throw new FileNotFoundException("File not found", path);
             }
+
             return dirEntry.Value.Details.FileAttributes;
         }
     }
@@ -820,6 +825,7 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
                 {
                     throw new ArgumentException("Attempt to remove sparse attribute from file", nameof(newValue));
                 }
+
                 var ntfsAttr = file.GetAttribute(AttributeType.Data, null);
                 if ((ntfsAttr.Flags & AttributeFlags.Compressed) != 0)
                 {
@@ -841,6 +847,7 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
                 {
                     throw new ArgumentException("Attempt to remove compressed attribute from file", nameof(newValue));
                 }
+
                 var ntfsAttr = file.GetAttribute(AttributeType.Data, null);
                 if ((ntfsAttr.Flags & AttributeFlags.Sparse) != 0)
                 {
@@ -875,6 +882,7 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
             {
                 throw new FileNotFoundException("File not found", path);
             }
+
             return dirEntry.Value.Details.CreationTime;
         }
     }
@@ -906,6 +914,7 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
             {
                 throw new FileNotFoundException("File not found", path);
             }
+
             return dirEntry.Value.Details.LastAccessTime;
         }
     }
@@ -937,6 +946,7 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
             {
                 throw new FileNotFoundException("File not found", path);
             }
+
             return dirEntry.Value.Details.ModificationTime;
         }
     }
@@ -1337,6 +1347,7 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
             {
                 throw new FileNotFoundException("File not found", path);
             }
+
             var file = GetFile(dirEntry.Value.Reference);
             return DoGetSecurity(file);
         }
@@ -1356,6 +1367,7 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
             {
                 throw new FileNotFoundException("File not found", path);
             }
+
             var file = GetFile(dirEntry.Value.Reference);
             DoSetSecurity(file, securityDescriptor);
 
@@ -1402,6 +1414,7 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
             {
                 throw new FileNotFoundException("File not found", path);
             }
+
             var file = GetFile(dirEntry.Value.Reference);
 
             var stream = file.GetStream(AttributeType.ReparsePoint, null);
@@ -1469,6 +1482,7 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
             {
                 throw new FileNotFoundException("File not found", path);
             }
+
             var file = GetFile(dirEntry.Value.Reference);
 
             var stream = file.GetStream(AttributeType.ReparsePoint, null);
@@ -1497,6 +1511,7 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
             {
                 throw new FileNotFoundException("File not found", path);
             }
+
             var file = GetFile(dirEntry.Value.Reference);
             RemoveReparsePoint(file);
 
@@ -1546,6 +1561,7 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
             {
                 return givenEntry.Value.Details.FileName;
             }
+
             if (givenEntry.Value.Details.FileNameNamespace == FileNameNamespace.Win32)
             {
                 var file = GetFile(givenEntry.Value.Reference);
@@ -1702,6 +1718,7 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
             {
                 throw new FileNotFoundException("File not found", path);
             }
+
             return (long)dirEntry.Value.Reference.Value;
         }
     }
@@ -2165,6 +2182,7 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
             {
                 return file.HardLinkCount;
             }
+
             var numHardLinks = 0;
 
             foreach (var fnStream in file.GetStreams(AttributeType.FileName, null))
@@ -2217,6 +2235,7 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
             {
                 _context.Mft.Dispose();
             }
+
             _context.Mft = null;
         }
 
@@ -2226,6 +2245,7 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
             {
                 disposableCompressor.Dispose();
             }
+
             _context.Options.Compressor = null;
         }
 
@@ -2246,8 +2266,8 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
     private static IEnumerable<string> GetAliases(Directory dir, File file, string name)
     {
         var dirEntry = dir.GetEntryByName(name);
-        if (dirEntry.Value.Details.FileNameNamespace == FileNameNamespace.Dos
-            || dirEntry.Value.Details.FileNameNamespace == FileNameNamespace.Win32)
+        if (dirEntry.Value.Details.FileNameNamespace is FileNameNamespace.Dos
+            or FileNameNamespace.Win32)
         {
             foreach (var fnStream in file.GetStreams(AttributeType.FileName, null))
             {
@@ -2395,6 +2415,7 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
         {
             return dir.DirectoryEntry;
         }
+
         var entry = dir.GetEntryByName(pathEntries[pathOffset]);
         if (entry != null)
         {
@@ -2402,6 +2423,7 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
             {
                 return entry;
             }
+
             if ((entry.Value.Details.FileAttributes & FileAttributes.Directory) != 0)
             {
                 var subdir = GetDirectory(entry.Value.Reference);
@@ -2413,8 +2435,10 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
 
                 return GetDirectoryEntry(subdir, pathEntries, pathOffset + 1);
             }
+
             throw new IOException($"{pathEntries[pathOffset]} is a file, not a directory");
         }
+
         return null;
     }
 
@@ -2557,6 +2581,7 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
         {
             throw new FileNotFoundException("File not found", path);
         }
+
         var file = GetFile(dirEntry.Value.Reference);
 
         UpdateStandardInformation(dirEntry.Value, file, modifier);
@@ -2754,6 +2779,7 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
             {
                 ArrayPool<byte>.Shared.Return(buffer);
             }
+
             return usedCluster * ClusterSize;
         }
     }

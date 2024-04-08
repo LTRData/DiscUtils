@@ -43,6 +43,7 @@ public static class BitCounter
                 bitCount++;
                 value &= (byte)(value - 1);
             }
+
             _lookupTable[i] = bitCount;
         }
     }
@@ -67,13 +68,17 @@ public static class BitCounter
     {
         var end = offset + count;
         if (end > values.Length)
+        {
             throw new ArgumentOutOfRangeException(nameof(count), "can't count after end of values");
+        }
+
         var result = 0L;
         for (var i = offset; i < end; i++)
         {
             var value = values[i];
             result += _lookupTable[value];
         }
+
         return result;
     }
 
@@ -91,6 +96,7 @@ public static class BitCounter
             var value = values[i];
             result += _lookupTable[value];
         }
+
         return result;
     }
 }

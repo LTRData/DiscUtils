@@ -112,6 +112,7 @@ namespace LibraryTests.Vmdk
                 Assert.Single(paths);
                 Assert.Equal("diff.vmdk", paths[0]);
             }
+
             Assert.True(fs.GetFileLength($"{sep}diff{sep}diff.vmdk") > 2 * 1024 * 1024);
             Assert.True(fs.GetFileLength($"{sep}diff{sep}diff.vmdk") < 4 * 1024 * 1024);
         }
@@ -131,6 +132,7 @@ namespace LibraryTests.Vmdk
                 Assert.True(disk.Content.Length == 16 * 1024L * 1024 * 1024);
                 Assert.Equal(2, new List<VirtualDiskLayer>(disk.Layers).Count);
             }
+
             Assert.True(fs.GetFileLength($"{sep}dir{sep}diff.vmdk") > 2 * 1024 * 1024);
             Assert.True(fs.GetFileLength($"{sep}dir{sep}diff.vmdk") < 4 * 1024 * 1024);
         }

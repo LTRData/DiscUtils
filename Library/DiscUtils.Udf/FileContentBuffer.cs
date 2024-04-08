@@ -115,6 +115,7 @@ internal class FileContentBuffer : Streams.Buffer
             System.Buffer.BlockCopy(srcBuffer, (int)pos, buffer, offset, toCopy);
             return toCopy;
         }
+
         return ReadFromExtents(pos, buffer, offset, count);
     }
 
@@ -137,6 +138,7 @@ internal class FileContentBuffer : Streams.Buffer
             srcBuffer.AsSpan((int)pos, toCopy).CopyTo(buffer);
             return toCopy;
         }
+
         return ReadFromExtents(pos, buffer);
     }
 

@@ -20,7 +20,6 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-namespace DiscUtils.Xfs;
 
 using System.IO;
 using DiscUtils.Vfs;
@@ -28,6 +27,7 @@ using DiscUtils.Streams;
 using System.Collections.Generic;
 using System;
 
+namespace DiscUtils.Xfs;
 /// <summary>
 /// Read-only access to ext file system.
 /// </summary>

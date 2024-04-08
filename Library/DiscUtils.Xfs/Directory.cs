@@ -21,7 +21,6 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-namespace DiscUtils.Xfs;
 
 using System;
 using System.IO;
@@ -31,6 +30,7 @@ using DiscUtils.Streams;
 using DiscUtils.Internal;
 using DiscUtils.CoreCompat;
 
+namespace DiscUtils.Xfs;
 internal class Directory : File, IVfsDirectory<DirEntry, File>
 {
     public Directory(Context context, Inode inode)
@@ -63,13 +63,18 @@ internal class Directory : File, IVfsDirectory<DirEntry, File>
                     {
                         var blockDir = new BlockDirectory(Context);
                         if (Context.SuperBlock.SbVersion == 5)
+                        {
                             blockDir = new BlockDirectoryV5(Context);
+                        }
 
                         var dirContent = Inode.GetContentBuffer(Context);
                         var buffer = dirContent.ReadAll();
                         blockDir.ReadFrom(buffer);
                         if (!blockDir.HasValidMagic)
+                        {
                             throw new IOException("invalid block directory magic");
+                        }
+
                         AddDirEntries(blockDir.Entries, result);
                     }
                     else
@@ -86,8 +91,10 @@ internal class Directory : File, IVfsDirectory<DirEntry, File>
                     var extents = header.GetExtents();
                     AddLeafDirExtentEntries(extents, result);
                 }
+
                 _allEntries = result;
             }
+
             return _allEntries;
         }
     }
@@ -105,10 +112,16 @@ internal class Directory : File, IVfsDirectory<DirEntry, File>
                     var buffer = extent.GetData(Context, i* Context.SuperBlock.DirBlockSize, Context.SuperBlock.DirBlockSize);
                     var leafDir = new LeafDirectory(Context);
                     if (Context.SuperBlock.SbVersion == 5)
+                    {
                         leafDir = new LeafDirectoryV5(Context);
+                    }
+
                     leafDir.ReadFrom(buffer);
                     if (!leafDir.HasValidMagic)
+                    {
                         throw new IOException("invalid leaf directory magic");
+                    }
+
                     AddDirEntries(leafDir.Entries, target);
                 }
 
@@ -120,9 +133,17 @@ internal class Directory : File, IVfsDirectory<DirEntry, File>
     {
         foreach (var entry in entries)
         {
-            if (entry is not IDirectoryEntry dirEntry) continue;
+            if (entry is not IDirectoryEntry dirEntry)
+            {
+                continue;
+            }
+
             var name = Context.Options.FileNameEncoding.GetString(dirEntry.Name).SanitizeFileName();
-            if (name == "." || name == "..") continue;
+            if (name == "." || name == "..")
+            {
+                continue;
+            }
+
             target.Add(new DirEntry(dirEntry, Context));
         }
     }

@@ -123,6 +123,7 @@ internal class FatBuffer
         {
             return EndianUtilities.ToUInt16LittleEndian(_buffer, (int)(cluster * 2));
         }
+
         if (_type == FatType.Fat32)
         {
             return EndianUtilities.ToUInt32LittleEndian(_buffer, (int)(cluster * 4)) & 0x0FFFFFFF;
@@ -134,6 +135,7 @@ internal class FatBuffer
             return
                 (uint)((EndianUtilities.ToUInt16LittleEndian(_buffer, (int)(cluster + cluster / 2)) >> 4) & 0x0FFF);
         }
+
         return (uint)(EndianUtilities.ToUInt16LittleEndian(_buffer, (int)(cluster + cluster / 2)) & 0x0FFF);
     }
 

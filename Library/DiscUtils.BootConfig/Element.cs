@@ -190,6 +190,7 @@ public class Element
                     case 0x15000051:
                         return "initialconsoleinput";
                 }
+
                 break;
 
             case ElementClass.Application:
@@ -389,6 +390,7 @@ public class Element
 
                         break;
                 }
+
                 break;
             case ElementClass.Device:
                 switch (identifier)
@@ -408,6 +410,7 @@ public class Element
                     case 0x35000007:
                         return "ramdisktftpblocksize";
                 }
+
                 break;
             case ElementClass.Hidden:
                 switch (identifier)
@@ -423,6 +426,7 @@ public class Element
                     case 0x46000010:
                         return "recoveryos";
                 }
+
                 break;
         }
 

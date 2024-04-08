@@ -64,6 +64,7 @@ internal class DynamicVolume
         {
             throw new IOException("Attempt to open 'failed' volume");
         }
+
         return _group.OpenVolume(Record.Id);
     }
 }

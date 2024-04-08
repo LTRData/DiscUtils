@@ -201,6 +201,7 @@ public sealed class BlockCacheStream : SparseStream
             {
                 throw new IOException("Attempt to read beyond end of stream");
             }
+
             _atEof = true;
             return 0;
         }
@@ -338,6 +339,7 @@ public sealed class BlockCacheStream : SparseStream
             {
                 throw new IOException("Attempt to read beyond end of stream");
             }
+
             _atEof = true;
             return 0;
         }
@@ -476,6 +478,7 @@ public sealed class BlockCacheStream : SparseStream
             {
                 throw new IOException("Attempt to read beyond end of stream");
             }
+
             _atEof = true;
             return 0;
         }
@@ -633,6 +636,7 @@ public sealed class BlockCacheStream : SparseStream
         {
             throw new IOException("Attempt to move before beginning of disk");
         }
+
         _position = effectiveOffset;
         return _position;
     }

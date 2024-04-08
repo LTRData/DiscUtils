@@ -152,6 +152,7 @@ internal class IndexNode
 
                 break;
             }
+
             var compVal = _index.Compare(key, focus.KeyBuffer);
             if (compVal == 0)
             {
@@ -159,6 +160,7 @@ internal class IndexNode
                 node = this;
                 return true;
             }
+
             if (compVal < 0 && (focus.Flags & (IndexEntryFlags.End | IndexEntryFlags.Node)) != 0)
             {
                 var subNode = _index.GetSubBlock(focus);
@@ -225,6 +227,7 @@ internal class IndexNode
                 exactMatch = false;
                 return i;
             }
+
             compVal = _index.Compare(key, focus.KeyBuffer);
             if (compVal <= 0)
             {
@@ -285,6 +288,7 @@ internal class IndexNode
             _store();
             return true;
         }
+
         if ((entry.Flags & IndexEntryFlags.Node) != 0)
         {
             var childNode = _index.GetSubBlock(entry).Node;
@@ -414,6 +418,7 @@ internal class IndexNode
         {
             throw new InvalidOperationException("Entry already exists");
         }
+
         _entries.Insert(index, newEntry);
     }
 
@@ -480,10 +485,12 @@ internal class IndexNode
         {
             return _index.GetSubBlock(_entries[_entries.Count - 1]).Node.FindLargestLeaf();
         }
+
         if (_entries.Count > 1 && (_entries[_entries.Count - 2].Flags & IndexEntryFlags.Node) == 0)
         {
             return _entries[_entries.Count - 2];
         }
+
         throw new IOException("Invalid index node found");
     }
 

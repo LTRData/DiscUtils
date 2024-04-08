@@ -228,6 +228,7 @@ public class ConcatStream : SparseStream
         {
             throw new IOException("Attempt to move before beginning of disk");
         }
+
         Position = effectiveOffset;
         return Position;
     }

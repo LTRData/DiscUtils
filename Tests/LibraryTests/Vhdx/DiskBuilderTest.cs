@@ -152,8 +152,15 @@ namespace LibraryTests.Vhdx
             }
             finally
             {
-                if (File.Exists(diffPath)) { File.Delete(diffPath); }
-                if (File.Exists(parentPath)) { File.Delete(parentPath); }
+                if (File.Exists(diffPath))
+                {
+                    File.Delete(diffPath);
+                }
+
+                if (File.Exists(parentPath))
+                {
+                    File.Delete(parentPath);
+                }
             }
         }
 

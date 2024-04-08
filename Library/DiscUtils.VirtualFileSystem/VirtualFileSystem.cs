@@ -2,14 +2,12 @@
 using DiscUtils.Core.WindowsSecurity.AccessControl;
 using System.IO;
 using System.Linq;
-
-namespace DiscUtils.VirtualFileSystem;
-
-using Internal;
-using Streams;
+using DiscUtils.Internal;
+using DiscUtils.Streams;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
+namespace DiscUtils.VirtualFileSystem;
 public partial class VirtualFileSystem : DiscFileSystem, IWindowsFileSystem, IUnixFileSystem, IFileSystemBuilder
 {
     public delegate Stream FileOpenDelegate(FileMode mode, FileAccess access);
@@ -219,6 +217,7 @@ public partial class VirtualFileSystem : DiscFileSystem, IWindowsFileSystem, IUn
             {
                 regexOptions |= RegexOptions.IgnoreCase;
             }
+
             return new Regex(query, regexOptions).IsMatch;
         }
     }
@@ -352,7 +351,7 @@ public partial class VirtualFileSystem : DiscFileSystem, IWindowsFileSystem, IUn
     }
 
     public VirtualFileSystemFile AddFile(string path, byte[] content, DateTime creationTime, DateTime writtenTime, DateTime accessedTime, FileAttributes attributes) =>
-        new VirtualFileSystemFile(AddDirectory(GetPathDirectoryName(path)),
+        new(AddDirectory(GetPathDirectoryName(path)),
             GetPathFileName(path),
             (mode, access) => new MemoryStream(content, access.HasFlag(FileAccess.Write)))
         {
@@ -364,7 +363,7 @@ public partial class VirtualFileSystem : DiscFileSystem, IWindowsFileSystem, IUn
         };
 
     public VirtualFileSystemFile AddFile(string path, Stream source, DateTime creationTime, DateTime writtenTime, DateTime accessedTime, FileAttributes attributes) =>
-        new VirtualFileSystemFile(AddDirectory(GetPathDirectoryName(path)),
+        new(AddDirectory(GetPathDirectoryName(path)),
             GetPathFileName(path), (mode, access) => SparseStream.FromStream(source, Ownership.None))
         {
             Attributes = attributes,
@@ -375,7 +374,7 @@ public partial class VirtualFileSystem : DiscFileSystem, IWindowsFileSystem, IUn
         };
 
     public VirtualFileSystemFile AddFile(string path, string existingPhysicalPath, DateTime creationTime, DateTime writtenTime, DateTime accessedTime, FileAttributes attributes) =>
-        new VirtualFileSystemFile(AddDirectory(GetPathDirectoryName(path)),
+        new(AddDirectory(GetPathDirectoryName(path)),
             GetPathFileName(path),
             (mode, access) => File.Open(existingPhysicalPath, mode, access))
         {
@@ -491,9 +490,7 @@ public partial class VirtualFileSystem : DiscFileSystem, IWindowsFileSystem, IUn
 
     public override DiscFileInfo GetFileInfo(string path)
     {
-        var file = _root.ResolvePathToEntry(path) as VirtualFileSystemFile;
-        
-        if (file == null)
+        if (_root.ResolvePathToEntry(path) is not VirtualFileSystemFile file)
         {
             return new(this, path);
         }
@@ -503,9 +500,7 @@ public partial class VirtualFileSystem : DiscFileSystem, IWindowsFileSystem, IUn
 
     public override DiscDirectoryInfo GetDirectoryInfo(string path)
     {
-        var dir = _root.ResolvePathToEntry(path) as VirtualFileSystemDirectory;
-
-        if (dir == null)
+        if (_root.ResolvePathToEntry(path) is not VirtualFileSystemDirectory dir)
         {
             return new(this, path);
         }
@@ -534,12 +529,8 @@ public partial class VirtualFileSystem : DiscFileSystem, IWindowsFileSystem, IUn
 
     public UnixFileSystemInfo GetUnixFileInfo(string path)
     {
-        var dirEntry = _root.ResolvePathToEntry(path);
-
-        if (dirEntry == null)
-        {
-            throw new FileNotFoundException("File not found", path);
-        }
+        var dirEntry = _root.ResolvePathToEntry(path)
+            ?? throw new FileNotFoundException("File not found", path);
 
         var isDirectory = dirEntry is VirtualFileSystemDirectory;
 

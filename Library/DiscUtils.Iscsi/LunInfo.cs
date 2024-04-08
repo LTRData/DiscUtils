@@ -169,6 +169,7 @@ public class LunInfo
         {
             return (Lun >> (6 * 8)).ToString(CultureInfo.InvariantCulture);
         }
+
         return Lun.ToString(CultureInfo.InvariantCulture);
     }
 

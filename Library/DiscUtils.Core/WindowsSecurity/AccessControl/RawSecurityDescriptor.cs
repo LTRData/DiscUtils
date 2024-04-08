@@ -108,6 +108,7 @@ public class RawSecurityDescriptor : GenericSecurityDescriptor
             {
                 return false;
             }
+
             sd.Owner = owner;
         }
 
@@ -117,6 +118,7 @@ public class RawSecurityDescriptor : GenericSecurityDescriptor
             {
                 return false;
             }
+
             sd.Group = group;
         }
 
@@ -126,6 +128,7 @@ public class RawSecurityDescriptor : GenericSecurityDescriptor
             {
                 return false;
             }
+
             sd.SystemAcl = systemAcl;
         }
 
@@ -135,6 +138,7 @@ public class RawSecurityDescriptor : GenericSecurityDescriptor
             {
                 return false;
             }
+
             sd.DiscretionaryAcl = discretionaryAcl;
         }
 

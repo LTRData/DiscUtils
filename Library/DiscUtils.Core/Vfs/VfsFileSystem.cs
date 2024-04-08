@@ -443,6 +443,7 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
             {
                 throw new FileNotFoundException("No such file", path);
             }
+
             var parentDir = GetDirectory(Utilities.GetDirectoryFromPath(path));
             entry = parentDir.CreateNewFile(Utilities.GetFileFromPath(path));
         }
@@ -524,6 +525,7 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
         {
             return dirEntry.FileAttributes;
         }
+
         return GetFile(dirEntry).FileAttributes;
     }
 
@@ -559,6 +561,7 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
         {
             return dirEntry.CreationTimeUtc;
         }
+
         return GetFile(dirEntry).CreationTimeUtc;
     }
 
@@ -594,6 +597,7 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
         {
             return dirEntry.LastAccessTimeUtc;
         }
+
         return GetFile(dirEntry).LastAccessTimeUtc;
     }
 
@@ -629,6 +633,7 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
         {
             return dirEntry.LastWriteTimeUtc;
         }
+
         return GetFile(dirEntry).LastWriteTimeUtc;
     }
 
@@ -742,6 +747,7 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
         {
             return RootDirectory;
         }
+
         if (path == null)
         {
             return default(TFile);
@@ -801,6 +807,7 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
         {
             return dir?.Self;
         }
+
         entry = dir?.GetEntryByName(pathEntries[pathOffset]);
         if (entry != null)
         {
@@ -808,6 +815,7 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
             {
                 return entry;
             }
+
             if (entry.IsSymlink)
             {
                 entry = ResolveSymlink(entry, pathEntries[pathOffset]);
@@ -817,12 +825,15 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
                     return null;
                 }
             }
+
             if (entry.IsDirectory)
             {
                 return GetDirectoryEntry((TDirectory)GetFile(entry), pathEntries, pathOffset + 1);
             }
+
             throw new IOException($"{pathEntries[pathOffset]} is a file, not a directory");
         }
+
         return null;
     }
 
@@ -887,6 +898,7 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
                     continue;
                 }
             }
+
             if(entry == null)
             {
                 continue;
@@ -920,6 +932,7 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
         {
             path = Path.DirectorySeparatorChar + path;
         }
+
         var currentPath = path;
         var resolvesLeft = 20;
         while (currentEntry.IsSymlink && resolvesLeft > 0)

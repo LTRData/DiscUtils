@@ -47,18 +47,28 @@ internal class PvHeader : IByteArraySerializable
         {
             var area = new DiskArea();
             areaOffset += area.ReadFrom(buffer.Slice(areaOffset));
-            if (area.Offset == 0 && area.Length == 0) break;
+            if (area.Offset == 0 && area.Length == 0)
+            {
+                break;
+            }
+
             areas.Add(area);
         }
+
         DiskAreas = areas;
         areas = new List<DiskArea>();
         while (true)
         {
             var area = new DiskArea();
             areaOffset += area.ReadFrom(buffer.Slice(areaOffset));
-            if (area.Offset == 0 && area.Length == 0) break;
+            if (area.Offset == 0 && area.Length == 0)
+            {
+                break;
+            }
+
             areas.Add(area);
         }
+
         MetadataDiskAreas = areas;
         return Size;
     }

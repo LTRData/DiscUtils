@@ -210,13 +210,17 @@ namespace LibraryTests.Fat
 
             fs.CreateDirectory(@"AAA");
             fs.CreateDirectory(@"BAR");
-            using (Stream t = fs.OpenFile($"BAR{sep}AAA.TXT", FileMode.Create, FileAccess.ReadWrite)) { }
+            using (Stream t = fs.OpenFile($"BAR{sep}AAA.TXT", FileMode.Create, FileAccess.ReadWrite))
+            {
+            }
+
             using (var s = fs.OpenFile($"BAR{sep}FOO.TXT", FileMode.Create, FileAccess.ReadWrite))
             {
                 var w = new StreamWriter(s);
                 w.WriteLine("FOO - some sample text");
                 w.Flush();
             }
+
             fs.SetLastAccessTimeUtc($"BAR", new DateTime(1980, 1, 1));
             fs.SetLastAccessTimeUtc($"BAR{sep}FOO.TXT", new DateTime(1980, 1, 1));
 

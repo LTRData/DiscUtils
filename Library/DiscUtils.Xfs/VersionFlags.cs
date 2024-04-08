@@ -20,10 +20,10 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-namespace DiscUtils.Xfs;
 
 using System;
 
+namespace DiscUtils.Xfs;
 /// <summary>
 /// Filesystem version number. This is a bitmask specifying the features enabled when creating the filesystem.
 /// Any disk checking tools or drivers that do not recognize any set bits must not operate upon the filesystem.

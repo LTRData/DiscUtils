@@ -124,6 +124,7 @@ namespace LibraryTests
                 {
                     throw new IOException("File already exists");
                 }
+
                 return new SparseMemoryStream(buffer, access);
             }
             else if(mode == FileMode.Create || mode == FileMode.CreateNew || mode == FileMode.OpenOrCreate || mode == FileMode.Truncate)

@@ -443,6 +443,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
 
             return new SubStream(_fileStream, 0, _fileStream.Length - 512);
         }
+
         if (_footer.DiskType == FileType.Dynamic)
         {
             if (parent != null && ownsParent == Ownership.Dispose)
@@ -453,6 +454,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
             return new DynamicStream(_fileStream, _dynamicHeader, _footer.CurrentSize,
                 new ZeroStream(_footer.CurrentSize), Ownership.Dispose);
         }
+
         if (parent == null)
         {
             parent = new ZeroStream(_footer.CurrentSize);

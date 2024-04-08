@@ -262,6 +262,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
             {
                 return new Guid(parentLinkage);
             }
+
             return Guid.Empty;
         }
     }
@@ -816,13 +817,22 @@ public sealed class DiskImageFile : VirtualDiskLayer
                 replayStream.Snapshot();
                 _logicalStream = replayStream;
             }
+
             foreach (var logEntry in activeLogSequence)
             {
                 if (logEntry.LogGuid != _header.LogGuid)
+                {
                     throw new IOException("Invalid log entry in VHDX log, suspected currupt VHDX file");
-                if (logEntry.IsEmpty) continue;
+                }
+
+                if (logEntry.IsEmpty)
+                {
+                    continue;
+                }
+
                 logEntry.Replay(_logicalStream);
             }
+
             _logicalStream.Seek((long)activeLogSequence.Head.LastFileOffset, SeekOrigin.Begin);
         }
     }

@@ -20,11 +20,11 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-namespace DiscUtils.Archives;
 
-using Streams;
+using DiscUtils.Streams;
 using System;
 
+namespace DiscUtils.Archives;
 internal sealed class TarHeaderExtent : BuilderBufferExtent
 {
     private string _fileName;

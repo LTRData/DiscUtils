@@ -20,11 +20,11 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-namespace DiscUtils.Xfs;
 
 using DiscUtils.Streams;
 using System;
 
+namespace DiscUtils.Xfs;
 internal class ShortformDirectory : IByteArraySerializable
 {
     private readonly Context _context;
@@ -58,6 +58,7 @@ internal class ShortformDirectory : IByteArraySerializable
             {
                 result += entry.Size;
             }
+
             return result;
         }
     }
@@ -79,6 +80,7 @@ internal class ShortformDirectory : IByteArraySerializable
             Parent = EndianUtilities.ToUInt64BigEndian(buffer.Slice(offset));
             offset += 0x8;
         }
+
         Entries = new ShortformDirectoryEntry[count];
         for (var i = 0; i < count; i++)
         {
@@ -87,6 +89,7 @@ internal class ShortformDirectory : IByteArraySerializable
             offset += entry.Size;
             Entries[i] = entry;
         }
+
         return Size;
     }
 

@@ -167,10 +167,12 @@ internal sealed class VfsExtFileSystem : VfsReadOnlyFileSystem<DirEntry, File, D
         {
             return new Directory(Context, dirEntry.Record.Inode, inode);
         }
+
         if (dirEntry.Record.FileType == DirectoryRecord.FileTypeSymlink)
         {
             return new Symlink(Context, dirEntry.Record.Inode, inode);
         }
+
         return new File(Context, dirEntry.Record.Inode, inode);
     }
 
@@ -225,10 +227,12 @@ internal sealed class VfsExtFileSystem : VfsReadOnlyFileSystem<DirEntry, File, D
             {
                 overhead = superBlock.OverheadBlocksCount* superBlock.BlockSize;
             }
+
             if (Context.JournalSuperblock != null)
             {
                 journalSize = Context.JournalSuperblock.MaxLength* Context.JournalSuperblock.BlockSize;
             }
+
             return (long) (superBlock.BlockSize* blockCount - (inodeSize + overhead + journalSize));
         }
     }
@@ -257,6 +261,7 @@ internal sealed class VfsExtFileSystem : VfsReadOnlyFileSystem<DirEntry, File, D
                 {
                     free += (uint) (blockGroup.FreeBlocksCountHigh << 16 | blockGroup.FreeBlocksCount);
                 }
+
                 return (long) (superBlock.BlockSize* free);
             }
             else
@@ -267,6 +272,7 @@ internal sealed class VfsExtFileSystem : VfsReadOnlyFileSystem<DirEntry, File, D
                 {
                     free += blockGroup.FreeBlocksCount;
                 }
+
                 return (long) (superBlock.BlockSize* free);
             }
         }

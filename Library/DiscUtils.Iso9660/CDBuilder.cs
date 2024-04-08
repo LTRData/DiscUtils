@@ -111,6 +111,7 @@ public sealed class CDBuilder : StreamBuilder, IFileSystemBuilder
             {
                 throw new ArgumentException("Not a valid volume identifier");
             }
+
             _buildParams.VolumeIdentifier = value;
         }
     }
@@ -131,6 +132,7 @@ public sealed class CDBuilder : StreamBuilder, IFileSystemBuilder
             {
                 throw new ArgumentException("Not a valid volume identifier");
             }
+
             _buildParams.ManufacturerId = value;
         }
     }
@@ -306,6 +308,7 @@ public sealed class CDBuilder : StreamBuilder, IFileSystemBuilder
             {
                 _bootEntry.SectorCount = 1;
             }
+
             _bootEntry.WriteTo(bootCatalog, 0x20);
             fixedRegions.Add(new BuilderBufferExtent(bootCatalogPos, bootCatalog));
             
@@ -589,6 +592,7 @@ public sealed class CDBuilder : StreamBuilder, IFileSystemBuilder
                 {
                     throw new IOException("File with conflicting name exists");
                 }
+
                 focus = nextAsBuildDirectoryInfo;
             }
         }

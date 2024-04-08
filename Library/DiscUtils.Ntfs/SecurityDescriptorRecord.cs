@@ -68,6 +68,7 @@ internal sealed class SecurityDescriptorRecord : IByteArraySerializable
             SecurityDescriptor = buffer.Slice(0x14, (int)(EntrySize - 0x14)).ToArray();
             return true;
         }
+
         return false;
     }
 }

@@ -20,7 +20,6 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-namespace DiscUtils.Lvm;
 
 using DiscUtils.Streams.Compatibility;
 using LTRData.Extensions.Buffers;
@@ -28,6 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
+namespace DiscUtils.Lvm;
 internal class Metadata
 {
     public DateTime CreationTime;
@@ -96,13 +96,18 @@ internal class Metadata
                 vgSection.Add(vg);
             }
         }
+
         VolumeGroupSections = vgSection;
     }
 
     internal static string ReadLine(TextReader data)
     {
         var line = data.ReadLine();
-        if (line == null) return null;
+        if (line == null)
+        {
+            return null;
+        }
+
         return RemoveComment(line).Trim();
     }
 
@@ -113,6 +118,7 @@ internal class Metadata
         {
             values[i] = ParseStringValue(values[i].AsSpan());
         }
+
         return values;
     }
 
@@ -125,7 +131,10 @@ internal class Metadata
     {
         var numeric = ParseNumericValue(value);
         if (numeric > _maxSeconds)
+        {
             return DateTime.MaxValue;
+        }
+
         return DateTimeOffset.FromUnixTimeSeconds((long)numeric).DateTime;
     }
 
@@ -142,14 +151,21 @@ internal class Metadata
     {
         var index = line.Span.IndexOf('=');
         if (index < 0)
+        {
             throw new ArgumentException("invalid parameter line", nameof(line));
+        }
+
         return new(key: line.Slice(0, index).Trim(), value: line.Slice(index + 1, line.Length - (index + 1)).Trim());
     }
 
     internal static string RemoveComment(string line)
     {
         var index = line.IndexOf('#');
-        if (index < 0) return line;
+        if (index < 0)
+        {
+            return line;
+        }
+
         return line.Substring(0, index);
     }
 }

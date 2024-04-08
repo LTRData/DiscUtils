@@ -120,6 +120,7 @@ internal sealed class MetablockReader
             buffer = buffer.Slice(0, Read(buffer));
             return EndianUtilities.ToUInt32LittleEndian(buffer);
         }
+
         var result = EndianUtilities.ToUInt32LittleEndian(block.Data, _currentOffset);
         _currentOffset += 4;
         return result;
@@ -135,6 +136,7 @@ internal sealed class MetablockReader
             buffer = buffer.Slice(0, Read(buffer));
             return EndianUtilities.ToInt32LittleEndian(buffer);
         }
+
         var result = EndianUtilities.ToInt32LittleEndian(block.Data, _currentOffset);
         _currentOffset += 4;
         return result;
@@ -150,6 +152,7 @@ internal sealed class MetablockReader
             buffer = buffer.Slice(0, Read(buffer));
             return EndianUtilities.ToUInt16LittleEndian(buffer);
         }
+
         var result = EndianUtilities.ToUInt16LittleEndian(block.Data, _currentOffset);
         _currentOffset += 2;
         return result;
@@ -165,6 +168,7 @@ internal sealed class MetablockReader
             buffer = buffer.Slice(0, Read(buffer));
             return EndianUtilities.ToInt16LittleEndian(buffer);
         }
+
         var result = EndianUtilities.ToInt16LittleEndian(block.Data, _currentOffset);
         _currentOffset += 2;
         return result;

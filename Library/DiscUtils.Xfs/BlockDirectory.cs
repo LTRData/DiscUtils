@@ -20,12 +20,12 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-namespace DiscUtils.Xfs;
 
 using System;
 using System.Collections.Generic;
 using DiscUtils.Streams;
 
+namespace DiscUtils.Xfs;
 internal class BlockDirectory : IByteArraySerializable
 {
     private readonly Context _context;
@@ -77,6 +77,7 @@ internal class BlockDirectory : IByteArraySerializable
             offset += free.ReadFrom(buffer.Slice(offset));
             BestFree[i] = free;
         }
+
         offset += HeaderPadding;
 
         LeafStale = EndianUtilities.ToUInt32BigEndian(buffer.Slice(buffer.Length - 0x4));
@@ -95,9 +96,11 @@ internal class BlockDirectory : IByteArraySerializable
             {
                 entry = new BlockDirectoryDataEntry(_context);
             }
+
             offset += entry.ReadFrom(buffer.Slice(offset));
             entries.Add(entry);
         }
+
         Entries = entries;
         return buffer.Length - offset;
     }

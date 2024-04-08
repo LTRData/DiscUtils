@@ -558,6 +558,7 @@ public static class StreamUtilities
         {
             ArrayPool<byte>.Shared.Return(buffer);
         }
+
         return result;
     }
 
@@ -584,6 +585,7 @@ public static class StreamUtilities
         {
             ArrayPool<byte>.Shared.Return(buffer);
         }
+
         return result;
     }
 

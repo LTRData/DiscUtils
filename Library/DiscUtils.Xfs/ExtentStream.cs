@@ -20,7 +20,6 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-namespace DiscUtils.Xfs;
 
 using DiscUtils.Streams;
 using System;
@@ -28,6 +27,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
+namespace DiscUtils.Xfs;
 internal class ExtentStream : BuiltStream
 {
     /// <inheritdoc />
@@ -43,6 +43,7 @@ internal class ExtentStream : BuiltStream
         {
             count = (int)(Length - Position);
         }
+
         return base.Read(buffer, offset, count);
     }
 
@@ -53,6 +54,7 @@ internal class ExtentStream : BuiltStream
         {
             count = (int)(Length - Position);
         }
+
         return base.ReadAsync(buffer, offset, count, cancellationToken);
     }
 
@@ -63,6 +65,7 @@ internal class ExtentStream : BuiltStream
         {
             buffer = buffer.Slice(0, (int)(Length - Position));
         }
+
         return base.ReadAsync(buffer, cancellationToken);
     }
 
@@ -73,6 +76,7 @@ internal class ExtentStream : BuiltStream
         {
             buffer = buffer.Slice(0, (int)(Length - Position));
         }
+
         return base.Read(buffer);
     }
 }

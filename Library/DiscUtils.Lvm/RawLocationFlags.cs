@@ -20,10 +20,10 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-namespace DiscUtils.Lvm;
 
 using System;
 
+namespace DiscUtils.Lvm;
 [Flags]
 internal enum RawLocationFlags : uint
 {

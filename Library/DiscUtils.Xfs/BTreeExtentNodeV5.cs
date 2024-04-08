@@ -20,7 +20,6 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-namespace DiscUtils.Xfs;
 
 using DiscUtils.Streams;
 using System;
@@ -28,6 +27,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
+namespace DiscUtils.Xfs;
 internal class BTreeExtentNodeV5 : BTreeExtentHeaderV5
 {
     public ulong[] Keys { get; protected set; }
@@ -45,18 +45,23 @@ internal class BTreeExtentNodeV5 : BTreeExtentHeaderV5
     {
         var offset = base.ReadFrom(buffer);
         if (Level == 0)
+        {
             throw new IOException("invalid B+tree level - expected >= 1");
+        }
+
         Keys = new ulong[NumberOfRecords];
         Pointer = new ulong[NumberOfRecords];
         for (var i = 0; i < NumberOfRecords; i++)
         {
             Keys[i] = EndianUtilities.ToUInt64BigEndian(buffer.Slice(offset + i * 0x8));
         }
+
         offset += ((buffer.Length - offset) / 16) * 8;
         for (var i = 0; i < NumberOfRecords; i++)
         {
             Pointer[i] = EndianUtilities.ToUInt64BigEndian(buffer.Slice(offset + i * 0x8));
         }
+
         return Size;
     }
 
@@ -74,6 +79,7 @@ internal class BTreeExtentNodeV5 : BTreeExtentHeaderV5
             {
                 child = new BTreeExtentNodeV5();
             }
+
             var data = context.RawStream;
             data.Position = Extent.GetOffset(context, Pointer[i]);
             child.ReadFrom(data, (int)context.SuperBlock.Blocksize);
@@ -81,6 +87,7 @@ internal class BTreeExtentNodeV5 : BTreeExtentHeaderV5
             {
                 throw new IOException("invalid btree directory magic");
             }
+
             child.LoadBtree(context);
             Children.Add(Keys[i], child);
         }

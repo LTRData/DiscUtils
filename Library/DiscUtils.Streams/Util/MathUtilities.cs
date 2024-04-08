@@ -110,6 +110,7 @@ public static class MathUtilities
         {
             return result;
         }
+
         throw new ArgumentException("Input is not a power of Two", nameof(val));
     }
 
@@ -131,6 +132,7 @@ public static class MathUtilities
         {
             return result;
         }
+
         throw new ArgumentException("Input is not a power of Two", nameof(val));
     }
 }

@@ -520,8 +520,10 @@ public sealed class DiskImageFile : VirtualDiskLayer
                     parent,
                     ownsParent);
             }
+
             return OpenExtent(_descriptor.Extents[0], 0, parent, ownsParent);
         }
+
         long extentStart = 0;
         var streams = new SparseStream[_descriptor.Extents.Count];
         for (var i = 0; i < streams.Length; ++i)

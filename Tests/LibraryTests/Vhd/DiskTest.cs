@@ -89,6 +89,7 @@ namespace LibraryTests.Vhd
                 Assert.True(disk.Geometry.Capacity == baseFile.Geometry.Capacity);
                 Assert.Equal(2, new List<VirtualDiskLayer>(disk.Layers).Count);
             }
+
             Assert.True(1 * 1024 * 1024 > diffStream.Length);
             diffStream.Dispose();
         }
@@ -102,11 +103,13 @@ namespace LibraryTests.Vhd
             {
                 geometry = disk.Geometry;
             }
+
             using (var disk = new Disk(ms, Ownership.None))
             {
                 Assert.Equal(geometry, disk.Geometry);
                 Assert.NotNull(disk.Content);
             }
+
             using (var disk = new Disk(ms, Ownership.Dispose))
             {
                 Assert.Equal(geometry, disk.Geometry);

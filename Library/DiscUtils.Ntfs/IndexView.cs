@@ -103,6 +103,7 @@ internal class IndexView<K, D>
             data = Convert<D>(value);
             return true;
         }
+
         data = default(D);
         return false;
     }

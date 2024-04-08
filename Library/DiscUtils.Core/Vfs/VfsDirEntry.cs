@@ -117,6 +117,7 @@ public abstract class VfsDirEntry
             {
                 return $"{fileName}.";
             }
+
             return fileName;
         }
     }

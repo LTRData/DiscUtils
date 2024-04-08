@@ -181,6 +181,7 @@ internal abstract class CommonSparseExtentStream : MappedStream
             {
                 throw new IOException("Attempt to read beyond end of stream");
             }
+
             _atEof = true;
             return 0;
         }
@@ -244,6 +245,7 @@ internal abstract class CommonSparseExtentStream : MappedStream
             {
                 throw new IOException("Attempt to read beyond end of stream");
             }
+
             _atEof = true;
             return 0;
         }
@@ -307,6 +309,7 @@ internal abstract class CommonSparseExtentStream : MappedStream
             {
                 throw new IOException("Attempt to read beyond end of stream");
             }
+
             _atEof = true;
             return 0;
         }
@@ -384,6 +387,7 @@ internal abstract class CommonSparseExtentStream : MappedStream
         {
             throw new IOException("Attempt to move before beginning of disk");
         }
+
         _position = effectiveOffset;
         return _position;
     }

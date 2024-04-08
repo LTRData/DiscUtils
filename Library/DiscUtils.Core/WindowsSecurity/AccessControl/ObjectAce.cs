@@ -82,6 +82,7 @@ public sealed class ObjectAce : QualifiedAce
             ObjectAceType = ReadGuid(binaryForm.Slice(pos));
             pos += 16;
         }
+
         if (InheritedObjectAceTypePresent)
         {
             InheritedObjectAceType = ReadGuid(binaryForm.Slice(pos));
@@ -152,6 +153,7 @@ public sealed class ObjectAce : QualifiedAce
             WriteGuid(ObjectAceType, binaryForm.Slice(offset));
             offset += 16;
         }
+
         if (0 != (ObjectAceFlags & ObjectAceFlags.InheritedObjectAceTypePresent))
         {
             WriteGuid(InheritedObjectAceType, binaryForm.Slice(offset));

@@ -286,6 +286,7 @@ internal class MasterFileTable : IDiagnosticTraceable, IDisposable
 
             throw new IOException("MFT too fragmented - unable to allocate MFT overflow record");
         }
+
         index = _bitmap.AllocateFirstAvailable(FirstAvailableMftIndex);
 
         if (index * RecordSize >= _recordStream.Length)

@@ -20,11 +20,11 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-namespace DiscUtils.Nfs;
 
 using DiscUtils.Streams.Compatibility;
 using System;
 
+namespace DiscUtils.Nfs;
 public sealed class Nfs3FileSystemStat
 {
     public Nfs3FileSystemStat()

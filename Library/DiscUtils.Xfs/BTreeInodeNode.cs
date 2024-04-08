@@ -24,11 +24,10 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace DiscUtils.Xfs;
-
 using DiscUtils.Streams;
 using System;
 
+namespace DiscUtils.Xfs;
 internal class BTreeInodeNode : BtreeHeader
 {
     public uint[] Keys { get; private set; }
@@ -49,17 +48,22 @@ internal class BTreeInodeNode : BtreeHeader
         base.ReadFrom(buffer);
         var offset = base.Size;
         if (Level == 0)
+        {
             throw new IOException("invalid B+tree level - expected 0");
+        }
+
         Keys = new uint[NumberOfRecords];
         Pointer = new uint[NumberOfRecords];
         for (var i = 0; i < NumberOfRecords; i++)
         {
             Keys[i] = EndianUtilities.ToUInt32BigEndian(buffer.Slice(offset));
         }
+
         for (var i = 0; i < NumberOfRecords; i++)
         {
             Pointer[i] = EndianUtilities.ToUInt32BigEndian(buffer.Slice(offset));
         }
+
         return Size;
     }
 
@@ -77,6 +81,7 @@ internal class BTreeInodeNode : BtreeHeader
             {
                 child = new BTreeInodeNode(SbVersion);
             }
+
             var data = ag.Context.RawStream;
 
             data.Position = ((long)Pointer[i] * ag.Context.SuperBlock.Blocksize) + ag.Offset;

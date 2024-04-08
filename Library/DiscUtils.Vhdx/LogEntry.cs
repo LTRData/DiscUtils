@@ -90,7 +90,11 @@ internal sealed class LogEntry
 
     public void Replay(Stream target)
     {
-        if (IsEmpty) return;
+        if (IsEmpty)
+        {
+            return;
+        }
+
         foreach (var descriptor in _descriptors)
         {
             descriptor.WriteData(target);
@@ -248,7 +252,10 @@ internal sealed class LogEntry
                 {
                     var count = size;
                     if (total < (uint)count)
+                    {
                         count = (int)total;
+                    }
+
                     target.Write(zeroBuffer, 0, count);
                     total -= (uint)count;
                 }

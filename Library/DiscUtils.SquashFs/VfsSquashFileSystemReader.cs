@@ -185,10 +185,12 @@ internal class VfsSquashFileSystemReader : VfsReadOnlyFileSystem<DirectoryEntry,
         {
             return new Symlink(_context, inode, inodeRef);
         }
+
         if (dirEntry.IsDirectory)
         {
             return new Directory(_context, inode, inodeRef);
         }
+
         return new File(_context, inode, inodeRef);
     }
 

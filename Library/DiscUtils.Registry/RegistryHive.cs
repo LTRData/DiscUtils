@@ -166,6 +166,7 @@ public class RegistryHive : IDisposable
                     {
                         _fileStream.Dispose();
                     }
+
                     _fileStream = mem;
                 }
 
@@ -195,6 +196,7 @@ public class RegistryHive : IDisposable
                     {
                         throw new IOException("Registry transaction logs are corrupt");
                     }
+
                     _header = lastvalid.HiveHeader;
                 }
 
@@ -405,6 +407,7 @@ public class RegistryHive : IDisposable
         {
             return (K)bin.TryGetCell(index);
         }
+
         return null;
     }
 
@@ -433,6 +436,7 @@ public class RegistryHive : IDisposable
             {
                 return cell.Index;
             }
+
             if (canRelocate)
             {
                 var oldCell = cell.Index;
@@ -447,9 +451,11 @@ public class RegistryHive : IDisposable
                 FreeCell(oldCell);
                 return cell.Index;
             }
+
             throw new ArgumentException("Can't update cell, needs relocation but relocation disabled",
                 nameof(canRelocate));
         }
+
         throw new RegistryCorruptException($"No bin found containing index: {cell.Index}");
     }
 

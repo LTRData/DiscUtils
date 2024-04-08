@@ -36,7 +36,10 @@ public abstract class FileLocator
         var args = new FileOpenEventArgs(fileName, mode, access, share, OpenFile);
         SetupHelper.OnOpeningFile(this, args);
         if (args.Result != null)
+        {
             return args.Result;
+        }
+
         return OpenFile(args.FileName, args.FileMode, args.FileAccess, args.FileShare);
     }
 

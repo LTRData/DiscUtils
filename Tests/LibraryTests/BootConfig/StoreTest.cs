@@ -41,6 +41,7 @@ namespace LibraryTests.BootConfig
             {
                 ++i;
             }
+
             Assert.Equal(0, i);
         }
 

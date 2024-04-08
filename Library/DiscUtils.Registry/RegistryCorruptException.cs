@@ -22,11 +22,10 @@
 
 using System;
 
-namespace DiscUtils.Registry;
-
 using System.Runtime.Serialization;
 using System.Security.Permissions;
 
+namespace DiscUtils.Registry;
 /// <summary>
 /// Exception thrown when some corruption is found in the registry hive.
 /// </summary>

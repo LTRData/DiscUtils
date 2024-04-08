@@ -20,11 +20,11 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-namespace DiscUtils.Lvm;
 
 using DiscUtils.Streams;
 using System;
 
+namespace DiscUtils.Lvm;
 internal class RawLocation : IByteArraySerializable
 {
     public ulong Offset;

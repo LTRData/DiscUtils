@@ -214,6 +214,7 @@ public sealed class OpticalDiscService
             return int.Parse(volFlagsStr.Substring(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
 #endif
         }
+
         return int.Parse(volFlagsStr, NumberStyles.Integer, CultureInfo.InvariantCulture);
     }
 

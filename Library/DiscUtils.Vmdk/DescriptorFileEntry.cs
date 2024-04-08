@@ -58,8 +58,10 @@ internal class DescriptorFileEntry
             {
                 return new DescriptorFileEntry(parts[0].ToString(), parts[1].Trim('\"').ToString(), DescriptorFileEntryType.Quoted);
             }
+
             return new DescriptorFileEntry(parts[0].ToString(), parts[1].ToString(), DescriptorFileEntryType.Plain);
         }
+
         return new DescriptorFileEntry(parts[0].ToString(), string.Empty, DescriptorFileEntryType.NoValue);
     }
 

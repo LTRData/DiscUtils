@@ -60,6 +60,7 @@ public class NewVolumeCommand : PSCmdlet
             diskObject = InputObject;
             disk = diskObject.BaseObject as VirtualDisk;
         }
+
         if (disk == null && string.IsNullOrEmpty(LiteralPath))
         {
             WriteError(new ErrorRecord(

@@ -229,10 +229,12 @@ public sealed class Geometry : IEquatable<Geometry>
         {
             return LbaAssistedBiosGeometry(capacity, Sizes.Sector);
         }
+
         if (geometry.IsBiosSafe)
         {
             return geometry;
         }
+
         return LbaAssistedBiosGeometry(capacity, geometry.BytesPerSector);
     }
 
@@ -425,6 +427,7 @@ public sealed class Geometry : IEquatable<Geometry>
                 {
                     return this;
                 }
+
                 return LbaAssistedBiosGeometry(capacity, bytesPerSector);
 
             case GeometryTranslation.Lba:

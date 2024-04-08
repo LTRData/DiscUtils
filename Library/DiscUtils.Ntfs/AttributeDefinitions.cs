@@ -163,6 +163,7 @@ public sealed class AttributeDefinitions
         {
             return record.Name;
         }
+
         return attributeType.ToString();
     }
 }

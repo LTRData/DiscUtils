@@ -82,7 +82,10 @@ namespace LibraryTests.Ntfs
             Assert.NotNull(inheritedSd);
             Assert.Equal("O:BAG:BAD:(A;ID;GA;;;BA)", inheritedSd.GetSddlForm(AccessControlSections.All));
 
-            using (ntfs.OpenFile(@"dir\subdir\file", FileMode.Create, FileAccess.ReadWrite)) { }
+            using (ntfs.OpenFile(@"dir\subdir\file", FileMode.Create, FileAccess.ReadWrite))
+            {
+            }
+
             inheritedSd = ntfs.GetSecurity(@"dir\subdir\file");
             Assert.NotNull(inheritedSd);
             Assert.Equal("O:BAG:BAD:", inheritedSd.GetSddlForm(AccessControlSections.All));
@@ -160,6 +163,7 @@ namespace LibraryTests.Ntfs
             {
                 s.WriteByte(1);
             }
+
             ranges = ntfs.PathToClusters("file2").ToArray();
             Assert.Empty(ranges);
         }
@@ -183,6 +187,7 @@ namespace LibraryTests.Ntfs
             {
                 s.WriteByte(1);
             }
+
             ranges = ntfs.PathToClusters("file2").ToArray();
             Assert.Empty(ranges);
         }
@@ -206,6 +211,7 @@ namespace LibraryTests.Ntfs
             {
                 s.WriteByte(1);
             }
+
             ranges = ntfs.PathToClusters("file2").ToArray();
             Assert.Empty(ranges);
         }
@@ -243,6 +249,7 @@ namespace LibraryTests.Ntfs
                 s.WriteByte(0x82);
                 s.WriteByte(0x2C);
             }
+
             extents = ntfs.PathToExtents("file2").ToArray();
             Assert.Single(extents);
             Assert.Equal(3, extents[0].Length);
@@ -300,20 +307,28 @@ namespace LibraryTests.Ntfs
             var ntfs = FileSystemSource.NtfsFileSystem();
 
             // Check we can find a short name in the same directory
-            using (var s = ntfs.OpenFile("ALongFileName.txt", FileMode.CreateNew)) {}
+            using (var s = ntfs.OpenFile("ALongFileName.txt", FileMode.CreateNew))
+            {
+            }
+
             ntfs.SetShortName("ALongFileName.txt", "ALONG~01.TXT");
             Assert.Equal("ALONG~01.TXT", ntfs.GetShortName("ALongFileName.txt"));
             Assert.True(ntfs.FileExists("ALONG~01.TXT"));
 
             // Check path handling
             ntfs.CreateDirectory("DIR");
-            using (var s = ntfs.OpenFile(@"DIR\ALongFileName2.txt", FileMode.CreateNew)) { }
+            using (var s = ntfs.OpenFile(@"DIR\ALongFileName2.txt", FileMode.CreateNew))
+            {
+            }
+
             ntfs.SetShortName(@"DIR\ALongFileName2.txt", "ALONG~02.TXT");
             Assert.Equal("ALONG~02.TXT", ntfs.GetShortName(@"DIR\ALongFileName2.txt"));
             Assert.True(ntfs.FileExists(@"DIR\ALONG~02.TXT"));
 
             // Check we can open a file by the short name
-            using (var s = ntfs.OpenFile("ALONG~01.TXT", FileMode.Open)) { }
+            using (var s = ntfs.OpenFile("ALONG~01.TXT", FileMode.Open))
+            {
+            }
 
             // Delete the long name, and make sure the file is gone
             ntfs.DeleteFile("ALONG~01.TXT");
@@ -329,7 +344,10 @@ namespace LibraryTests.Ntfs
         {
             var ntfs = FileSystemSource.NtfsFileSystem();
 
-            using (var s = ntfs.OpenFile("ALongFileName.txt", FileMode.CreateNew)) { }
+            using (var s = ntfs.OpenFile("ALongFileName.txt", FileMode.CreateNew))
+            {
+            }
+
             Assert.Equal(1, ntfs.GetHardLinkCount("ALongFileName.txt"));
 
             ntfs.CreateHardLink("ALongFileName.txt", "AHardLink.TXT");
@@ -349,13 +367,18 @@ namespace LibraryTests.Ntfs
         {
             var ntfs = FileSystemSource.NtfsFileSystem();
 
-            using (var s = ntfs.OpenFile("ALongFileName.txt", FileMode.CreateNew)) { }
+            using (var s = ntfs.OpenFile("ALongFileName.txt", FileMode.CreateNew))
+            {
+            }
+
             Assert.False(ntfs.HasHardLinks("ALongFileName.txt"));
 
             ntfs.CreateHardLink("ALongFileName.txt", "AHardLink.TXT");
             Assert.True(ntfs.HasHardLinks("ALongFileName.txt"));
 
-            using (var s = ntfs.OpenFile("ALongFileName2.txt", FileMode.CreateNew)) { }
+            using (var s = ntfs.OpenFile("ALongFileName2.txt", FileMode.CreateNew))
+            {
+            }
 
             // If we enumerate short names, then the initial long name results in two 'hardlinks'
             ntfs.NtfsOptions.HideDosFileNames = false;
@@ -367,7 +390,9 @@ namespace LibraryTests.Ntfs
         {
             var ntfs = FileSystemSource.NtfsFileSystem();
 
-            using (var s = ntfs.OpenFile("ALongFileName.txt", FileMode.CreateNew)) { }
+            using (var s = ntfs.OpenFile("ALongFileName.txt", FileMode.CreateNew))
+            {
+            }
 
             Assert.True(ntfs.FileExists("ALONGF~1.TXT"));
 
@@ -449,12 +474,14 @@ namespace LibraryTests.Ntfs
             {
                 stream.Write(new byte[14325], 0, 14325);
             }
+
             Assert.Equal(14325, ntfs.GetFileLength("AFILE.TXT"));
 
             using (var attrStream = ntfs.OpenFile(@"AFILE.TXT:altstream", FileMode.Create))
             {
                 attrStream.Write(new byte[122], 0, 122);
             }
+
             Assert.Equal(122, ntfs.GetFileLength("AFILE.TXT:altstream"));
 
             // Test NTFS options for hardlink behaviour
@@ -465,6 +492,7 @@ namespace LibraryTests.Ntfs
             {
                 stream.SetLength(50);
             }
+
             Assert.Equal(50, ntfs.GetFileLength("AFILE.TXT"));
             Assert.Equal(14325, ntfs.GetFileLength(@"Dir\OtherLink.txt"));
 
@@ -515,6 +543,7 @@ namespace LibraryTests.Ntfs
             {
                 largeWriteBuffer[i * 4096] = (byte)i;
             }
+
             using (var stream = ntfs.OpenFile(@"DIR\fragmented.bin", FileMode.OpenOrCreate, FileAccess.ReadWrite))
             {
                 stream.Position = stream.Length - largeWriteBuffer.Length;
@@ -574,6 +603,7 @@ namespace LibraryTests.Ntfs
             {
                 largeWriteBuffer[i * 4096] = (byte)i;
             }
+
             using (var stream = ntfs.OpenFile(@"DIR\fragmented.bin", FileMode.OpenOrCreate, FileAccess.ReadWrite))
             {
                 stream.Position = stream.Length - largeWriteBuffer.Length;
@@ -633,6 +663,7 @@ namespace LibraryTests.Ntfs
             {
                 largeWriteBuffer[i * 4096] = (byte)i;
             }
+
             using (var stream = ntfs.OpenFile(@"DIR\fragmented.bin", FileMode.OpenOrCreate, FileAccess.ReadWrite))
             {
                 stream.Position = stream.Length - largeWriteBuffer.Length;
@@ -698,10 +729,12 @@ namespace LibraryTests.Ntfs
                 {
                     data[i] = 0;
                 }
+
                 for (var i = fileSize - (64 * 1024); i < fileSize; ++i)
                 {
                     data[i] = 0;
                 }
+
                 data[72 * 1024] = 99;
 
                 Assert.Equal(data, readBuffer);
@@ -756,10 +789,12 @@ namespace LibraryTests.Ntfs
                 {
                     data[i] = 0;
                 }
+
                 for (var i = fileSize - (64 * 1024); i < fileSize; ++i)
                 {
                     data[i] = 0;
                 }
+
                 data[72 * 1024] = 99;
 
                 Assert.Equal(data, readBuffer);
@@ -814,10 +849,12 @@ namespace LibraryTests.Ntfs
                 {
                     data[i] = 0;
                 }
+
                 for (var i = fileSize - (64 * 1024); i < fileSize; ++i)
                 {
                     data[i] = 0;
                 }
+
                 data[72 * 1024] = 99;
 
                 Assert.Equal(data, readBuffer);

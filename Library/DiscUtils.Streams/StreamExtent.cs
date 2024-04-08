@@ -70,10 +70,12 @@ public readonly struct StreamExtent : IEquatable<StreamExtent>, IComparable<Stre
         {
             return 1;
         }
+
         if (Start == other.Start)
         {
             return 0;
         }
+
         return -1;
     }
 

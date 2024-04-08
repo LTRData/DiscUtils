@@ -20,7 +20,6 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-namespace DiscUtils.Lvm;
 
 using LTRData.Extensions.Buffers;
 using System;
@@ -28,6 +27,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
+namespace DiscUtils.Lvm;
 internal class MetadataVolumeGroupSection
 {
     public string Name;
@@ -90,6 +90,7 @@ internal class MetadataVolumeGroupSection
                                 _ => throw new InvalidOperationException("Unexpected status in volume group metadata"),
                             };
                         }
+
                         break;
                     case "flags":
                         Flags = Metadata.ParseArrayValue(parameter.Value.Span);
@@ -138,7 +139,11 @@ internal class MetadataVolumeGroupSection
         string line;
         while ((line = Metadata.ReadLine(data)) != null)
         {
-            if (line == String.Empty) continue;
+            if (line == String.Empty)
+            {
+                continue;
+            }
+
             if (line.EndsWith('{'))
             {
                 var pv = new MetadataLogicalVolumeSection();
@@ -157,7 +162,11 @@ internal class MetadataVolumeGroupSection
         string line;
         while ((line = Metadata.ReadLine(data)) != null)
         {
-            if (line == String.Empty) continue;
+            if (line == String.Empty)
+            {
+                continue;
+            }
+
             if (line.EndsWith('{'))
             {
                 var pv = new MetadataPhysicalVolumeSection();

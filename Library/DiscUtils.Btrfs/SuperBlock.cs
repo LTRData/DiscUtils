@@ -180,7 +180,10 @@ internal class SuperBlock : IByteArraySerializable
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         Magic = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x40));
-        if (Magic != BtrfsMagic) return Size;
+        if (Magic != BtrfsMagic)
+        {
+            return Size;
+        }
 
         Checksum = EndianUtilities.ToByteArray(buffer.Slice(0, 0x20));
         FsUuid = EndianUtilities.ToGuidLittleEndian(buffer.Slice(0x20));
@@ -230,6 +233,7 @@ internal class SuperBlock : IByteArraySerializable
             systemChunks.Add(chunkItem);
             n = n - (uint)key.Size - (uint)chunkItem.Size;
         }
+
         SystemChunkArray = new(systemChunks);
         //32b 	800 		(n bytes valid) Contains (KEY, CHUNK_ITEM) pairs for all SYSTEM chunks. This is needed to bootstrap the mapping from logical addresses to physical.
         //b2b 	4d5 		Currently unused 

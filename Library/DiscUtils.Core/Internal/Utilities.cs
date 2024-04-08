@@ -214,10 +214,12 @@ public static class Utilities
         {
             return b;
         }
+
         if (string.IsNullOrEmpty(b))
         {
             return a;
         }
+
         return a.TrimEnd('\\') + '\\' + b.TrimStart('\\');
 #endif
     }
@@ -267,6 +269,7 @@ public static class Utilities
         {
             return ResolveRelativePath(basePath, path);
         }
+
         return path;
     }
 

@@ -136,20 +136,28 @@ class Program : ProgramBase
                 // Skip entries with no attributes, they've probably never been used.  We're certainly
                 // not going to manage to recover any useful data from them.
                 if (!entry.HasAttributes())
+                {
                     continue;
+                }
 
                 // Skip directories - any useful files inside will be found separately
                 if ((entry.Flags & MasterFileTableEntryFlags.IsDirectory) != 0)
+                {
                     continue;
+                }
 
                 var size = GetSize(entry);
                 var path = GetPath(mft, entry);
 
                 if (!_showMeta.IsPresent && path.StartsWith(@"<root>\$Extend"))
+                {
                     continue;
+                }
 
                 if (!_showZeroSize.IsPresent && size == 0)
+                {
                     continue;
+                }
 
                 Console.WriteLine("Index: {0,-4}   Size: {1,-8}   Path: {2}", entry.Index, Utilities.ApproximateDiskSize(size), path);
             }

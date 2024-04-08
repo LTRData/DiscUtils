@@ -385,6 +385,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
             {
                 return _bsVolLab;
             }
+
             return _rootDir.GetEntry(volId).Name.GetRawName(FatOptions.FileNameEncoding);
         }
     }
@@ -464,6 +465,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
         {
             throw new IOException("Attempt to open directory as a file");
         }
+
         return parent.OpenFile(dirEntry.Name, mode, access);
     }
 
@@ -1058,6 +1060,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
         {
             throw new IOException("Unable to delete root directory");
         }
+
         if (parent != null && id >= 0)
         {
             var deadEntry = parent.GetEntry(id);
@@ -1103,6 +1106,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
         {
             return true;
         }
+
         var dirEntry = GetDirectoryEntry(path);
         return dirEntry != null && (dirEntry.Attributes & FatAttributes.Directory) != 0;
     }
@@ -1119,6 +1123,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
         {
             return false;
         }
+
         var dirEntry = GetDirectoryEntry(path);
         return dirEntry != null && (dirEntry.Attributes & FatAttributes.Directory) == 0;
     }
@@ -1135,6 +1140,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
         {
             return true;
         }
+
         return GetDirectoryEntry(path) != null;
     }
 
@@ -1259,6 +1265,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
             {
                 throw new ArgumentNullException(nameof(destinationDirectoryName));
             }
+
             throw new ArgumentException("Invalid destination name (empty string)");
         }
 
@@ -1267,6 +1274,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
         {
             throw new DirectoryNotFoundException("Target directory doesn't exist");
         }
+
         if (destId >= 0)
         {
             throw new IOException("Target directory already exists");
@@ -1378,6 +1386,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
         {
             return GetDirectory(parent, id);
         }
+
         return null;
     }
 
@@ -1626,6 +1635,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
         {
             throw new InvalidFileSystemException("Bytes per sector is 0, invalid or corrupt filesystem.");
         }
+
         uint bpbRootEntCnt = EndianUtilities.ToUInt16LittleEndian(bpb, 17);
         uint bpbFATSz16 = EndianUtilities.ToUInt16LittleEndian(bpb, 22);
         var bpbFATSz32 = EndianUtilities.ToUInt32LittleEndian(bpb, 36);
@@ -1646,10 +1656,12 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
         {
             return FatType.Fat12;
         }
+
         if (countOfClusters < 65525)
         {
             return FatType.Fat16;
         }
+
         return FatType.Fat32;
     }
 
@@ -1791,6 +1803,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
             parent = null;
             return 0;
         }
+
         entryId = dir.FindEntry(new FileName(pathEntries[pathOffset].ToString(), FatOptions.FileNameEncoding));
         if (entryId >= 0)
         {
@@ -1799,13 +1812,16 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
                 parent = dir;
                 return entryId;
             }
+
             return GetDirectoryEntry(GetDirectory(dir, entryId), pathEntries, pathOffset + 1, out parent);
         }
+
         if (pathOffset == pathEntries.Length - 1)
         {
             parent = dir;
             return -1;
         }
+
         parent = null;
         return -1;
     }
@@ -1880,6 +1896,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
                     usedCluster++;
                 }
             }
+
             return (usedCluster *SectorsPerCluster*SectorSize);
         }
     }

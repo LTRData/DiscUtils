@@ -90,6 +90,7 @@ public sealed class RegistryKey
             {
                 return $@"{parent.Name}\{_cell.Name}";
             }
+
             return _cell.Name;
         }
     }
@@ -115,6 +116,7 @@ public sealed class RegistryKey
             {
                 return new RegistryKey(_hive, _hive.GetCell<KeyNodeCell>(_cell.ParentIndex));
             }
+
             return null;
         }
     }
@@ -373,6 +375,7 @@ public sealed class RegistryKey
             {
                 return Environment.ExpandEnvironmentVariables((string)regVal.Value);
             }
+
             return regVal.Value;
         }
 
@@ -558,13 +561,16 @@ public sealed class RegistryKey
             {
                 return new RegistryKey(_hive, newKeyCell);
             }
+
             return new RegistryKey(_hive, newKeyCell).CreateSubKey(split[1]);
         }
+
         var cell = _hive.GetCell<KeyNodeCell>(cellIndex);
         if (split.Length == 1)
         {
             return new RegistryKey(_hive, cell);
         }
+
         return new RegistryKey(_hive, cell).CreateSubKey(split[1]);
     }
 
@@ -587,11 +593,13 @@ public sealed class RegistryKey
         {
             return null;
         }
+
         var cell = _hive.GetCell<KeyNodeCell>(cellIndex);
         if (split.Length == 1)
         {
             return new RegistryKey(_hive, cell);
         }
+
         return new RegistryKey(_hive, cell).OpenSubKey(split[1]);
     }
 
@@ -656,6 +664,7 @@ public sealed class RegistryKey
             {
                 throw new ArgumentException("No such SubKey", nameof(subkey));
             }
+
             return false;
         }
 

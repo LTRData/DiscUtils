@@ -286,6 +286,7 @@ internal sealed class Bitmap : IDisposable
             _nextAvailable = i + 1;
             return i;
         }
+
         return -1;
     }
 
@@ -320,9 +321,15 @@ internal sealed class Bitmap : IDisposable
     internal int GetBytes(long index, byte[] buffer, int offset, int count)
     {
         if (index + count >= _bitmap.Length)
+        {
             count = (int)(_bitmap.Length - index);
+        }
+
         if (count <= 0)
+        {
             return 0;
+        }
+
         _bitmap.Position = index;
         return _bitmap.Read(buffer, offset, count);
     }
@@ -330,9 +337,15 @@ internal sealed class Bitmap : IDisposable
     internal ValueTask<int> GetBytesAsync(long index, Memory<byte> buffer, CancellationToken cancellationToken)
     {
         if (index + buffer.Length >= _bitmap.Length)
+        {
             buffer = buffer.Slice(0, (int)(_bitmap.Length - index));
+        }
+
         if (buffer.IsEmpty)
+        {
             return new(0);
+        }
+
         _bitmap.Position = index;
         return _bitmap.ReadAsync(buffer, cancellationToken);
     }

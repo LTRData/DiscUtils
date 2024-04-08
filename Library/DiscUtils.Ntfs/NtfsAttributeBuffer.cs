@@ -62,6 +62,7 @@ internal class NtfsAttributeBuffer : Buffer, IMappedBuffer
         {
             return ((IMappedBuffer)_attribute.RawBuffer).MapPosition(pos);
         }
+
         var attrRef = new AttributeReference(_file.MftReference,
             _attribute.PrimaryRecord.AttributeId);
         var attrRecord = (ResidentAttributeRecord)_file.GetAttribute(attrRef).PrimaryRecord;

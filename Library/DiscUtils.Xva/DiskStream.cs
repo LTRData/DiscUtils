@@ -256,6 +256,7 @@ internal class DiskStream : SparseStream.ReadOnlySparseStream
         {
             throw new IOException("Attempt to move before beginning of disk");
         }
+
         Position = effectiveOffset;
         return Position;
     }

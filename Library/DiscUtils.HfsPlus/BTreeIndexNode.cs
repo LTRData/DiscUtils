@@ -58,6 +58,7 @@ internal class BTreeIndexNode<TKey> : BTreeKeyedNode<TKey>
                 // will match.
                 return null;
             }
+
             if (nextResult > 0)
             {
                 // Next record's key is too big, so worth looking at children
@@ -95,6 +96,7 @@ internal class BTreeIndexNode<TKey> : BTreeKeyedNode<TKey>
                 // will match.
                 return;
             }
+
             if (nextResult >= 0)
             {
                 // Next record's key isn't too small, so worth looking at children

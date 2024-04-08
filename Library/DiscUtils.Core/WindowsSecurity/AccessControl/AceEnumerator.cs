@@ -18,7 +18,10 @@ public sealed class AceEnumerator : IEnumerator
     public bool MoveNext()
     {
         if (_current + 1 == _owner.Count)
+        {
             return false;
+        }
+
         _current++;
         return true;
     }

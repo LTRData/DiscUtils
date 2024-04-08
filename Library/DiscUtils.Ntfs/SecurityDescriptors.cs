@@ -437,6 +437,7 @@ internal sealed class SecurityDescriptors : IDiagnosticTraceable
             {
                 return -1;
             }
+
             if (_toMatch > otherHash)
             {
                 return 1;

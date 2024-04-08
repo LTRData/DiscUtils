@@ -44,7 +44,9 @@ internal abstract class RpcProgram
         var ms = new MemoryStream();
         var writer = StartCallMessage(ms, null, NfsProc3.Null);
         var reply = DoSend(ms);
-        if (reply.Header.IsSuccess) { }
+        if (reply.Header.IsSuccess)
+        {
+        }
         else
         {
             throw new RpcException(reply.Header.ReplyHeader);

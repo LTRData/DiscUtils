@@ -74,6 +74,7 @@ public sealed class Provider : NavigationCmdletProvider, IContentCmdletProvider
                 drive));
             //return null;
         }
+
         var diskPath = mountPaths[0];
         var relPath = mountPaths.Length > 1 ? mountPaths[1] : "";
 
@@ -243,6 +244,7 @@ public sealed class Provider : NavigationCmdletProvider, IContentCmdletProvider
                 itemTypeName));
             return;
         }
+
         var itemTypeUpper = itemTypeName.ToUpperInvariant();
 
         var obj = FindItemByPath(Utilities.NormalizePath(parentPath), true, false);
@@ -252,7 +254,9 @@ public sealed class Provider : NavigationCmdletProvider, IContentCmdletProvider
             var dirInfo = (DiscDirectoryInfo)obj;
             if (itemTypeUpper == "FILE")
             {
-                using (dirInfo.FileSystem.OpenFile(Path.Combine(dirInfo.FullName, GetChildName(path)), FileMode.Create)) { }
+                using (dirInfo.FileSystem.OpenFile(Path.Combine(dirInfo.FullName, GetChildName(path)), FileMode.Create))
+                {
+                }
             }
             else if (itemTypeUpper == "DIRECTORY")
             {
@@ -586,6 +590,7 @@ public sealed class Provider : NavigationCmdletProvider, IContentCmdletProvider
         {
             volInfo = volMgr.GetVolume(Utilities.DenormalizePath(pathElems[0]));
         }
+
         pathElems.RemoveAt(0);
         if (volInfo == null || (pathElems.Count == 0 && !preferFs))
         {
@@ -748,6 +753,7 @@ public sealed class Provider : NavigationCmdletProvider, IContentCmdletProvider
                 EnumerateDirectory(dir, MakePath(basePath, dir.Name), recurse, namesOnly);
             }
         }
+
         foreach (var file in parent.GetFiles())
         {
             WriteItemObject(namesOnly ? file.Name : (object)file, MakePath(basePath, file.Name), false);
@@ -801,6 +807,7 @@ public sealed class Provider : NavigationCmdletProvider, IContentCmdletProvider
             {
                 destWindowsFs.SetReparsePoint(destPath, srcWindowsFs.GetReparsePoint(srcPath));
             }
+
             destWindowsFs.SetSecurity(destPath, srcWindowsFs.GetSecurity(srcPath));
         }
 

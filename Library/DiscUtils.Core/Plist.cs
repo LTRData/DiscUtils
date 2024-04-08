@@ -107,6 +107,7 @@ internal static class Plist
         {
             return CreateDictionary(xmlDoc, (Dictionary<string, object>)obj);
         }
+
         if (obj is string)
         {
             var text = xmlDoc.CreateTextNode((string)obj);
@@ -114,6 +115,7 @@ internal static class Plist
             node.AppendChild(text);
             return node;
         }
+
         throw new NotImplementedException();
     }
 

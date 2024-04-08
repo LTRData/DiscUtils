@@ -111,9 +111,14 @@ internal abstract class NodeHeader : IByteArraySerializable
         var level = buffer[0x64];
         NodeHeader result;
         if (level == 0)
+        {
             result = new LeafNode();
+        }
         else
+        {
             result = new InternalNode();
+        }
+
         result.ReadFrom(buffer);
         return result;
     }
@@ -126,6 +131,7 @@ internal abstract class NodeHeader : IByteArraySerializable
         {
             return item;
         }
+
         return null;
     }
 
@@ -135,6 +141,7 @@ internal abstract class NodeHeader : IByteArraySerializable
         {
             return item;
         }
+
         return null;
     }
 
@@ -143,7 +150,9 @@ internal abstract class NodeHeader : IByteArraySerializable
         foreach (var item in Find(key, context))
         {
             if (item is T typed)
+            {
                 yield return typed;
+            }
         }
     }
 }

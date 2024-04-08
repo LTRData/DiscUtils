@@ -169,6 +169,7 @@ public class ValidatingFileSystem<TFileSystem, TChecker> : DiscFileSystem
                 }
             }
         }
+
         base.Dispose(disposing);
     }
 
@@ -238,6 +239,7 @@ public class ValidatingFileSystem<TFileSystem, TChecker> : DiscFileSystem
         {
             snapStream.Freeze();
         }
+
         return snapStream;
     }
 
@@ -287,6 +289,7 @@ public class ValidatingFileSystem<TFileSystem, TChecker> : DiscFileSystem
                 _globalTrace.Stop();
                 _globalTrace.WriteToFile(null);
             }
+
             return false;
         }
     }
@@ -354,6 +357,7 @@ public class ValidatingFileSystem<TFileSystem, TChecker> : DiscFileSystem
                 // Failed, so must be below mid-point
                 highPoint = midPoint;
             }
+
             midPoint = lowPoint + ((highPoint - lowPoint) / 2);
         }
 

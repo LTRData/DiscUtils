@@ -20,10 +20,10 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-namespace DiscUtils.Xfs;
 
 using System.Text;
 
+namespace DiscUtils.Xfs;
 /// <summary>
 /// XFS file system options.
 /// </summary>

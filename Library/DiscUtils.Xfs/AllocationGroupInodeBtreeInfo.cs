@@ -21,11 +21,11 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-namespace DiscUtils.Xfs;
 
 using DiscUtils.Streams;
 using System;
 
+namespace DiscUtils.Xfs;
 internal class AllocationGroupInodeBtreeInfo : IByteArraySerializable
 {
     public const uint AgiMagic = 0x58414749;
@@ -126,12 +126,14 @@ internal class AllocationGroupInodeBtreeInfo : IByteArraySerializable
         {
             Unlinked[i] = EndianUtilities.ToInt32BigEndian(buffer.Slice(0x28 + i*0x4));
         }
+
         if (SbVersion >= 5)
         {
             UniqueId = EndianUtilities.ToGuidBigEndian(buffer.Slice(0x132));
             Lsn = EndianUtilities.ToUInt64BigEndian(buffer.Slice(0x142));
             Crc = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x14A));
         }
+
         return Size;
     }
     
@@ -147,6 +149,7 @@ internal class AllocationGroupInodeBtreeInfo : IByteArraySerializable
         {
             RootInodeBtree = new BTreeInodeNode(SbVersion);
         }
+
         RootInodeBtree.ReadFrom(data, (int) context.SuperBlock.Blocksize);
     }
 

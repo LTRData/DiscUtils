@@ -34,7 +34,9 @@ internal class WellKnownAccount
         foreach (var acct in accounts)
         {
             if (acct.WellKnownValue == sidType)
+            {
                 return acct;
+            }
         }
 
         return null;

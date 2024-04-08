@@ -95,10 +95,12 @@ internal class DeviceElementValue : ElementValue
         {
             return $"{_parentObject}:{_record}";
         }
+
         if (_record != null)
         {
             return _record.ToString();
         }
+
         return "<unknown>";
     }
 

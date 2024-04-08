@@ -56,6 +56,7 @@ namespace LibraryTests.Ntfs
             {
                 await s.WriteAsync(new byte[] { 0x01 });
             }
+
             ranges = ntfs.PathToClusters("file2").ToArray();
             Assert.Empty(ranges);
         }
@@ -93,6 +94,7 @@ namespace LibraryTests.Ntfs
                 s.WriteByte(0x82);
                 s.WriteByte(0x2C);
             }
+
             extents = ntfs.PathToExtents("file2").ToArray();
             Assert.Single(extents);
             Assert.Equal(3, extents[0].Length);
@@ -118,12 +120,14 @@ namespace LibraryTests.Ntfs
             {
                 await stream.WriteAsync(new byte[14325]);
             }
+
             Assert.Equal(14325, ntfs.GetFileLength("AFILE.TXT"));
 
             using (var attrStream = ntfs.OpenFile(@"AFILE.TXT:altstream", FileMode.Create))
             {
                 await attrStream.WriteAsync(new byte[122]);
             }
+
             Assert.Equal(122, ntfs.GetFileLength("AFILE.TXT:altstream"));
 
             // Test NTFS options for hardlink behaviour
@@ -134,6 +138,7 @@ namespace LibraryTests.Ntfs
             {
                 stream.SetLength(50);
             }
+
             Assert.Equal(50, ntfs.GetFileLength("AFILE.TXT"));
             Assert.Equal(14325, ntfs.GetFileLength(@"Dir\OtherLink.txt"));
 
@@ -184,6 +189,7 @@ namespace LibraryTests.Ntfs
             {
                 largeWriteBuffer[i * 4096] = (byte)i;
             }
+
             using (var stream = ntfs.OpenFile(@"DIR\fragmented.bin", FileMode.OpenOrCreate, FileAccess.ReadWrite))
             {
                 stream.Position = stream.Length - largeWriteBuffer.Length;
@@ -249,10 +255,12 @@ namespace LibraryTests.Ntfs
                 {
                     data[i] = 0;
                 }
+
                 for (var i = fileSize - (64 * 1024); i < fileSize; ++i)
                 {
                     data[i] = 0;
                 }
+
                 data[72 * 1024] = 99;
 
                 Assert.Equal(data, readBuffer);

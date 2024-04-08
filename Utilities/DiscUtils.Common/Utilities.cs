@@ -44,6 +44,7 @@ public static class Utilities
             {
                 breakPos++;
             }
+
             pos = breakPos;
         }
 

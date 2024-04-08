@@ -109,6 +109,7 @@ internal class ExtentsFileBuffer : Buffer, IFileBuffer
                 {
                     yield return new(physicalBlock, toRead);
                 }
+
                 numRead = toRead;
             }
 
@@ -169,6 +170,7 @@ internal class ExtentsFileBuffer : Buffer, IFileBuffer
                 {
                     yield return new(physicalBlock * blockSize + blockOffset, toRead);
                 }
+
                 numRead = toRead;
             }
 
@@ -398,6 +400,7 @@ internal class ExtentsFileBuffer : Buffer, IFileBuffer
             {
                 return null;
             }
+
             if (node.Index[0].FirstLogicalBlock >= logicalBlock)
             {
                 idxEntry = node.Index[0];
@@ -422,6 +425,7 @@ internal class ExtentsFileBuffer : Buffer, IFileBuffer
             ExtentBlock subBlock = LoadExtentBlock(idxEntry.Value);
             return FindExtent(subBlock, logicalBlock);
         }
+
         if (node.Extents != null)
         {
             Extent? entry = null;
@@ -430,10 +434,12 @@ internal class ExtentsFileBuffer : Buffer, IFileBuffer
             {
                 return null;
             }
+
             if (node.Extents[0].FirstLogicalBlock >= logicalBlock)
             {
                 return node.Extents[0];
             }
+
             for (int i = 0; i < node.Extents.Length; ++i)
             {
                 if (node.Extents[i].FirstLogicalBlock > logicalBlock)
@@ -450,6 +456,7 @@ internal class ExtentsFileBuffer : Buffer, IFileBuffer
 
             return entry;
         }
+
         return null;
     }
 

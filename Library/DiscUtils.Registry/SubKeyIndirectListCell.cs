@@ -185,6 +185,7 @@ internal sealed class SubKeyIndirectListCell : ListCell
             CellIndexes[CellIndexes.Count - 1] = lastCell.LinkSubKey(name, cellIndex);
             return _hive.UpdateCell(this, false);
         }
+
         for (var i = 0; i < CellIndexes.Count; ++i)
         {
             var cell = _hive.GetCell<KeyNodeCell>(CellIndexes[i]);
@@ -282,6 +283,7 @@ internal sealed class SubKeyIndirectListCell : ListCell
 
                 return -result;
             }
+
             result = string.Compare(((KeyNodeCell)cell).Name, _searchName, StringComparison.OrdinalIgnoreCase);
             if (result == 0)
             {

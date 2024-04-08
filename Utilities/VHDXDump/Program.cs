@@ -96,6 +96,7 @@ class Program : ProgramBase
                 {
                     Console.WriteLine("                          {0} +{1}  (0x{0:X8} +0x{1:X8})", extent.Offset, extent.Count);
                 }
+
                 Console.WriteLine();
             }
         }
@@ -154,6 +155,7 @@ class Program : ProgramBase
             {
                 Console.WriteLine("                      ");
             }
+
             first = false;
 
             Console.WriteLine($"{entry.Key} -> {entry.Value}");

@@ -21,7 +21,6 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-namespace DiscUtils.Xfs;
 
 using System;
 using System.IO;
@@ -30,6 +29,7 @@ using DiscUtils.Internal;
 using DiscUtils.Streams;
 using System.Collections.Generic;
 
+namespace DiscUtils.Xfs;
 internal class File : IVfsFile
 {
     protected readonly Context Context;

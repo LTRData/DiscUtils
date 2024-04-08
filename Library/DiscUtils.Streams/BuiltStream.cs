@@ -96,6 +96,7 @@ public class BuiltStream : SparseStream
         {
             return 0;
         }
+
         if (_position + count > _length)
         {
             count = (int)(_length - _position);
@@ -165,6 +166,7 @@ public class BuiltStream : SparseStream
         {
             return 0;
         }
+
         if (_position + buffer.Length > _length)
         {
             buffer = buffer.Slice(0, (int)(_length - _position));
@@ -234,6 +236,7 @@ public class BuiltStream : SparseStream
         {
             return 0;
         }
+
         if (_position + buffer.Length > _length)
         {
             buffer = buffer.Slice(0, (int)(_length - _position));
@@ -441,6 +444,7 @@ public class BuiltStream : SparseStream
                 // x < y, with no intersection
                 return -1;
             }
+
             if (x.Start >= y.Start + y.Length)
             {
                 // x > y, with no intersection
@@ -471,10 +475,12 @@ public class BuiltStream : SparseStream
             {
                 return -1;
             }
+
             if (val > 0)
             {
                 return 1;
             }
+
             return 0;
         }
     }

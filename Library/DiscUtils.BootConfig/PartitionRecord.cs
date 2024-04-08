@@ -76,20 +76,24 @@ internal class PartitionRecord : DeviceRecord
         {
             return "<boot device>";
         }
+
         if (Type == 6)
         {
             if (PartitionType == 1)
             {
                 return $"(disk:{DiskIdentity[0]:X2}{DiskIdentity[1]:X2}{DiskIdentity[2]:X2}{DiskIdentity[3]:X2} part-offset:{EndianUtilities.ToUInt64LittleEndian(PartitionIdentity, 0)})";
             }
+
             var diskGuid = EndianUtilities.ToGuidLittleEndian(DiskIdentity, 0);
             var partitionGuid = EndianUtilities.ToGuidLittleEndian(PartitionIdentity, 0);
             return $"(disk:{diskGuid} partition:{partitionGuid})";
         }
+
         if (Type == 8)
         {
             return "custom:<unknown>";
         }
+
         return "<unknown>";
     }
 

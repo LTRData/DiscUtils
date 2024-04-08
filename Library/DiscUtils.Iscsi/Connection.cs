@@ -172,6 +172,7 @@ internal sealed class Connection : IDisposable
                     System.Buffer.BlockCopy(pdu.ContentData, 2, senseData, 0, senseLength);
                     throw new ScsiCommandException(resp.Status, "Target indicated SCSI failure", senseData);
                 }
+
                 if (resp.StatusPresent && resp.Status != ScsiStatus.Good)
                 {
                     throw new ScsiCommandException(resp.Status, "Target indicated SCSI failure");
@@ -264,6 +265,7 @@ internal sealed class Connection : IDisposable
                     System.Buffer.BlockCopy(pdu.ContentData, 2, senseData, 0, senseLength);
                     throw new ScsiCommandException(resp.Status, "Target indicated SCSI failure", senseData);
                 }
+
                 if (resp.StatusPresent && resp.Status != ScsiStatus.Good)
                 {
                     throw new ScsiCommandException(resp.Status, "Target indicated SCSI failure");
@@ -423,6 +425,7 @@ internal sealed class Connection : IDisposable
         {
             ArrayPool<byte>.Shared.Return(paramBuffer);
         }
+
         _stream.Flush();
 
         //
@@ -500,6 +503,7 @@ internal sealed class Connection : IDisposable
             {
                 ArrayPool<byte>.Shared.Return(paramBuffer);
             }
+
             _stream.Flush();
 
             //
@@ -571,6 +575,7 @@ internal sealed class Connection : IDisposable
         {
             ArrayPool<byte>.Shared.Return(paramBuffer);
         }
+
         _stream.Flush();
 
         //
@@ -624,6 +629,7 @@ internal sealed class Connection : IDisposable
             {
                 ArrayPool<byte>.Shared.Return(paramBuffer);
             }
+
             _stream.Flush();
 
             //

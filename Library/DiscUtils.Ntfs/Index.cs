@@ -144,6 +144,7 @@ internal class Index : IDisposable
             {
                 return value;
             }
+
             throw new KeyNotFoundException();
         }
 
@@ -295,6 +296,7 @@ internal class Index : IDisposable
         {
             return vcn * _bpb.BytesPerCluster;
         }
+
         if (_root.RawClustersPerIndexRecord != 8)
         {
             throw new NotSupportedException(

@@ -79,6 +79,7 @@ public abstract class BuildDirectoryMember
         {
             return nameOverride;
         }
+
         return enc == Encoding.ASCII ? ShortName : Name;
     }
 

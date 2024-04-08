@@ -125,10 +125,12 @@ internal class Directory : IDisposable
         {
             return null;
         }
+
         if ((_entries[id].Attributes & FatAttributes.Directory) == 0)
         {
             return null;
         }
+
         return FileSystem.GetDirectory(this, id);
     }
 
@@ -141,8 +143,10 @@ internal class Directory : IDisposable
             {
                 throw new IOException("A file exists with the same name");
             }
+
             return FileSystem.GetDirectory(this, id);
         }
+
         try
         {
             if (!FileSystem.Fat.TryGetFreeCluster(out var firstCluster))
@@ -237,11 +241,13 @@ internal class Directory : IDisposable
         {
             throw new IOException("File already exists");
         }
+
         if (mode == FileMode.Open && !exists)
         {
             throw new FileNotFoundException("File not found",
                 name.GetDisplayName(FileSystem.FatOptions.FileNameEncoding));
         }
+
         if ((mode == FileMode.Open || mode == FileMode.OpenOrCreate || mode == FileMode.Create) && exists)
         {
             var stream = new FatFileStream(FileSystem, this, fileId, fileAccess);
@@ -254,6 +260,7 @@ internal class Directory : IDisposable
 
             return stream;
         }
+
         if ((mode == FileMode.OpenOrCreate || mode == FileMode.CreateNew || mode == FileMode.Create) && !exists)
         {
             // Create new file
@@ -462,6 +469,7 @@ internal class Directory : IDisposable
                 return new DirectoryEntry(FileSystem.FatOptions, FileName.ParentEntryName, FatAttributes.Directory,
                     FileSystem.FatVariant);
             }
+
             return _parent.GetEntry(_parentId);
         }
 
@@ -484,6 +492,7 @@ internal class Directory : IDisposable
                 return new DirectoryEntry(FileSystem.FatOptions, FileName.Null, FatAttributes.Directory,
                     FileSystem.FatVariant);
             }
+
             return _selfEntry;
         }
 

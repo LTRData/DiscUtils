@@ -86,6 +86,7 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
         {
             return null;
         }
+
         if (id >= 0 && id < _securityDescriptors.Count)
         {
             return _securityDescriptors[(int)id];
@@ -739,6 +740,7 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
             {
                 return null;
             }
+
             if (nextEntry.SubdirOffset != 0)
             {
                 currentDir = GetDirectory(nextEntry.SubdirOffset);

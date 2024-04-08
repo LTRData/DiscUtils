@@ -126,10 +126,12 @@ internal struct Inode : IByteArraySerializable
         {
             return new StreamBuffer(new MemoryStream(FastSymlink, false), Ownership.Dispose);
         }
+
         if ((Flags & InodeFlags.ExtentsUsed) != 0)
         {
             return new ExtentsFileBuffer(context, this);
         }
+
         return new FileBuffer(context, this);
     }
 }

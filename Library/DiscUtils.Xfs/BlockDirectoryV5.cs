@@ -20,11 +20,11 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-namespace DiscUtils.Xfs;
 
 using System;
 using DiscUtils.Streams;
 
+namespace DiscUtils.Xfs;
 internal class BlockDirectoryV5 : BlockDirectory
 {
     public const uint HeaderMagicV5 = 0x58444233;

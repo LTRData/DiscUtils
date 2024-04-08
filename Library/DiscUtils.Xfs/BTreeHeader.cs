@@ -21,11 +21,11 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-namespace DiscUtils.Xfs;
 
 using DiscUtils.Streams;
 using System;
 
+namespace DiscUtils.Xfs;
 internal abstract class BtreeHeader : IByteArraySerializable
 {
     public uint Magic { get; private set; }

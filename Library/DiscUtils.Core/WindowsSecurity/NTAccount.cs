@@ -9,29 +9,48 @@ public sealed class NTAccount : IdentityReference
     public NTAccount(string name)
     {
         if (name == null)
+        {
             throw new ArgumentNullException(nameof(name));
+        }
+
         if (name.Length == 0)
+        {
             throw new ArgumentException("empty", nameof(name));
+        }
+
         Value = name;
     }
 
     public NTAccount(string domainName, string accountName)
     {
         if (accountName == null)
+        {
             throw new ArgumentNullException(nameof(accountName));
+        }
+
         if (accountName.Length == 0)
+        {
             throw new ArgumentException("empty", nameof(accountName));
+        }
+
         if (domainName == null)
+        {
             Value = accountName;
+        }
         else
+        {
             Value = $@"{domainName}\{accountName}";
+        }
     }
 
     public override bool Equals(object o)
     {
         var nt = (o as NTAccount);
         if (nt == null)
+        {
             return false;
+        }
+
         return (nt.Value == Value);
     }
 
@@ -43,9 +62,15 @@ public sealed class NTAccount : IdentityReference
     public override bool IsValidTargetType(Type targetType)
     {
         if (targetType == typeof(NTAccount))
+        {
             return true;
+        }
+
         if (targetType == typeof(SecurityIdentifier))
+        {
             return true;
+        }
+
         return false;
     }
 
@@ -57,13 +82,17 @@ public sealed class NTAccount : IdentityReference
     public override IdentityReference Translate(Type targetType)
     {
         if (targetType == typeof(NTAccount))
+        {
             return this; // ? copy
+        }
 
         if (targetType == typeof(SecurityIdentifier))
         {
             var acct = WellKnownAccount.LookupByName(Value);
             if (acct?.Sid is null)
+            {
                 throw new Exception($"Cannot map account name: {Value}");
+            }
 
             return acct.Sid;
         }
@@ -74,18 +103,30 @@ public sealed class NTAccount : IdentityReference
     public static bool operator ==(NTAccount left, NTAccount right)
     {
         if (((object)left) == null)
+        {
             return (((object)right) == null);
+        }
+
         if (((object)right) == null)
+        {
             return false;
+        }
+
         return (left.Value == right.Value);
     }
 
     public static bool operator !=(NTAccount left, NTAccount right)
     {
         if (((object)left) == null)
+        {
             return (((object)right) != null);
+        }
+
         if (((object)right) == null)
+        {
             return true;
+        }
+
         return (left.Value != right.Value);
     }
 }

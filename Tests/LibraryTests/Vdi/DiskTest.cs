@@ -54,6 +54,7 @@ namespace LibraryTests.Vdi
             using (var disk = Disk.InitializeFixed(ms, Ownership.Dispose, 8 * 1024 * 1024))
             {
             }
+
             Assert.Throws<ObjectDisposedException>(() => ms.ReadByte());
         }
 
@@ -86,11 +87,13 @@ namespace LibraryTests.Vdi
             {
                 geometry = disk.Geometry;
             }
+
             using (var disk = new Disk(ms))
             {
                 Assert.Equal(geometry, disk.Geometry);
                 Assert.NotNull(disk.Content);
             }
+
             using (var disk = new Disk(ms, Ownership.Dispose))
             {
                 Assert.Equal(geometry, disk.Geometry);

@@ -20,11 +20,11 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-namespace DiscUtils.Xfs;
 
 using DiscUtils.Streams;
 using System;
 
+namespace DiscUtils.Xfs;
 internal class LeafDirectoryV5 : LeafDirectory
 {
     public const uint HeaderMagicV5 = 0x58444433;

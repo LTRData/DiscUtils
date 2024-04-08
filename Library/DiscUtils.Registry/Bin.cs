@@ -202,6 +202,7 @@ internal sealed class Bin
 
                 return result;
             }
+
             if (_freeCells[i].Count == size)
             {
                 // Record the whole of the free buffer as a newly allocated cell

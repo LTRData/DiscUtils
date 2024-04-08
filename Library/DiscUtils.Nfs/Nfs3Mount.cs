@@ -64,6 +64,7 @@ internal sealed class Nfs3Mount : RpcProgram
 
             yield break;
         }
+
         throw new RpcException(reply.Header.ReplyHeader);
     }
 

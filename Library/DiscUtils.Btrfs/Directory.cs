@@ -43,7 +43,10 @@ internal class Directory : File, IVfsDirectory<DirEntry, File>
         get
         {
             if (_allEntries != null)
+            {
                 return _allEntries;
+            }
+
             var result = new FastDictionary<DirEntry>(StringComparer.Ordinal, entry => entry.FileName);
             var treeId = DirEntry.TreeId;
             var objectId = DirEntry.ObjectId;
@@ -53,6 +56,7 @@ internal class Directory : File, IVfsDirectory<DirEntry, File>
                 var rootItem = Context.RootTreeRoot.FindFirst<RootItem>(new Key(treeId, ItemType.RootItem), Context);
                 objectId = rootItem.RootDirId;
             }
+
             var tree = Context.GetFsTree(treeId);
             var items = tree.Find<DirIndex>(new Key(objectId, ItemType.DirIndex), Context);
             foreach (var item in items)
@@ -60,6 +64,7 @@ internal class Directory : File, IVfsDirectory<DirEntry, File>
                 var inode = tree.FindFirst(item.ChildLocation, Context);
                 result.Add(new DirEntry(treeId, item, (InodeItem)inode));
             }
+
             _allEntries = result;
             return result;
         }

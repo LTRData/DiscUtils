@@ -21,7 +21,6 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-namespace DiscUtils.Xfs;
 
 using System;
 using System.IO;
@@ -29,6 +28,7 @@ using DiscUtils.Vfs;
 using DiscUtils.Streams;
 using System.Collections.Generic;
 
+namespace DiscUtils.Xfs;
 internal sealed class VfsXfsFileSystem : VfsReadOnlyFileSystem<DirEntry, File, Directory, Context>,
     IUnixFileSystem, IAllocationExtentsFileSystem
 {
@@ -68,6 +68,7 @@ internal sealed class VfsXfsFileSystem : VfsReadOnlyFileSystem<DirEntry, File, D
             allocationGroups[ag.InodeBtreeInfo.SequenceNumber] = ag;
             offset = (XFS_AG_DADDR(Context.SuperBlock, i+1, XFS_AGF_DADDR(Context.SuperBlock)) << BBSHIFT) - superblock.SectorSize;
         }
+
         Context.AllocationGroups = allocationGroups;
 
         RootDirectory = new Directory(Context, Context.GetInode(superblock.RootInode));
@@ -145,8 +146,10 @@ internal sealed class VfsXfsFileSystem : VfsReadOnlyFileSystem<DirEntry, File, D
                 {
                     rmapMaxlevels = superblock.xfs_btree_compute_maxlevels();
                 }
+
                 alloc_set_aside += superblock.AgCount * rmapMaxlevels;
             }
+
             return (long) ((fdblocks - alloc_set_aside) * superblock.Blocksize);
         }
     }

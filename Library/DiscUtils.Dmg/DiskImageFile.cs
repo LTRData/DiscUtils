@@ -112,6 +112,7 @@ internal sealed class DiskImageFile : VirtualDiskLayer
             SparseStream rawStream = new BufferStream(Buffer, FileAccess.Read);
             return new BlockCacheStream(rawStream, Ownership.Dispose);
         }
+
         return SparseStream.FromStream(_stream, Ownership.None);
     }
 

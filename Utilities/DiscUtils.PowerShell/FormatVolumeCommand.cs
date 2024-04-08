@@ -61,6 +61,7 @@ public class FormatVolumeCommand : PSCmdlet
             volInfoObj = InputObject;
             volInfo = volInfoObj.BaseObject as VolumeInfo;
         }
+
         if (volInfo == null && string.IsNullOrEmpty(LiteralPath))
         {
             WriteError(new ErrorRecord(

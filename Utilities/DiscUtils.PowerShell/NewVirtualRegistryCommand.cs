@@ -35,6 +35,8 @@ public class NewVirtualRegistryCommand : PSCmdlet
     {
         using var hiveStream = Utilities.CreatePsPath(SessionState, LiteralPath);
         hiveStream.SetLength(0);
-        using (RegistryHive.Create(hiveStream)) { }
+        using (RegistryHive.Create(hiveStream))
+        {
+        }
     }
 }

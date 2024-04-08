@@ -100,6 +100,7 @@ public class ZeroStream : MappedStream
             {
                 throw new IOException("Attempt to read beyond end of stream");
             }
+
             _atEof = true;
             return 0;
         }
@@ -125,6 +126,7 @@ public class ZeroStream : MappedStream
             {
                 throw new IOException("Attempt to read beyond end of stream");
             }
+
             _atEof = true;
             return Task.FromResult(0);
         }
@@ -150,6 +152,7 @@ public class ZeroStream : MappedStream
             {
                 throw new IOException("Attempt to read beyond end of stream");
             }
+
             _atEof = true;
             return new(0);
         }
@@ -175,6 +178,7 @@ public class ZeroStream : MappedStream
             {
                 throw new IOException("Attempt to read beyond end of stream");
             }
+
             _atEof = true;
             return 0;
         }
@@ -204,6 +208,7 @@ public class ZeroStream : MappedStream
         {
             throw new IOException("Attempt to move before beginning of stream");
         }
+
         _position = effectiveOffset;
         return _position;
     }

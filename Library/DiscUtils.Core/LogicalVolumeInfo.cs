@@ -73,6 +73,7 @@ public sealed class LogicalVolumeInfo : VolumeInfo
             {
                 return $"VLG{_guid:B}";
             }
+
             return $"VLP:{_physicalVol.Identity}";
         }
     }

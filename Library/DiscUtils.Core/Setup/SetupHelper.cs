@@ -28,7 +28,9 @@ public static class SetupHelper
         lock (_alreadyLoaded)
         {
             if (!_alreadyLoaded.Add(assembly.FullName))
+            {
                 return;
+            }
 
             FileSystemManager.RegisterFileSystems(assembly);
             VirtualDiskManager.RegisterVirtualDiskTypes(assembly);

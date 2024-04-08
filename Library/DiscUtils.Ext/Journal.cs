@@ -20,12 +20,12 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-namespace DiscUtils.Ext;
 
 using DiscUtils.Streams;
 using System;
 using System.IO;
 
+namespace DiscUtils.Ext;
 internal class JournalSuperBlock : IByteArraySerializable
 {
     public uint BlockSize;
@@ -42,11 +42,13 @@ internal class JournalSuperBlock : IByteArraySerializable
         {
             throw new IOException("Invalid journal magic - probably not an Ext file system");
         }
+
         var blocktype = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x4));
         if (blocktype != 3 && blocktype != 4)
         {
             throw new IOException("Invalid journal block type - no superblock found");
         }
+
         BlockSize = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0xc));
         MaxLength = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x10));
 

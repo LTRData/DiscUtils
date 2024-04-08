@@ -22,12 +22,12 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-namespace DiscUtils.Xfs;
 
 using DiscUtils.Streams;
 using System;
 using System.IO;
 
+namespace DiscUtils.Xfs;
 internal class AllocationGroup
 {
     public const uint IbtMagic = 0x49414254;
@@ -68,11 +68,13 @@ internal class AllocationGroup
         {
             throw new IOException("Invalid AGI magic - probably not an xfs file system");
         }
+
         InodeBtreeInfo.LoadBtree(context, offset);
         if (superblock.SbVersion < 5 && InodeBtreeInfo.RootInodeBtree.Magic != IbtMagic || superblock.SbVersion >= 5 && InodeBtreeInfo.RootInodeBtree.Magic != IbtCrcMagic)
         {
             throw new IOException("Invalid IBT magic - probably not an xfs file system");
         }
+
         if (InodeBtreeInfo.SequenceNumber != FreeBlockInfo.SequenceNumber)
         {
             throw new IOException("inconsistent AG sequence numbers");

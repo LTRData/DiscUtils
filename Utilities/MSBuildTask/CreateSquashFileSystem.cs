@@ -20,13 +20,13 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-namespace MSBuildTask;
 
 using System;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using DiscUtils.SquashFs;
 
+namespace MSBuildTask;
 public class CreateSquashFileSystem : Task
 {
     public CreateSquashFileSystem()

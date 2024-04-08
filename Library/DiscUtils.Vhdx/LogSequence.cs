@@ -47,6 +47,7 @@ internal sealed class LogSequence : List<LogEntry>
         {
             return position >= Tail.Position && position < Head.Position + LogEntry.LogSectorSize;
         }
+
         return position >= Tail.Position || position < Head.Position + LogEntry.LogSectorSize;
     }
 

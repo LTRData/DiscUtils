@@ -14,7 +14,9 @@ internal class SddlAccessRight
         foreach (var right in rights)
         {
             if (right.Name.AsSpan().Equals(s, StringComparison.CurrentCultureIgnoreCase))
+            {
                 return right;
+            }
         }
 
         return null;
@@ -25,7 +27,9 @@ internal class SddlAccessRight
         foreach (var right in rights)
         {
             if (mask == right.Value)
+            {
                 return new[] { right };
+            }
         }
 
         var foundType = 0;
@@ -37,11 +41,15 @@ internal class SddlAccessRight
                 && (accountedBits | right.Value) != accountedBits)
             {
                 if (foundType == 0)
+                {
                     foundType = right.ObjectType;
+                }
 
                 if (right.ObjectType != 0
                     && foundType != right.ObjectType)
+                {
                     return null;
+                }
 
                 found.Add(right);
                 accountedBits |= right.Value;

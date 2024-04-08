@@ -52,6 +52,7 @@ public abstract class CompatibilityStream : Stream
         {
             return -1;
         }
+
         return b[0];
     }
 

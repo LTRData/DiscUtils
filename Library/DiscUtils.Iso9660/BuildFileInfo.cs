@@ -87,10 +87,12 @@ public sealed class BuildFileInfo : BuildDirectoryMember, IEquatable<BuildFileIn
         {
             return _contentData.Length;
         }
+
         if (_contentPath != null)
         {
             return new FileInfo(_contentPath).Length;
         }
+
         return _contentStream.Length;
     }
 
@@ -100,11 +102,13 @@ public sealed class BuildFileInfo : BuildDirectoryMember, IEquatable<BuildFileIn
         {
             return new MemoryStream(_contentData, writable: false);
         }
+
         if (_contentPath != null)
         {
             var locator = new LocalFileLocator(string.Empty, useAsync: false);
             return locator.Open(_contentPath, FileMode.Open, FileAccess.Read, FileShare.Read);
         }
+
         return _contentStream;
     }
 

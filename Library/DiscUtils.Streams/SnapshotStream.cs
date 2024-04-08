@@ -115,6 +115,7 @@ public sealed class SnapshotStream : SparseStream
             {
                 return SingleValueEnumerable.Get(new StreamExtent(0, Length));
             }
+
             return StreamExtent.Union(sparseBase.Extents, _diffExtents);
         }
     }
@@ -130,6 +131,7 @@ public sealed class SnapshotStream : SparseStream
             {
                 return _diffStream.Length;
             }
+
             return _baseStream.Length;
         }
     }
@@ -457,6 +459,7 @@ public sealed class SnapshotStream : SparseStream
         {
             throw new IOException("Attempt to move before beginning of disk");
         }
+
         _position = effectiveOffset;
         return _position;
     }

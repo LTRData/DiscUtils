@@ -119,6 +119,7 @@ public class CommandLineSwitch
             {
                 result[i] += $" <{param}>";
             }
+
             maxLen = Math.Max(result[i].Length, maxLen);
         }
 
@@ -127,6 +128,7 @@ public class CommandLineSwitch
         {
             result[result.Length - 1] += $" <{param}>";
         }
+
         maxLen = Math.Max(result[result.Length - 1].Length, maxLen);
 
         return result;

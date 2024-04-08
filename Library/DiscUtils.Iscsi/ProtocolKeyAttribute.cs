@@ -58,14 +58,17 @@ internal sealed class ProtocolKeyAttribute : Attribute
         {
             return (bool)value ? "Yes" : "No";
         }
+
         if (valueType == typeof(string))
         {
             return (string)value;
         }
+
         if (valueType == typeof(int))
         {
             return ((int)value).ToString(CultureInfo.InvariantCulture);
         }
+
         if (valueType.IsEnum)
         {
             var infos = valueType.GetFields();
@@ -85,6 +88,7 @@ internal sealed class ProtocolKeyAttribute : Attribute
 
             throw new NotImplementedException();
         }
+
         throw new NotSupportedException($"Unknown property type: {valueType}");
     }
 
@@ -94,14 +98,17 @@ internal sealed class ProtocolKeyAttribute : Attribute
         {
             return value == "Yes";
         }
+
         if (valueType == typeof(string))
         {
             return value;
         }
+
         if (valueType == typeof(int))
         {
             return int.Parse(value, CultureInfo.InvariantCulture);
         }
+
         if (valueType.IsEnum)
         {
             var infos = valueType.GetFields();
@@ -119,6 +126,7 @@ internal sealed class ProtocolKeyAttribute : Attribute
 
             throw new NotImplementedException();
         }
+
         throw new NotSupportedException($"Unknown property type: {valueType}");
     }
 

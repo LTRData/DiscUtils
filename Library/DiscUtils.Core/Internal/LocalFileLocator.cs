@@ -58,6 +58,7 @@ internal sealed class LocalFileLocator : FileLocator
         {
             return Environment.CurrentDirectory;
         }
+
         return Path.GetFullPath(combinedPath);
     }
 

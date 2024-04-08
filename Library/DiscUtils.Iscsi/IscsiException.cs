@@ -23,11 +23,10 @@
 using System;
 using System.IO;
 
-namespace DiscUtils.Iscsi;
-
 using System.Runtime.Serialization;
 using System.Security.Permissions;
 
+namespace DiscUtils.Iscsi;
 /// <summary>
 /// Base exception for any iSCSI-related failures.
 /// </summary>

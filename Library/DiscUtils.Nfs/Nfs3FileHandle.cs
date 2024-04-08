@@ -44,6 +44,7 @@ public sealed class Nfs3FileHandle : IEquatable<Nfs3FileHandle>, IComparable<Nfs
         {
             return Value == null ? 0 : 1;
         }
+
         if (Value == null)
         {
             return -1;
@@ -73,6 +74,7 @@ public sealed class Nfs3FileHandle : IEquatable<Nfs3FileHandle>, IComparable<Nfs
         {
             return other.Value == null;
         }
+
         if (other.Value == null)
         {
             return false;

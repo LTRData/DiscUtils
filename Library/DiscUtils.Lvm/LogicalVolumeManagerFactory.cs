@@ -21,11 +21,11 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-namespace DiscUtils.Lvm;
 
 using DiscUtils.Internal;
 using System.Collections.Generic;
 
+namespace DiscUtils.Lvm;
 [LogicalVolumeFactory]
 internal class LogicalVolumeManagerFactory : LogicalVolumeFactory
 {

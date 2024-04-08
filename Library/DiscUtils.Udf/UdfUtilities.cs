@@ -184,6 +184,7 @@ internal static class UdfUtilities
         {
             return min;
         }
+
         if (val > max)
         {
             return max;
@@ -198,6 +199,7 @@ internal static class UdfUtilities
         {
             return min;
         }
+
         if (val > max)
         {
             return max;

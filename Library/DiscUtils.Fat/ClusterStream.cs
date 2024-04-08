@@ -144,6 +144,7 @@ internal class ClusterStream : CompatibilityStream
                 _atEOF = true;
                 return 0;
             }
+
             throw new IOException("Attempt to read beyond known clusters");
         }
 
@@ -200,6 +201,7 @@ internal class ClusterStream : CompatibilityStream
                 _atEOF = true;
                 return 0;
             }
+
             throw new IOException("Attempt to read beyond known clusters");
         }
 

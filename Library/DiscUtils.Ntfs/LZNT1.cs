@@ -194,11 +194,13 @@ internal sealed class LZNT1 : BlockCompressor
             compressedLength = 0;
             return CompressionResult.Incompressible;
         }
+
         if (nonZeroDataFound)
         {
             compressedLength = (int)destPointer;
             return CompressionResult.Compressed;
         }
+
         compressedLength = 0;
         return CompressionResult.AllZeros;
     }
@@ -284,6 +286,7 @@ internal sealed class LZNT1 : BlockCompressor
                 {
                     return destIdx;
                 }
+
                 if (destIdx < destSubBlockStart + FixedBlockSize)
                 {
                     var skip = destSubBlockStart + FixedBlockSize - destIdx;

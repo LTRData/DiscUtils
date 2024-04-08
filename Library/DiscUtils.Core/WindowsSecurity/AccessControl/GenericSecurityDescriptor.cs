@@ -12,13 +12,25 @@ public abstract class GenericSecurityDescriptor
         {
             var len = 0x14;
             if (Owner != null)
+            {
                 len += Owner.BinaryLength;
+            }
+
             if (Group != null)
+            {
                 len += Group.BinaryLength;
+            }
+
             if (DaclPresent && !DaclIsUnmodifiedAefa)
+            {
                 len += InternalDacl.BinaryLength;
+            }
+
             if (SaclPresent)
+            {
                 len += InternalSacl.BinaryLength;
+            }
+
             return len;
         }
     }
@@ -40,17 +52,22 @@ public abstract class GenericSecurityDescriptor
     public void GetBinaryForm(byte[] binaryForm, int offset)
     {
         if (null == binaryForm)
+        {
             throw new ArgumentNullException(nameof(binaryForm));
+        }
 
         var binaryLength = BinaryLength;
         if (offset < 0 || offset > binaryForm.Length - binaryLength)
+        {
             throw new ArgumentOutOfRangeException(nameof(offset));
+        }
 
         var controlFlags = ControlFlags;
         if (DaclIsUnmodifiedAefa)
         {
             controlFlags &= ~ControlFlags.DiscretionaryAclPresent;
         }
+
         binaryForm[offset + 0x00] = Revision;
         binaryForm[offset + 0x01] = InternalReservedField;
         WriteUShort((ushort)controlFlags, binaryForm,

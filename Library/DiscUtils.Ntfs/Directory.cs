@@ -27,11 +27,10 @@ using System.Linq;
 using System.Text;
 using DiscUtils.Internal;
 
-namespace DiscUtils.Ntfs;
-
 using DirectoryIndexEntry =
-    KeyValuePair<FileNameRecord, FileRecordReference>;
+    System.Collections.Generic.KeyValuePair<DiscUtils.Ntfs.FileNameRecord, DiscUtils.Ntfs.FileRecordReference>;
 
+namespace DiscUtils.Ntfs;
 internal class Directory : File
 {
     private IndexView<FileNameRecord, FileRecordReference> _index;
@@ -127,6 +126,7 @@ internal class Directory : File
         {
             return new DirectoryEntry(this, entry.Value, entry.Key);
         }
+
         return null;
     }
 
@@ -136,6 +136,7 @@ internal class Directory : File
         {
             throw new IOException($"Invalid file name, more than 255 characters: {name}");
         }
+
         if (name.AsSpan().IndexOfAny('\0', '/') != -1)
         {
             throw new IOException($@"Invalid file name, contains '\0' or '/': {name}");

@@ -241,6 +241,7 @@ internal sealed class HostedSparseExtentStream : CommonSparseExtentStream
 
             return deflateStream.Read(buffer, bufferOffset, numToRead);
         }
+
         return base.ReadGrain(buffer, bufferOffset, grainStart, grainOffset, numToRead);
     }
 
@@ -281,6 +282,7 @@ internal sealed class HostedSparseExtentStream : CommonSparseExtentStream
 
             return await deflateStream.ReadAsync(buffer, cancellationToken).ConfigureAwait(false);
         }
+
         return await base.ReadGrainAsync(buffer, grainStart, grainOffset, cancellationToken).ConfigureAwait(false);
     }
 
@@ -321,6 +323,7 @@ internal sealed class HostedSparseExtentStream : CommonSparseExtentStream
 
             return deflateStream.Read(buffer);
         }
+
         return base.ReadGrain(buffer, grainStart, grainOffset);
     }
 
@@ -334,6 +337,7 @@ internal sealed class HostedSparseExtentStream : CommonSparseExtentStream
 
             return new StreamExtent(grainStart + grainOffset, CompressedGrainHeader.Size + hdr.DataSize);
         }
+
         return base.MapGrain(grainStart, grainOffset, numToRead);
     }
 

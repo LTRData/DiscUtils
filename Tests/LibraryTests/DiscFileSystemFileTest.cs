@@ -85,7 +85,9 @@ namespace LibraryTests
         {
             var fs = fsFactory();
 
-            using (var s = fs.GetFileInfo("foo.txt").Open(FileMode.Create, FileAccess.ReadWrite)) { }
+            using (var s = fs.GetFileInfo("foo.txt").Open(FileMode.Create, FileAccess.ReadWrite))
+            {
+            }
 
             Assert.Single(fs.Root.GetFiles());
 
@@ -179,13 +181,15 @@ namespace LibraryTests
             var fs = fsFactory();
 
             var di = fs.GetFileInfo("foo.txt");
-            using (var s = di.Open(FileMode.Create)) { s.WriteByte(1); }
+            using (var s = di.Open(FileMode.Create))
+            {
+                s.WriteByte(1);
+            }
 
             Assert.Throws<IOException>(() =>
             {
                 using var s = di.Open(FileMode.CreateNew);
             });
-
         }
 
         [Theory]
@@ -290,7 +294,9 @@ namespace LibraryTests
             var fs = fsFactory();
 
             var fi = fs.GetFileInfo("foo.txt");
-            using (var s = fi.Open(FileMode.Create)) { }
+            using (var s = fi.Open(FileMode.Create))
+            {
+            }
 
             // Check default attributes
             Assert.Equal(FileAttributes.Archive, fi.Attributes);
@@ -312,7 +318,9 @@ namespace LibraryTests
             var fs = fsFactory();
 
             var fi = fs.GetFileInfo("foo.txt");
-            using (var s = fi.Open(FileMode.Create)) { }
+            using (var s = fi.Open(FileMode.Create))
+            {
+            }
 
             Assert.Throws<ArgumentException>(() => fi.Attributes = fi.Attributes | FileAttributes.Directory);
         }
@@ -327,7 +335,10 @@ namespace LibraryTests
 
             Assert.False(fi.Exists);
 
-            using (var s = fi.Open(FileMode.Create)) { }
+            using (var s = fi.Open(FileMode.Create))
+            {
+            }
+
             Assert.True(fi.Exists);
 
             fs.CreateDirectory("dir.txt");
@@ -340,7 +351,9 @@ namespace LibraryTests
         {
             var fs = fsFactory();
 
-            using (var s = fs.OpenFile("foo.txt", FileMode.Create)) { }
+            using (var s = fs.OpenFile("foo.txt", FileMode.Create))
+            {
+            }
 
             Assert.True(DateTime.UtcNow >= fs.GetFileInfo("foo.txt").CreationTimeUtc);
             Assert.True(DateTime.UtcNow.Subtract(TimeSpan.FromSeconds(10)) <= fs.GetFileInfo("foo.txt").CreationTimeUtc);
@@ -352,7 +365,9 @@ namespace LibraryTests
         {
             var fs = fsFactory();
 
-            using (var s = fs.OpenFile("foo.txt", FileMode.Create)) { }
+            using (var s = fs.OpenFile("foo.txt", FileMode.Create))
+            {
+            }
 
             Assert.True(DateTime.Now >= fs.GetFileInfo("foo.txt").CreationTime);
             Assert.True(DateTime.Now.Subtract(TimeSpan.FromSeconds(10)) <= fs.GetFileInfo("foo.txt").CreationTime);
@@ -364,13 +379,18 @@ namespace LibraryTests
         {
             var fs = fsFactory();
 
-            using (var s = fs.OpenFile("foo.txt", FileMode.Create)) { }
+            using (var s = fs.OpenFile("foo.txt", FileMode.Create))
+            {
+            }
+
             var fi = fs.GetFileInfo("foo.txt");
 
             var baseTime = DateTime.Now - TimeSpan.FromDays(2);
             fi.LastAccessTime = baseTime;
 
-            using (var s = fs.OpenFile("foo.txt", FileMode.Open, FileAccess.Read)) { }
+            using (var s = fs.OpenFile("foo.txt", FileMode.Open, FileAccess.Read))
+            {
+            }
 
             fi = fs.GetFileInfo("foo.txt");
 
@@ -383,13 +403,19 @@ namespace LibraryTests
         {
             var fs = fsFactory();
 
-            using (var s = fs.OpenFile("foo.txt", FileMode.Create)) { }
+            using (var s = fs.OpenFile("foo.txt", FileMode.Create))
+            {
+            }
+
             var fi = fs.GetFileInfo("foo.txt");
 
             var baseTime = DateTime.Now - TimeSpan.FromMinutes(10);
             fi.LastWriteTime = baseTime;
 
-            using (var s = fs.OpenFile("foo.txt", FileMode.Open)) { s.WriteByte(1); }
+            using (var s = fs.OpenFile("foo.txt", FileMode.Open))
+            {
+                s.WriteByte(1);
+            }
 
             fi = fs.GetFileInfo("foo.txt");
 
@@ -402,7 +428,10 @@ namespace LibraryTests
         {
             var fs = fsFactory();
 
-            using (var s = fs.OpenFile("foo.txt", FileMode.Create)) { }
+            using (var s = fs.OpenFile("foo.txt", FileMode.Create))
+            {
+            }
+
             fs.GetFileInfo("foo.txt").Delete();
 
             Assert.False(fs.FileExists("foo.txt"));
@@ -445,6 +474,7 @@ namespace LibraryTests
                     s.Write(new byte[111], 0, 111);
                 }
             }
+
             fi.Attributes = FileAttributes.Hidden | FileAttributes.System;
 
             fi.CopyTo("foo2.txt");
@@ -481,6 +511,7 @@ namespace LibraryTests
                     s.Write(new byte[111], 0, 111);
                 }
             }
+
             fi.Attributes = FileAttributes.Hidden | FileAttributes.System;
 
             fi.MoveTo("foo2.txt");
@@ -536,7 +567,9 @@ namespace LibraryTests
             var sep = Path.DirectorySeparatorChar;
 
             fs.CreateDirectory($"SOMEDIR{sep}ADIR");
-            using (var s = fs.OpenFile($"SOMEDIR{sep}ADIR{sep}FILE.TXT", FileMode.Create)) { }
+            using (var s = fs.OpenFile($"SOMEDIR{sep}ADIR{sep}FILE.TXT", FileMode.Create))
+            {
+            }
 
             var fi = fs.GetFileInfo($"SOMEDIR{sep}ADIR{sep}FILE.TXT");
             Assert.Equal(fs.GetDirectoryInfo($"SOMEDIR{sep}ADIR"), fi.Parent);

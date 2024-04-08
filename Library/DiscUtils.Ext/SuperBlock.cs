@@ -122,7 +122,10 @@ internal class SuperBlock : IByteArraySerializable
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         Magic = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(56));
-        if (Magic != Ext2Magic) return Size;
+        if (Magic != Ext2Magic)
+        {
+            return Size;
+        }
 
         InodesCount = EndianUtilities.ToUInt32LittleEndian(buffer);
         BlocksCount = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(4));

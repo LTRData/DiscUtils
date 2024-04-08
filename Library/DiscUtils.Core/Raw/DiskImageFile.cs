@@ -192,10 +192,12 @@ public sealed class DiskImageFile : VirtualDiskLayer
         {
             return new Geometry(80, 2, 9);
         }
+
         if (capacity == Sizes.Sector * 2880)
         {
             return new Geometry(80, 2, 18);
         }
+
         if (capacity == Sizes.Sector * 5760)
         {
             return new Geometry(80, 2, 36);
@@ -219,6 +221,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
         {
             return VirtualDiskClass.FloppyDisk;
         }
+
         return VirtualDiskClass.HardDisk;
     }
 

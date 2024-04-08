@@ -46,7 +46,10 @@ internal class BlockDirectoryDataEntry : BlockDirectoryData, IDirectoryEntry
             var size = 0xb + NameLength + (_ftype?1:0);
             var padding = size%8;
             if (padding != 0)
+            {
                 return size + (8 - padding);
+            }
+
             return size;
         }
     }
@@ -70,7 +73,10 @@ internal class BlockDirectoryDataEntry : BlockDirectoryData, IDirectoryEntry
 
         var padding = 6 - ((NameLength + (_ftype ? 2 : 1)) % 8);
         if (padding < 0)
+        {
             padding += 8;
+        }
+
         offset += padding;
         Tag = EndianUtilities.ToUInt16BigEndian(buffer.Slice(offset));
         return Size;

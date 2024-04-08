@@ -119,6 +119,7 @@ internal class ReaderDirectory : File, IVfsDirectory<ReaderDirEntry, File>
             {
                 return r;
             }
+
             if (anyVerMatch && toComp.AsSpan().StartsWith(normName, StringComparison.CurrentCultureIgnoreCase))
             {
                 return r;

@@ -147,7 +147,10 @@ internal class BiosParameterBlock
             RawMftRecordSize = bytes[0x40],
             SectorsPerCluster = DecodeSingleByteSize(bytes[0x0D])
         };
-        if (!bpb.IsValid(long.MaxValue)) return bpb;
+        if (!bpb.IsValid(long.MaxValue))
+        {
+            return bpb;
+        }
 
         bpb.ReservedSectors = EndianUtilities.ToUInt16LittleEndian(bytes.Slice(0x0E));
         bpb.NumFats = bytes[0x10];
@@ -290,6 +293,7 @@ internal class BiosParameterBlock
         {
             return (byte)(size / BytesPerCluster);
         }
+
         sbyte val = 0;
         while (size != 1)
         {

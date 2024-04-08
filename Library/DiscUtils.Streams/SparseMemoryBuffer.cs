@@ -107,6 +107,7 @@ public sealed class SparseMemoryBuffer : Buffer
             {
                 return buffer[0];
             }
+
             return 0;
         }
 

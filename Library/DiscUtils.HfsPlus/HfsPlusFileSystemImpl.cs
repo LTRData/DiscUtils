@@ -107,10 +107,12 @@ internal sealed class HfsPlusFileSystemImpl : VfsFileSystem<DirEntry, File, Dire
         {
             return new Directory(Context, dirEntry.NodeId, dirEntry.CatalogFileInfo);
         }
+
         if (dirEntry.IsSymlink)
         {
             return new Symlink(Context, dirEntry.NodeId, dirEntry.CatalogFileInfo);
         }
+
         return new File(Context, dirEntry.NodeId, dirEntry.CatalogFileInfo);
     }
 

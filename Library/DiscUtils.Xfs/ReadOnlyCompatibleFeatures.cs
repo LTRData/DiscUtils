@@ -20,10 +20,10 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-namespace DiscUtils.Xfs;
 
 using System;
 
+namespace DiscUtils.Xfs;
 /// <summary>
 /// Feature flags for features backwards compatible with read-only mounting.
 /// </summary>

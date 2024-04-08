@@ -23,10 +23,9 @@
 
 using System.IO;
 
-namespace DiscUtils.Xfs;
-
 using System;
 
+namespace DiscUtils.Xfs;
 internal class BTreeInodeLeaf : BtreeHeader
 {
     public BTreeInodeRecord[] Records { get; private set; }
@@ -42,7 +41,10 @@ internal class BTreeInodeLeaf : BtreeHeader
         base.ReadFrom(buffer);
         var offset = base.Size;
         if (Level != 0)
+        {
             throw new IOException("invalid B+tree level - expected 1");
+        }
+
         Records = new BTreeInodeRecord[NumberOfRecords];
         for (var i = 0; i < NumberOfRecords; i++)
         {
@@ -50,6 +52,7 @@ internal class BTreeInodeLeaf : BtreeHeader
             offset += rec.ReadFrom(buffer.Slice(offset));
             Records[i] = rec;
         }
+
         return Size;
     }
 

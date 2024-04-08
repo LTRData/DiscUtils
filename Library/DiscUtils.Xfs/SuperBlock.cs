@@ -22,11 +22,11 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-namespace DiscUtils.Xfs;
 
 using DiscUtils.Streams;
 using System;
 
+namespace DiscUtils.Xfs;
 internal class SuperBlock : IByteArraySerializable
 {
     public const uint XfsMagic = 0x58465342;
@@ -336,6 +336,7 @@ internal class SuperBlock : IByteArraySerializable
             {
                 return 264;
             }
+
             return 208;
         }
     }
@@ -362,7 +363,10 @@ internal class SuperBlock : IByteArraySerializable
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         Magic = EndianUtilities.ToUInt32BigEndian(buffer);
-        if (Magic != XfsMagic) return Size;
+        if (Magic != XfsMagic)
+        {
+            return Size;
+        }
 
         Blocksize = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x4));
         DataBlocks = EndianUtilities.ToUInt64BigEndian(buffer.Slice(0x8));
@@ -422,7 +426,9 @@ internal class SuperBlock : IByteArraySerializable
             Lsn = EndianUtilities.ToInt64BigEndian(buffer.Slice(0xF0));
             MetaUuid = EndianUtilities.ToGuidBigEndian(buffer.Slice(0xF8));
             if ((IncompatibleFeatures & IncompatibleFeatures.Supported)!= IncompatibleFeatures.Supported)
+            {
                 throw new NotSupportedException("XFS Features not supported");
+            }
         }
         
         var agOffset = AgBlocksLog2 + InodesPerBlockLog2;
@@ -445,7 +451,10 @@ internal class SuperBlock : IByteArraySerializable
         Span<uint> limits = stackalloc uint[] {xfs_rmapbt_maxrecs(false), xfs_rmapbt_maxrecs(true)};
         ulong maxblocks = (len + limits[0] - 1) / limits[0];
         for (level = 1; maxblocks > 1; level++)
+        {
             maxblocks = (maxblocks + limits[1] - 1) / limits[1];
+        }
+
         return level;
     }
 
@@ -453,7 +462,10 @@ internal class SuperBlock : IByteArraySerializable
     {
         var blocklen = Blocksize - 56;
         if (leaf)
+        {
             return blocklen/24;
+        }
+
         return blocklen/(2*20 + 4);
     }
 }

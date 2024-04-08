@@ -273,6 +273,7 @@ internal sealed class MonolithicSparseExtentBuilder : StreamBuilder
                 Array.Clear(block, offset, toRead);
                 return toRead;
             }
+
             _content.Position = readStart;
             return _content.Read(block, offset, toRead);
         }
@@ -296,6 +297,7 @@ internal sealed class MonolithicSparseExtentBuilder : StreamBuilder
                 Array.Clear(block, offset, toRead);
                 return new(toRead);
             }
+
             _content.Position = readStart;
             return _content.ReadAsync(block.AsMemory(offset, toRead), cancellationToken);
         }
@@ -319,6 +321,7 @@ internal sealed class MonolithicSparseExtentBuilder : StreamBuilder
                 block.Span.Slice(0, toRead).Clear();
                 return new(toRead);
             }
+
             _content.Position = readStart;
             return _content.ReadAsync(block.Slice(0, toRead), cancellationToken);
         }
@@ -342,6 +345,7 @@ internal sealed class MonolithicSparseExtentBuilder : StreamBuilder
                 block.Slice(0, toRead).Clear();
                 return toRead;
             }
+
             _content.Position = readStart;
             return _content.Read(block.Slice(0, toRead));
         }

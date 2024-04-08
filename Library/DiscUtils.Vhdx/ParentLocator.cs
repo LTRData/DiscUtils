@@ -61,6 +61,7 @@ internal sealed class ParentLocator : IByteArraySerializable
             absolutePath = $@"\\?\UNC\{absolutePath.Substring(2)}";
 #endif
         }
+
         Entries.Add("absolute_win32_path", absolutePath);
     }
 

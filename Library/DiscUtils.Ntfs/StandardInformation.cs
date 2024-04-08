@@ -67,6 +67,7 @@ internal sealed class StandardInformation : IByteArraySerializable, IDiagnosticT
             _haveExtraFields = true;
             return 0x48;
         }
+
         _haveExtraFields = false;
         return 0x30;
     }

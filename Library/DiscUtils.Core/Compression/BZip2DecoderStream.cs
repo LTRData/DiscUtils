@@ -333,11 +333,13 @@ public sealed class BZip2DecoderStream : ReadOnlyCompatibilityStream
             _calcBlockCrc = new Crc32BigEndian(Crc32Algorithm.Common);
             return blockSize;
         }
+
         if (marker == 0x177245385090)
         {
             _compoundCrc = ReadUint();
             return 0;
         }
+
         throw new InvalidDataException("Found invalid marker in stream");
     }
 

@@ -85,6 +85,7 @@ internal class File : IVfsFile
             {
                 return efe.CreationTime;
             }
+
             return LastWriteTimeUtc;
         }
 
@@ -151,8 +152,10 @@ internal class File : IVfsFile
             {
                 return new Directory(context, partition, fileEntry);
             }
+
             return new File(context, partition, fileEntry, (uint)partition.LogicalBlockSize);
         }
+
         if (rootDirTag.TagIdentifier == TagIdentifier.FileEntry)
         {
             var fileEntry = EndianUtilities.ToStruct<FileEntry>(rootDirData, 0);
@@ -160,8 +163,10 @@ internal class File : IVfsFile
             {
                 return new Directory(context, partition, fileEntry);
             }
+
             return new File(context, partition, fileEntry, (uint)partition.LogicalBlockSize);
         }
+
         throw new NotImplementedException("Only ExtendedFileEntries implemented");
     }
 }

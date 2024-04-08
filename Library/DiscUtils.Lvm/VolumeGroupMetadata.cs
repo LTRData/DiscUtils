@@ -62,21 +62,33 @@ internal class VolumeGroupMetadata : IByteArraySerializable
         {
             var location = new RawLocation();
             locationOffset += location.ReadFrom(buffer.Slice(locationOffset));
-            if (location.Offset == 0 && location.Length == 0 && location.Checksum == 0 && location.Flags == 0) break;
+            if (location.Offset == 0 && location.Length == 0 && location.Checksum == 0 && location.Flags == 0)
+            {
+                break;
+            }
+
             locations.Add(location);
         }
+
         RawLocations = locations;
         foreach (var location in RawLocations)
         {
             if ((location.Flags & RawLocationFlags.Ignored) != 0)
+            {
                 continue;
+            }
+
             var checksum = PhysicalVolume.CalcCrc(buffer.Slice((int) location.Offset, (int) location.Length));
             if (location.Checksum != checksum)
+            {
                 throw new IOException("invalid metadata checksum");
+            }
+
             Metadata = latin1Encoding.GetString(buffer.Slice((int)location.Offset, (int)location.Length));
             ParsedMetadata = Lvm.Metadata.Parse(Metadata);
             break;
         }
+
         return Size;
     }
 

@@ -48,12 +48,17 @@ internal class InternalNode:NodeHeader
     {
         var offset = base.ReadFrom(buffer);
         KeyPointers = new KeyPointer[ItemCount];
-        if (KeyPointers.Length == 0) throw new IOException("invalid InteralNode without KeyPointers");
+        if (KeyPointers.Length == 0)
+        {
+            throw new IOException("invalid InteralNode without KeyPointers");
+        }
+
         for (var i = 0; i < ItemCount; i++)
         {
             KeyPointers[i] = new KeyPointer();
             offset += KeyPointers[i].ReadFrom(buffer.Slice(offset));
         }
+
         Nodes = new NodeHeader[ItemCount];
         return Size;
     }
@@ -61,19 +66,29 @@ internal class InternalNode:NodeHeader
     public override IEnumerable<BaseItem> Find(Key key, Context context)
     {
         if (KeyPointers[0].Key.ObjectId > key.ObjectId)
+        {
             yield break;
+        }
+
         var i = 1;
         while (i < KeyPointers.Length && KeyPointers[i].Key.ObjectId < key.ObjectId)
         {
             i++;
         }
+
         for (var j = i-1; j < KeyPointers.Length; j++)
         {
             var keyPtr = KeyPointers[j];
             if (keyPtr.Key.ObjectId > key.ObjectId)
+            {
                 yield break;
+            }
+
             if (Nodes[j] == null)
+            {
                 Nodes[j] = context.ReadTree(keyPtr.BlockNumber, Level);
+            }
+
             foreach (var item in Nodes[j].Find(key, context))
             {
                 yield return item;

@@ -94,6 +94,7 @@ public class TarFile : IDisposable
                     hdr.FileName = long_path;
                     long_path = null;
                 }
+
                 _files.Add(hdr.FileName, record);
                 _fileStream.Position += ((hdr.FileLength + 511) / 512) * 512;
             }

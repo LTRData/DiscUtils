@@ -321,6 +321,7 @@ internal class DiskStream : SparseStream
         {
             throw new IOException("Attempt to move before beginning of disk");
         }
+
         _position = effectiveOffset;
         return _position;
     }

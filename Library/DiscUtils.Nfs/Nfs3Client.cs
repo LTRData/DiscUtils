@@ -81,6 +81,7 @@ internal sealed class Nfs3Client : IDisposable
             _cachedAttributes[handle] = getResult.Attributes;
             return getResult.Attributes;
         }
+
         throw new Nfs3Exception(getResult.Status);
     }
 
@@ -114,10 +115,12 @@ internal sealed class Nfs3Client : IDisposable
         {
             return result.ObjectHandle;
         }
+
         if (result.Status == Nfs3Status.NoSuchEntity)
         {
             return null;
         }
+
         throw new Nfs3Exception(result.Status);
     }
 
@@ -134,6 +137,7 @@ internal sealed class Nfs3Client : IDisposable
         {
             return result.Access;
         }
+
         throw new Nfs3Exception(result.Status);
     }
 
@@ -150,6 +154,7 @@ internal sealed class Nfs3Client : IDisposable
         {
             return result;
         }
+
         throw new Nfs3Exception(result.Status);
     }
 
@@ -163,6 +168,7 @@ internal sealed class Nfs3Client : IDisposable
         {
             return result.Count;
         }
+
         throw new Nfs3Exception(result.Status);
     }
 
@@ -176,6 +182,7 @@ internal sealed class Nfs3Client : IDisposable
         {
             return result.Count;
         }
+
         throw new Nfs3Exception(result.Status);
     }
 
@@ -188,6 +195,7 @@ internal sealed class Nfs3Client : IDisposable
             _cachedAttributes[result.FileHandle] = result.FileAttributes;
             return result.FileHandle;
         }
+
         throw new Nfs3Exception(result.Status);
     }
 
@@ -200,6 +208,7 @@ internal sealed class Nfs3Client : IDisposable
             _cachedAttributes[result.FileHandle] = result.FileAttributes;
             return result.FileHandle;
         }
+
         throw new Nfs3Exception(result.Status);
     }
 
@@ -243,8 +252,11 @@ internal sealed class Nfs3Client : IDisposable
         {
             //increase caching to at least one second to prevent multiple RPC calls for single Size calculation
             if (result.InvariantUntil > DateTime.Now.AddSeconds(-1))
+            {
                 return result;
+            }
         }
+
         var getResult = _nfsClient.FileSystemStat(handle);
         if (getResult.Status == Nfs3Status.Ok)
         {
@@ -272,6 +284,7 @@ internal sealed class Nfs3Client : IDisposable
             {
                 break;
             }
+
             if (result.Status != Nfs3Status.Ok)
             {
                 throw new Nfs3Exception(result.Status);

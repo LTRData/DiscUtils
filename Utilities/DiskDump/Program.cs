@@ -99,6 +99,7 @@ class Program : ProgramBase
             {
                 Console.WriteLine($"           GUID: {disk.Partitions.DiskGuid}");
             }
+
             Console.WriteLine();
 
             if (!_hideExtents.IsPresent)
@@ -110,6 +111,7 @@ class Program : ProgramBase
                 {
                     Console.WriteLine($"    {extent.Start:X16} - {extent.Start + extent.Length:X16}");
                 }
+
                 Console.WriteLine();
             }
 
@@ -129,6 +131,7 @@ class Program : ProgramBase
                 {
                     Console.WriteLine(e.ToString());
                 }
+
                 Console.WriteLine();
             }
 
@@ -231,6 +234,7 @@ class Program : ProgramBase
                     {
                         Console.WriteLine(e.ToString());
                     }
+
                     Console.WriteLine();
                 }
 
@@ -256,6 +260,7 @@ class Program : ProgramBase
                         {
                             Console.WriteLine($"      Unable to show boot code: {e.Message}");
                         }
+
                         Console.WriteLine();
                     }
                 }
@@ -270,6 +275,7 @@ class Program : ProgramBase
                             Console.WriteLine($"    Files ({fsi.Name})...");
                             ShowDir(fs.Root, 6);
                         }
+
                         Console.WriteLine();
                     }
                 }
@@ -292,6 +298,7 @@ class Program : ProgramBase
                     foundDynDisk = true;
                 }
             }
+
             if (foundDynDisk)
             {
                 Console.WriteLine();
@@ -329,6 +336,7 @@ class Program : ProgramBase
         {
             ShowDir(subDir, indent + 0);
         }
+
         foreach (var file in dirInfo.GetFiles())
         {
             Console.WriteLine($"{indentStr}{CleanName(file.FullName),-50} [{file.CreationTimeUtc}]");

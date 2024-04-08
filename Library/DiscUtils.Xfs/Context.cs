@@ -21,11 +21,11 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-namespace DiscUtils.Xfs;
 
 using System.IO;
 using DiscUtils.Vfs;
 
+namespace DiscUtils.Xfs;
 internal class Context : VfsContext
 {
     public Stream RawStream { get; set; }
@@ -42,7 +42,10 @@ internal class Context : VfsContext
         var group = AllocationGroups[inode.AllocationGroup];
         group.LoadInode(ref inode);
         if (inode.Magic != Inode.InodeMagic)
+        {
             throw new IOException("invalid inode magic");
+        }
+
         return inode;
     }
 }

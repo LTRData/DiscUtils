@@ -1,10 +1,9 @@
 ﻿using System;
 using System.IO;
 
+using DiscUtils.Streams;
+
 namespace DiscUtils.VirtualFileSystem;
-
-using Streams;
-
 public sealed class VirtualFileSystemFile : VirtualFileSystemDirectoryEntry
 {
     public override FileAttributes Attributes
@@ -27,13 +26,7 @@ public sealed class VirtualFileSystemFile : VirtualFileSystemDirectoryEntry
 
     public SparseStream Open(FileMode mode, FileAccess access)
     {
-        var stream = OpenFunc?.Invoke(mode, access);
-
-        if (stream == null)
-        {
-            throw new NotSupportedException($"File '{FullPath}' cannot be opened");
-        }
-
+        var stream = (OpenFunc?.Invoke(mode, access)) ?? throw new NotSupportedException($"File '{FullPath}' cannot be opened");
         Length = stream.Length;
 
         if (stream is not SparseStream sparse)

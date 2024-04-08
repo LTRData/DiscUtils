@@ -53,6 +53,7 @@ public sealed class ClusterMap
         {
             return ClusterRoles.None;
         }
+
         return _clusterToRole[cluster];
     }
 
@@ -67,6 +68,7 @@ public sealed class ClusterMap
         {
             return fileId;
         }
+
         return null;
     }
 
@@ -84,6 +86,7 @@ public sealed class ClusterMap
         {
             return FileIdToPaths(fileId);
         }
+
         return Array.Empty<string>();
     }
 
@@ -100,6 +103,7 @@ public sealed class ClusterMap
         {
             return paths;
         }
+
         return Array.Empty<string>();
     }
 }

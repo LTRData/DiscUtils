@@ -84,7 +84,10 @@ internal class SuperBlock : IByteArraySerializable
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         Magic = EndianUtilities.ToUInt32LittleEndian(buffer);
-        if (Magic != SquashFsMagic) return Size;
+        if (Magic != SquashFsMagic)
+        {
+            return Size;
+        }
 
         InodesCount = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(4));
         CreationTime = DateTimeOffset.FromUnixTimeSeconds(EndianUtilities.ToUInt32LittleEndian(buffer.Slice(8))).DateTime;

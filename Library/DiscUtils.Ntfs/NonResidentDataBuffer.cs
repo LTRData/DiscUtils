@@ -104,6 +104,7 @@ internal class NonResidentDataBuffer : Buffer, IMappedBuffer
         {
             return -1;
         }
+
         return _cookedRuns[dataRunIdx].StartLcn * _bytesPerCluster +
                (pos - _cookedRuns[dataRunIdx].StartVcn * _bytesPerCluster);
     }

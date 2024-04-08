@@ -58,6 +58,7 @@ public class InitializeVirtualDiskCommand : PSCmdlet
             diskObject = InputObject;
             disk = diskObject.BaseObject as VirtualDisk;
         }
+
         if (disk == null && string.IsNullOrEmpty(LiteralPath))
         {
             WriteError(new ErrorRecord(

@@ -219,6 +219,7 @@ class Program : ProgramBase
                 }
             }
         }
+
         var contentStream = contentBuilder.Build() as SparseStream;
 
         // Write out the disk images

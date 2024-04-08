@@ -177,10 +177,12 @@ public abstract class VirtualDisk :
             {
                 return null;
             }
+
             if (tables.Count == 1)
             {
                 return tables[0];
             }
+
             PartitionTable best = null;
             var bestScore = -1;
             for (var i = 0; i < tables.Count; ++i)

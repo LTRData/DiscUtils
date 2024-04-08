@@ -44,11 +44,17 @@ public sealed class SwapFileSystem : VfsReadOnlyFileSystem<VfsDirEntry, IVfsFile
         {
             Header = ReadSwapHeader(stream)
         };
-        if (Context.Header == null) throw new IOException("Swap Header missing");
+        if (Context.Header == null)
+        {
+            throw new IOException("Swap Header missing");
+        }
+
         if (Context.Header.Magic != SwapHeader.Magic1 && Context.Header.Magic != SwapHeader.Magic2)
+        {
             throw new IOException("Invalid Swap header");
+        }
     }
-    
+
     /// <summary>
     /// Gets the friendly name for the file system.
     /// </summary>
@@ -85,6 +91,7 @@ public sealed class SwapFileSystem : VfsReadOnlyFileSystem<VfsDirEntry, IVfsFile
         {
             return null;
         }
+
         stream.Position = 0;
         var header = stream.ReadStruct<SwapHeader>(SwapHeader.PageSize);
         return header;

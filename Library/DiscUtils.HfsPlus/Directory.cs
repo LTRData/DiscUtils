@@ -53,6 +53,7 @@ internal sealed class Directory : File, IVfsDirectory<DirEntry, File>
 
                                return 0;
                            }
+
                            return key.NodeId < NodeId ? -1 : 1;
                        });
             }

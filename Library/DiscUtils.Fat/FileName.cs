@@ -351,6 +351,7 @@ internal sealed class FileName : IEquatable<FileName>
         {
             search_name += '.';
         }
+
         return filter(search_name);
     }
 

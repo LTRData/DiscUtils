@@ -1,12 +1,11 @@
 ﻿using System;
 
-namespace DiscUtils.VirtualFileSystem;
-
 using DiscUtils;
 using DiscUtils.Archives;
 using DiscUtils.Internal;
 using System.IO;
 
+namespace DiscUtils.VirtualFileSystem;
 public class TarFileSystemBuilder : TarFileBuilder, IFileSystemBuilder
 {
     public string VolumeIdentifier { get; set; }

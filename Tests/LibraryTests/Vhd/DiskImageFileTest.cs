@@ -46,6 +46,7 @@ namespace LibraryTests.Vhd
                 Assert.True(diffFile.IsSparse);
                 Assert.NotEqual(diffFile.CreationTimestamp, new DateTime(2007, 12, 31));
             }
+
             Assert.True(1 * 1024 * 1024 > diffStream.Length);
         }
 

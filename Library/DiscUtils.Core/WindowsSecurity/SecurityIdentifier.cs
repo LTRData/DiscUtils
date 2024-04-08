@@ -102,6 +102,7 @@ public sealed class SecurityIdentifier : IdentityReference, IComparable<Security
         {
             throw new InvalidOperationException("Too many subauthorities.");
         }
+
         EndianUtilities.WriteBytesLittleEndian(rid, newBinary.Slice(newBinary.Length - 4));
         return new(newBinary);
     }

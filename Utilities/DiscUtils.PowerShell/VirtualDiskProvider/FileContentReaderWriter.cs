@@ -170,6 +170,7 @@ internal sealed class FileContentReaderWriter : IContentWriter, IContentReader
                             foundExtended = true;
                         }
                     }
+
                     _writer = new StreamWriter(_contentStream, GetEncoding(foundExtended ? Encoding.Unicode : Encoding.ASCII));
                 }
 

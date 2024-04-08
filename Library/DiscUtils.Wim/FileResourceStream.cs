@@ -236,8 +236,10 @@ internal class FileResourceStream : SparseStream.ReadOnlySparseStream
             {
                 return new LzxStream(rawChunkStream, 15, E8DecodeFileSize);
             }
+
             return new XpressStream(rawChunkStream, targetUncompressed);
         }
+
         return rawChunkStream;
     }
 }

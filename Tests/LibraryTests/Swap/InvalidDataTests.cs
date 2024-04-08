@@ -13,6 +13,7 @@ namespace LibraryTests.Swap
             {
                 buffer[0x41c + i] = 1;
             }
+
             var header = new SwapHeader();
             header.ReadFrom(buffer);
         }

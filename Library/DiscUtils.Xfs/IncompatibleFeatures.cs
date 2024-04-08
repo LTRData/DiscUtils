@@ -20,10 +20,10 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-namespace DiscUtils.Xfs;
 
 using System;
 
+namespace DiscUtils.Xfs;
 /// <summary>
 /// Read-write incompatible feature flags.
 /// </summary>

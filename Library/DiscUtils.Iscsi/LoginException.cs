@@ -22,11 +22,10 @@
 
 using System;
 
-namespace DiscUtils.Iscsi;
-
 using System.Runtime.Serialization;
 using System.Security.Permissions;
 
+namespace DiscUtils.Iscsi;
 /// <summary>
 /// Exception thrown when an authentication exception occurs.
 /// </summary>

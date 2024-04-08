@@ -88,7 +88,9 @@ internal class DirEntry : VfsDirEntry
             var result = Utilities.FileAttributesFromUnixFileType(unixFileType);
 
             if (_inode != null && (_inode.Flags & InodeFlag.Readonly) == InodeFlag.Readonly)
+            {
                 result |= FileAttributes.ReadOnly;
+            }
 
             return result;
         }

@@ -191,6 +191,7 @@ class Program : ProgramBase
                         {
                             _uniqueFiles[sourceFileId] = dir;
                         }
+
                         CopyFiles(sourceNtfs, destNtfs, dir, subs);
                     }
 

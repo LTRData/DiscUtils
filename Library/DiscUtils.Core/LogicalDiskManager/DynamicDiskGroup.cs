@@ -156,6 +156,7 @@ internal class DynamicDiskGroup : IDiagnosticTraceable
         {
             return 1;
         }
+
         if (x.OffsetInVolumeLba < y.OffsetInVolumeLba)
         {
             return -1;
@@ -170,6 +171,7 @@ internal class DynamicDiskGroup : IDiagnosticTraceable
         {
             return 1;
         }
+
         if (x.InterleaveOrder < y.InterleaveOrder)
         {
             return -1;
@@ -206,10 +208,12 @@ internal class DynamicDiskGroup : IDiagnosticTraceable
         {
             return LogicalVolumeStatus.Failed;
         }
+
         if (numOK == volume.ComponentCount)
         {
             return worst;
         }
+
         return LogicalVolumeStatus.FailedRedundancy;
     }
 
@@ -268,6 +272,7 @@ internal class DynamicDiskGroup : IDiagnosticTraceable
 
             return new ConcatStream(Ownership.Dispose, streams);
         }
+
         if (component.MergeType == ExtentMergeType.Interleaved)
         {
             var extents = new List<ExtentRecord>(_database.GetComponentExtents(component.Id));
@@ -281,6 +286,7 @@ internal class DynamicDiskGroup : IDiagnosticTraceable
 
             return new StripedStream(component.StripeSizeSectors * Sizes.Sector, Ownership.Dispose, streams);
         }
+
         throw new NotImplementedException($"Unknown component mode: {component.MergeType}");
     }
 
@@ -299,10 +305,12 @@ internal class DynamicDiskGroup : IDiagnosticTraceable
         {
             throw new IOException("Volume with no associated or healthy components");
         }
+
         if (cmpntStreams.Count == 1)
         {
             return cmpntStreams[0];
         }
+
         return new MirrorStream(Ownership.Dispose, cmpntStreams);
     }
 }

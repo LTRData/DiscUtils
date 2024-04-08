@@ -89,7 +89,10 @@ internal class Key : IByteArraySerializable
     public override string ToString()
     {
         if (Enum.IsDefined(typeof(ReservedObjectId), ObjectId))
+        {
             return $"{ReservedObjectId}|{ItemType}|{Offset}";
+        }
+
         return $"{ObjectId}|{ItemType}|{Offset}";
     }
 }

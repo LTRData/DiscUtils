@@ -74,14 +74,17 @@ public sealed class TracingStream : CompatibilityStream
             {
                 _wrapped.Dispose();
             }
+
             _wrapped = null;
 
             if (_fileOut != null)
             {
                 _fileOut.Dispose();
             }
+
             _fileOut = null;
         }
+
         base.Dispose(disposing);
     }
 
@@ -247,6 +250,7 @@ public sealed class TracingStream : CompatibilityStream
             {
                 CreateAndAddRecord("READ", position, count, result);
             }
+
             return result;
         }
         catch (Exception e)
@@ -255,6 +259,7 @@ public sealed class TracingStream : CompatibilityStream
             {
                 CreateAndAddRecord("READ", position, count, e);
             }
+
             throw;
         }
     }
@@ -274,6 +279,7 @@ public sealed class TracingStream : CompatibilityStream
             {
                 CreateAndAddRecord("READ", position, buffer.Length, result);
             }
+
             return result;
         }
         catch (Exception e)
@@ -282,6 +288,7 @@ public sealed class TracingStream : CompatibilityStream
             {
                 CreateAndAddRecord("READ", position, buffer.Length, e);
             }
+
             throw;
         }
     }
@@ -302,6 +309,7 @@ public sealed class TracingStream : CompatibilityStream
             {
                 CreateAndAddRecord("READ", position, buffer.Length, result);
             }
+
             return result;
         }
         catch (Exception e)
@@ -310,6 +318,7 @@ public sealed class TracingStream : CompatibilityStream
             {
                 CreateAndAddRecord("READ", position, buffer.Length, e);
             }
+
             throw;
         }
     }
@@ -329,6 +338,7 @@ public sealed class TracingStream : CompatibilityStream
             {
                 CreateAndAddRecord("READ", position, count, result);
             }
+
             return result;
         }
         catch (Exception e)
@@ -337,6 +347,7 @@ public sealed class TracingStream : CompatibilityStream
             {
                 CreateAndAddRecord("READ", position, count, e);
             }
+
             throw;
         }
     }
@@ -384,6 +395,7 @@ public sealed class TracingStream : CompatibilityStream
             {
                 CreateAndAddRecord("WRITE", position, count, e);
             }
+
             throw;
         }
     }
@@ -409,6 +421,7 @@ public sealed class TracingStream : CompatibilityStream
             {
                 CreateAndAddRecord("WRITE", position, buffer.Length, e);
             }
+
             throw;
         }
     }
@@ -435,6 +448,7 @@ public sealed class TracingStream : CompatibilityStream
             {
                 CreateAndAddRecord("WRITE", position, buffer.Length, e);
             }
+
             throw;
         }
     }
@@ -474,12 +488,15 @@ public sealed class TracingStream : CompatibilityStream
             {
                 _fileOut.Write(trace.ToString());
             }
+
             if (ex != null)
             {
                 _fileOut.WriteLine(ex);
             }
+
             _fileOut.Flush();
         }
+
         return record;
     }
 }

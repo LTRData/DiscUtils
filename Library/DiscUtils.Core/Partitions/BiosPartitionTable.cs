@@ -652,11 +652,13 @@ public sealed class BiosPartitionTable : PartitionTable
                 {
                     return BiosPartitionTypes.Fat16;
                 }
+
                 if (size < 1023 * (long)254 * 63 * 512)
                 {
                     // Max BIOS size
                     return BiosPartitionTypes.Fat32;
                 }
+
                 return BiosPartitionTypes.Fat32Lba;
 
             case WellKnownPartitionType.WindowsNtfs:
@@ -781,6 +783,7 @@ public sealed class BiosPartitionTable : PartitionTable
             {
                 break;
             }
+
             startCylinder = existingEnd + 1;
         }
 

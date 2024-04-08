@@ -497,6 +497,7 @@ public sealed class GuidPartitionTable : PartitionTable
             {
                 break;
             }
+
             startSector = MathUtilities.RoundUp(entry.LastUsedLogicalBlock + 1, alignmentSectors);
         }
 
@@ -630,6 +631,7 @@ public sealed class GuidPartitionTable : PartitionTable
         {
             return position * _primaryHeader.PartitionEntrySize;
         }
+
         throw new IOException($"No such partition: {index}");
     }
 
@@ -646,6 +648,7 @@ public sealed class GuidPartitionTable : PartitionTable
             {
                 return index;
             }
+
             if (entry.PartitionType != Guid.Empty)
             {
                 index++;

@@ -71,6 +71,7 @@ internal sealed class DiskExtent : VirtualDiskExtent
             {
                 return _monolithicStream.Length;
             }
+
             using var s = _fileLocator.Open(_descriptor.FileName, FileMode.Open, FileAccess.Read,
                     FileShare.Read);
             return s.Length;
@@ -110,6 +111,7 @@ internal sealed class DiskExtent : VirtualDiskExtent
                 parent,
                 ownsParent);
         }
+
         return _descriptor.Type switch
         {
             ExtentType.Flat or ExtentType.Vmfs => MappedStream.FromStream(

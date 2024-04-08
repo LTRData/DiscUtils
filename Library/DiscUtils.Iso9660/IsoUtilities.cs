@@ -246,6 +246,7 @@ internal static class IsoUtilities
         {
             return true;
         }
+
         return IsValidDString(str);
     }
 
@@ -464,10 +465,12 @@ internal static class IsoUtilities
         {
             return minVal;
         }
+
         if (val > maxVal)
         {
             return maxVal;
         }
+
         return val;
     }
 }

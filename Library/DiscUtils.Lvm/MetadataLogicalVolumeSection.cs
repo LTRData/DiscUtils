@@ -53,7 +53,11 @@ internal class MetadataLogicalVolumeSection
         
         while ((line = Metadata.ReadLine(data)) != null)
         {
-            if (line == "") continue;
+            if (line == "")
+            {
+                continue;
+            }
+
             if (line.AsSpan().Contains("=".AsSpan(), StringComparison.Ordinal))
             {
                 var parameter = Metadata.ParseParameter(line.AsMemory());
@@ -83,6 +87,7 @@ internal class MetadataLogicalVolumeSection
                                 _ => throw new InvalidOperationException("Unexpected status in physical volume metadata"),
                             };
                         }
+
                         break;
                     case "flags":
                         Flags = Metadata.ParseArrayValue(parameter.Value.Span);
@@ -115,6 +120,7 @@ internal class MetadataLogicalVolumeSection
                 throw new ArgumentOutOfRangeException(line, "unexpected input");
             }
         }
+
         Segments = segments;
     }
 
@@ -127,6 +133,7 @@ internal class MetadataLogicalVolumeSection
             {
                 length += (long) segment.ExtentCount;
             }
+
             return length;
         }
     }
@@ -141,15 +148,21 @@ internal class MetadataLogicalVolumeSection
     private ConcatStream Open()
     {
         if ((Status & LogicalVolumeStatus.Read) == 0)
+        {
             throw new IOException("volume is not readable");
+        }
 
         var segments = new List<MetadataSegmentSection>();
         foreach (var segment in Segments)
         {
             if (segment.Type != SegmentType.Striped)
+            {
                 throw new IOException("unsupported segment type");
+            }
+
             segments.Add(segment);
         }
+
         segments.Sort(CompareSegments);
 
         // Sanity Check...
@@ -169,6 +182,7 @@ internal class MetadataLogicalVolumeSection
         {
             streams.Add(OpenSegment(segment));
         }
+
         return new ConcatStream(Ownership.Dispose, streams);
     }
 
@@ -178,15 +192,18 @@ internal class MetadataLogicalVolumeSection
         {
             throw new IOException("invalid number of stripes");
         }
+
         var stripe = segment.Stripes[0];
         if (!_pvs.TryGetValue(stripe.PhysicalVolumeName, out var pv))
         {
             throw new IOException("missing pv");
         }
+
         if (pv.PvHeader.DiskAreas.Count != 1)
         {
             throw new IOException("invalid number od pv data areas");
         }
+
         var dataArea = pv.PvHeader.DiskAreas[0];
         var start = dataArea.Offset + (stripe.StartExtentNumber*_extentSize*PhysicalVolume.SECTOR_SIZE);
         var length = segment.ExtentCount*_extentSize*PhysicalVolume.SECTOR_SIZE;
@@ -203,6 +220,7 @@ internal class MetadataLogicalVolumeSection
         {
             return -1;
         }
+
         return 0;
     }
 }

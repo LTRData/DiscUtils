@@ -645,6 +645,7 @@ internal class File
         {
             return "?????";
         }
+
         return bestName;
     }
 
@@ -831,6 +832,7 @@ internal class File
             rng.NextBytes(buffer);
             return MemoryMarshal.Read<Guid>(buffer);
         }
+
         return Guid.NewGuid();
     }
 

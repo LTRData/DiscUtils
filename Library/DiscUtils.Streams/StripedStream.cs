@@ -215,6 +215,7 @@ public class StripedStream : SparseStream
         {
             throw new IOException("Attempt to move before beginning of stream");
         }
+
         _position = effectiveOffset;
         return _position;
     }

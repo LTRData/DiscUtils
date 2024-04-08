@@ -90,10 +90,12 @@ internal struct IndexRoot : IByteArraySerializable, IDiagnosticTraceable
             {
                 return 0;
             }
+
             if (y == null)
             {
                 return -1;
             }
+
             if (x == null)
             {
                 return 1;
@@ -106,6 +108,7 @@ internal struct IndexRoot : IByteArraySerializable, IDiagnosticTraceable
             {
                 return -1;
             }
+
             if (xHash > yHash)
             {
                 return 1;
@@ -117,10 +120,12 @@ internal struct IndexRoot : IByteArraySerializable, IDiagnosticTraceable
             {
                 return -1;
             }
+
             if (xId > yId)
             {
                 return 1;
             }
+
             return 0;
         }
     }
@@ -133,10 +138,12 @@ internal struct IndexRoot : IByteArraySerializable, IDiagnosticTraceable
             {
                 return 0;
             }
+
             if (y == null)
             {
                 return -1;
             }
+
             if (x == null)
             {
                 return 1;
@@ -149,6 +156,7 @@ internal struct IndexRoot : IByteArraySerializable, IDiagnosticTraceable
             {
                 return -1;
             }
+
             if (xVal > yVal)
             {
                 return 1;
@@ -186,6 +194,7 @@ internal struct IndexRoot : IByteArraySerializable, IDiagnosticTraceable
                 {
                     return -1;
                 }
+
                 if (xVal > yVal)
                 {
                     return 1;
@@ -211,10 +220,12 @@ internal struct IndexRoot : IByteArraySerializable, IDiagnosticTraceable
             {
                 return 0;
             }
+
             if (y == null)
             {
                 return -1;
             }
+
             if (x == null)
             {
                 return 1;
@@ -235,10 +246,12 @@ internal struct IndexRoot : IByteArraySerializable, IDiagnosticTraceable
             {
                 return 0;
             }
+
             if (y == null)
             {
                 return -1;
             }
+
             if (x == null)
             {
                 return 1;
@@ -258,6 +271,7 @@ internal struct IndexRoot : IByteArraySerializable, IDiagnosticTraceable
             {
                 return -1;
             }
+
             if (x.Length > y.Length)
             {
                 return 1;

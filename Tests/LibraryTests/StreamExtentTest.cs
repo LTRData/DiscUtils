@@ -253,10 +253,12 @@ namespace LibraryTests
                 {
                     str += $"{eList[i]},";
                 }
+
                 if (eList.Count > 4)
                 {
                     str += "...";
                 }
+
                 str += ">)";
 
                 str += $", actual {aList.Count}(<";
@@ -264,10 +266,12 @@ namespace LibraryTests
                 {
                     str += $"{aList[i]},";
                 }
+
                 if (aList.Count > 4)
                 {
                     str += "...";
                 }
+
                 str += ">)";
 
                 if (failedIndex != -1)

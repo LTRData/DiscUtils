@@ -112,6 +112,7 @@ public abstract class SparseStream : CompatibilityStream
         {
             return toWrap;
         }
+
         return new SparseReadOnlyWrapperStream(toWrap, ownership);
     }
 
@@ -285,10 +286,12 @@ public abstract class SparseStream : CompatibilityStream
                 {
                     return _extents;
                 }
+
                 if (_wrapped is SparseStream wrappedAsSparse)
                 {
                     return wrappedAsSparse.Extents;
                 }
+
                 return SingleValueEnumerable.Get(new StreamExtent(0, _wrapped.Length));
             }
         }

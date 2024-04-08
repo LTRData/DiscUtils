@@ -67,6 +67,7 @@ namespace LibraryTests.Vdi
                 {
                     Assert.Equal(0, buffer[i]);
                 }
+
                 for (var i = 10; i < 60; ++i)
                 {
                     Assert.Equal(i, buffer[i]);
@@ -85,6 +86,7 @@ namespace LibraryTests.Vdi
                 {
                     Assert.Equal(0, buffer[i]);
                 }
+
                 for (var i = 10; i < 20; ++i)
                 {
                     Assert.Equal(i, buffer[i]);

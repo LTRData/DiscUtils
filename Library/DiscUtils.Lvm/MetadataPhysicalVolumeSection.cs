@@ -20,12 +20,12 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-namespace DiscUtils.Lvm;
 
 using LTRData.Extensions.Buffers;
 using System;
 using System.IO;
 
+namespace DiscUtils.Lvm;
 internal class MetadataPhysicalVolumeSection
 {
     public string Name;
@@ -43,7 +43,11 @@ internal class MetadataPhysicalVolumeSection
         string line;
         while ((line = Metadata.ReadLine(data)) != null)
         {
-            if (line == String.Empty) continue;
+            if (line == String.Empty)
+            {
+                continue;
+            }
+
             if (line.AsSpan().Contains("=".AsSpan(), StringComparison.Ordinal))
             {
                 var parameter = Metadata.ParseParameter(line.AsMemory());
@@ -67,6 +71,7 @@ internal class MetadataPhysicalVolumeSection
                                 _ => throw new InvalidOperationException("Unexpected status in physical volume metadata"),
                             };
                         }
+
                         break;
                     case "flags":
                         Flags = Metadata.ParseArrayValue(parameter.Value.Span);

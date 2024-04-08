@@ -20,10 +20,10 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-namespace DiscUtils.Lvm;
 
 using System;
 
+namespace DiscUtils.Lvm;
 internal class MetadataStripe
 {
     public string PhysicalVolumeName;
@@ -33,7 +33,10 @@ internal class MetadataStripe
     {
         var parts = line.Split(',');
         if (parts.Length != 2)
+        {
             throw new ArgumentException("invalid stripe format", line);
+        }
+
         PhysicalVolumeName = Metadata.ParseStringValue(parts[0].AsSpan());
         StartExtentNumber = Metadata.ParseNumericValue(parts[1].AsSpan());
     }

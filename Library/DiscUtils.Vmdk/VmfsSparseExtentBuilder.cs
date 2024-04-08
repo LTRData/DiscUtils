@@ -204,6 +204,7 @@ internal sealed class VmfsSparseExtentBuilder : StreamBuilder
                 _grainTableStream.Position = relOffset;
                 return _grainTableStream.Read(block, offset, count);
             }
+
             var grainSize = _header.GrainSize * Sizes.Sector;
             var grainIdx = (int)((relOffset - _grainTableStream.Length) / grainSize);
             var grainOffset = relOffset - _grainTableStream.Length - grainIdx * grainSize;
@@ -224,6 +225,7 @@ internal sealed class VmfsSparseExtentBuilder : StreamBuilder
                 _grainTableStream.Position = relOffset;
                 return _grainTableStream.Read(block);
             }
+
             var grainSize = _header.GrainSize * Sizes.Sector;
             var grainIdx = (int)((relOffset - _grainTableStream.Length) / grainSize);
             var grainOffset = relOffset - _grainTableStream.Length - grainIdx * grainSize;

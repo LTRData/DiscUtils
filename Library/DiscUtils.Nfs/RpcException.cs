@@ -23,11 +23,10 @@
 using System;
 using System.IO;
 
-namespace DiscUtils.Nfs;
-
 using System.Runtime.Serialization;
 using System.Security.Permissions;
 
+namespace DiscUtils.Nfs;
 /// <summary>
 /// Exception thrown when some invalid file system data is found, indicating probably corruption.
 /// </summary>
@@ -91,6 +90,7 @@ public sealed class RpcException : IOException
                     {
                         return $"RPC program version mismatch, server supports version {reply.AcceptReply.MismatchInfo.Low}";
                     }
+
                     return $"RPC program version mismatch, server supports versions {reply.AcceptReply.MismatchInfo.Low} through {reply.AcceptReply.MismatchInfo.High}";
 
                 case RpcAcceptStatus.ProcedureUnavailable:
@@ -101,6 +101,7 @@ public sealed class RpcException : IOException
                     return "RPC failure";
             }
         }
+
         if (reply.RejectedReply.Status == RpcRejectedStatus.AuthError)
         {
             return reply.RejectedReply.AuthenticationStatus switch
@@ -113,10 +114,12 @@ public sealed class RpcException : IOException
                 _ => "RPC authentication failure",
             };
         }
+
         if (reply.RejectedReply.MismatchInfo != null)
         {
             return $"RPC protocol version mismatch, server supports versions {reply.RejectedReply.MismatchInfo.Low} through {reply.RejectedReply.MismatchInfo.High}";
         }
+
         return "RPC protocol version mismatch, server didn't indicate supported versions";
     }
 }

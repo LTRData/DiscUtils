@@ -250,6 +250,7 @@ internal sealed class SubKeyHashedListCell : ListCell
         {
             return FindByHash(name, start);
         }
+
         return FindByPrefix(name, start);
     }
 

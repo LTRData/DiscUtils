@@ -20,12 +20,12 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-namespace DiscUtils.Xfs;
 
 using DiscUtils.Streams;
 using System;
 using System.Collections.Generic;
 
+namespace DiscUtils.Xfs;
 internal abstract class BTreeExtentHeader : IByteArraySerializable
 {
     public const uint BtreeMagic = 0x424d4150;

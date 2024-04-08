@@ -77,7 +77,10 @@ internal sealed class VolumeHeader : IByteArraySerializable
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         Signature = EndianUtilities.ToUInt16BigEndian(buffer);
-        if (!IsValid) return Size;
+        if (!IsValid)
+        {
+            return Size;
+        }
 
         Version = EndianUtilities.ToUInt16BigEndian(buffer.Slice(2));
         Attributes = (VolumeAttributes)EndianUtilities.ToUInt32BigEndian(buffer.Slice(4));

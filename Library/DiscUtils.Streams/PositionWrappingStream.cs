@@ -45,7 +45,10 @@ public class PositionWrappingStream : WrappingStream
         set
         {
             if (_position == value)
+            {
                 return;
+            }
+
             Seek(value, SeekOrigin.Begin);
         }
     }
@@ -56,6 +59,7 @@ public class PositionWrappingStream : WrappingStream
         {
             return base.Seek(offset, SeekOrigin.Current);
         }
+
         offset = origin switch
         {
             SeekOrigin.Begin => offset - _position,
@@ -64,15 +68,22 @@ public class PositionWrappingStream : WrappingStream
             _ => throw new ArgumentOutOfRangeException(nameof(origin), origin, null),
         };
         if (offset == 0)
+        {
             return _position;
+        }
+
         if (offset < 0)
+        {
             throw new NotSupportedException("backward seeking is not supported");
+        }
+
         var buffer = new byte[Sizes.OneKiB];
         while (offset > 0)
         {
             var read = base.Read(buffer, 0, (int)Math.Min(buffer.Length, offset));
             offset -= read;
         }
+
         return _position;
     }
 

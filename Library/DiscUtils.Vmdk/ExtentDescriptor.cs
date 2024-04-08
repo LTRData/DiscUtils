@@ -89,14 +89,17 @@ internal class ExtentDescriptor
         {
             return ExtentAccess.None;
         }
+
         if (access.Equals("RDONLY".AsSpan(), StringComparison.Ordinal))
         {
             return ExtentAccess.ReadOnly;
         }
+
         if (access.Equals("RW".AsSpan(), StringComparison.Ordinal))
         {
             return ExtentAccess.ReadWrite;
         }
+
         throw new ArgumentException("Unknown access type", nameof(access));
     }
 
@@ -117,38 +120,47 @@ internal class ExtentDescriptor
         {
             return ExtentType.Flat;
         }
+
         if (type.Equals("SPARSE".AsSpan(), StringComparison.Ordinal))
         {
             return ExtentType.Sparse;
         }
+
         if (type.Equals("ZERO".AsSpan(), StringComparison.Ordinal))
         {
             return ExtentType.Zero;
         }
+
         if (type.Equals("VMFS".AsSpan(), StringComparison.Ordinal))
         {
             return ExtentType.Vmfs;
         }
+
         if (type.Equals("VMFSSPARSE".AsSpan(), StringComparison.Ordinal))
         {
             return ExtentType.VmfsSparse;
         }
+
         if (type.Equals("VMFSRDM".AsSpan(), StringComparison.Ordinal))
         {
             return ExtentType.VmfsRdm;
         }
+
         if (type.Equals("VMFSRAW".AsSpan(), StringComparison.Ordinal))
         {
             return ExtentType.VmfsRaw;
         }
+
         if (type.Equals("SESPARSE".AsSpan(), StringComparison.Ordinal))
         {
             return ExtentType.SeSparse;
         }
+
         if (type.Equals("VSANSPARSE".AsSpan(), StringComparison.Ordinal))
         {
             return ExtentType.VsanSparse;
         }
+
         throw new ArgumentException("Unknown extent type", nameof(type));
     }
 

@@ -42,8 +42,10 @@ internal sealed class DefaultPartitionTableFactory : PartitionTableFactory
             {
                 return new GuidPartitionTable(disk);
             }
+
             return table;
         }
+
         return null;
     }
 }
