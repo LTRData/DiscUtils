@@ -78,6 +78,19 @@ namespace LibraryTests.Iso9660
         }
 
         [Fact]
+        public void Dirs()
+        {
+            var dir1 = Path.DirectorySeparatorChar + "DIR1";
+            var dir2 = Path.DirectorySeparatorChar + "DIR2";
+
+            var builder = new CDBuilder();
+            builder.AddDirectory(dir1);
+            builder.AddDirectory(dir2);
+            var fs = new CDReader(builder.Build(), true);
+            Assert.Equal(fs.GetDirectories(""), [dir1, dir2]);
+        }
+
+        [Fact]
         public void LargeDirectory()
         {
             var builder = new CDBuilder

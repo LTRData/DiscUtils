@@ -207,10 +207,10 @@ public static class Utilities
     /// <returns>The combined path.</returns>
     public static string CombinePaths(string a, string b)
     {
-#if NETCOREAPP
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP
         return Path.Combine(a, b);
 #else
-        if (string.IsNullOrEmpty(a) || (b.Length > 0 && b[0] == '\\'))
+        if (string.IsNullOrEmpty(a) || (b.Length > 0 && b[0] is '\\' or '/'))
         {
             return b;
         }
@@ -220,7 +220,7 @@ public static class Utilities
             return a;
         }
 
-        return a.TrimEnd('\\') + '\\' + b.TrimStart('\\');
+        return a.TrimEnd(PathSeparators) + Path.DirectorySeparatorChar + b.TrimStart(PathSeparators);
 #endif
     }
 

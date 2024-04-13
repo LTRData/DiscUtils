@@ -18,7 +18,7 @@
     <ProjectReference Include="..\..\Library\DiscUtils.Core\DiscUtils.Core.csproj" />
     <ProjectReference Include="..\..\Library\DiscUtils\DiscUtils.csproj" />
   </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFramework.CompareTo(`net462`))' &lt; 0">
+  <ItemGroup Condition="'$(TargetFramework.CompareTo(`net462`))' &lt; 0 Or '$(TargetFramework)' == 'netcoreapp3.1'">
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.*" />
     <PackageReference Include="System.IO.Compression" Version="4.3.*" />
     <PackageReference Include="xunit.extensibility.core" Version="2.6.*" />
@@ -28,7 +28,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFramework.CompareTo(`net462`))' &gt;= 0">
+  <ItemGroup Condition=" '$(TargetFramework.CompareTo(`net462`))' &gt;= 0 And '$(TargetFramework)' != 'netcoreapp3.1'">
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="*" />
     <PackageReference Include="System.IO.Compression" Version="*" />
     <PackageReference Include="xunit.extensibility.core" Version="*" />
