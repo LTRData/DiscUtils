@@ -24,10 +24,7 @@ namespace DiscUtils.Iscsi;
 
 internal class NullAuthenticator : Authenticator
 {
-    public override string Identifier
-    {
-        get { return "None"; }
-    }
+    public override string Identifier => "None";
 
     public override bool GetParameters(TextBuffer textBuffer)
     {

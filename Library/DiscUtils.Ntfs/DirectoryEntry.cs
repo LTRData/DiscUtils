@@ -38,10 +38,7 @@ internal readonly struct DirectoryEntry
 
     public FileNameRecord Details { get; }
 
-    public bool IsDirectory
-    {
-        get { return (Details.Flags & NtfsFileAttributes.Directory) != 0; }
-    }
+    public bool IsDirectory => (Details.Flags & NtfsFileAttributes.Directory) != 0;
 
     public FileRecordReference Reference { get; }
 

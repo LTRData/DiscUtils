@@ -63,35 +63,23 @@ public sealed class StreamBuffer : Buffer
     /// <summary>
     /// Can this buffer be read.
     /// </summary>
-    public override bool CanRead
-    {
-        get { return _stream.CanRead; }
-    }
+    public override bool CanRead => _stream.CanRead;
 
     /// <summary>
     /// Can this buffer be written.
     /// </summary>
-    public override bool CanWrite
-    {
-        get { return _stream.CanWrite; }
-    }
+    public override bool CanWrite => _stream.CanWrite;
 
     /// <summary>
     /// Gets the current capacity of the buffer, in bytes.
     /// </summary>
-    public override long Capacity
-    {
-        get { return _stream.Length; }
-    }
+    public override long Capacity => _stream.Length;
 
     /// <summary>
     /// Gets the parts of the stream that are stored.
     /// </summary>
     /// <remarks>This may be an empty enumeration if all bytes are zero.</remarks>
-    public override IEnumerable<StreamExtent> Extents
-    {
-        get { return _stream.Extents; }
-    }
+    public override IEnumerable<StreamExtent> Extents => _stream.Extents;
 
     /// <summary>
     /// Disposes of this instance.

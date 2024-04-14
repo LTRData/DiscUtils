@@ -167,18 +167,12 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
     /// <summary>
     /// Gets the active FAT (zero-based index).
     /// </summary>
-    public byte ActiveFat
-    {
-        get { return (byte)((_bpbExtFlags & 0x08) != 0 ? _bpbExtFlags & 0x7 : 0); }
-    }
+    public byte ActiveFat => (byte)((_bpbExtFlags & 0x08) != 0 ? _bpbExtFlags & 0x7 : 0);
 
     /// <summary>
     /// Gets the Sector location of the backup boot sector (FAT32 only).
     /// </summary>
-    public int BackupBootSector
-    {
-        get { return _bpbBkBootSec; }
-    }
+    public int BackupBootSector => _bpbBkBootSec;
 
     /// <summary>
     /// Gets the BIOS drive number for BIOS Int 13h calls.
@@ -188,10 +182,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
     /// <summary>
     /// Gets the number of bytes per sector (as stored in the file-system meta data).
     /// </summary>
-    public int SectorSize
-    {
-        get { return _bpbBytesPerSec; }
-    }
+    public int SectorSize => _bpbBytesPerSec;
 
     public long ClusterSize => ClusterReader.ClusterSize;
 
@@ -205,20 +196,14 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
     /// Indicates if this file system is read-only or read-write.
     /// </summary>
     /// <returns>.</returns>
-    public override bool CanWrite
-    {
-        get { return _data.CanWrite; }
-    }
+    public override bool CanWrite => _data.CanWrite;
 
     internal ClusterReader ClusterReader { get; private set; }
 
     /// <summary>
     /// Gets a value indicating whether the VolumeId, VolumeLabel and FileSystemType fields are valid.
     /// </summary>
-    public bool ExtendedBootSignaturePresent
-    {
-        get { return _bsBootSig == 0x29; }
-    }
+    public bool ExtendedBootSignaturePresent => _bsBootSig == 0x29;
 
     internal FileAllocationTable Fat { get; private set; }
 
@@ -230,18 +215,12 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
     /// <summary>
     /// Gets the FAT file system options, which can be modified.
     /// </summary>
-    public FatFileSystemOptions FatOptions
-    {
-        get { return (FatFileSystemOptions)Options; }
-    }
+    public FatFileSystemOptions FatOptions => (FatFileSystemOptions)Options;
 
     /// <summary>
     /// Gets the size of a single FAT, in sectors.
     /// </summary>
-    public long FatSize
-    {
-        get { return _bpbFATSz16 != 0 ? _bpbFATSz16 : _bpbFATSz32; }
-    }
+    public long FatSize => _bpbFATSz16 != 0 ? _bpbFATSz16 : _bpbFATSz32;
 
     /// <summary>
     /// Gets the FAT variant of the file system.
@@ -256,51 +235,33 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
     /// <summary>
     /// Gets the friendly name for the file system, including FAT variant.
     /// </summary>
-    public override string FriendlyName
+    public override string FriendlyName => FatVariant switch
     {
-        get
-        {
-            return FatVariant switch
-            {
-                FatType.Fat12 => "Microsoft FAT12",
-                FatType.Fat16 => "Microsoft FAT16",
-                FatType.Fat32 => "Microsoft FAT32",
-                _ => "Unknown FAT",
-            };
-        }
-    }
+        FatType.Fat12 => "Microsoft FAT12",
+        FatType.Fat16 => "Microsoft FAT16",
+        FatType.Fat32 => "Microsoft FAT32",
+        _ => "Unknown FAT",
+    };
 
     /// <summary>
     /// Gets the sector location of the FSINFO structure (FAT32 only).
     /// </summary>
-    public int FSInfoSector
-    {
-        get { return _bpbFSInfo; }
-    }
+    public int FSInfoSector => _bpbFSInfo;
 
     /// <summary>
     /// Gets the number of logical heads.
     /// </summary>
-    public int Heads
-    {
-        get { return _bpbNumHeads; }
-    }
+    public int Heads => _bpbNumHeads;
 
     /// <summary>
     /// Gets the number of hidden sectors, hiding partition tables, etc.
     /// </summary>
-    public long HiddenSectors
-    {
-        get { return _bpbHiddSec; }
-    }
+    public long HiddenSectors => _bpbHiddSec;
 
     /// <summary>
     /// Gets the maximum number of root directory entries (on FAT variants that have a limit).
     /// </summary>
-    public int MaxRootDirectoryEntries
-    {
-        get { return _bpbRootEntCnt; }
-    }
+    public int MaxRootDirectoryEntries => _bpbRootEntCnt;
 
     /// <summary>
     /// Gets the Media marker byte, which indicates fixed or removable media.
@@ -310,10 +271,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
     /// <summary>
     /// Gets a value indicating whether FAT changes are mirrored to all copies of the FAT.
     /// </summary>
-    public bool MirrorFat
-    {
-        get { return (_bpbExtFlags & 0x08) == 0; }
-    }
+    public bool MirrorFat => (_bpbExtFlags & 0x08) == 0;
 
     /// <summary>
     /// Gets the OEM name from the file system.
@@ -323,18 +281,12 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
     /// <summary>
     /// Gets the number of reserved sectors at the start of the disk.
     /// </summary>
-    public int ReservedSectorCount
-    {
-        get { return _bpbRsvdSecCnt; }
-    }
+    public int ReservedSectorCount => _bpbRsvdSecCnt;
 
     /// <summary>
     /// Gets the cluster number of the first cluster of the root directory (FAT32 only).
     /// </summary>
-    public long RootDirectoryCluster
-    {
-        get { return _bpbRootClus; }
-    }
+    public long RootDirectoryCluster => _bpbRootClus;
 
     /// <summary>
     /// Gets the number of contiguous sectors that make up one cluster.
@@ -344,34 +296,22 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
     /// <summary>
     /// Gets the number of sectors per logical track.
     /// </summary>
-    public int SectorsPerTrack
-    {
-        get { return _bpbSecPerTrk; }
-    }
+    public int SectorsPerTrack => _bpbSecPerTrk;
 
     /// <summary>
     /// Gets the total number of sectors on the disk.
     /// </summary>
-    public long TotalSectors
-    {
-        get { return _bpbTotSec16 != 0 ? _bpbTotSec16 : _bpbTotSec32; }
-    }
+    public long TotalSectors => _bpbTotSec16 != 0 ? _bpbTotSec16 : _bpbTotSec32;
 
     /// <summary>
     /// Gets the file-system version (usually 0).
     /// </summary>
-    public int Version
-    {
-        get { return _bpbFSVer; }
-    }
+    public int Version => _bpbFSVer;
 
     /// <summary>
     /// Gets the volume serial number.
     /// </summary>
-    public override uint VolumeId
-    {
-        get { return _bsVolId; }
-    }
+    public override uint VolumeId => _bsVolId;
 
     /// <summary>
     /// Gets the volume label.
@@ -412,7 +352,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
         }
 
         var bpbNumFATs = bytes[16];
-        if (bpbNumFATs == 0 || bpbNumFATs > 2)
+        if (bpbNumFATs is 0 or > 2)
         {
             return false;
         }
@@ -489,11 +429,8 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
             return 0;
         }
 
-        var dirEntry = GetDirectoryEntry(path);
-        if (dirEntry == null)
-        {
-            throw new FileNotFoundException("No such file", path);
-        }
+        var dirEntry = GetDirectoryEntry(path)
+            ?? throw new FileNotFoundException("No such file", path);
 
         // Luckily, FAT and .NET FileAttributes match, bit-for-bit
         return dirEntry.FirstCluster;
@@ -512,11 +449,8 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
             return FileAttributes.Directory;
         }
 
-        var dirEntry = GetDirectoryEntry(path);
-        if (dirEntry == null)
-        {
-            throw new FileNotFoundException("No such file", path);
-        }
+        var dirEntry = GetDirectoryEntry(path)
+            ?? throw new FileNotFoundException("No such file", path);
 
         // Luckily, FAT and .NET FileAttributes match, bit-for-bit
         return (FileAttributes)dirEntry.Attributes;
@@ -582,11 +516,8 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
             };
         }
 
-        var dirEntry = GetDirectoryEntry(path);
-        if (dirEntry == null)
-        {
-            throw new FileNotFoundException("No such file", path);
-        }
+        var dirEntry = GetDirectoryEntry(path)
+            ?? throw new FileNotFoundException("No such file", path);
 
         return new WindowsFileInformation
         {
@@ -611,11 +542,8 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
             throw new IOException("Root directory cannot be modified");
         }
 
-        var dirEntry = GetDirectoryEntry(path);
-        if (dirEntry == null)
-        {
-            throw new FileNotFoundException("No such file", path);
-        }
+        var dirEntry = GetDirectoryEntry(path)
+            ?? throw new FileNotFoundException("No such file", path);
 
         dirEntry.CreationTime = info.CreationTime;
         dirEntry.LastAccessTime = info.LastAccessTime;
@@ -1028,12 +956,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
                 throw new IOException("Invalid path", ae);
             }
 
-            var child = focusDir.GetChildDirectory(name);
-            if (child == null)
-            {
-                child = focusDir.CreateChildDirectory(name);
-            }
-
+            var child = focusDir.GetChildDirectory(name) ?? focusDir.CreateChildDirectory(name);
             focusDir = child;
         }
     }
@@ -1044,11 +967,8 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
     /// <param name="path">The path of the directory to delete.</param>
     public override void DeleteDirectory(string path)
     {
-        var dir = GetDirectory(path);
-        if (dir == null)
-        {
-            throw new DirectoryNotFoundException($"No such directory: {path}");
-        }
+        var dir = GetDirectory(path)
+            ?? throw new DirectoryNotFoundException($"No such directory: {path}");
 
         if (!dir.IsEmpty)
         {
@@ -1151,11 +1071,8 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
     /// <returns>Array of directories.</returns>
     public override IEnumerable<string> GetDirectories(string path)
     {
-        var dir = GetDirectory(path);
-        if (dir == null)
-        {
-            throw new DirectoryNotFoundException($"The directory '{path}' was not found");
-        }
+        var dir = GetDirectory(path)
+            ?? throw new DirectoryNotFoundException($"The directory '{path}' was not found");
 
         var entries = dir.GetDirectories();
 
@@ -1828,11 +1745,8 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
 
     private IEnumerable<string> DoSearch(string path, Func<string, bool> filter, bool subFolders, bool dirs, bool files)
     {
-        var dir = GetDirectory(path);
-        if (dir == null)
-        {
-            throw new DirectoryNotFoundException($"The directory '{path}' was not found");
-        }
+        var dir = GetDirectory(path)
+            ?? throw new DirectoryNotFoundException($"The directory '{path}' was not found");
 
         var entries = dir.Entries;
 
@@ -1878,7 +1792,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
     /// <summary>
     /// Size of the Filesystem in bytes
     /// </summary>
-    public override long Size { get { return ((TotalSectors - ReservedSectorCount - (FatSize * FatCount))*SectorSize); } }
+    public override long Size => ((TotalSectors - ReservedSectorCount - (FatSize * FatCount)) * SectorSize);
 
     /// <summary>
     /// Used space of the Filesystem in bytes
@@ -1904,7 +1818,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
     /// <summary>
     /// Available space of the Filesystem in bytes
     /// </summary>
-    public override long AvailableSpace { get { return Size - UsedSpace; } }
+    public override long AvailableSpace => Size - UsedSpace;
 
     private delegate void EntryUpdateAction(DirectoryEntry entry);
 

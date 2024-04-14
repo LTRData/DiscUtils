@@ -73,10 +73,7 @@ internal sealed class KeyNodeCell : Cell
     public KeyNodeCell(int index)
         : base(index) {}
 
-    public override int Size
-    {
-        get { return 0x4C + Name.Length; }
-    }
+    public override int Size => 0x4C + Name.Length;
 
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {

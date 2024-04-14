@@ -36,10 +36,7 @@ internal abstract class BaseTaggedDescriptor : IByteArraySerializable
         RequiredTagIdentifier = id;
     }
 
-    public int Size
-    {
-        get { return 512; }
-    }
+    public int Size => 512;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

@@ -31,10 +31,7 @@ internal class DirectoryHeader : IByteArraySerializable
     public int InodeNumber;
     public int StartBlock;
 
-    public int Size
-    {
-        get { return 12; }
-    }
+    public int Size => 12;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

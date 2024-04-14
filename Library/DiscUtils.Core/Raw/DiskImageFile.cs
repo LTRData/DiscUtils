@@ -62,20 +62,14 @@ public sealed class DiskImageFile : VirtualDiskLayer
         Geometry = geometry != default ? geometry : DetectGeometry(Content);
     }
 
-    public override long Capacity
-    {
-        get { return Content.Length; }
-    }
+    public override long Capacity => Content.Length;
 
     internal SparseStream Content { get; private set; }
 
     /// <summary>
     /// Gets the type of disk represented by this object.
     /// </summary>
-    public VirtualDiskClass DiskType
-    {
-        get { return DetectDiskType(Capacity); }
-    }
+    public VirtualDiskClass DiskType => DetectDiskType(Capacity);
 
     /// <summary>
     /// Gets the geometry of the file.
@@ -85,23 +79,14 @@ public sealed class DiskImageFile : VirtualDiskLayer
     /// <summary>
     /// Gets a value indicating if the layer only stores meaningful sectors.
     /// </summary>
-    public override bool IsSparse
-    {
-        get { return false; }
-    }
+    public override bool IsSparse => false;
 
     /// <summary>
     /// Gets a value indicating whether the file is a differencing disk.
     /// </summary>
-    public override bool NeedsParent
-    {
-        get { return false; }
-    }
+    public override bool NeedsParent => false;
 
-    public override FileLocator RelativeFileLocator
-    {
-        get { return null; }
-    }
+    public override FileLocator RelativeFileLocator => null;
 
     /// <summary>
     /// Initializes a stream as a raw disk image.
@@ -215,9 +200,9 @@ public sealed class DiskImageFile : VirtualDiskLayer
     /// <returns>The disk type.</returns>
     private static VirtualDiskClass DetectDiskType(long capacity)
     {
-        if (capacity == Sizes.Sector * 1440
-            || capacity == Sizes.Sector * 2880
-            || capacity == Sizes.Sector * 5760)
+        if (capacity is (Sizes.Sector * 1440)
+            or (Sizes.Sector * 2880)
+            or (Sizes.Sector * 5760))
         {
             return VirtualDiskClass.FloppyDisk;
         }

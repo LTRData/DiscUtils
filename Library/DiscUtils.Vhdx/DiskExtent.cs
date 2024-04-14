@@ -33,20 +33,11 @@ internal sealed class DiskExtent : VirtualDiskExtent
         _file = file;
     }
 
-    public override long Capacity
-    {
-        get { return _file.Capacity; }
-    }
+    public override long Capacity => _file.Capacity;
 
-    public override bool IsSparse
-    {
-        get { return _file.IsSparse; }
-    }
+    public override bool IsSparse => _file.IsSparse;
 
-    public override long StoredSize
-    {
-        get { return _file.StoredSize; }
-    }
+    public override long StoredSize => _file.StoredSize;
 
     public override MappedStream OpenContent(SparseStream parent, Ownership ownsParent)
     {

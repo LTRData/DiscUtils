@@ -51,10 +51,7 @@ internal sealed class FileContentReaderWriter : IContentWriter, IContentReader
 
     public void Close()
     {
-        if (_writer != null)
-        {
-            _writer.Flush();
-        }
+        _writer?.Flush();
 
         try
         {
@@ -204,20 +201,11 @@ internal sealed class FileContentReaderWriter : IContentWriter, IContentReader
 
     public void Dispose()
     {
-        if (_writer != null)
-        {
-            _writer.Dispose();
-        }
+        _writer?.Dispose();
 
-        if (_reader != null)
-        {
-            _reader.Dispose();
-        }
+        _reader?.Dispose();
 
-        if (_contentStream != null)
-        {
-            _contentStream.Dispose();
-        }
+        _contentStream?.Dispose();
     }
 
     private Encoding GetEncoding(Encoding defEncoding)

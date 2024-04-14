@@ -27,169 +27,162 @@ using DiscUtils;
 using DiscUtils.Internal;
 using DiscUtils.Streams;
 
-namespace LibraryTests
+namespace LibraryTests;
+
+/// <summary>
+/// Minimal implementation of DiscFileSystem, sufficient to support unit-testing of disk formats.
+/// </summary>
+class DiskBuilderFileSystem : DiscFileSystem
 {
-    /// <summary>
-    /// Minimal implementation of DiscFileSystem, sufficient to support unit-testing of disk formats.
-    /// </summary>
-    class DiskBuilderFileSystem : DiscFileSystem
+    private FastDictionary<DiskImageFileSpecification> _files;
+
+    public DiskBuilderFileSystem(IEnumerable<DiskImageFileSpecification> fileSpecs)
     {
-        private FastDictionary<DiskImageFileSpecification> _files;
+        _files = new(StringComparer.Ordinal, entry => entry.Name);
 
-        public DiskBuilderFileSystem(IEnumerable<DiskImageFileSpecification> fileSpecs)
+        foreach (var fileSpec in fileSpecs)
         {
-            _files = new(StringComparer.Ordinal, entry => entry.Name);
+            _files.Add(fileSpec);
+        }
+    }
 
-            foreach (var fileSpec in fileSpecs)
+    public override string FriendlyName => throw new NotImplementedException();
+
+    public override bool CanWrite => throw new NotImplementedException();
+
+    public override long Size => throw new NotImplementedException();
+
+    public override long UsedSpace => throw new NotImplementedException();
+
+    public override long AvailableSpace => throw new NotImplementedException();
+
+    public override void CopyFile(string sourceFile, string destinationFile, bool overwrite)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void CreateDirectory(string path)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void DeleteDirectory(string path)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void DeleteFile(string path)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override bool DirectoryExists(string path)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override bool FileExists(string path)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override IEnumerable<string> GetDirectories(string path, string searchPattern, SearchOption searchOption)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override IEnumerable<string> GetFiles(string path, string searchPattern, SearchOption searchOption)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override IEnumerable<string> GetFileSystemEntries(string path)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override IEnumerable<string> GetFileSystemEntries(string path, string searchPattern)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void MoveDirectory(string sourceDirectoryName, string destinationDirectoryName)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void MoveFile(string sourceName, string destinationName, bool overwrite)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override SparseStream OpenFile(string path, FileMode mode, FileAccess access)
+    {
+        if (_files.ContainsKey(path))
+        {
+            if(mode == FileMode.CreateNew)
             {
-                _files.Add(fileSpec);
+                throw new IOException("File already exists");
             }
+
+            return _files[path].OpenStream() as SparseStream;
         }
-
-        public override string FriendlyName
+        else
         {
-            get { throw new NotImplementedException(); }
+            throw new FileNotFoundException();
         }
+    }
 
-        public override bool CanWrite
+    public override FileAttributes GetAttributes(string path)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void SetAttributes(string path, FileAttributes newValue)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override DateTime GetCreationTimeUtc(string path)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void SetCreationTimeUtc(string path, DateTime newTime)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override DateTime GetLastAccessTimeUtc(string path)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void SetLastAccessTimeUtc(string path, DateTime newTime)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override DateTime GetLastWriteTimeUtc(string path)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void SetLastWriteTimeUtc(string path, DateTime newTime)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override long GetFileLength(string path)
+    {
+        if (_files.ContainsKey(path))
         {
-            get { throw new NotImplementedException(); }
+            using var s = _files[path].OpenStream();
+            return s.Length;
         }
-
-        public override long Size => throw new NotImplementedException();
-
-        public override long UsedSpace => throw new NotImplementedException();
-
-        public override long AvailableSpace => throw new NotImplementedException();
-
-        public override void CopyFile(string sourceFile, string destinationFile, bool overwrite)
+        else
         {
-            throw new NotImplementedException();
-        }
-
-        public override void CreateDirectory(string path)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void DeleteDirectory(string path)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void DeleteFile(string path)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool DirectoryExists(string path)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool FileExists(string path)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override IEnumerable<string> GetDirectories(string path, string searchPattern, SearchOption searchOption)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override IEnumerable<string> GetFiles(string path, string searchPattern, SearchOption searchOption)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override IEnumerable<string> GetFileSystemEntries(string path)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override IEnumerable<string> GetFileSystemEntries(string path, string searchPattern)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void MoveDirectory(string sourceDirectoryName, string destinationDirectoryName)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void MoveFile(string sourceName, string destinationName, bool overwrite)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override SparseStream OpenFile(string path, FileMode mode, FileAccess access)
-        {
-            if (_files.ContainsKey(path))
-            {
-                if(mode == FileMode.CreateNew)
-                {
-                    throw new IOException("File already exists");
-                }
-
-                return _files[path].OpenStream() as SparseStream;
-            }
-            else
-            {
-                throw new FileNotFoundException();
-            }
-        }
-
-        public override FileAttributes GetAttributes(string path)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void SetAttributes(string path, FileAttributes newValue)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override DateTime GetCreationTimeUtc(string path)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void SetCreationTimeUtc(string path, DateTime newTime)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override DateTime GetLastAccessTimeUtc(string path)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void SetLastAccessTimeUtc(string path, DateTime newTime)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override DateTime GetLastWriteTimeUtc(string path)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void SetLastWriteTimeUtc(string path, DateTime newTime)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override long GetFileLength(string path)
-        {
-            if (_files.ContainsKey(path))
-            {
-                using var s = _files[path].OpenStream();
-                return s.Length;
-            }
-            else
-            {
-                throw new FileNotFoundException("No such file", path);
-            }
+            throw new FileNotFoundException("No such file", path);
         }
     }
 }

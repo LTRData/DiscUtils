@@ -47,8 +47,8 @@ public sealed class AligningStream : WrappingMappedStream<SparseStream>
 
     public override long Position
     {
-        get { return _position; }
-        set { _position = value; }
+        get => _position;
+        set => _position = value;
     }
 
     public override int Read(byte[] buffer, int offset, int count)

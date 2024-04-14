@@ -48,10 +48,7 @@ public abstract class ReadOnlyDiscFileSystem : DiscFileSystem
     /// Indicates whether the file system is read-only or read-write.
     /// </summary>
     /// <returns>Always false.</returns>
-    public override bool CanWrite
-    {
-        get { return false; }
-    }
+    public override bool CanWrite => false;
 
     /// <summary>
     /// Copies a file - not supported on read-only file systems.

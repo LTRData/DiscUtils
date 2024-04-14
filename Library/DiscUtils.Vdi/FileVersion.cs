@@ -29,15 +29,9 @@ internal readonly struct FileVersion
         Value = value;
     }
 
-    public int Major
-    {
-        get { return (int)(Value >> 16); }
-    }
+    public int Major => (int)(Value >> 16);
 
-    public int Minor
-    {
-        get { return (int)(Value & 0xFFFF); }
-    }
+    public int Minor => (int)(Value & 0xFFFF);
 
     public uint Value { get; }
 }

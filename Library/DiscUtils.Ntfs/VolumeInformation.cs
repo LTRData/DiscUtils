@@ -46,15 +46,9 @@ public sealed class VolumeInformation : IByteArraySerializable, IDiagnosticTrace
 
     public VolumeInformationFlags Flags { get; private set; }
 
-    public int Version
-    {
-        get { return _majorVersion << 8 | _minorVersion; }
-    }
+    public int Version => _majorVersion << 8 | _minorVersion;
 
-    public int Size
-    {
-        get { return 0x0C; }
-    }
+    public int Size => 0x0C;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

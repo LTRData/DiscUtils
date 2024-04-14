@@ -58,22 +58,13 @@ public sealed class SwapFileSystem : VfsReadOnlyFileSystem<VfsDirEntry, IVfsFile
     /// <summary>
     /// Gets the friendly name for the file system.
     /// </summary>
-    public override string FriendlyName
-    {
-        get
-        {
-            return "Swap";
-        }
-    }
+    public override string FriendlyName => "Swap";
 
     /// <summary>
     /// Gets the volume label.
     /// </summary>
-    public override string VolumeLabel
-    {
-        get { return Context.Header.Volume; }
-    }
-    
+    public override string VolumeLabel => Context.Header.Volume;
+
     /// <summary>
     /// Detects if a stream contains a Swap file system.
     /// </summary>
@@ -100,22 +91,17 @@ public sealed class SwapFileSystem : VfsReadOnlyFileSystem<VfsDirEntry, IVfsFile
     /// <summary>
     /// Size of the Filesystem in bytes
     /// </summary>
-    public override long Size
-    {
-        get { return Context.Header.LastPage * SwapHeader.PageSize; }
-    }
+    public override long Size => Context.Header.LastPage * SwapHeader.PageSize;
 
     /// <summary>
     /// Used space of the Filesystem in bytes
     /// </summary>
-    public override long UsedSpace {
-        get { return Size; }
-    }
+    public override long UsedSpace => Size;
 
     /// <summary>
     /// Available space of the Filesystem in bytes
     /// </summary>
-    public override long AvailableSpace { get { return 0; } }
+    public override long AvailableSpace => 0;
 
     protected override IVfsFile ConvertDirEntryToFile(VfsDirEntry dirEntry)
     {

@@ -48,20 +48,11 @@ public class BuiltStream : SparseStream
         _extents.Sort(new ExtentStartComparer());
     }
 
-    public override bool CanRead
-    {
-        get { return true; }
-    }
+    public override bool CanRead => true;
 
-    public override bool CanSeek
-    {
-        get { return true; }
-    }
+    public override bool CanSeek => true;
 
-    public override bool CanWrite
-    {
-        get { return false; }
-    }
+    public override bool CanWrite => false;
 
     public override IEnumerable<StreamExtent> Extents
     {
@@ -77,15 +68,12 @@ public class BuiltStream : SparseStream
         }
     }
 
-    public override long Length
-    {
-        get { return _length; }
-    }
+    public override long Length => _length;
 
     public override long Position
     {
-        get { return _position; }
-        set { _position = value; }
+        get => _position;
+        set => _position = value;
     }
 
     public override void Flush() {}

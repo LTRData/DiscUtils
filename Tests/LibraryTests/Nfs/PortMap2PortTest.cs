@@ -24,31 +24,30 @@ using DiscUtils.Nfs;
 using System.IO;
 using Xunit;
 
-namespace LibraryTests.Nfs
+namespace LibraryTests.Nfs;
+
+public class PortMap2PortTest
 {
-    public class PortMap2PortTest
+    [Fact]
+    public void RoundTripTest()
     {
-        [Fact]
-        public void RoundTripTest()
+        var port = new PortMap2Port()
         {
-            var port = new PortMap2Port()
-            {
-                Port = 2
-            };
+            Port = 2
+        };
 
-            PortMap2Port clone = null;
+        PortMap2Port clone = null;
 
-            using (var stream = new MemoryStream())
-            {
-                var writer = new XdrDataWriter(stream);
-                port.Write(writer);
+        using (var stream = new MemoryStream())
+        {
+            var writer = new XdrDataWriter(stream);
+            port.Write(writer);
 
-                stream.Position = 0;
-                var reader = new XdrDataReader(stream);
-                clone = new PortMap2Port(reader);
-            }
-
-            Assert.Equal(port, clone);
+            stream.Position = 0;
+            var reader = new XdrDataReader(stream);
+            clone = new PortMap2Port(reader);
         }
+
+        Assert.Equal(port, clone);
     }
 }

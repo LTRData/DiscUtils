@@ -50,10 +50,7 @@ internal sealed class LzxBitStream : BitStream
         _byteStream = byteStream;
     }
 
-    public override int MaxReadAhead
-    {
-        get { return 16; }
-    }
+    public override int MaxReadAhead => 16;
 
     public override uint Read(int count)
     {

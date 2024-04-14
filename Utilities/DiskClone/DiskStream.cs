@@ -34,9 +34,6 @@ internal sealed class DiskStream : UnbufferedNativeStream
         _length = Win32Wrapper.GetDiskCapacity(handle);
     }
 
-    public override long Length
-    {
-        get { return _length; }
-    }
+    public override long Length => _length;
 
 }

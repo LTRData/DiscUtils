@@ -50,18 +50,12 @@ public sealed class ServiceRecord : ResourceRecord
     /// <summary>
     /// Gets the network port at which the service can be accessed.
     /// </summary>
-    public int Port
-    {
-        get { return _port; }
-    }
+    public int Port => _port;
 
     /// <summary>
     /// Gets the priority associated with this service record (lower value is higher priority).
     /// </summary>
-    public int Priority
-    {
-        get { return _priority; }
-    }
+    public int Priority => _priority;
 
     /// <summary>
     /// Gets the DNS name at which the service can be accessed.
@@ -71,8 +65,5 @@ public sealed class ServiceRecord : ResourceRecord
     /// <summary>
     /// Gets the relative weight associated with this service record when randomly choosing between records of equal priority.
     /// </summary>
-    public int Weight
-    {
-        get { return _weight; }
-    }
+    public int Weight => _weight;
 }

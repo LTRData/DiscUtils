@@ -38,10 +38,7 @@ internal sealed class BTreeLeafRecord<TKey> : BTreeNodeRecord
 
     public TKey Key { get; private set; }
 
-    public override int Size
-    {
-        get { return _size; }
-    }
+    public override int Size => _size;
 
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {

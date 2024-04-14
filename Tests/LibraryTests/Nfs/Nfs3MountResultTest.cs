@@ -25,40 +25,39 @@ using System.Collections.Generic;
 using System.IO;
 using Xunit;
 
-namespace LibraryTests.Nfs
+namespace LibraryTests.Nfs;
+
+public class Nfs3MountResultTest
 {
-    public class Nfs3MountResultTest
+    [Fact]
+    public void RoundTripTest()
     {
-        [Fact]
-        public void RoundTripTest()
+        var result = new Nfs3MountResult()
         {
-            var result = new Nfs3MountResult()
+            AuthFlavours = new List<RpcAuthFlavour>()
+             {
+                  RpcAuthFlavour.Des,
+                   RpcAuthFlavour.Null
+             },
+            FileHandle = new Nfs3FileHandle()
             {
-                AuthFlavours = new List<RpcAuthFlavour>()
-                 {
-                      RpcAuthFlavour.Des,
-                       RpcAuthFlavour.Null
-                 },
-                FileHandle = new Nfs3FileHandle()
-                {
-                    Value = new byte[] { 0x5 }
-                },
-                Status = Nfs3Status.Ok
-            };
+                Value = new byte[] { 0x5 }
+            },
+            Status = Nfs3Status.Ok
+        };
 
-            Nfs3MountResult clone = null;
+        Nfs3MountResult clone = null;
 
-            using (var stream = new MemoryStream())
-            {
-                var writer = new XdrDataWriter(stream);
-                result.Write(writer);
+        using (var stream = new MemoryStream())
+        {
+            var writer = new XdrDataWriter(stream);
+            result.Write(writer);
 
-                stream.Position = 0;
-                var reader = new XdrDataReader(stream);
-                clone = new Nfs3MountResult(reader);
-            }
-
-            Assert.Equal(result, clone);
+            stream.Position = 0;
+            var reader = new XdrDataReader(stream);
+            clone = new Nfs3MountResult(reader);
         }
+
+        Assert.Equal(result, clone);
     }
 }

@@ -61,10 +61,7 @@ public sealed class Nfs3ReadResult : Nfs3CallResult
         writer.Write((int)Status);
 
         writer.Write(FileAttributes != null);
-        if (FileAttributes != null)
-        {
-            FileAttributes.Write(writer);
-        }
+        FileAttributes?.Write(writer);
 
         if (Status == Nfs3Status.Ok)
         {

@@ -53,30 +53,30 @@ internal class File : IVfsFileWithStreams
 
     public DateTime LastAccessTimeUtc
     {
-        get { return _catalogInfo.AccessTime; }
+        get => _catalogInfo.AccessTime;
 
-        set { throw new NotSupportedException(); }
+        set => throw new NotSupportedException();
     }
 
     public DateTime LastWriteTimeUtc
     {
-        get { return _catalogInfo.ContentModifyTime; }
+        get => _catalogInfo.ContentModifyTime;
 
-        set { throw new NotSupportedException(); }
+        set => throw new NotSupportedException();
     }
 
     public DateTime CreationTimeUtc
     {
-        get { return _catalogInfo.CreateTime; }
+        get => _catalogInfo.CreateTime;
 
-        set { throw new NotSupportedException(); }
+        set => throw new NotSupportedException();
     }
 
     public FileAttributes FileAttributes
     {
-        get { return Utilities.FileAttributesFromUnixFileType(_catalogInfo.FileSystemInfo.FileType); }
+        get => Utilities.FileAttributesFromUnixFileType(_catalogInfo.FileSystemInfo.FileType);
 
-        set { throw new NotSupportedException(); }
+        set => throw new NotSupportedException();
     }
 
     public long FileLength

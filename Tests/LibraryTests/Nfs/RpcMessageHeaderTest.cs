@@ -24,28 +24,27 @@ using DiscUtils.Nfs;
 using System.IO;
 using Xunit;
 
-namespace LibraryTests.Nfs
+namespace LibraryTests.Nfs;
+
+public class RpcMessageHeaderTest
 {
-    public class RpcMessageHeaderTest
+    [Fact]
+    public void RoundTripTest()
     {
-        [Fact]
-        public void RoundTripTest()
+        var header = RpcMessageHeader.Accepted(1);
+
+        RpcMessageHeader clone = null;
+
+        using (var stream = new MemoryStream())
         {
-            var header = RpcMessageHeader.Accepted(1);
+            var writer = new XdrDataWriter(stream);
+            header.Write(writer);
 
-            RpcMessageHeader clone = null;
-
-            using (var stream = new MemoryStream())
-            {
-                var writer = new XdrDataWriter(stream);
-                header.Write(writer);
-
-                stream.Position = 0;
-                var reader = new XdrDataReader(stream);
-                clone = new RpcMessageHeader(reader);
-            }
-
-            Assert.Equal(header, clone);
+            stream.Position = 0;
+            var reader = new XdrDataReader(stream);
+            clone = new RpcMessageHeader(reader);
         }
+
+        Assert.Equal(header, clone);
     }
 }

@@ -27,18 +27,17 @@ using DiscUtils.Vhdx;
 using LibraryTests.Utilities;
 using Xunit;
 
-namespace LibraryTests.Vhdx
+namespace LibraryTests.Vhdx;
+
+public class LogReplayTest
 {
-    public class LogReplayTest
+    [Fact]
+    public void ReplayLog()
     {
-        [Fact]
-        public void ReplayLog()
-        {
-            using var vhdx = Helpers.Helpers.LoadTestDataFileFromGZipFile("Vhdx", "vhdx-log-replay.vhdx.gz");
-            using var diskImage = new DiskImageFile(vhdx, Ownership.Dispose);
-            using var disk = new Disk(new List<DiskImageFile> { diskImage }, Ownership.Dispose);
-            Assert.True(disk.IsPartitioned);
-            Assert.Equal(2, disk.Partitions.Count);
-        }
+        using var vhdx = Helpers.Helpers.LoadTestDataFileFromGZipFile("Vhdx", "vhdx-log-replay.vhdx.gz");
+        using var diskImage = new DiskImageFile(vhdx, Ownership.Dispose);
+        using var disk = new Disk(new List<DiskImageFile> { diskImage }, Ownership.Dispose);
+        Assert.True(disk.IsPartitioned);
+        Assert.Equal(2, disk.Partitions.Count);
     }
 }

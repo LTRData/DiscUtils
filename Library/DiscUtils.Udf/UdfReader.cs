@@ -173,15 +173,9 @@ public sealed class UdfReader : VfsFileSystemFacade
             Initialize();
         }
 
-        public override string FriendlyName
-        {
-            get { return "OSTA Universal Disk Format"; }
-        }
+        public override string FriendlyName => "OSTA Universal Disk Format";
 
-        public override string VolumeLabel
-        {
-            get { return _lvd.LogicalVolumeIdentifier; }
-        }
+        public override string VolumeLabel => _lvd.LogicalVolumeIdentifier;
 
         public IEnumerable<ExtendedAttribute> GetExtendedAttributes(string path)
         {
@@ -199,26 +193,17 @@ public sealed class UdfReader : VfsFileSystemFacade
         /// <summary>
         /// Size of the Filesystem in bytes
         /// </summary>
-        public override long Size
-        {
-            get { throw new NotSupportedException("Filesystem size is not (yet) supported"); }
-        }
+        public override long Size => throw new NotSupportedException("Filesystem size is not (yet) supported");
 
         /// <summary>
         /// Used space of the Filesystem in bytes
         /// </summary>
-        public override long UsedSpace
-        {
-             get { throw new NotSupportedException("Filesystem size is not (yet) supported"); }
-        }
+        public override long UsedSpace => throw new NotSupportedException("Filesystem size is not (yet) supported");
 
         /// <summary>
         /// Available space of the Filesystem in bytes
         /// </summary>
-        public override long AvailableSpace
-        {
-            get { throw new NotSupportedException("Filesystem size is not (yet) supported"); }
-        }
+        public override long AvailableSpace => throw new NotSupportedException("Filesystem size is not (yet) supported");
 
         public override bool SupportsUsedAvailableSpace => false;
 

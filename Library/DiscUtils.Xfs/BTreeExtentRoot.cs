@@ -40,10 +40,7 @@ internal class BTreeExtentRoot : IByteArraySerializable
 
     public Dictionary<ulong, BTreeExtentHeader> Children { get; private set; }
 
-    public int Size
-    {
-        get { return 4 + (0x9 * 0x16); }
-    }
+    public int Size => 4 + (0x9 * 0x16);
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

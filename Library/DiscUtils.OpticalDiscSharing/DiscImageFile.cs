@@ -48,33 +48,19 @@ internal sealed class DiscImageFile : VirtualDiskLayer
     /// </summary>
     public override bool CanWrite => false;
 
-    public override long Capacity
-    {
-        get { return Content.Length; }
-    }
+    public override long Capacity => Content.Length;
 
     public SparseStream Content { get; }
 
     public override Geometry Geometry
-    {
         // Note external sector size is always 2048
-        get { return new Geometry(1, 1, 1, Mode1SectorSize); }
-    }
+        => new Geometry(1, 1, 1, Mode1SectorSize);
 
-    public override bool IsSparse
-    {
-        get { return false; }
-    }
+    public override bool IsSparse => false;
 
-    public override bool NeedsParent
-    {
-        get { return false; }
-    }
+    public override bool NeedsParent => false;
 
-    public override FileLocator RelativeFileLocator
-    {
-        get { return null; }
-    }
+    public override FileLocator RelativeFileLocator => null;
 
     public override SparseStream OpenContent(SparseStream parent, Ownership ownsParent)
     {

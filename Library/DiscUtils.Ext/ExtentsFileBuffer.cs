@@ -44,20 +44,11 @@ internal class ExtentsFileBuffer : Buffer, IFileBuffer
         _inode = inode;
     }
 
-    public override bool CanRead
-    {
-        get { return true; }
-    }
+    public override bool CanRead => true;
 
-    public override bool CanWrite
-    {
-        get { return false; }
-    }
+    public override bool CanWrite => false;
 
-    public override long Capacity
-    {
-        get { return _inode.FileSize; }
-    }
+    public override long Capacity => _inode.FileSize;
 
     public IEnumerable<Range<long, long>> EnumerateAllocationClusters()
     {
@@ -417,10 +408,7 @@ internal class ExtentsFileBuffer : Buffer, IFileBuffer
                 }
             }
 
-            if (idxEntry == null)
-            {
-                idxEntry = node.Index[node.Index.Length - 1];
-            }
+            idxEntry ??= node.Index[node.Index.Length - 1];
 
             ExtentBlock subBlock = LoadExtentBlock(idxEntry.Value);
             return FindExtent(subBlock, logicalBlock);
@@ -449,10 +437,7 @@ internal class ExtentsFileBuffer : Buffer, IFileBuffer
                 }
             }
 
-            if (entry == null)
-            {
-                entry = node.Extents[node.Extents.Length - 1];
-            }
+            entry ??= node.Extents[node.Extents.Length - 1];
 
             return entry;
         }

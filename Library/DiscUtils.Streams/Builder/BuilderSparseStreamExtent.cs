@@ -42,10 +42,7 @@ public class BuilderSparseStreamExtent : BuilderExtent
         _ownership = ownership;
     }
 
-    public override IEnumerable<StreamExtent> StreamExtents
-    {
-        get { return StreamExtent.Offset(_stream.Extents, Start); }
-    }
+    public override IEnumerable<StreamExtent> StreamExtents => StreamExtent.Offset(_stream.Extents, Start);
 
     protected override void Dispose(bool disposing)
     {

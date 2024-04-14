@@ -28,18 +28,9 @@ namespace DiscUtils.PowerShell;
 [RunInstaller(true)]
 public class SnapIn : PSSnapIn
 {
-    public override string Description
-    {
-        get { return "This is the PowerShell Snap-in for .NET DiscUtils."; }
-    }
+    public override string Description => "This is the PowerShell Snap-in for .NET DiscUtils.";
 
-    public override string Name
-    {
-        get { return "DiscUtils.PowerShell"; }
-    }
+    public override string Name => "DiscUtils.PowerShell";
 
-    public override string Vendor
-    {
-        get { return "Kenneth Bell"; }
-    }
+    public override string Vendor => "Kenneth Bell";
 }

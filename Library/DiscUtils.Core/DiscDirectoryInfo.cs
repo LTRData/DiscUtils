@@ -45,18 +45,12 @@ public class DiscDirectoryInfo : DiscFileSystemInfo
     /// <summary>
     /// Gets a value indicating whether the directory exists.
     /// </summary>
-    public override bool Exists
-    {
-        get { return FileSystem.DirectoryExists(Path); }
-    }
+    public override bool Exists => FileSystem.DirectoryExists(Path);
 
     /// <summary>
     /// Gets the full path of the directory.
     /// </summary>
-    public override string FullName
-    {
-        get { return base.FullName + System.IO.Path.DirectorySeparatorChar; }
-    }
+    public override string FullName => base.FullName + System.IO.Path.DirectorySeparatorChar;
 
     /// <summary>
     /// Creates a directory.

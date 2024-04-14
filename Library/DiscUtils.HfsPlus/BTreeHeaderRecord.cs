@@ -42,10 +42,7 @@ internal class BTreeHeaderRecord : BTreeNodeRecord
     public ushort TreeDepth;
     public byte TreeType;
 
-    public override int Size
-    {
-        get { return 104; }
-    }
+    public override int Size => 104;
 
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {

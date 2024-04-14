@@ -71,29 +71,17 @@ internal class ClusterStream : CompatibilityStream
         _clusterBuffer = new byte[_reader.ClusterSize];
     }
 
-    public override bool CanRead
-    {
-        get { return _access == FileAccess.Read || _access == FileAccess.ReadWrite; }
-    }
+    public override bool CanRead => _access is FileAccess.Read or FileAccess.ReadWrite;
 
-    public override bool CanSeek
-    {
-        get { return true; }
-    }
+    public override bool CanSeek => true;
 
-    public override bool CanWrite
-    {
-        get { return _access == FileAccess.ReadWrite || _access == FileAccess.Write; }
-    }
+    public override bool CanWrite => _access is FileAccess.ReadWrite or FileAccess.Write;
 
-    public override long Length
-    {
-        get { return _length; }
-    }
+    public override long Length => _length;
 
     public override long Position
     {
-        get { return _position; }
+        get => _position;
 
         set
         {
@@ -626,10 +614,7 @@ internal class ClusterStream : CompatibilityStream
 
         for (var i = 0; i < _knownClusters.Count && !_fat.IsEndOfChain(_knownClusters[i]); i++)
         {
-            if (firstCluster == null)
-            {
-                firstCluster = _knownClusters[i];
-            }
+            firstCluster ??= _knownClusters[i];
 
             if (lastCluster == null
                 || _knownClusters[i] == lastCluster.Value + 1)

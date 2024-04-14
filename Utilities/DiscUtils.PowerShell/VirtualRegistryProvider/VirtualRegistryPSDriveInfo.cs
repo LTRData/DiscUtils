@@ -48,9 +48,6 @@ public sealed class VirtualRegistryPSDriveInfo : PSDriveInfo
         }
     }
 
-    internal RegistryHive Hive
-    {
-        get { return _hive; }
-    }
+    internal RegistryHive Hive => _hive;
 }
 

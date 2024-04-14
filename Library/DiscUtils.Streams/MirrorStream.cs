@@ -63,36 +63,21 @@ public class MirrorStream : SparseStream
         }
     }
 
-    public override bool CanRead
-    {
-        get { return _canRead; }
-    }
+    public override bool CanRead => _canRead;
 
-    public override bool CanSeek
-    {
-        get { return _canSeek; }
-    }
+    public override bool CanSeek => _canSeek;
 
-    public override bool CanWrite
-    {
-        get { return _canWrite; }
-    }
+    public override bool CanWrite => _canWrite;
 
-    public override IEnumerable<StreamExtent> Extents
-    {
-        get { return _wrapped[0].Extents; }
-    }
+    public override IEnumerable<StreamExtent> Extents => _wrapped[0].Extents;
 
-    public override long Length
-    {
-        get { return _length; }
-    }
+    public override long Length => _length;
 
     public override long Position
     {
-        get { return _wrapped[0].Position; }
+        get => _wrapped[0].Position;
 
-        set { _wrapped[0].Position = value; }
+        set => _wrapped[0].Position = value;
     }
 
     public override void Flush()

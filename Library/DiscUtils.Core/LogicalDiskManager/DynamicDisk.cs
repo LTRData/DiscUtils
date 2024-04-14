@@ -44,27 +44,15 @@ internal class DynamicDisk : IDiagnosticTraceable
         Database = new Database(_disk.Content);
     }
 
-    public SparseStream Content
-    {
-        get { return _disk.Content; }
-    }
+    public SparseStream Content => _disk.Content;
 
     public Database Database { get; }
 
-    public long DataOffset
-    {
-        get { return _header.DataStartLba; }
-    }
+    public long DataOffset => _header.DataStartLba;
 
-    public Guid GroupId
-    {
-        get { return string.IsNullOrEmpty(_header.DiskGroupId) ? Guid.Empty : new Guid(_header.DiskGroupId); }
-    }
+    public Guid GroupId => string.IsNullOrEmpty(_header.DiskGroupId) ? Guid.Empty : new Guid(_header.DiskGroupId);
 
-    public Guid Id
-    {
-        get { return new Guid(_header.DiskId); }
-    }
+    public Guid Id => new Guid(_header.DiskId);
 
     public void Dump(TextWriter writer, string linePrefix)
     {

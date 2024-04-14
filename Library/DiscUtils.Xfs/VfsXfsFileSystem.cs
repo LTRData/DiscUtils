@@ -73,21 +73,18 @@ internal sealed class VfsXfsFileSystem : VfsReadOnlyFileSystem<DirEntry, File, D
 
         RootDirectory = new Directory(Context, Context.GetInode(superblock.RootInode));
     }
-    
-    public override string FriendlyName
-    {
-        get { return "XFS"; }
-    }
+
+    public override string FriendlyName => "XFS";
 
     /// <inheritdoc />
-    public override string VolumeLabel { get { return Context.SuperBlock.FilesystemName; } }
+    public override string VolumeLabel => Context.SuperBlock.FilesystemName;
 
     /// <inheritdoc />
     protected override File ConvertDirEntryToFile(DirEntry dirEntry)
     {
         if (dirEntry.IsDirectory)
         {
-            return dirEntry.CachedDirectory ?? (dirEntry.CachedDirectory = new Directory(Context, dirEntry.Inode));
+            return dirEntry.CachedDirectory ??= new Directory(Context, dirEntry.Inode);
         }
         else if (dirEntry.IsSymlink)
         {
@@ -119,10 +116,7 @@ internal sealed class VfsXfsFileSystem : VfsReadOnlyFileSystem<DirEntry, File, D
     /// <summary>
     /// Used space of the Filesystem in bytes
     /// </summary>
-    public override long UsedSpace
-    {
-        get { return Size - AvailableSpace; }
-    }
+    public override long UsedSpace => Size - AvailableSpace;
 
     /// <summary>
     /// Available space of the Filesystem in bytes

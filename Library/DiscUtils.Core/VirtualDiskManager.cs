@@ -23,18 +23,12 @@ public static class VirtualDiskManager
     /// <summary>
     /// Gets the set of disk formats supported as an array of file extensions.
     /// </summary>
-    public static ICollection<string> SupportedDiskFormats
-    {
-        get { return ExtensionMap.Keys; }
-    }
+    public static ICollection<string> SupportedDiskFormats => ExtensionMap.Keys;
 
     /// <summary>
     /// Gets the set of disk types supported, as an array of identifiers.
     /// </summary>
-    public static ICollection<string> SupportedDiskTypes
-    {
-        get { return TypeMap.Keys; }
-    }
+    public static ICollection<string> SupportedDiskTypes => TypeMap.Keys;
 
     internal static Dictionary<string, VirtualDiskFactory> TypeMap { get; }
 

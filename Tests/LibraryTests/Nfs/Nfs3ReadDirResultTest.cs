@@ -26,58 +26,57 @@ using System.Collections.Generic;
 using System.IO;
 using Xunit;
 
-namespace LibraryTests.Nfs
+namespace LibraryTests.Nfs;
+
+public class Nfs3ReadDirResultTest
 {
-    public class Nfs3ReadDirResultTest
+    [Fact]
+    public void RoundTripTest()
     {
-        [Fact]
-        public void RoundTripTest()
+        var result = new Nfs3ReadDirResult()
         {
-            var result = new Nfs3ReadDirResult()
+            Status = Nfs3Status.Ok,
+            Eof = false,
+            CookieVerifier = 1u,
+            DirAttributes = new Nfs3FileAttributes()
             {
-                Status = Nfs3Status.Ok,
-                Eof = false,
-                CookieVerifier = 1u,
-                DirAttributes = new Nfs3FileAttributes()
+                AccessTime = new Nfs3FileTime(new DateTime(2018, 1, 1)),
+                ChangeTime = new Nfs3FileTime(new DateTime(2018, 1, 2)),
+                ModifyTime = new Nfs3FileTime(new DateTime(2018, 1, 3)),
+            },
+            DirEntries = new List<Nfs3DirectoryEntry>()
+            {
+                new Nfs3DirectoryEntry()
                 {
-                    AccessTime = new Nfs3FileTime(new DateTime(2018, 1, 1)),
-                    ChangeTime = new Nfs3FileTime(new DateTime(2018, 1, 2)),
-                    ModifyTime = new Nfs3FileTime(new DateTime(2018, 1, 3)),
-                },
-                DirEntries = new List<Nfs3DirectoryEntry>()
-                {
-                    new Nfs3DirectoryEntry()
-                    {
-                         Cookie = 2u,
-                         FileAttributes = new Nfs3FileAttributes()
-                         {
-                             AccessTime = new Nfs3FileTime(new DateTime(2018, 2, 1)),
-                             ChangeTime = new Nfs3FileTime(new DateTime(2018, 2, 2)),
-                             ModifyTime = new Nfs3FileTime(new DateTime(2018, 2, 3)),
-                         },
-                         FileHandle = new Nfs3FileHandle()
-                         {
-                             Value = new byte[]{0x20, 0x18 }
-                         },
-                         FileId = 2018,
-                         Name = "test.bin"
-                    }
+                     Cookie = 2u,
+                     FileAttributes = new Nfs3FileAttributes()
+                     {
+                         AccessTime = new Nfs3FileTime(new DateTime(2018, 2, 1)),
+                         ChangeTime = new Nfs3FileTime(new DateTime(2018, 2, 2)),
+                         ModifyTime = new Nfs3FileTime(new DateTime(2018, 2, 3)),
+                     },
+                     FileHandle = new Nfs3FileHandle()
+                     {
+                         Value = new byte[]{0x20, 0x18 }
+                     },
+                     FileId = 2018,
+                     Name = "test.bin"
                 }
-            };
-
-            Nfs3ReadDirResult clone = null;
-
-            using (var stream = new MemoryStream())
-            {
-                var writer = new XdrDataWriter(stream);
-                result.Write(writer);
-
-                stream.Position = 0;
-                var reader = new XdrDataReader(stream);
-                clone = new Nfs3ReadDirResult(reader);
             }
+        };
 
-            Assert.Equal(result, clone);
+        Nfs3ReadDirResult clone = null;
+
+        using (var stream = new MemoryStream())
+        {
+            var writer = new XdrDataWriter(stream);
+            result.Write(writer);
+
+            stream.Position = 0;
+            var reader = new XdrDataReader(stream);
+            clone = new Nfs3ReadDirResult(reader);
         }
+
+        Assert.Equal(result, clone);
     }
 }

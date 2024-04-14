@@ -73,17 +73,11 @@ internal class Directory : IDisposable
         LoadEntries();
     }
 
-    public DirectoryEntry[] Entries
-    {
-        get { return _entries.Values.ToArray(); }
-    }
+    public DirectoryEntry[] Entries => _entries.Values.ToArray();
 
     public FatFileSystem FileSystem { get; }
 
-    public bool IsEmpty
-    {
-        get { return _entries.Count == 0; }
-    }
+    public bool IsEmpty => _entries.Count == 0;
 
     public void Dispose()
     {
@@ -229,7 +223,7 @@ internal class Directory : IDisposable
 
     internal FatFileStream OpenFile(FileName name, FileMode mode, FileAccess fileAccess)
     {
-        if (mode == FileMode.Append || mode == FileMode.Truncate)
+        if (mode is FileMode.Append or FileMode.Truncate)
         {
             throw new NotImplementedException();
         }
@@ -473,13 +467,7 @@ internal class Directory : IDisposable
             return _parent.GetEntry(_parentId);
         }
 
-        set
-        {
-            if (_parent != null)
-            {
-                _parent.UpdateEntry(_parentId, value);
-            }
-        }
+        set => _parent?.UpdateEntry(_parentId, value);
     }
 
     internal DirectoryEntry SelfEntry
@@ -509,7 +497,7 @@ internal class Directory : IDisposable
 
     internal DirectoryEntry ParentEntry
     {
-        get { return _parentEntry; }
+        get => _parentEntry;
 
         set
         {

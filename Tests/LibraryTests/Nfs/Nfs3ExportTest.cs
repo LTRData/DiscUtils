@@ -25,36 +25,35 @@ using System.Collections.Generic;
 using System.IO;
 using Xunit;
 
-namespace LibraryTests.Nfs
+namespace LibraryTests.Nfs;
+
+public class Nfs3ExportTest
 {
-    public class Nfs3ExportTest
+    [Fact]
+    public void RoundTripTest()
     {
-        [Fact]
-        public void RoundTripTest()
+        var export = new Nfs3Export()
         {
-            var export = new Nfs3Export()
-            {
-                DirPath = "test",
-                Groups = new List<string>()
-                  {
-                      "Group1",
-                      "Group2"
-                  }
-            };
+            DirPath = "test",
+            Groups = new List<string>()
+              {
+                  "Group1",
+                  "Group2"
+              }
+        };
 
-            Nfs3Export clone = null;
+        Nfs3Export clone = null;
 
-            using (var stream = new MemoryStream())
-            {
-                var writer = new XdrDataWriter(stream);
-                export.Write(writer);
+        using (var stream = new MemoryStream())
+        {
+            var writer = new XdrDataWriter(stream);
+            export.Write(writer);
 
-                stream.Position = 0;
-                var reader = new XdrDataReader(stream);
-                clone = new Nfs3Export(reader);
-            }
-
-            Assert.Equal(export, clone);
+            stream.Position = 0;
+            var reader = new XdrDataReader(stream);
+            clone = new Nfs3Export(reader);
         }
+
+        Assert.Equal(export, clone);
     }
 }

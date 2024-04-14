@@ -38,15 +38,9 @@ internal sealed class Nfs3 : RpcProgram
     public Nfs3(IRpcClient client)
         : base(client) {}
 
-    public override int Identifier
-    {
-        get { return ProgramIdentifier; }
-    }
+    public override int Identifier => ProgramIdentifier;
 
-    public override int Version
-    {
-        get { return ProgramVersion; }
-    }
+    public override int Version => ProgramVersion;
 
     public Nfs3GetAttributesResult GetAttributes(Nfs3FileHandle handle)
     {

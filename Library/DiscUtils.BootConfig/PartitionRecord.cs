@@ -32,10 +32,7 @@ internal class PartitionRecord : DeviceRecord
     public byte[] PartitionIdentity { get; set; }
     public int PartitionType { get; set; }
 
-    public override int Size
-    {
-        get { return 0x48; }
-    }
+    public override int Size => 0x48;
 
     public override void GetBytes(byte[] data, int offset)
     {

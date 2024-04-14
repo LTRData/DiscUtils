@@ -55,10 +55,7 @@ public class Disk : VirtualDisk
     /// <summary>
     /// Gets the capacity of the disk (in bytes).
     /// </summary>
-    public override long Capacity
-    {
-        get { return _file.Capacity; }
-    }
+    public override long Capacity => _file.Capacity;
 
     /// <summary>
     /// Gets the content of the disk as a stream.
@@ -72,10 +69,7 @@ public class Disk : VirtualDisk
     {
         get
         {
-            if (_content is null)
-            {
-                _content = _file.OpenContent(null, Ownership.None);
-            }
+            _content ??= _file.OpenContent(null, Ownership.None);
 
             return _content;
         }
@@ -84,28 +78,19 @@ public class Disk : VirtualDisk
     /// <summary>
     /// Gets the type of disk represented by this object.
     /// </summary>
-    public override VirtualDiskClass DiskClass
-    {
-        get { return VirtualDiskClass.HardDisk; }
-    }
+    public override VirtualDiskClass DiskClass => VirtualDiskClass.HardDisk;
 
     /// <summary>
     /// Gets information about the type of disk.
     /// </summary>
     /// <remarks>This property provides access to meta-data about the disk format, for example whether the
     /// BIOS geometry is preserved in the disk file.</remarks>
-    public override VirtualDiskTypeInfo DiskTypeInfo
-    {
-        get { return DiskFactory.MakeDiskTypeInfo(); }
-    }
+    public override VirtualDiskTypeInfo DiskTypeInfo => DiskFactory.MakeDiskTypeInfo();
 
     /// <summary>
     /// Gets the geometry of the disk.
     /// </summary>
-    public override Geometry Geometry
-    {
-        get { return _file.Geometry; }
-    }
+    public override Geometry Geometry => _file.Geometry;
 
     /// <summary>
     /// Gets the layers that make up the disk.

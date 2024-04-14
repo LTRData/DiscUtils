@@ -55,10 +55,7 @@ public sealed class Disk : VirtualDisk
     /// <summary>
     /// Gets the disk's capacity (in bytes).
     /// </summary>
-    public override long Capacity
-    {
-        get { return _capacity; }
-    }
+    public override long Capacity => _capacity;
 
     /// <summary>
     /// Gets the content of the disk as a stream.
@@ -67,10 +64,7 @@ public sealed class Disk : VirtualDisk
     {
         get
         {
-            if (_content == null)
-            {
-                _content = new DiskStream(_vm.Archive, _capacity, _location);
-            }
+            _content ??= new DiskStream(_vm.Archive, _capacity, _location);
 
             return _content;
         }
@@ -79,20 +73,14 @@ public sealed class Disk : VirtualDisk
     /// <summary>
     /// Gets the type of disk represented by this object.
     /// </summary>
-    public override VirtualDiskClass DiskClass
-    {
-        get { return VirtualDiskClass.HardDisk; }
-    }
+    public override VirtualDiskClass DiskClass => VirtualDiskClass.HardDisk;
 
     /// <summary>
     /// Gets information about the type of disk.
     /// </summary>
     /// <remarks>This property provides access to meta-data about the disk format, for example whether the
     /// BIOS geometry is preserved in the disk file.</remarks>
-    public override VirtualDiskTypeInfo DiskTypeInfo
-    {
-        get { return DiskFactory.MakeDiskTypeInfo(); }
-    }
+    public override VirtualDiskTypeInfo DiskTypeInfo => DiskFactory.MakeDiskTypeInfo();
 
     /// <summary>
     /// Gets the display name of the disk, as shown by XenServer.
@@ -104,10 +92,7 @@ public sealed class Disk : VirtualDisk
     /// </summary>
     /// <remarks>The geometry is not stored with the disk, so this is at best
     /// a guess of the actual geometry.</remarks>
-    public override Geometry Geometry
-    {
-        get { return Geometry.FromCapacity(_capacity); }
-    }
+    public override Geometry Geometry => Geometry.FromCapacity(_capacity);
 
     /// <summary>
     /// Gets the (single) layer of an XVA disk.

@@ -29,90 +29,89 @@ using DiscUtils.Streams;
 using DiscUtils.Vhd;
 using Xunit;
 
-namespace LibraryTests.Vhd
-{
-    public class DiskImageFileTest
-    {
-        [Fact]
-        public void InitializeDifferencing()
-        {
-            var baseStream = new MemoryStream();
-            var diffStream = new MemoryStream();
-            using (var baseFile = DiskImageFile.InitializeDynamic(baseStream, Ownership.Dispose, 16 * 1024L * 1024 * 1024))
-            {
-                using var diffFile = DiskImageFile.InitializeDifferencing(diffStream, Ownership.None, baseFile, @"C:\TEMP\Base.vhd", @".\Base.vhd", new DateTime(2007, 12, 31));
-                Assert.NotNull(diffFile);
-                Assert.True(diffFile.Geometry.Capacity > 15.8 * 1024L * 1024 * 1024 && diffFile.Geometry.Capacity < 16 * 1024L * 1024 * 1024);
-                Assert.True(diffFile.IsSparse);
-                Assert.NotEqual(diffFile.CreationTimestamp, new DateTime(2007, 12, 31));
-            }
+namespace LibraryTests.Vhd;
 
-            Assert.True(1 * 1024 * 1024 > diffStream.Length);
+public class DiskImageFileTest
+{
+    [Fact]
+    public void InitializeDifferencing()
+    {
+        var baseStream = new MemoryStream();
+        var diffStream = new MemoryStream();
+        using (var baseFile = DiskImageFile.InitializeDynamic(baseStream, Ownership.Dispose, 16 * 1024L * 1024 * 1024))
+        {
+            using var diffFile = DiskImageFile.InitializeDifferencing(diffStream, Ownership.None, baseFile, @"C:\TEMP\Base.vhd", @".\Base.vhd", new DateTime(2007, 12, 31));
+            Assert.NotNull(diffFile);
+            Assert.True(diffFile.Geometry.Capacity is > (long)(15.8 * 1024L * 1024 * 1024) and < (16 * 1024L * 1024 * 1024));
+            Assert.True(diffFile.IsSparse);
+            Assert.NotEqual(diffFile.CreationTimestamp, new DateTime(2007, 12, 31));
         }
 
-        [Fact]
-        public void GetParentLocations()
-        {
-            var baseStream = new MemoryStream();
-            var diffStream = new MemoryStream();
-            using (var baseFile = DiskImageFile.InitializeDynamic(baseStream, Ownership.Dispose, 16 * 1024L * 1024 * 1024))
-            {
-                // Write some data - exposes bug if mis-calculating where to write data
-                using var diffFile = DiskImageFile.InitializeDifferencing(diffStream, Ownership.None, baseFile, @"C:\TEMP\Base.vhd", @".\Base.vhd", new DateTime(2007, 12, 31));
-                var disk = new Disk(new DiskImageFile[] { diffFile, baseFile }, Ownership.None);
-                disk.Content.Write(new byte[512], 0, 512);
-            }
+        Assert.True(1 * 1024 * 1024 > diffStream.Length);
+    }
 
-            using (var diffFile = new DiskImageFile(diffStream))
-            {
-                var BasePath = @"E:\FOO\";
+    [Fact]
+    public void GetParentLocations()
+    {
+        var baseStream = new MemoryStream();
+        var diffStream = new MemoryStream();
+        using (var baseFile = DiskImageFile.InitializeDynamic(baseStream, Ownership.Dispose, 16 * 1024L * 1024 * 1024))
+        {
+            // Write some data - exposes bug if mis-calculating where to write data
+            using var diffFile = DiskImageFile.InitializeDifferencing(diffStream, Ownership.None, baseFile, @"C:\TEMP\Base.vhd", @".\Base.vhd", new DateTime(2007, 12, 31));
+            var disk = new Disk(new DiskImageFile[] { diffFile, baseFile }, Ownership.None);
+            disk.Content.Write(new byte[512], 0, 512);
+        }
+
+        using (var diffFile = new DiskImageFile(diffStream))
+        {
+            var BasePath = @"E:\FOO\";
 #if NET461_OR_GREATER || NETSTANDARD || NETCOREAPP
-                if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                {
-                    BasePath = "/foo/";
-                }
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                BasePath = "/foo/";
+            }
 #endif
 
-                // Testing the obsolete method - disable warning
+            // Testing the obsolete method - disable warning
 #pragma warning disable 618
-                var locations = diffFile.GetParentLocations(BasePath);
+            var locations = diffFile.GetParentLocations(BasePath);
 #pragma warning restore 618
-                Assert.Equal(2, locations.Length);
-                Assert.Equal(@"C:\TEMP\Base.vhd", locations[0]);
-                Assert.Equal($"{BasePath}Base.vhd", locations[1]);
-            }
-
-            using (var diffFile = new DiskImageFile(diffStream))
-            {
-                // Testing the new method - note relative path because diff file initialized without a path
-                var locations = diffFile.GetParentLocations().ToArray();
-                Assert.Equal(2, locations.Length);
-                Assert.Equal(@"C:\TEMP\Base.vhd", locations[0]);
-                Assert.Equal($".{Path.DirectorySeparatorChar}Base.vhd", locations[1]);
-            }
+            Assert.Equal(2, locations.Length);
+            Assert.Equal(@"C:\TEMP\Base.vhd", locations[0]);
+            Assert.Equal($"{BasePath}Base.vhd", locations[1]);
         }
 
-        [Fact]
-        public void FooterMissing()
+        using (var diffFile = new DiskImageFile(diffStream))
         {
-            //
-            // Simulates a partial failure extending the file, that the file footer is corrupt - should read start of the file instead.
-            //
+            // Testing the new method - note relative path because diff file initialized without a path
+            var locations = diffFile.GetParentLocations().ToArray();
+            Assert.Equal(2, locations.Length);
+            Assert.Equal(@"C:\TEMP\Base.vhd", locations[0]);
+            Assert.Equal($".{Path.DirectorySeparatorChar}Base.vhd", locations[1]);
+        }
+    }
 
-            Geometry geometry;
+    [Fact]
+    public void FooterMissing()
+    {
+        //
+        // Simulates a partial failure extending the file, that the file footer is corrupt - should read start of the file instead.
+        //
 
-            var stream = new MemoryStream();
-            using (var file = DiskImageFile.InitializeDynamic(stream, Ownership.None, 16 * 1024L * 1024 * 1024))
-            {
-                geometry = file.Geometry;
-            }
+        Geometry geometry;
 
-            stream.SetLength(stream.Length - 512);
+        var stream = new MemoryStream();
+        using (var file = DiskImageFile.InitializeDynamic(stream, Ownership.None, 16 * 1024L * 1024 * 1024))
+        {
+            geometry = file.Geometry;
+        }
 
-            using (var file = new DiskImageFile(stream))
-            {
-                Assert.Equal(geometry, file.Geometry);
-            }
+        stream.SetLength(stream.Length - 512);
+
+        using (var file = new DiskImageFile(stream))
+        {
+            Assert.Equal(geometry, file.Geometry);
         }
     }
 }

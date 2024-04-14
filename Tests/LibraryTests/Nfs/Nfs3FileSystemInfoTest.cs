@@ -24,40 +24,39 @@ using DiscUtils.Nfs;
 using System.IO;
 using Xunit;
 
-namespace LibraryTests.Nfs
+namespace LibraryTests.Nfs;
+
+public class Nfs3FileSystemInfoTest
 {
-    public class Nfs3FileSystemInfoTest
+    [Fact]
+    public void RoundTripTest()
     {
-        [Fact]
-        public void RoundTripTest()
+        var attributes = new Nfs3FileSystemInfo()
         {
-            var attributes = new Nfs3FileSystemInfo()
-            {
-                DirectoryPreferredBytes = 1,
-                FileSystemProperties = Nfs3FileSystemProperties.HardLinks,
-                MaxFileSize = 2,
-                ReadMaxBytes = 3,
-                ReadMultipleSize = 4,
-                ReadPreferredBytes = 5,
-                TimePrecision = Nfs3FileTime.Precision,
-                WriteMaxBytes = 7,
-                WriteMultipleSize = 8,
-                WritePreferredBytes = 9
-            };
+            DirectoryPreferredBytes = 1,
+            FileSystemProperties = Nfs3FileSystemProperties.HardLinks,
+            MaxFileSize = 2,
+            ReadMaxBytes = 3,
+            ReadMultipleSize = 4,
+            ReadPreferredBytes = 5,
+            TimePrecision = Nfs3FileTime.Precision,
+            WriteMaxBytes = 7,
+            WriteMultipleSize = 8,
+            WritePreferredBytes = 9
+        };
 
-            Nfs3FileSystemInfo clone = null;
+        Nfs3FileSystemInfo clone = null;
 
-            using (var stream = new MemoryStream())
-            {
-                var writer = new XdrDataWriter(stream);
-                attributes.Write(writer);
+        using (var stream = new MemoryStream())
+        {
+            var writer = new XdrDataWriter(stream);
+            attributes.Write(writer);
 
-                stream.Position = 0;
-                var reader = new XdrDataReader(stream);
-                clone = new Nfs3FileSystemInfo(reader);
-            }
-
-            Assert.Equal(attributes, clone);
+            stream.Position = 0;
+            var reader = new XdrDataReader(stream);
+            clone = new Nfs3FileSystemInfo(reader);
         }
+
+        Assert.Equal(attributes, clone);
     }
 }

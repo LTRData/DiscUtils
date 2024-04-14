@@ -30,10 +30,7 @@ internal class ExtentDescriptor : IByteArraySerializable
     public uint Length;
     public uint Location;
 
-    public int Size
-    {
-        get { return 8; }
-    }
+    public int Size => 8;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

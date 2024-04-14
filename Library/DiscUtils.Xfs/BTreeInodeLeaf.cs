@@ -29,10 +29,7 @@ namespace DiscUtils.Xfs;
 internal class BTreeInodeLeaf : BtreeHeader
 {
     public BTreeInodeRecord[] Records { get; private set; }
-    public override int Size
-    {
-        get { return base.Size + (NumberOfRecords * 0x10); }
-    }
+    public override int Size => base.Size + (NumberOfRecords * 0x10);
 
     public BTreeInodeLeaf(uint superBlockVersion) : base(superBlockVersion){}
 

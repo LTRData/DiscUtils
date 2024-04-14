@@ -32,15 +32,9 @@ internal sealed class PortMap2 : RpcProgram
     public PortMap2(RpcClient client)
         : base(client) {}
 
-    public override int Identifier
-    {
-        get { return ProgramIdentifier; }
-    }
+    public override int Identifier => ProgramIdentifier;
 
-    public override int Version
-    {
-        get { return ProgramVersion; }
-    }
+    public override int Version => ProgramVersion;
 
     public int GetPort(int program, int version, PortMap2Protocol protocol)
     {

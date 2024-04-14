@@ -46,10 +46,7 @@ internal class ShortformDirectoryEntry : IByteArraySerializable, IDirectoryEntry
 
     public DirectoryFType FType { get; private set; }
 
-    public int Size
-    {
-        get { return 0x3 + NameLength + (_useShortInode ? 4 : 8) + (_ftype?1:0); }
-    }
+    public int Size => 0x3 + NameLength + (_useShortInode ? 4 : 8) + (_ftype ? 1 : 0);
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

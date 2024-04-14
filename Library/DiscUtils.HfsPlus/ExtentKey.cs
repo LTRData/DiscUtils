@@ -43,10 +43,7 @@ internal sealed class ExtentKey : BTreeKey, IComparable<ExtentKey>
 
     public CatalogNodeId NodeId { get; private set; }
 
-    public override int Size
-    {
-        get { return 12; }
-    }
+    public override int Size => 12;
 
     public int CompareTo(ExtentKey other)
     {

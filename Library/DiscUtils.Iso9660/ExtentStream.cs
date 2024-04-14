@@ -54,25 +54,16 @@ internal class ExtentStream : ReadOnlyCompatibilityStream
         }
     }
 
-    public override bool CanRead
-    {
-        get { return true; }
-    }
+    public override bool CanRead => true;
 
-    public override bool CanSeek
-    {
-        get { return true; }
-    }
+    public override bool CanSeek => true;
 
-    public override long Length
-    {
-        get { return _dataLength; }
-    }
+    public override long Length => _dataLength;
 
     public override long Position
     {
-        get { return _position; }
-        set { _position = value; }
+        get => _position;
+        set => _position = value;
     }
 
     public override int Read(byte[] buffer, int offset, int count)

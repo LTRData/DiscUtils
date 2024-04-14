@@ -172,10 +172,7 @@ internal class SuperBlock : IByteArraySerializable
 
     public ReadOnlyCollection<ChunkItem> SystemChunkArray { get; private set; }
 
-    public int Size
-    {
-        get { return Length; }
-    }
+    public int Size => Length;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

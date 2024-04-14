@@ -43,10 +43,7 @@ public class Adler32
     /// <summary>
     /// Gets the checksum of all data processed so far.
     /// </summary>
-    public int Value
-    {
-        get { return (int)(_b << 16 | _a); }
-    }
+    public int Value => (int)(_b << 16 | _a);
 
     /// <summary>
     /// Provides data that should be checksummed.

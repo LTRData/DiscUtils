@@ -29,10 +29,7 @@ namespace DiscUtils.Vmdk;
 [VirtualDiskFactory("VMDK", ".vmdk")]
 internal sealed class DiskFactory : VirtualDiskFactory
 {
-    public override string[] Variants
-    {
-        get { return new[] { "fixed", "dynamic", "vmfsfixed", "vmfsdynamic" }; }
-    }
+    public override string[] Variants => new[] { "fixed", "dynamic", "vmfsfixed", "vmfsdynamic" };
 
     public override VirtualDiskTypeInfo GetDiskTypeInformation(string variant)
     {

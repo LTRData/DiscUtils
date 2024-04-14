@@ -86,10 +86,7 @@ public abstract class DiscFileSystem :
     /// <summary>
     /// Gets the volume label.
     /// </summary>
-    public virtual string VolumeLabel
-    {
-        get { return string.Empty; }
-    }
+    public virtual string VolumeLabel => string.Empty;
 
     /// <summary>
     /// Volume Serial Number
@@ -99,10 +96,7 @@ public abstract class DiscFileSystem :
     /// <summary>
     /// Gets a value indicating whether the file system is thread-safe.
     /// </summary>
-    public virtual bool IsThreadSafe
-    {
-        get { return false; }
-    }
+    public virtual bool IsThreadSafe => false;
 
     /// <summary>
     /// Copies an existing file to a new file.

@@ -24,28 +24,27 @@ using DiscUtils.Nfs;
 using System.IO;
 using Xunit;
 
-namespace LibraryTests.Nfs
+namespace LibraryTests.Nfs;
+
+public class RpcAuthenticationTests
 {
-    public class RpcAuthenticationTests
+    [Fact]
+    public void RoundTripTest()
     {
-        [Fact]
-        public void RoundTripTest()
+        var authentication = new RpcAuthentication();
+
+        RpcAuthentication clone = null;
+
+        using (var stream = new MemoryStream())
         {
-            var authentication = new RpcAuthentication();
+            var writer = new XdrDataWriter(stream);
+            authentication.Write(writer);
 
-            RpcAuthentication clone = null;
-
-            using (var stream = new MemoryStream())
-            {
-                var writer = new XdrDataWriter(stream);
-                authentication.Write(writer);
-
-                stream.Position = 0;
-                var reader = new XdrDataReader(stream);
-                clone = new RpcAuthentication(reader);
-            }
-
-            Assert.Equal(authentication, clone);
+            stream.Position = 0;
+            var reader = new XdrDataReader(stream);
+            clone = new RpcAuthentication(reader);
         }
+
+        Assert.Equal(authentication, clone);
     }
 }

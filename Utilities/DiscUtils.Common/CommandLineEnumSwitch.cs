@@ -67,10 +67,7 @@ public class CommandLineEnumSwitch<T> : CommandLineSwitch
         }
     }
 
-    public T EnumValue
-    {
-        get { return _enumValue; }
-    }
+    public T EnumValue => _enumValue;
 
     internal override int Process(string[] args, int pos)
     {

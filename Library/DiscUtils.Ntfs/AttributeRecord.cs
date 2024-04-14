@@ -52,34 +52,25 @@ internal abstract class AttributeRecord : IComparable<AttributeRecord>
 
     public ushort AttributeId
     {
-        get { return _attributeId; }
-        set { _attributeId = value; }
+        get => _attributeId;
+        set => _attributeId = value;
     }
 
-    public AttributeType AttributeType
-    {
-        get { return _type; }
-    }
+    public AttributeType AttributeType => _type;
 
     public abstract long DataLength { get; set; }
 
     public AttributeFlags Flags
     {
-        get { return _flags; }
-        set { _flags = value; }
+        get => _flags;
+        set => _flags = value;
     }
 
     public abstract long InitializedDataLength { get; set; }
 
-    public bool IsNonResident
-    {
-        get { return _nonResidentFlag != 0; }
-    }
+    public bool IsNonResident => _nonResidentFlag != 0;
 
-    public string Name
-    {
-        get { return _name; }
-    }
+    public string Name => _name;
 
     public abstract int Size { get; }
 

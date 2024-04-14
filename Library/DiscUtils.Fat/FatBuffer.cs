@@ -71,24 +71,15 @@ internal class FatBuffer
         _dirtySectors = new Dictionary<uint, uint>();
     }
 
-    internal int NumEntries
+    internal int NumEntries => _type switch
     {
-        get
-        {
-            return _type switch
-            {
-                FatType.Fat12 => _buffer.Length / 3 * 2,
-                FatType.Fat16 => _buffer.Length / 2,
-                // FAT32
-                _ => _buffer.Length / 4,
-            };
-        }
-    }
+        FatType.Fat12 => _buffer.Length / 3 * 2,
+        FatType.Fat16 => _buffer.Length / 2,
+        // FAT32
+        _ => _buffer.Length / 4,
+    };
 
-    internal int Size
-    {
-        get { return _buffer.Length; }
-    }
+    internal int Size => _buffer.Length;
 
     internal static bool IsFree(uint val)
     {

@@ -33,57 +33,27 @@ internal class DirEntry : VfsDirEntry
         Record = record;
     }
 
-    public override DateTime CreationTimeUtc
-    {
-        get { throw new NotSupportedException(); }
-    }
+    public override DateTime CreationTimeUtc => throw new NotSupportedException();
 
-    public override FileAttributes FileAttributes
-    {
-        get { throw new NotSupportedException(); }
-    }
+    public override FileAttributes FileAttributes => throw new NotSupportedException();
 
-    public override string FileName
-    {
-        get { return Record.Name; }
-    }
+    public override string FileName => Record.Name;
 
-    public override bool HasVfsFileAttributes
-    {
-        get { return false; }
-    }
+    public override bool HasVfsFileAttributes => false;
 
-    public override bool HasVfsTimeInfo
-    {
-        get { return false; }
-    }
+    public override bool HasVfsTimeInfo => false;
 
-    public override bool IsDirectory
-    {
-        get { return Record.FileType == DirectoryRecord.FileTypeDirectory; }
-    }
+    public override bool IsDirectory => Record.FileType == DirectoryRecord.FileTypeDirectory;
 
-    public override bool IsSymlink
-    {
-        get { return Record.FileType == DirectoryRecord.FileTypeSymlink; }
-    }
+    public override bool IsSymlink => Record.FileType == DirectoryRecord.FileTypeSymlink;
 
-    public override DateTime LastAccessTimeUtc
-    {
-        get { throw new NotSupportedException(); }
-    }
+    public override DateTime LastAccessTimeUtc => throw new NotSupportedException();
 
-    public override DateTime LastWriteTimeUtc
-    {
-        get { throw new NotSupportedException(); }
-    }
+    public override DateTime LastWriteTimeUtc => throw new NotSupportedException();
 
     public DirectoryRecord Record { get; }
 
-    public override long UniqueCacheId
-    {
-        get { return Record.Inode; }
-    }
+    public override long UniqueCacheId => Record.Inode;
 
     public override string ToString()
     {

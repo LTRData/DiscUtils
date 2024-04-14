@@ -31,9 +31,9 @@ internal class RawLocation : IByteArraySerializable
     public ulong Length;
     public uint Checksum;
     public RawLocationFlags Flags;
-    
+
     /// <inheritdoc />
-    public int Size { get { return 0x18; } }
+    public int Size => 0x18;
 
     /// <inheritdoc />
     public int ReadFrom(ReadOnlySpan<byte> buffer)

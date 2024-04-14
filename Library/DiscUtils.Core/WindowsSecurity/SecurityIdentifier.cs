@@ -110,11 +110,8 @@ public sealed class SecurityIdentifier : IdentityReference, IComparable<Security
     public SecurityIdentifier(WellKnownSidType sidType,
                               SecurityIdentifier domainSid)
     {
-        var acct = WellKnownAccount.LookupByType(sidType);
-        if (acct == null)
-        {
-            throw new ArgumentException($"Unable to convert SID type: {sidType}");
-        }
+        var acct = WellKnownAccount.LookupByType(sidType)
+            ?? throw new ArgumentException($"Unable to convert SID type: {sidType}");
 
         if (acct.IsAbsolute)
         {
@@ -407,13 +404,10 @@ public sealed class SecurityIdentifier : IdentityReference, IComparable<Security
         // it's an attempted alias.  Do that conversion first.
         if (sid.Length == 2)
         {
-            var acct = WellKnownAccount.LookupBySddlForm(sid);
-            if (acct == null)
-            {
-                throw new ArgumentException(
+            var acct = WellKnownAccount.LookupBySddlForm(sid)
+                ?? throw new ArgumentException(
                     $"Invalid SDDL string - unrecognized account: {sid.ToString()}",
                     nameof(sddlForm));
-            }
 
             if (!acct.IsAbsolute)
             {
@@ -435,13 +429,10 @@ public sealed class SecurityIdentifier : IdentityReference, IComparable<Security
         // it's an attempted alias.  Do that conversion first.
         if (sid.Length == 2)
         {
-            var acct = WellKnownAccount.LookupBySddlForm(sid);
-            if (acct == null)
-            {
-                throw new ArgumentException(
+            var acct = WellKnownAccount.LookupBySddlForm(sid)
+                ?? throw new ArgumentException(
                     $"Invalid SDDL string - unrecognized account: {sid}",
                     nameof(sddlForm));
-            }
 
             if (!acct.IsAbsolute)
             {

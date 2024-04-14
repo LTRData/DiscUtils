@@ -31,15 +31,9 @@ internal struct ExtentIndex : IByteArraySerializable
     public ushort LeafPhysicalBlockHi;
     public uint LeafPhysicalBlockLo;
 
-    public long LeafPhysicalBlock
-    {
-        get { return LeafPhysicalBlockLo | ((long)LeafPhysicalBlockHi << 32); }
-    }
+    public long LeafPhysicalBlock => LeafPhysicalBlockLo | ((long)LeafPhysicalBlockHi << 32);
 
-    public int Size
-    {
-        get { return 12; }
-    }
+    public int Size => 12;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

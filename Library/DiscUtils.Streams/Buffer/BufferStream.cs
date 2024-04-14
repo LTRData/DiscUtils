@@ -50,50 +50,35 @@ public class BufferStream : SparseStream
     /// <summary>
     /// Gets an indication of whether read access is permitted.
     /// </summary>
-    public override bool CanRead
-    {
-        get { return _access != FileAccess.Write; }
-    }
+    public override bool CanRead => _access != FileAccess.Write;
 
     /// <summary>
     /// Gets an indication of whether seeking is permitted.
     /// </summary>
-    public override bool CanSeek
-    {
-        get { return true; }
-    }
+    public override bool CanSeek => true;
 
     /// <summary>
     /// Gets an indication of whether write access is permitted.
     /// </summary>
-    public override bool CanWrite
-    {
-        get { return _access != FileAccess.Read; }
-    }
+    public override bool CanWrite => _access != FileAccess.Read;
 
     /// <summary>
     /// Gets the stored extents within the sparse stream.
     /// </summary>
-    public override IEnumerable<StreamExtent> Extents
-    {
-        get { return _buffer.Extents; }
-    }
+    public override IEnumerable<StreamExtent> Extents => _buffer.Extents;
 
     /// <summary>
     /// Gets the length of the stream (the capacity of the underlying buffer).
     /// </summary>
-    public override long Length
-    {
-        get { return _buffer.Capacity; }
-    }
+    public override long Length => _buffer.Capacity;
 
     /// <summary>
     /// Gets and sets the current position within the stream.
     /// </summary>
     public override long Position
     {
-        get { return _position; }
-        set { _position = value; }
+        get => _position;
+        set => _position = value;
     }
 
     /// <summary>

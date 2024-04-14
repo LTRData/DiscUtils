@@ -46,10 +46,7 @@ internal class FileSetDescriptor : IByteArraySerializable
     public LongAllocationDescriptor RootDirectoryIcb;
     public LongAllocationDescriptor SystemStreamDirectoryIcb;
 
-    public int Size
-    {
-        get { return 512; }
-    }
+    public int Size => 512;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

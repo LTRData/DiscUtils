@@ -60,15 +60,9 @@ internal class FileNameRecord : IByteArraySerializable, IDiagnosticTraceable, IE
         FileName = toCopy.FileName;
     }
 
-    public FileAttributes FileAttributes
-    {
-        get { return ConvertFlags(Flags); }
-    }
+    public FileAttributes FileAttributes => ConvertFlags(Flags);
 
-    public int Size
-    {
-        get { return 0x42 + FileName.Length * 2; }
-    }
+    public int Size => 0x42 + FileName.Length * 2;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

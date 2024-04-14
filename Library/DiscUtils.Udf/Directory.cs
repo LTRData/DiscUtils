@@ -60,15 +60,9 @@ internal class Directory : File, IVfsDirectory<FileIdentifier, File>
         }
     }
 
-    public IReadOnlyDictionary<string, FileIdentifier> AllEntries
-    {
-        get { return _entries; }
-    }
+    public IReadOnlyDictionary<string, FileIdentifier> AllEntries => _entries;
 
-    public FileIdentifier Self
-    {
-        get { return null; }
-    }
+    public FileIdentifier Self => null;
 
     public FileIdentifier CreateNewFile(string name)
     {

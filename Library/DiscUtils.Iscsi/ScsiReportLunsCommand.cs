@@ -37,10 +37,7 @@ internal class ScsiReportLunsCommand : ScsiCommand
         _expected = expected;
     }
 
-    public override int Size
-    {
-        get { return 12; }
-    }
+    public override int Size => 12;
 
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {

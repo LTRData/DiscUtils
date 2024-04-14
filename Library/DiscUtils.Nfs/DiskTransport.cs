@@ -33,10 +33,7 @@ internal sealed class DiskTransport : VirtualDiskTransport
     private NfsFileSystem _fileSystem;
     private string _path;
 
-    public override bool IsRawDisk
-    {
-        get { return false; }
-    }
+    public override bool IsRawDisk => false;
 
     public override void Connect(Uri uri, string username, string password)
     {

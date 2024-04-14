@@ -58,8 +58,5 @@ internal class MetadataPartition : LogicalPartition
         }
     }
 
-    public override IBuffer Content
-    {
-        get { return _metadataFile.FileContent; }
-    }
+    public override IBuffer Content => _metadataFile.FileContent;
 }

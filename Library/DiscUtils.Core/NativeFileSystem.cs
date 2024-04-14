@@ -64,45 +64,30 @@ public class NativeFileSystem : DiscFileSystem
     /// Indicates whether the file system is read-only or read-write.
     /// </summary>
     /// <returns>true if the file system is read-write.</returns>
-    public override bool CanWrite
-    {
-        get { return !_readOnly; }
-    }
+    public override bool CanWrite => !_readOnly;
 
     /// <summary>
     /// Provides a friendly description of the file system type.
     /// </summary>
-    public override string FriendlyName
-    {
-        get { return "Native"; }
-    }
+    public override string FriendlyName => "Native";
 
     /// <summary>
     /// Gets a value indicating whether the file system is thread-safe.
     /// </summary>
     /// <remarks>The Native File System is thread safe.</remarks>
-    public override bool IsThreadSafe
-    {
-        get { return true; }
-    }
+    public override bool IsThreadSafe => true;
 
     private DiscDirectoryInfo _root;
 
     /// <summary>
     /// Gets the root directory of the file system.
     /// </summary>
-    public override DiscDirectoryInfo Root
-    {
-        get { return _root ??= new DiscDirectoryInfo(this, string.Empty); }
-    }
+    public override DiscDirectoryInfo Root => _root ??= new DiscDirectoryInfo(this, string.Empty);
 
     /// <summary>
     /// Gets the volume label.
     /// </summary>
-    public override string VolumeLabel
-    {
-        get { return string.Empty; }
-    }
+    public override string VolumeLabel => string.Empty;
 
     /// <summary>
     /// Copies an existing file to a new file.
@@ -777,10 +762,7 @@ public class NativeFileSystem : DiscFileSystem
     /// <summary>
     /// Used space of the Filesystem in bytes
     /// </summary>
-    public override long UsedSpace
-    {
-        get { return Size - AvailableSpace; }
-    }
+    public override long UsedSpace => Size - AvailableSpace;
 
     /// <summary>
     /// Available space of the Filesystem in bytes

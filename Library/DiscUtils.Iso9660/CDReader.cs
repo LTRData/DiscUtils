@@ -54,58 +54,37 @@ public class CDReader : VfsFileSystemFacade, IClusterBasedFileSystem,
     /// <summary>
     /// Gets which of the Iso9660 variants is being used.
     /// </summary>
-    public Iso9660Variant ActiveVariant
-    {
-        get { return GetRealFileSystem<VfsCDReader>().ActiveVariant; }
-    }
+    public Iso9660Variant ActiveVariant => GetRealFileSystem<VfsCDReader>().ActiveVariant;
 
     /// <summary>
     /// Gets the emulation requested of BIOS when the image is loaded.
     /// </summary>
-    public BootDeviceEmulation BootEmulation
-    {
-        get { return GetRealFileSystem<VfsCDReader>().BootEmulation; }
-    }
+    public BootDeviceEmulation BootEmulation => GetRealFileSystem<VfsCDReader>().BootEmulation;
 
     /// <summary>
     /// Gets the absolute start position (in bytes) of the boot image, or zero if not found.
     /// </summary>
-    public long BootImageStart
-    {
-        get { return GetRealFileSystem<VfsCDReader>().BootImageStart; }
-    }
+    public long BootImageStart => GetRealFileSystem<VfsCDReader>().BootImageStart;
 
     /// <summary>
     /// Gets the memory segment the image should be loaded into (0 for default).
     /// </summary>
-    public int BootLoadSegment
-    {
-        get { return GetRealFileSystem<VfsCDReader>().BootLoadSegment; }
-    }
+    public int BootLoadSegment => GetRealFileSystem<VfsCDReader>().BootLoadSegment;
 
     /// <summary>
     /// Gets a value indicating whether a boot image is present.
     /// </summary>
-    public bool HasBootImage
-    {
-        get { return GetRealFileSystem<VfsCDReader>().HasBootImage; }
-    }
+    public bool HasBootImage => GetRealFileSystem<VfsCDReader>().HasBootImage;
 
     /// <summary>
     /// Gets the size (in bytes) of each cluster.
     /// </summary>
-    public long ClusterSize
-    {
-        get { return GetRealFileSystem<VfsCDReader>().ClusterSize; }
-    }
+    public long ClusterSize => GetRealFileSystem<VfsCDReader>().ClusterSize;
 
     /// <summary>
     /// Gets the total number of clusters managed by the file system.
     /// </summary>
-    public long TotalClusters
-    {
-        get { return GetRealFileSystem<VfsCDReader>().TotalClusters; }
-    }
+    public long TotalClusters => GetRealFileSystem<VfsCDReader>().TotalClusters;
 
     /// <summary>
     /// Gets the size (in bytes) of each sector.

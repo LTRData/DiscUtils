@@ -59,7 +59,7 @@ public sealed class DiskBuilder : DiskImageBuilder
     /// </summary>
     public override GenericDiskAdapterType GenericAdapterType
     {
-        get { return AdapterType == DiskAdapterType.Ide ? GenericDiskAdapterType.Ide : GenericDiskAdapterType.Scsi; }
+        get => AdapterType == DiskAdapterType.Ide ? GenericDiskAdapterType.Ide : GenericDiskAdapterType.Scsi;
 
         set
         {
@@ -77,10 +77,7 @@ public sealed class DiskBuilder : DiskImageBuilder
     /// <summary>
     /// Gets whether this file format preserves BIOS geometry information.
     /// </summary>
-    public override bool PreservesBiosGeometry
-    {
-        get { return true; }
-    }
+    public override bool PreservesBiosGeometry => true;
 
     /// <summary>
     /// Initiates the build process.
@@ -100,8 +97,8 @@ public sealed class DiskBuilder : DiskImageBuilder
             throw new InvalidOperationException("No content stream specified");
         }
 
-        if (DiskType != DiskCreateType.Vmfs && DiskType != DiskCreateType.VmfsSparse &&
-            DiskType != DiskCreateType.MonolithicSparse)
+        if (DiskType is not DiskCreateType.Vmfs and not DiskCreateType.VmfsSparse and
+            not DiskCreateType.MonolithicSparse)
         {
             throw new NotImplementedException("Only MonolithicSparse, Vmfs and VmfsSparse disks implemented");
         }

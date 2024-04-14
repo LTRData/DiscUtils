@@ -38,18 +38,12 @@ internal class TimeSpec : IByteArraySerializable
     /// Number of nanoseconds since the beginning of the second. 
     /// </summary>
     public uint Nanoseconds { get; internal set; }
-    
-    public DateTimeOffset Value { get { return DateTimeOffset.FromUnixTimeSeconds(Seconds).AddTicks(Nanoseconds / 100); } }
 
-    public int Size
-    {
-        get { return Length; }
-    }
+    public DateTimeOffset Value => DateTimeOffset.FromUnixTimeSeconds(Seconds).AddTicks(Nanoseconds / 100);
 
-    public DateTimeOffset DateTime
-    {
-        get { return DateTimeOffset.FromUnixTimeSeconds(Seconds).AddTicks(Nanoseconds / 100); }
-    }
+    public int Size => Length;
+
+    public DateTimeOffset DateTime => DateTimeOffset.FromUnixTimeSeconds(Seconds).AddTicks(Nanoseconds / 100);
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

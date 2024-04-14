@@ -40,15 +40,9 @@ public sealed class VirtualDiskPSDriveInfo : PSDriveInfo
         _fsCache = new Dictionary<string, DiscFileSystem>();
     }
 
-    public VirtualDisk Disk
-    {
-        get { return _disk; }
-    }
+    public VirtualDisk Disk => _disk;
 
-    public VolumeManager VolumeManager
-    {
-        get { return _volMgr; }
-    }
+    public VolumeManager VolumeManager => _volMgr;
 
     internal DiscFileSystem GetFileSystem(VolumeInfo volInfo)
     {

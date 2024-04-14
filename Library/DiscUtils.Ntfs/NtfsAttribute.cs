@@ -103,10 +103,7 @@ internal class NtfsAttribute : IDiagnosticTraceable
         }
     }
 
-    public IDictionary<AttributeReference, AttributeRecord> Extents
-    {
-        get { return _extents; }
-    }
+    public IDictionary<AttributeReference, AttributeRecord> Extents => _extents;
 
     public AttributeRecord FirstExtent
     {
@@ -135,7 +132,7 @@ internal class NtfsAttribute : IDiagnosticTraceable
 
     public AttributeFlags Flags
     {
-        get { return _primaryRecord.Flags; }
+        get => _primaryRecord.Flags;
 
         set
         {
@@ -144,15 +141,9 @@ internal class NtfsAttribute : IDiagnosticTraceable
         }
     }
 
-    public ushort Id
-    {
-        get { return _primaryRecord.AttributeId; }
-    }
+    public ushort Id => _primaryRecord.AttributeId;
 
-    public bool IsNonResident
-    {
-        get { return _primaryRecord.IsNonResident; }
-    }
+    public bool IsNonResident => _primaryRecord.IsNonResident;
 
     public AttributeRecord LastExtent
     {
@@ -183,20 +174,11 @@ internal class NtfsAttribute : IDiagnosticTraceable
         }
     }
 
-    public long Length
-    {
-        get { return _primaryRecord.DataLength; }
-    }
+    public long Length => _primaryRecord.DataLength;
 
-    public string Name
-    {
-        get { return _primaryRecord.Name; }
-    }
+    public string Name => _primaryRecord.Name;
 
-    public AttributeRecord PrimaryRecord
-    {
-        get { return _primaryRecord; }
-    }
+    public AttributeRecord PrimaryRecord => _primaryRecord;
 
     public Buffer RawBuffer
     {
@@ -228,15 +210,9 @@ internal class NtfsAttribute : IDiagnosticTraceable
         }
     }
 
-    public AttributeReference Reference
-    {
-        get { return new AttributeReference(_containingFile, _primaryRecord.AttributeId); }
-    }
+    public AttributeReference Reference => new AttributeReference(_containingFile, _primaryRecord.AttributeId);
 
-    public AttributeType Type
-    {
-        get { return _primaryRecord.AttributeType; }
-    }
+    public AttributeType Type => _primaryRecord.AttributeType;
 
     public virtual void Dump(TextWriter writer, string indent)
     {

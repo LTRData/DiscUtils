@@ -32,8 +32,8 @@ internal class JournalSuperBlock : IByteArraySerializable
     public uint MaxLength;
     public const uint Magic = 0xC03B3998;
     /// <inheritdoc />
-    public int Size { get { return 1024; } }
-    
+    public int Size => 1024;
+
     /// <inheritdoc />
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
@@ -44,7 +44,7 @@ internal class JournalSuperBlock : IByteArraySerializable
         }
 
         var blocktype = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x4));
-        if (blocktype != 3 && blocktype != 4)
+        if (blocktype is not 3 and not 4)
         {
             throw new IOException("Invalid journal block type - no superblock found");
         }

@@ -49,20 +49,11 @@ internal class NonResidentAttributeBuffer : NonResidentDataBuffer
         };
     }
 
-    public override bool CanWrite
-    {
-        get { return _context.RawStream.CanWrite && _file != null; }
-    }
+    public override bool CanWrite => _context.RawStream.CanWrite && _file != null;
 
-    public override long Capacity
-    {
-        get { return PrimaryAttributeRecord.DataLength; }
-    }
+    public override long Capacity => PrimaryAttributeRecord.DataLength;
 
-    private NonResidentAttributeRecord PrimaryAttributeRecord
-    {
-        get { return _attribute.PrimaryRecord as NonResidentAttributeRecord; }
-    }
+    private NonResidentAttributeRecord PrimaryAttributeRecord => _attribute.PrimaryRecord as NonResidentAttributeRecord;
 
     public void AlignVirtualClusterCount()
     {

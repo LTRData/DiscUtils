@@ -51,26 +51,17 @@ internal class XpressStream : ReadOnlyCompatibilityStream
         _buffer = Buffer(count);
     }
 
-    public override bool CanRead
-    {
-        get { return true; }
-    }
+    public override bool CanRead => true;
 
-    public override bool CanSeek
-    {
-        get { return false; }
-    }
+    public override bool CanSeek => false;
 
-    public override long Length
-    {
-        get { return _buffer.Length; }
-    }
+    public override long Length => _buffer.Length;
 
     public override long Position
     {
-        get { return _position; }
+        get => _position;
 
-        set { _position = value; }
+        set => _position = value;
     }
 
     public override int Read(byte[] buffer, int offset, int count)

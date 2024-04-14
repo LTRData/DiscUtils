@@ -78,7 +78,7 @@ public sealed class BZip2DecoderStream : ReadOnlyCompatibilityStream
 
         // The size of the decompression blocks in multiples of 100,000
         var blockSize = (int)_bitstream.Read(8) - 0x30;
-        if (blockSize < 1 || blockSize > 9)
+        if (blockSize is < 1 or > 9)
         {
             throw new InvalidDataException($"Unexpected block size in header: {blockSize}");
         }
@@ -98,34 +98,25 @@ public sealed class BZip2DecoderStream : ReadOnlyCompatibilityStream
     /// <summary>
     /// Gets an indication of whether read access is permitted.
     /// </summary>
-    public override bool CanRead
-    {
-        get { return true; }
-    }
+    public override bool CanRead => true;
 
     /// <summary>
     /// Gets an indication of whether seeking is permitted.
     /// </summary>
-    public override bool CanSeek
-    {
-        get { return false; }
-    }
+    public override bool CanSeek => false;
 
     /// <summary>
     /// Gets the length of the stream (the capacity of the underlying buffer).
     /// </summary>
-    public override long Length
-    {
-        get { throw new NotSupportedException(); }
-    }
+    public override long Length => throw new NotSupportedException();
 
     /// <summary>
     /// Gets and sets the current position within the stream.
     /// </summary>
     public override long Position
     {
-        get { return _position; }
-        set { throw new NotSupportedException(); }
+        get => _position;
+        set => throw new NotSupportedException();
     }
 
     /// <summary>

@@ -39,14 +39,8 @@ internal class AttributeListRecord : IDiagnosticTraceable, IByteArraySerializabl
     public ulong StartVcn;
     public AttributeType Type;
 
-    public int Size
-    {
-        get
-        {
-            return MathUtilities.RoundUp(0x20 + (string.IsNullOrEmpty(Name) ? 0 : Encoding.Unicode.GetByteCount(Name)),
+    public int Size => MathUtilities.RoundUp(0x20 + (string.IsNullOrEmpty(Name) ? 0 : Encoding.Unicode.GetByteCount(Name)),
                 8);
-        }
-    }
 
     public int ReadFrom(ReadOnlySpan<byte> data)
     {

@@ -167,7 +167,7 @@ public sealed class ServiceDiscoveryClient : IDisposable
         var sb = new StringBuilder();
         foreach (var ch in instanceName)
         {
-            if (ch == '.' || ch == '\\')
+            if (ch is '.' or '\\')
             {
                 sb.Append('\\');
             }

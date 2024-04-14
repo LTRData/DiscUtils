@@ -96,10 +96,7 @@ internal class RootItem : BaseItem
     /// </summary>
     public byte Level { get; private set; }
 
-    public override int Size
-    {
-        get { return Length; }
-    }
+    public override int Size => Length;
 
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {

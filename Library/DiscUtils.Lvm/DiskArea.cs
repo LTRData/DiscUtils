@@ -29,9 +29,9 @@ internal class DiskArea : IByteArraySerializable
 {
     public ulong Offset;
     public ulong Length;
-    
+
     /// <inheritdoc />
-    public int Size { get { return 16; } }
+    public int Size => 16;
 
     /// <inheritdoc />
     public int ReadFrom(ReadOnlySpan<byte> buffer)

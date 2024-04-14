@@ -68,10 +68,7 @@ internal sealed class HfsPlusFileSystemImpl : VfsFileSystem<DirEntry, File, Dire
         RootDirectory = (Directory)GetFile(rootDirEntry);
     }
 
-    public override string FriendlyName
-    {
-        get { return "Apple HFS+"; }
-    }
+    public override string FriendlyName => "Apple HFS+";
 
     public override string VolumeLabel
     {
@@ -85,18 +82,12 @@ internal sealed class HfsPlusFileSystemImpl : VfsFileSystem<DirEntry, File, Dire
         }
     }
 
-    public override bool CanWrite
-    {
-        get { return false; }
-    }
+    public override bool CanWrite => false;
 
     public UnixFileSystemInfo GetUnixFileInfo(string path)
     {
-        var dirEntry = GetDirectoryEntry(path);
-        if (dirEntry == null)
-        {
-            throw new FileNotFoundException("No such file or directory", path);
-        }
+        var dirEntry = GetDirectoryEntry(path)
+            ?? throw new FileNotFoundException("No such file or directory", path);
 
         return dirEntry.CatalogFileInfo.FileSystemInfo;
     }
@@ -118,12 +109,8 @@ internal sealed class HfsPlusFileSystemImpl : VfsFileSystem<DirEntry, File, Dire
 
     public IEnumerable<StreamExtent> PathToExtents(string path)
     {
-        var file = GetFile(path);
-
-        if (file == null)
-        {
-            throw new FileNotFoundException("No such file or directory", path);
-        }
+        var file = GetFile(path)
+            ?? throw new FileNotFoundException("No such file or directory", path);
 
         if (file.FileContent is not FileBuffer fileBuffer)
         {
@@ -136,26 +123,17 @@ internal sealed class HfsPlusFileSystemImpl : VfsFileSystem<DirEntry, File, Dire
     /// <summary>
     /// Size of the Filesystem in bytes
     /// </summary>
-    public override long Size
-    {
-        get { throw new NotSupportedException("Filesystem size is not (yet) supported"); }
-    }
+    public override long Size => throw new NotSupportedException("Filesystem size is not (yet) supported");
 
     /// <summary>
     /// Used space of the Filesystem in bytes
     /// </summary>
-    public override long UsedSpace
-    {
-        get { throw new NotSupportedException("Filesystem size is not (yet) supported"); }
-    }
+    public override long UsedSpace => throw new NotSupportedException("Filesystem size is not (yet) supported");
 
     /// <summary>
     /// Available space of the Filesystem in bytes
     /// </summary>
-    public override long AvailableSpace
-    {
-        get { throw new NotSupportedException("Filesystem size is not (yet) supported"); }
-    }
+    public override long AvailableSpace => throw new NotSupportedException("Filesystem size is not (yet) supported");
 
     public override bool SupportsUsedAvailableSpace => false;
 }

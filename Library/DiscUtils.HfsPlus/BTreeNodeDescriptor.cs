@@ -34,10 +34,7 @@ internal sealed class BTreeNodeDescriptor : IByteArraySerializable
     public ushort NumRecords;
     public ushort Reserved;
 
-    public int Size
-    {
-        get { return 14; }
-    }
+    public int Size => 14;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

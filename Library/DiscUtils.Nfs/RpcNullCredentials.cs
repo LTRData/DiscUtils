@@ -27,10 +27,7 @@ namespace DiscUtils.Nfs;
 /// </summary>
 public sealed class RpcNullCredentials : RpcCredentials
 {
-    internal override RpcAuthFlavour AuthFlavour
-    {
-        get { return RpcAuthFlavour.Null; }
-    }
+    internal override RpcAuthFlavour AuthFlavour => RpcAuthFlavour.Null;
 
     internal override void Write(XdrDataWriter writer) {}
 }

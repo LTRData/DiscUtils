@@ -26,65 +26,64 @@ using DiscUtils.BootConfig;
 using DiscUtils.Registry;
 using Xunit;
 
-namespace LibraryTests.BootConfig
+namespace LibraryTests.BootConfig;
+
+public class BcdObjectTest
 {
-    public class BcdObjectTest
+    [Fact]
+    public void AddElement()
     {
-        [Fact]
-        public void AddElement()
-        {
-            var hive = RegistryHive.Create(new MemoryStream());
-            var s = Store.Initialize(hive.Root);
-            var obj = s.CreateInherit(InheritType.AnyObject);
+        var hive = RegistryHive.Create(new MemoryStream());
+        var s = Store.Initialize(hive.Root);
+        var obj = s.CreateInherit(InheritType.AnyObject);
 
-            Assert.False(obj.HasElement(WellKnownElement.LibraryApplicationPath));
-            obj.AddElement(WellKnownElement.LibraryApplicationPath, ElementValue.ForString(@"\a\path\to\nowhere"));
-            Assert.True(obj.HasElement(WellKnownElement.LibraryApplicationPath));
+        Assert.False(obj.HasElement(WellKnownElement.LibraryApplicationPath));
+        obj.AddElement(WellKnownElement.LibraryApplicationPath, ElementValue.ForString(@"\a\path\to\nowhere"));
+        Assert.True(obj.HasElement(WellKnownElement.LibraryApplicationPath));
 
-            Assert.Equal(@"\a\path\to\nowhere", obj.GetElement(WellKnownElement.LibraryApplicationPath).Value.ToString());
-        }
+        Assert.Equal(@"\a\path\to\nowhere", obj.GetElement(WellKnownElement.LibraryApplicationPath).Value.ToString());
+    }
 
-        [Fact]
-        public void AddElement_WrongType()
-        {
-            var hive = RegistryHive.Create(new MemoryStream());
-            var s = Store.Initialize(hive.Root);
-            var obj = s.CreateInherit(InheritType.AnyObject);
+    [Fact]
+    public void AddElement_WrongType()
+    {
+        var hive = RegistryHive.Create(new MemoryStream());
+        var s = Store.Initialize(hive.Root);
+        var obj = s.CreateInherit(InheritType.AnyObject);
 
-            Assert.Throws<ArgumentException>(() => obj.AddElement(WellKnownElement.LibraryApplicationDevice, ElementValue.ForString(@"\a\path\to\nowhere")));
-        }
+        Assert.Throws<ArgumentException>(() => obj.AddElement(WellKnownElement.LibraryApplicationDevice, ElementValue.ForString(@"\a\path\to\nowhere")));
+    }
 
-        [Fact]
-        public void RemoveElement()
-        {
-            var hive = RegistryHive.Create(new MemoryStream());
-            var s = Store.Initialize(hive.Root);
-            var obj = s.CreateInherit(InheritType.AnyObject);
+    [Fact]
+    public void RemoveElement()
+    {
+        var hive = RegistryHive.Create(new MemoryStream());
+        var s = Store.Initialize(hive.Root);
+        var obj = s.CreateInherit(InheritType.AnyObject);
 
-            obj.AddElement(WellKnownElement.LibraryApplicationPath, ElementValue.ForString(@"\a\path\to\nowhere"));
-            obj.RemoveElement(WellKnownElement.LibraryApplicationPath);
+        obj.AddElement(WellKnownElement.LibraryApplicationPath, ElementValue.ForString(@"\a\path\to\nowhere"));
+        obj.RemoveElement(WellKnownElement.LibraryApplicationPath);
 
-            Assert.False(obj.HasElement(WellKnownElement.LibraryApplicationPath));
-        }
+        Assert.False(obj.HasElement(WellKnownElement.LibraryApplicationPath));
+    }
 
-        [Fact]
-        public void RemoveElement_NonExistent()
-        {
-            var hive = RegistryHive.Create(new MemoryStream());
-            var s = Store.Initialize(hive.Root);
-            var obj = s.CreateInherit(InheritType.AnyObject);
+    [Fact]
+    public void RemoveElement_NonExistent()
+    {
+        var hive = RegistryHive.Create(new MemoryStream());
+        var s = Store.Initialize(hive.Root);
+        var obj = s.CreateInherit(InheritType.AnyObject);
 
-            obj.RemoveElement(WellKnownElement.LibraryApplicationPath);
-        }
+        obj.RemoveElement(WellKnownElement.LibraryApplicationPath);
+    }
 
-        [Fact]
-        public void FriendlyName()
-        {
-            var hive = RegistryHive.Create(new MemoryStream());
-            var s = Store.Initialize(hive.Root);
-            var obj = s.CreateInherit(InheritType.AnyObject);
+    [Fact]
+    public void FriendlyName()
+    {
+        var hive = RegistryHive.Create(new MemoryStream());
+        var s = Store.Initialize(hive.Root);
+        var obj = s.CreateInherit(InheritType.AnyObject);
 
-            Assert.Equal(obj.Identity.ToString("B"), obj.FriendlyName);
-        }
+        Assert.Equal(obj.Identity.ToString("B"), obj.FriendlyName);
     }
 }

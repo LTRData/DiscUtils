@@ -39,10 +39,7 @@ internal sealed class IdTableWriter
         _ids = new List<int>();
     }
 
-    public int IdCount
-    {
-        get { return _ids.Count; }
-    }
+    public int IdCount => _ids.Count;
 
     /// <summary>
     /// Allocates space for a User / Group id.

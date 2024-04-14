@@ -30,10 +30,7 @@ internal sealed class Type1PartitionMap : PartitionMap
     public ushort PartitionNumber;
     public ushort VolumeSequenceNumber;
 
-    public override int Size
-    {
-        get { return 6; }
-    }
+    public override int Size => 6;
 
     protected override int Parse(ReadOnlySpan<byte> buffer)
     {

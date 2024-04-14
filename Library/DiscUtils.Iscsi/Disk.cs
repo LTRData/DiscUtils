@@ -54,10 +54,7 @@ public class Disk : VirtualDisk
     {
         get
         {
-            if (_capacity == null)
-            {
-                _capacity = _session.GetCapacity(_lun);
-            }
+            _capacity ??= _session.GetCapacity(_lun);
 
             return _capacity.BlockSize;
         }
@@ -75,10 +72,7 @@ public class Disk : VirtualDisk
     {
         get
         {
-            if (_capacity == null)
-            {
-                _capacity = _session.GetCapacity(_lun);
-            }
+            _capacity ??= _session.GetCapacity(_lun);
 
             return _capacity.BlockSize * _capacity.LogicalBlockCount;
         }
@@ -91,10 +85,7 @@ public class Disk : VirtualDisk
     {
         get
         {
-            if (_stream == null)
-            {
-                _stream = new DiskStream(_session, _lun, _access);
-            }
+            _stream ??= new DiskStream(_session, _lun, _access);
 
             return _stream;
         }
@@ -103,31 +94,22 @@ public class Disk : VirtualDisk
     /// <summary>
     /// Gets the type of disk represented by this object.
     /// </summary>
-    public override VirtualDiskClass DiskClass
-    {
-        get { return VirtualDiskClass.HardDisk; }
-    }
+    public override VirtualDiskClass DiskClass => VirtualDiskClass.HardDisk;
 
     /// <summary>
     /// Gets information about the type of disk.
     /// </summary>
     /// <remarks>This property provides access to meta-data about the disk format, for example whether the
     /// BIOS geometry is preserved in the disk file.</remarks>
-    public override VirtualDiskTypeInfo DiskTypeInfo
+    public override VirtualDiskTypeInfo DiskTypeInfo => new VirtualDiskTypeInfo
     {
-        get
-        {
-            return new VirtualDiskTypeInfo
-            {
-                Name = "iSCSI",
-                Variant = string.Empty,
-                CanBeHardDisk = true,
-                DeterministicGeometry = false,
-                PreservesBiosGeometry = false,
-                CalcGeometry = Geometry.FromCapacity
-            };
-        }
-    }
+        Name = "iSCSI",
+        Variant = string.Empty,
+        CanBeHardDisk = true,
+        DeterministicGeometry = false,
+        PreservesBiosGeometry = false,
+        CalcGeometry = Geometry.FromCapacity
+    };
 
     /// <summary>
     /// The Geometry of the disk.

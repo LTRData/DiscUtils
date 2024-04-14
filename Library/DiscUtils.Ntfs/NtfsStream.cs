@@ -41,15 +41,9 @@ internal readonly struct NtfsStream
 
     public NtfsAttribute Attribute { get; }
 
-    public AttributeType AttributeType
-    {
-        get { return Attribute.Type; }
-    }
+    public AttributeType AttributeType => Attribute.Type;
 
-    public string Name
-    {
-        get { return Attribute.Name; }
-    }
+    public string Name => Attribute.Name;
 
     /// <summary>
     /// Gets the content of a stream.

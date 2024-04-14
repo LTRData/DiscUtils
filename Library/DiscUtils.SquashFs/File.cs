@@ -47,23 +47,23 @@ internal class File : IVfsFile
 
     public DateTime LastAccessTimeUtc
     {
-        get { return Inode.ModificationTime; }
+        get => Inode.ModificationTime;
 
-        set { throw new NotSupportedException(); }
+        set => throw new NotSupportedException();
     }
 
     public DateTime LastWriteTimeUtc
     {
-        get { return Inode.ModificationTime; }
+        get => Inode.ModificationTime;
 
-        set { throw new NotSupportedException(); }
+        set => throw new NotSupportedException();
     }
 
     public DateTime CreationTimeUtc
     {
-        get { return Inode.ModificationTime; }
+        get => Inode.ModificationTime;
 
-        set { throw new NotSupportedException(); }
+        set => throw new NotSupportedException();
     }
 
     public FileAttributes FileAttributes
@@ -74,22 +74,16 @@ internal class File : IVfsFile
             return Utilities.FileAttributesFromUnixFileType(fileType);
         }
 
-        set { throw new NotSupportedException(); }
+        set => throw new NotSupportedException();
     }
 
-    public long FileLength
-    {
-        get { return Inode.FileSize; }
-    }
+    public long FileLength => Inode.FileSize;
 
     public IBuffer FileContent
     {
         get
         {
-            if (_content == null)
-            {
-                _content = new FileContentBuffer(Context, (RegularInode)Inode, _inodeRef);
-            }
+            _content ??= new FileContentBuffer(Context, (RegularInode)Inode, _inodeRef);
 
             return _content;
         }

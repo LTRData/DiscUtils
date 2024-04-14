@@ -32,10 +32,7 @@ internal class FragmentRecord : IByteArraySerializable
 
     public long StartBlock;
 
-    public int Size
-    {
-        get { return RecordSize; }
-    }
+    public int Size => RecordSize;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

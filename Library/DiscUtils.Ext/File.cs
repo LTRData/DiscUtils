@@ -49,45 +49,39 @@ internal class File : IVfsFile
 
     public DateTime LastAccessTimeUtc
     {
-        get { return DateTimeOffset.FromUnixTimeSeconds(Inode.AccessTime).DateTime; }
+        get => DateTimeOffset.FromUnixTimeSeconds(Inode.AccessTime).DateTime;
 
-        set { throw new NotImplementedException(); }
+        set => throw new NotImplementedException();
     }
 
     public DateTime LastWriteTimeUtc
     {
-        get { return DateTimeOffset.FromUnixTimeSeconds(Inode.ModificationTime).DateTime; }
+        get => DateTimeOffset.FromUnixTimeSeconds(Inode.ModificationTime).DateTime;
 
-        set { throw new NotImplementedException(); }
+        set => throw new NotImplementedException();
     }
 
     public DateTime CreationTimeUtc
     {
-        get { return DateTimeOffset.FromUnixTimeSeconds(Inode.CreationTime).DateTime; }
+        get => DateTimeOffset.FromUnixTimeSeconds(Inode.CreationTime).DateTime;
 
-        set { throw new NotImplementedException(); }
+        set => throw new NotImplementedException();
     }
 
     public FileAttributes FileAttributes
     {
-        get { return FromMode(Inode.Mode); }
+        get => FromMode(Inode.Mode);
 
-        set { throw new NotImplementedException(); }
+        set => throw new NotImplementedException();
     }
 
-    public long FileLength
-    {
-        get { return Inode.FileSize; }
-    }
+    public long FileLength => Inode.FileSize;
 
     public IBuffer FileContent
     {
         get
         {
-            if (_content == null)
-            {
-                _content = Inode.GetContentBuffer(Context);
-            }
+            _content ??= Inode.GetContentBuffer(Context);
 
             return _content;
         }
@@ -95,10 +89,7 @@ internal class File : IVfsFile
 
     public IEnumerable<StreamExtent> EnumerateAllocationExtents()
     {
-        if (_content == null)
-        {
-            _content = Inode.GetContentBuffer(Context);
-        }
+        _content ??= Inode.GetContentBuffer(Context);
 
         if (_content is not IFileBuffer fileBuffer)
         {
@@ -110,10 +101,7 @@ internal class File : IVfsFile
 
     public IEnumerable<Range<long, long>> EnumerateAllocationClusters()
     {
-        if (_content == null)
-        {
-            _content = Inode.GetContentBuffer(Context);
-        }
+        _content ??= Inode.GetContentBuffer(Context);
 
         if (_content is not IFileBuffer fileBuffer)
         {

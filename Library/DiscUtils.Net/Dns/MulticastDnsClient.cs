@@ -242,10 +242,7 @@ public sealed class MulticastDnsClient : DnsClient, IDisposable
 
                 foreach (var answer in msg.Answers)
                 {
-                    if (transaction != null)
-                    {
-                        transaction.Answers.Add(answer);
-                    }
+                    transaction?.Answers.Add(answer);
 
                     AddRecord(_cache, answer);
                 }

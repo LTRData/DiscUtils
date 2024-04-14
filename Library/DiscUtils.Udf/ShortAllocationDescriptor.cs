@@ -31,10 +31,7 @@ internal sealed class ShortAllocationDescriptor : IByteArraySerializable
     public uint ExtentLocation;
     public ShortAllocationFlags Flags;
 
-    public int Size
-    {
-        get { return 8; }
-    }
+    public int Size => 8;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

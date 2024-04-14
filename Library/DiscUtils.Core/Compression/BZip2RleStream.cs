@@ -43,30 +43,18 @@ internal class BZip2RleStream : ReadOnlyCompatibilityStream
     private long _position;
     private int _runBytesOutstanding;
 
-    public bool AtEof
-    {
-        get { return _runBytesOutstanding == 0 && _blockRemaining == 0; }
-    }
+    public bool AtEof => _runBytesOutstanding == 0 && _blockRemaining == 0;
 
-    public override bool CanRead
-    {
-        get { return true; }
-    }
+    public override bool CanRead => true;
 
-    public override bool CanSeek
-    {
-        get { return false; }
-    }
+    public override bool CanSeek => false;
 
-    public override long Length
-    {
-        get { throw new NotSupportedException(); }
-    }
+    public override long Length => throw new NotSupportedException();
 
     public override long Position
     {
-        get { return _position; }
-        set { throw new NotSupportedException(); }
+        get => _position;
+        set => throw new NotSupportedException();
     }
 
     public void Reset(byte[] buffer, int offset, int count)

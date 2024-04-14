@@ -24,37 +24,36 @@ using DiscUtils.Nfs;
 using System.IO;
 using Xunit;
 
-namespace LibraryTests.Nfs
+namespace LibraryTests.Nfs;
+
+public class RpcRejectedReplyHeaderTest
 {
-    public class RpcRejectedReplyHeaderTest
+    [Fact]
+    public void RoundTripTest()
     {
-        [Fact]
-        public void RoundTripTest()
+        var header = new RpcRejectedReplyHeader()
         {
-            var header = new RpcRejectedReplyHeader()
+            AuthenticationStatus = RpcAuthenticationStatus.None,
+            MismatchInfo = new RpcMismatchInfo()
             {
-                AuthenticationStatus = RpcAuthenticationStatus.None,
-                MismatchInfo = new RpcMismatchInfo()
-                {
-                    High = 1,
-                    Low = 2
-                },
-                Status = RpcRejectedStatus.RpcMismatch
-            };
+                High = 1,
+                Low = 2
+            },
+            Status = RpcRejectedStatus.RpcMismatch
+        };
 
-            RpcRejectedReplyHeader clone = null;
+        RpcRejectedReplyHeader clone = null;
 
-            using (var stream = new MemoryStream())
-            {
-                var writer = new XdrDataWriter(stream);
-                header.Write(writer);
+        using (var stream = new MemoryStream())
+        {
+            var writer = new XdrDataWriter(stream);
+            header.Write(writer);
 
-                stream.Position = 0;
-                var reader = new XdrDataReader(stream);
-                clone = new RpcRejectedReplyHeader(reader);
-            }
-
-            Assert.Equal(header, clone);
+            stream.Position = 0;
+            var reader = new XdrDataReader(stream);
+            clone = new RpcRejectedReplyHeader(reader);
         }
+
+        Assert.Equal(header, clone);
     }
 }

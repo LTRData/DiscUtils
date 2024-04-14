@@ -64,20 +64,11 @@ internal class FileContentBuffer : Streams.Buffer
         }
     }
 
-    public override bool CanRead
-    {
-        get { return true; }
-    }
+    public override bool CanRead => true;
 
-    public override bool CanWrite
-    {
-        get { return false; }
-    }
+    public override bool CanWrite => false;
 
-    public override long Capacity
-    {
-        get { return _inode.FileSize; }
-    }
+    public override long Capacity => _inode.FileSize;
 
     public override IEnumerable<StreamExtent> Extents
         => SingleValueEnumerable.Get(new StreamExtent(0, Capacity));

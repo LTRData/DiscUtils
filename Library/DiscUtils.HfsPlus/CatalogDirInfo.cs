@@ -30,10 +30,7 @@ internal sealed class CatalogDirInfo : CommonCatalogFileInfo
     public ushort Flags;
     public uint Valence;
 
-    public override int Size
-    {
-        get { throw new NotImplementedException(); }
-    }
+    public override int Size => throw new NotImplementedException();
 
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {

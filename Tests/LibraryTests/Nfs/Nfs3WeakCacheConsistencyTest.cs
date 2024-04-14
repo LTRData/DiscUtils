@@ -26,53 +26,52 @@ using System;
 using System.IO;
 using Xunit;
 
-namespace LibraryTests.Nfs
+namespace LibraryTests.Nfs;
+
+public class Nfs3WeakCacheConsistencyTest
 {
-    public class Nfs3WeakCacheConsistencyTest
+    [Fact]
+    public void RoundTripTest()
     {
-        [Fact]
-        public void RoundTripTest()
+        var consistency = new Nfs3WeakCacheConsistency()
         {
-            var consistency = new Nfs3WeakCacheConsistency()
+            Before = new Nfs3WeakCacheConsistencyAttr()
             {
-                Before = new Nfs3WeakCacheConsistencyAttr()
-                {
-                    ChangeTime = new Nfs3FileTime(new DateTime(2017, 1, 1)),
-                    ModifyTime = new Nfs3FileTime(new DateTime(2017, 1, 2)),
-                    Size = 3
-                },
-                After = new Nfs3FileAttributes()
-                {
-                    AccessTime = new Nfs3FileTime(new DateTime(2017, 1, 1)),
-                    BytesUsed = 2,
-                    ChangeTime = new Nfs3FileTime(new DateTime(2017, 1, 2)),
-                    FileId = 3,
-                    FileSystemId = 4,
-                    Gid = 5,
-                    LinkCount = 6,
-                    Mode = UnixFilePermissions.GroupAll,
-                    ModifyTime = new Nfs3FileTime(new DateTime(2017, 1, 3)),
-                    RdevMajor = 7,
-                    RdevMinor = 8,
-                    Size = 9,
-                    Type = Nfs3FileType.NamedPipe,
-                    Uid = 10
-                }
-            };
-
-            Nfs3WeakCacheConsistency clone = null;
-
-            using (var stream = new MemoryStream())
+                ChangeTime = new Nfs3FileTime(new DateTime(2017, 1, 1)),
+                ModifyTime = new Nfs3FileTime(new DateTime(2017, 1, 2)),
+                Size = 3
+            },
+            After = new Nfs3FileAttributes()
             {
-                var writer = new XdrDataWriter(stream);
-                consistency.Write(writer);
-
-                stream.Position = 0;
-                var reader = new XdrDataReader(stream);
-                clone = new Nfs3WeakCacheConsistency(reader);
+                AccessTime = new Nfs3FileTime(new DateTime(2017, 1, 1)),
+                BytesUsed = 2,
+                ChangeTime = new Nfs3FileTime(new DateTime(2017, 1, 2)),
+                FileId = 3,
+                FileSystemId = 4,
+                Gid = 5,
+                LinkCount = 6,
+                Mode = UnixFilePermissions.GroupAll,
+                ModifyTime = new Nfs3FileTime(new DateTime(2017, 1, 3)),
+                RdevMajor = 7,
+                RdevMinor = 8,
+                Size = 9,
+                Type = Nfs3FileType.NamedPipe,
+                Uid = 10
             }
+        };
 
-            Assert.Equal(consistency, clone);
+        Nfs3WeakCacheConsistency clone = null;
+
+        using (var stream = new MemoryStream())
+        {
+            var writer = new XdrDataWriter(stream);
+            consistency.Write(writer);
+
+            stream.Position = 0;
+            var reader = new XdrDataReader(stream);
+            clone = new Nfs3WeakCacheConsistency(reader);
         }
+
+        Assert.Equal(consistency, clone);
     }
 }

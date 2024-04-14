@@ -31,10 +31,7 @@ internal class BlockDirectoryDataFree : IByteArraySerializable
 
     public ushort Length { get; private set; }
 
-    public int Size
-    {
-        get { return 0x4; }
-    }
+    public int Size => 0x4;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

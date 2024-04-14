@@ -65,18 +65,12 @@ public sealed class Nfs3LookupResult : Nfs3CallResult
 
             writer.Write(ObjectAttributes != null);
 
-            if (ObjectAttributes != null)
-            {
-                ObjectAttributes.Write(writer);
-            }
+            ObjectAttributes?.Write(writer);
         }
 
         writer.Write(DirAttributes != null);
 
-        if (DirAttributes != null)
-        {
-            DirAttributes.Write(writer);
-        }
+        DirAttributes?.Write(writer);
     }
 
     public override bool Equals(object obj)

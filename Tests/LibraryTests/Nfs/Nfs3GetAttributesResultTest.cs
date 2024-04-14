@@ -25,37 +25,36 @@ using System;
 using System.IO;
 using Xunit;
 
-namespace LibraryTests.Nfs
+namespace LibraryTests.Nfs;
+
+public class Nfs3GetAttributesResultTest
 {
-    public class Nfs3GetAttributesResultTest
+    [Fact]
+    public void RoundTripTest()
     {
-        [Fact]
-        public void RoundTripTest()
+        var result = new Nfs3GetAttributesResult()
         {
-            var result = new Nfs3GetAttributesResult()
+            Attributes = new Nfs3FileAttributes()
             {
-                Attributes = new Nfs3FileAttributes()
-                {
-                    AccessTime = new Nfs3FileTime(new DateTime(2017, 1, 1)),
-                    ChangeTime = new Nfs3FileTime(new DateTime(2017, 1, 2)),
-                    ModifyTime = new Nfs3FileTime(new DateTime(2017, 1, 3))
-                },
-                Status = Nfs3Status.Ok
-            };
+                AccessTime = new Nfs3FileTime(new DateTime(2017, 1, 1)),
+                ChangeTime = new Nfs3FileTime(new DateTime(2017, 1, 2)),
+                ModifyTime = new Nfs3FileTime(new DateTime(2017, 1, 3))
+            },
+            Status = Nfs3Status.Ok
+        };
 
-            Nfs3GetAttributesResult clone = null;
+        Nfs3GetAttributesResult clone = null;
 
-            using (var stream = new MemoryStream())
-            {
-                var writer = new XdrDataWriter(stream);
-                result.Write(writer);
+        using (var stream = new MemoryStream())
+        {
+            var writer = new XdrDataWriter(stream);
+            result.Write(writer);
 
-                stream.Position = 0;
-                var reader = new XdrDataReader(stream);
-                clone = new Nfs3GetAttributesResult(reader);
-            }
-
-            Assert.Equal(result, clone);
+            stream.Position = 0;
+            var reader = new XdrDataReader(stream);
+            clone = new Nfs3GetAttributesResult(reader);
         }
+
+        Assert.Equal(result, clone);
     }
 }

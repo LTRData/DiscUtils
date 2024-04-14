@@ -107,7 +107,8 @@ public partial class VirtualFileSystem : DiscFileSystem, IWindowsFileSystem, IUn
             throw new IOException("Volume is not writable");
         }
 
-        var entry = _root.ResolvePathToEntry(existing) ?? throw new FileNotFoundException("File not found", existing);
+        var entry = _root.ResolvePathToEntry(existing)
+            ?? throw new FileNotFoundException("File not found", existing);
 
         var destination = _root.CreateSubDirectoryTree(GetPathDirectoryName(new_path));
 

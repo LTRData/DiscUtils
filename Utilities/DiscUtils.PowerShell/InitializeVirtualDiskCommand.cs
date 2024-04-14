@@ -108,10 +108,7 @@ public class InitializeVirtualDiskCommand : PSCmdlet
 
         // Changed volume layout, force a rescan
         var drive = diskObject.Properties["PSDrive"].Value as VirtualDiskPSDriveInfo;
-        if (drive != null)
-        {
-            drive.RescanVolumes();
-        }
+        drive?.RescanVolumes();
 
         WriteObject(disk);
     }

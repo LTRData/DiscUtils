@@ -30,10 +30,7 @@ internal sealed class ExtentDescriptor : IByteArraySerializable
     public uint BlockCount;
     public uint StartBlock;
 
-    public int Size
-    {
-        get { return 8; }
-    }
+    public int Size => 8;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

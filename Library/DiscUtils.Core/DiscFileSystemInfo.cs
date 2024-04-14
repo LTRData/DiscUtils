@@ -50,8 +50,8 @@ public class DiscFileSystemInfo
     /// </summary>
     public virtual FileAttributes Attributes
     {
-        get { return FileSystem.GetAttributes(Path); }
-        set { FileSystem.SetAttributes(Path, value); }
+        get => FileSystem.GetAttributes(Path);
+        set => FileSystem.SetAttributes(Path, value);
     }
 
     /// <summary>
@@ -59,8 +59,8 @@ public class DiscFileSystemInfo
     /// </summary>
     public virtual DateTime CreationTime
     {
-        get { return CreationTimeUtc.ToLocalTime(); }
-        set { CreationTimeUtc = value.ToUniversalTime(); }
+        get => CreationTimeUtc.ToLocalTime();
+        set => CreationTimeUtc = value.ToUniversalTime();
     }
 
     /// <summary>
@@ -68,17 +68,14 @@ public class DiscFileSystemInfo
     /// </summary>
     public virtual DateTime CreationTimeUtc
     {
-        get { return FileSystem.GetCreationTimeUtc(Path); }
-        set { FileSystem.SetCreationTimeUtc(Path, value); }
+        get => FileSystem.GetCreationTimeUtc(Path);
+        set => FileSystem.SetCreationTimeUtc(Path, value);
     }
 
     /// <summary>
     /// Gets a value indicating whether the file system object exists.
     /// </summary>
-    public virtual bool Exists
-    {
-        get { return FileSystem.Exists(Path); }
-    }
+    public virtual bool Exists => FileSystem.Exists(Path);
 
     /// <summary>
     /// Gets the extension part of the file or directory name.
@@ -106,10 +103,7 @@ public class DiscFileSystemInfo
     /// <summary>
     /// Gets the full path of the file or directory.
     /// </summary>
-    public virtual string FullName
-    {
-        get { return Path; }
-    }
+    public virtual string FullName => Path;
 
     /// <summary>
     /// Gets or sets the last time (in local time) the file or directory was accessed.
@@ -117,8 +111,8 @@ public class DiscFileSystemInfo
     /// <remarks>Read-only file systems will never update this value, it will remain at a fixed value.</remarks>
     public virtual DateTime LastAccessTime
     {
-        get { return LastAccessTimeUtc.ToLocalTime(); }
-        set { LastAccessTimeUtc = value.ToUniversalTime(); }
+        get => LastAccessTimeUtc.ToLocalTime();
+        set => LastAccessTimeUtc = value.ToUniversalTime();
     }
 
     /// <summary>
@@ -127,8 +121,8 @@ public class DiscFileSystemInfo
     /// <remarks>Read-only file systems will never update this value, it will remain at a fixed value.</remarks>
     public virtual DateTime LastAccessTimeUtc
     {
-        get { return FileSystem.GetLastAccessTimeUtc(Path); }
-        set { FileSystem.SetLastAccessTimeUtc(Path, value); }
+        get => FileSystem.GetLastAccessTimeUtc(Path);
+        set => FileSystem.SetLastAccessTimeUtc(Path, value);
     }
 
     /// <summary>
@@ -136,8 +130,8 @@ public class DiscFileSystemInfo
     /// </summary>
     public virtual DateTime LastWriteTime
     {
-        get { return LastWriteTimeUtc.ToLocalTime(); }
-        set { LastWriteTimeUtc = value.ToUniversalTime(); }
+        get => LastWriteTimeUtc.ToLocalTime();
+        set => LastWriteTimeUtc = value.ToUniversalTime();
     }
 
     /// <summary>
@@ -145,17 +139,14 @@ public class DiscFileSystemInfo
     /// </summary>
     public virtual DateTime LastWriteTimeUtc
     {
-        get { return FileSystem.GetLastWriteTimeUtc(Path); }
-        set { FileSystem.SetLastWriteTimeUtc(Path, value); }
+        get => FileSystem.GetLastWriteTimeUtc(Path);
+        set => FileSystem.SetLastWriteTimeUtc(Path, value);
     }
 
     /// <summary>
     /// Gets the name of the file or directory.
     /// </summary>
-    public virtual string Name
-    {
-        get { return Utilities.GetFileFromPath(Path); }
-    }
+    public virtual string Name => Utilities.GetFileFromPath(Path);
 
     private DiscDirectoryInfo _parent;
 

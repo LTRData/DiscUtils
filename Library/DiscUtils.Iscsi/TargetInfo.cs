@@ -48,10 +48,7 @@ public class TargetInfo
     /// <summary>
     /// Gets the network addresses of the Target.
     /// </summary>
-    public IList<TargetAddress> Addresses
-    {
-        get { return _addresses; }
-    }
+    public IList<TargetAddress> Addresses => _addresses;
 
     /// <summary>
     /// Gets the name of the Target.

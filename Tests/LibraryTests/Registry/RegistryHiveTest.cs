@@ -26,28 +26,27 @@ using DiscUtils.Core.WindowsSecurity.AccessControl;
 using DiscUtils.Registry;
 using Xunit;
 
-namespace LibraryTests.Registry
+namespace LibraryTests.Registry;
+
+public class RegistryHiveTest
 {
-    public class RegistryHiveTest
+    [Fact]//(Skip = "Issue #14")]
+    public void Create()
     {
-        [Fact]//(Skip = "Issue #14")]
-        public void Create()
-        {
-            var ms = new MemoryStream();
-            var hive = RegistryHive.Create(ms);
-            Assert.Null(hive.Root.Parent);
-            Assert.Equal(0, hive.Root.ValueCount);
-            Assert.Equal(0, hive.Root.SubKeyCount);
-            Assert.NotNull(hive.Root.SubKeys);
-            Assert.Equal("O:BAG:BAD:PAI(A;;KA;;;SY)(A;CI;KA;;;BA)", hive.Root.GetAccessControl().GetSddlForm(AccessControlSections.All));
-            Assert.Equal(RegistryKeyFlags.Root | RegistryKeyFlags.Normal, hive.Root.Flags);
-        }
-
-        [Fact]
-        public void Create_Null()
-        {
-            Assert.Throws<ArgumentNullException>(() => RegistryHive.Create((Stream)null));
-        }
-
+        var ms = new MemoryStream();
+        var hive = RegistryHive.Create(ms);
+        Assert.Null(hive.Root.Parent);
+        Assert.Equal(0, hive.Root.ValueCount);
+        Assert.Equal(0, hive.Root.SubKeyCount);
+        Assert.NotNull(hive.Root.SubKeys);
+        Assert.Equal("O:BAG:BAD:PAI(A;;KA;;;SY)(A;CI;KA;;;BA)", hive.Root.GetAccessControl().GetSddlForm(AccessControlSections.All));
+        Assert.Equal(RegistryKeyFlags.Root | RegistryKeyFlags.Normal, hive.Root.Flags);
     }
+
+    [Fact]
+    public void Create_Null()
+    {
+        Assert.Throws<ArgumentNullException>(() => RegistryHive.Create((Stream)null));
+    }
+
 }

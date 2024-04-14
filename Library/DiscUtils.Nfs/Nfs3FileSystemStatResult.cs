@@ -54,10 +54,7 @@ public class Nfs3FileSystemStatResult : Nfs3CallResult
         writer.Write((int)Status);
 
         writer.Write(PostOpAttributes != null);
-        if (PostOpAttributes != null)
-        {
-            PostOpAttributes.Write(writer);
-        }
+        PostOpAttributes?.Write(writer);
 
         if (Status == Nfs3Status.Ok)
         {

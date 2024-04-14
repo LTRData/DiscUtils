@@ -48,11 +48,8 @@ internal class InodeRef : BaseItem
     ///  name in the directory 
     /// </summary>
     public string Name { get; private set; }
-    
-    public override int Size
-    {
-        get { return 0xa+NameLength; }
-    }
+
+    public override int Size => 0xa + NameLength;
 
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {

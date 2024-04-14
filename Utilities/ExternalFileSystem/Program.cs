@@ -83,58 +83,25 @@ class MyDirEntry : VfsDirEntry
         _id = _nextId++;
     }
 
-    public override bool IsDirectory
-    {
-        get { return _isDir; }
-    }
+    public override bool IsDirectory => _isDir;
 
-    public override bool IsSymlink
-    {
-        get { return false; }
-    }
+    public override bool IsSymlink => false;
 
-    public override string FileName
-    {
-        get { return _name; }
-    }
+    public override string FileName => _name;
 
-    public override bool HasVfsTimeInfo
-    {
-        get { return true; }
-    }
+    public override bool HasVfsTimeInfo => true;
 
-    public override DateTime LastAccessTimeUtc
-    {
-        get { return new DateTime(1980, 10, 21, 11, 04, 22); }
-    }
+    public override DateTime LastAccessTimeUtc => new DateTime(1980, 10, 21, 11, 04, 22);
 
-    public override DateTime LastWriteTimeUtc
-    {
-        get { return new DateTime(1980, 10, 21, 11, 04, 22); }
-    }
+    public override DateTime LastWriteTimeUtc => new DateTime(1980, 10, 21, 11, 04, 22);
 
-    public override DateTime CreationTimeUtc
-    {
-        get { return new DateTime(1980, 10, 21, 11, 04, 22); }
-    }
+    public override DateTime CreationTimeUtc => new DateTime(1980, 10, 21, 11, 04, 22);
 
-    public override bool HasVfsFileAttributes
-    {
-        get { return true; }
-    }
+    public override bool HasVfsFileAttributes => true;
 
-    public override FileAttributes FileAttributes
-    {
-        get
-        {
-            return IsDirectory ? FileAttributes.Directory : FileAttributes.Normal;
-        }
-    }
+    public override FileAttributes FileAttributes => IsDirectory ? FileAttributes.Directory : FileAttributes.Normal;
 
-    public override long UniqueCacheId
-    {
-        get { return _id; }
-    }
+    public override long UniqueCacheId => _id;
 }
 
 class MyFile : IVfsFile
@@ -148,56 +115,29 @@ class MyFile : IVfsFile
 
     public DateTime LastAccessTimeUtc
     {
-        get
-        {
-            return _dirEntry.LastAccessTimeUtc;
-        }
-        set
-        {
-            throw new NotSupportedException();
-        }
+        get => _dirEntry.LastAccessTimeUtc;
+        set => throw new NotSupportedException();
     }
 
     public DateTime LastWriteTimeUtc
     {
-        get
-        {
-            return _dirEntry.LastWriteTimeUtc;
-        }
-        set
-        {
-            throw new NotImplementedException();
-        }
+        get => _dirEntry.LastWriteTimeUtc;
+        set => throw new NotImplementedException();
     }
 
     public DateTime CreationTimeUtc
     {
-        get
-        {
-            return _dirEntry.CreationTimeUtc;
-        }
-        set
-        {
-            throw new NotImplementedException();
-        }
+        get => _dirEntry.CreationTimeUtc;
+        set => throw new NotImplementedException();
     }
 
     public FileAttributes FileAttributes
     {
-        get
-        {
-            return _dirEntry.FileAttributes;
-        }
-        set
-        {
-            throw new NotImplementedException();
-        }
+        get => _dirEntry.FileAttributes;
+        set => throw new NotImplementedException();
     }
 
-    public long FileLength
-    {
-        get { return 10; }
-    }
+    public long FileLength => 10;
 
     public IBuffer FileContent
     {
@@ -235,15 +175,9 @@ class MyDirectory : MyFile, IVfsDirectory<MyDirEntry, MyFile>
         }
     }
 
-    public IReadOnlyDictionary<string, MyDirEntry> AllEntries
-    {
-        get { return _entries; }
-    }
+    public IReadOnlyDictionary<string, MyDirEntry> AllEntries => _entries;
 
-    public MyDirEntry Self
-    {
-        get { return null; }
-    }
+    public MyDirEntry Self => null;
 
     public MyDirEntry GetEntryByName(string name)
         => AllEntries.TryGetValue(name, out var entry) ? entry : null;
@@ -269,10 +203,7 @@ class MyFileSystem : VfsFileSystem<MyDirEntry, MyFile, MyDirectory, MyContext>
 
     public override bool IsCaseSensitive => false;
 
-    public override string VolumeLabel
-    {
-        get { return "Volume Label"; }
-    }
+    public override string VolumeLabel => "Volume Label";
 
     protected override MyFile ConvertDirEntryToFile(MyDirEntry dirEntry)
     {
@@ -286,15 +217,9 @@ class MyFileSystem : VfsFileSystem<MyDirEntry, MyFile, MyDirectory, MyContext>
         }
     }
 
-    public override string FriendlyName
-    {
-        get { return "My File System"; }
-    }
+    public override string FriendlyName => "My File System";
 
-    public override bool CanWrite
-    {
-        get { return false; }
-    }
+    public override bool CanWrite => false;
 
     public override long Size => throw new NotImplementedException();
 

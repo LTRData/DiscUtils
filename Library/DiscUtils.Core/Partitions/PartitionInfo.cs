@@ -58,10 +58,7 @@ public abstract class PartitionInfo
     /// <summary>
     /// Gets the length of the partition in sectors.
     /// </summary>
-    public virtual long SectorCount
-    {
-        get { return 1 + LastSector - FirstSector; }
-    }
+    public virtual long SectorCount => 1 + LastSector - FirstSector;
 
     /// <summary>
     /// Gets the partition type as a 'friendly' string.

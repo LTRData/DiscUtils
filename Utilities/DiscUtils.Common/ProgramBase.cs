@@ -60,78 +60,36 @@ public abstract class ProgramBase
     {
     }
 
-    protected string UserName
-    {
-        get { return _userName; }
-    }
+    protected string UserName => _userName;
 
-    protected string Password
-    {
-        get { return _password; }
-    }
+    protected string Password => _password;
 
-    protected string OutputDiskType
-    {
-        get { return _outputDiskType; }
-    }
+    protected string OutputDiskType => _outputDiskType;
 
-    protected string OutputDiskVariant
-    {
-        get { return _outputDiskVariant; }
-    }
+    protected string OutputDiskVariant => _outputDiskVariant;
 
-    protected GenericDiskAdapterType AdapterType
-    {
-        get { return _adapterType; }
-    }
+    protected GenericDiskAdapterType AdapterType => _adapterType;
 
-    protected bool Quiet
-    {
-        get { return _quietSwitch.IsPresent; }
-    }
+    protected bool Quiet => _quietSwitch.IsPresent;
 
-    protected bool Verbose
-    {
-        get { return _verboseSwitch.IsPresent; }
-    }
+    protected bool Verbose => _verboseSwitch.IsPresent;
 
-    protected int Partition
-    {
-        get { return _partition; }
-    }
+    protected int Partition => _partition;
 
-    protected string VolumeId
-    {
-        get { return _volumeId; }
-    }
+    protected string VolumeId => _volumeId;
 
-    protected long DiskSize
-    {
-        get { return _diskSize; }
-    }
+    protected long DiskSize => _diskSize;
 
-    protected VirtualDiskParameters DiskParameters
+    protected VirtualDiskParameters DiskParameters => new VirtualDiskParameters()
     {
-        get
-        {
-            return new VirtualDiskParameters()
-            {
-                AdapterType = AdapterType,
-                Capacity = DiskSize,
-            };
-        }
-    }
+        AdapterType = AdapterType,
+        Capacity = DiskSize,
+    };
 
-    protected FileSystemParameters FileSystemParameters
+    protected FileSystemParameters FileSystemParameters => new FileSystemParameters()
     {
-        get
-        {
-            return new FileSystemParameters()
-            {
-                FileNameEncoding = (_filenameEncodingSwitch != null && _filenameEncodingSwitch.IsPresent) ? Encoding.GetEncoding(_filenameEncodingSwitch.Value) : null,
-            };
-        }
-    }
+        FileNameEncoding = (_filenameEncodingSwitch != null && _filenameEncodingSwitch.IsPresent) ? Encoding.GetEncoding(_filenameEncodingSwitch.Value) : null,
+    };
 
     protected abstract StandardSwitches DefineCommandLine(CommandLineParser parser);
     protected virtual string[] HelpRemarks => Array.Empty<string>();
@@ -375,13 +333,7 @@ public abstract class ProgramBase
             $"Mandatory - the type of disk to output, one of {string.Join(", ", outputTypes.Take(outputTypes.Count - 1))} or {outputTypes[outputTypes.Count - 1]}.");
     }
 
-    private string ExeName
-    {
-        get
-        {
-            return GetType().Assembly.GetName().Name;
-        }
-    }
+    private string ExeName => GetType().Assembly.GetName().Name;
 
     private string Version
     {

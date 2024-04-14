@@ -35,10 +35,7 @@ internal abstract class Crc32
         _value = 0xFFFFFFFF;
     }
 
-    public uint Value
-    {
-        get { return _value ^ 0xFFFFFFFF; }
-    }
+    public uint Value => _value ^ 0xFFFFFFFF;
 
     public void Process(byte[] buffer, int offset, int count)
         => Process(buffer.AsSpan(offset, count));

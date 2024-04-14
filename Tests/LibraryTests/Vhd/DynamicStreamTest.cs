@@ -27,168 +27,167 @@ using DiscUtils.Streams;
 using DiscUtils.Vhd;
 using Xunit;
 
-namespace LibraryTests.Vhd
+namespace LibraryTests.Vhd;
+
+public class DynamicStreamTest
 {
-    public class DynamicStreamTest
+    [Fact]
+    public void Attributes()
     {
-        [Fact]
-        public void Attributes()
+        var stream = new MemoryStream();
+        using var disk = Disk.InitializeDynamic(stream, Ownership.Dispose, 16 * 1024L * 1024 * 1024);
+        Stream s = disk.Content;
+        Assert.True(s.CanRead);
+        Assert.True(s.CanWrite);
+        Assert.True(s.CanSeek);
+    }
+
+    [Fact]
+    public void ReadWriteSmall()
+    {
+        var stream = new MemoryStream();
+        using (var disk = Disk.InitializeDynamic(stream, Ownership.None, 16 * 1024L * 1024 * 1024))
         {
-            var stream = new MemoryStream();
-            using var disk = Disk.InitializeDynamic(stream, Ownership.Dispose, 16 * 1024L * 1024 * 1024);
-            Stream s = disk.Content;
-            Assert.True(s.CanRead);
-            Assert.True(s.CanWrite);
-            Assert.True(s.CanSeek);
-        }
-
-        [Fact]
-        public void ReadWriteSmall()
-        {
-            var stream = new MemoryStream();
-            using (var disk = Disk.InitializeDynamic(stream, Ownership.None, 16 * 1024L * 1024 * 1024))
-            {
-                var content = new byte[100];
-                for(var i = 0; i < content.Length; ++i)
-                {
-                    content[i] = (byte)i;
-                }
-
-                Stream s = disk.Content;
-                s.Write(content, 10, 40);
-                Assert.Equal(40, s.Position);
-                s.Write(content, 50, 50);
-                Assert.Equal(90, s.Position);
-                s.Position = 0;
-
-                var buffer = new byte[100];
-                s.Read(buffer, 10, 60);
-                Assert.Equal(60, s.Position);
-                for (var i = 0; i < 10; ++i)
-                {
-                    Assert.Equal(0, buffer[i]);
-                }
-
-                for (var i = 10; i < 60; ++i)
-                {
-                    Assert.Equal(i, buffer[i]);
-                }
-            }
-
-            // Check the data persisted
-            using (var disk = new Disk(stream, Ownership.Dispose))
-            {
-                Stream s = disk.Content;
-
-                var buffer = new byte[100];
-                s.Read(buffer, 10, 20);
-                Assert.Equal(20, s.Position);
-                for (var i = 0; i < 10; ++i)
-                {
-                    Assert.Equal(0, buffer[i]);
-                }
-
-                for (var i = 10; i < 20; ++i)
-                {
-                    Assert.Equal(i, buffer[i]);
-                }
-            }
-        }
-
-        [Fact]
-        public void ReadWriteLarge()
-        {
-            var stream = new MemoryStream();
-            using var disk = Disk.InitializeDynamic(stream, Ownership.Dispose, 16 * 1024L * 1024 * 1024);
-            var content = new byte[3 * 1024 * 1024];
-            for (var i = 0; i < content.Length; ++i)
+            var content = new byte[100];
+            for(var i = 0; i < content.Length; ++i)
             {
                 content[i] = (byte)i;
             }
 
             Stream s = disk.Content;
-            s.Position = 10;
-            s.Write(content, 0, content.Length);
+            s.Write(content, 10, 40);
+            Assert.Equal(40, s.Position);
+            s.Write(content, 50, 50);
+            Assert.Equal(90, s.Position);
+            s.Position = 0;
 
-            var buffer = new byte[content.Length];
-            s.Position = 10;
-            s.Read(buffer, 0, buffer.Length);
-
-            for (var i = 0; i < content.Length; ++i)
+            var buffer = new byte[100];
+            s.Read(buffer, 10, 60);
+            Assert.Equal(60, s.Position);
+            for (var i = 0; i < 10; ++i)
             {
-                if (buffer[i] != content[i])
-                {
-                    Assert.True(false);
-                }
+                Assert.Equal(0, buffer[i]);
+            }
+
+            for (var i = 10; i < 60; ++i)
+            {
+                Assert.Equal(i, buffer[i]);
             }
         }
 
-        [Fact]
-        public void DisposeTest()
+        // Check the data persisted
+        using (var disk = new Disk(stream, Ownership.Dispose))
         {
-            Stream contentStream;
+            Stream s = disk.Content;
 
-            var stream = new MemoryStream();
-            using (var disk = Disk.InitializeDynamic(stream, Ownership.None, 16 * 1024L * 1024 * 1024))
+            var buffer = new byte[100];
+            s.Read(buffer, 10, 20);
+            Assert.Equal(20, s.Position);
+            for (var i = 0; i < 10; ++i)
             {
-                contentStream = disk.Content;
+                Assert.Equal(0, buffer[i]);
             }
 
-            try
+            for (var i = 10; i < 20; ++i)
             {
-                contentStream.Position = 0;
+                Assert.Equal(i, buffer[i]);
+            }
+        }
+    }
+
+    [Fact]
+    public void ReadWriteLarge()
+    {
+        var stream = new MemoryStream();
+        using var disk = Disk.InitializeDynamic(stream, Ownership.Dispose, 16 * 1024L * 1024 * 1024);
+        var content = new byte[3 * 1024 * 1024];
+        for (var i = 0; i < content.Length; ++i)
+        {
+            content[i] = (byte)i;
+        }
+
+        Stream s = disk.Content;
+        s.Position = 10;
+        s.Write(content, 0, content.Length);
+
+        var buffer = new byte[content.Length];
+        s.Position = 10;
+        s.Read(buffer, 0, buffer.Length);
+
+        for (var i = 0; i < content.Length; ++i)
+        {
+            if (buffer[i] != content[i])
+            {
                 Assert.True(false);
             }
-            catch(ObjectDisposedException) { }
+        }
+    }
+
+    [Fact]
+    public void DisposeTest()
+    {
+        Stream contentStream;
+
+        var stream = new MemoryStream();
+        using (var disk = Disk.InitializeDynamic(stream, Ownership.None, 16 * 1024L * 1024 * 1024))
+        {
+            contentStream = disk.Content;
         }
 
-        [Fact]
-        public void ReadNotPresent()
+        try
         {
-            var stream = new MemoryStream();
-            using var disk = Disk.InitializeDynamic(stream, Ownership.Dispose, 16 * 1024L * 1024 * 1024);
-            var buffer = new byte[100];
-            disk.Content.Seek(2 * 1024 * 1024, SeekOrigin.Current);
-            disk.Content.Read(buffer, 0, buffer.Length);
+            contentStream.Position = 0;
+            Assert.True(false);
+        }
+        catch(ObjectDisposedException) { }
+    }
 
-            for (var i = 0; i < 100; ++i)
+    [Fact]
+    public void ReadNotPresent()
+    {
+        var stream = new MemoryStream();
+        using var disk = Disk.InitializeDynamic(stream, Ownership.Dispose, 16 * 1024L * 1024 * 1024);
+        var buffer = new byte[100];
+        disk.Content.Seek(2 * 1024 * 1024, SeekOrigin.Current);
+        disk.Content.Read(buffer, 0, buffer.Length);
+
+        for (var i = 0; i < 100; ++i)
+        {
+            if (buffer[i] != 0)
             {
-                if (buffer[i] != 0)
-                {
-                    Assert.True(false);
-                }
+                Assert.True(false);
             }
         }
+    }
 
-        [Fact]
-        public void Extents()
-        {
-            var stream = new MemoryStream();
-            using var disk = Disk.InitializeDynamic(stream, Ownership.Dispose, 16 * 1024L * 1024 * 1024);
-            disk.Content.Position = 20 * 512;
-            disk.Content.Write(new byte[4 * 512], 0, 4 * 512);
+    [Fact]
+    public void Extents()
+    {
+        var stream = new MemoryStream();
+        using var disk = Disk.InitializeDynamic(stream, Ownership.Dispose, 16 * 1024L * 1024 * 1024);
+        disk.Content.Position = 20 * 512;
+        disk.Content.Write(new byte[4 * 512], 0, 4 * 512);
 
-            // Starts before first extent, ends before end of extent
-            var extents = new List<StreamExtent>(disk.Content.GetExtentsInRange(0, 21 * 512));
-            Assert.Single(extents);
-            Assert.Equal(20 * 512, extents[0].Start);
-            Assert.Equal(1 * 512, extents[0].Length);
+        // Starts before first extent, ends before end of extent
+        var extents = new List<StreamExtent>(disk.Content.GetExtentsInRange(0, 21 * 512));
+        Assert.Single(extents);
+        Assert.Equal(20 * 512, extents[0].Start);
+        Assert.Equal(1 * 512, extents[0].Length);
 
-            // Limit to disk content length
-            extents = new List<StreamExtent>(disk.Content.GetExtentsInRange(21 * 512, 20 * 512));
-            Assert.Single(extents);
-            Assert.Equal(21 * 512, extents[0].Start);
-            Assert.Equal(3 * 512, extents[0].Length);
+        // Limit to disk content length
+        extents = new List<StreamExtent>(disk.Content.GetExtentsInRange(21 * 512, 20 * 512));
+        Assert.Single(extents);
+        Assert.Equal(21 * 512, extents[0].Start);
+        Assert.Equal(3 * 512, extents[0].Length);
 
-            // Out of range
-            extents = new List<StreamExtent>(disk.Content.GetExtentsInRange(25 * 512, 4 * 512));
-            Assert.Empty(extents);
+        // Out of range
+        extents = new List<StreamExtent>(disk.Content.GetExtentsInRange(25 * 512, 4 * 512));
+        Assert.Empty(extents);
 
-            // Non-sector multiples
-            extents = new List<StreamExtent>(disk.Content.GetExtentsInRange(21 * 512 + 10, 20 * 512));
-            Assert.Single(extents);
-            Assert.Equal(21 * 512 + 10, extents[0].Start);
-            Assert.Equal(3 * 512 - 10, extents[0].Length);
-        }
+        // Non-sector multiples
+        extents = new List<StreamExtent>(disk.Content.GetExtentsInRange(21 * 512 + 10, 20 * 512));
+        Assert.Single(extents);
+        Assert.Equal(21 * 512 + 10, extents[0].Start);
+        Assert.Equal(3 * 512 - 10, extents[0].Length);
     }
 }

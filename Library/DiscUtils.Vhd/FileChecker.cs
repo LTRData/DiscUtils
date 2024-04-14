@@ -252,7 +252,7 @@ public class FileChecker
             ReportError("DynHeader: Max table entries is invalid");
         }
 
-        if ((_dynamicHeader.BlockSize != Sizes.OneMiB * 2) && (_dynamicHeader.BlockSize != Sizes.OneKiB * 512))
+        if (_dynamicHeader.BlockSize is not (uint)(Sizes.OneMiB * 2) and not (Sizes.OneKiB * 512))
         {
             ReportWarning($"DynHeader: Using non-standard block size '{_dynamicHeader.BlockSize}'");
         }
@@ -313,7 +313,7 @@ public class FileChecker
             ReportError("Footer: Invalid timestamp - creation time in file is greater than current time");
         }
 
-        if (_footer.CreatorHostOS != "Wi2k" && _footer.CreatorHostOS != "Mac ")
+        if (_footer.CreatorHostOS is not "Wi2k" and not "Mac ")
         {
             ReportWarning($"Footer: Creator Host OS is not a documented value ('Wi2K' or 'Mac '), is '{_footer.CreatorHostOS}'");
         }
@@ -333,8 +333,8 @@ public class FileChecker
             ReportWarning("Footer: Disk Geometry does not match documented Microsoft geometry for this capacity");
         }
 
-        if (_footer.DiskType != FileType.Fixed && _footer.DiskType != FileType.Dynamic &&
-            _footer.DiskType != FileType.Differencing)
+        if (_footer.DiskType is not FileType.Fixed and not FileType.Dynamic and
+            not FileType.Differencing)
         {
             ReportError("Footer: Undocumented disk type, not Fixed, Dynamic or Differencing");
         }

@@ -34,15 +34,9 @@ internal class ScsiRawCommand : ScsiCommand
         _buffer = buffer;
     }
 
-    public override int Size
-    {
-        get { return _buffer.Length; }
-    }
+    public override int Size => _buffer.Length;
 
-    public override TaskAttributes TaskAttributes
-    {
-        get { return TaskAttributes.Simple; }
-    }
+    public override TaskAttributes TaskAttributes => TaskAttributes.Simple;
 
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {

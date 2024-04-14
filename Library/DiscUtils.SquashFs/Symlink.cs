@@ -30,8 +30,5 @@ internal class Symlink : File, IVfsSymlink<DirectoryEntry, File>
     public Symlink(Context context, Inode inode, MetadataRef inodeRef)
         : base(context, inode, inodeRef) {}
 
-    public string TargetPath
-    {
-        get { throw new NotImplementedException(); }
-    }
+    public string TargetPath => throw new NotImplementedException();
 }

@@ -38,10 +38,7 @@ internal struct BinHeader : IByteArraySerializable
 
     public int FileOffset;
 
-    public int Size
-    {
-        get { return HeaderSize; }
-    }
+    public int Size => HeaderSize;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

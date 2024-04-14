@@ -24,22 +24,21 @@ using System.Collections.Generic;
 using DiscUtils.Streams;
 using Xunit;
 
-namespace LibraryTests.Streams
+namespace LibraryTests.Streams;
+
+public class BuiltStreamTest
 {
-    public class BuiltStreamTest
+    [Fact]
+    public void BuildStreamLengthIsRespected()
     {
-        [Fact]
-        public void BuildStreamLengthIsRespected()
-        {
-            var length = 1024;
-            var extent = new BuilderSparseStreamExtent(0, new ZeroStream(2 * length));
-            using var stream = new BuiltStream(length, new List<BuilderExtent> { extent });
-            Assert.Equal(0, stream.Position);
-            Assert.Equal(length, stream.Length);
-            var content = new byte[2 * length];
-            var read = stream.Read(content, 0, content.Length);
-            Assert.Equal(length, read);
-            Assert.Equal(stream.Length, stream.Position);
-        }
+        var length = 1024;
+        var extent = new BuilderSparseStreamExtent(0, new ZeroStream(2 * length));
+        using var stream = new BuiltStream(length, new List<BuilderExtent> { extent });
+        Assert.Equal(0, stream.Position);
+        Assert.Equal(length, stream.Length);
+        var content = new byte[2 * length];
+        var read = stream.Read(content, 0, content.Length);
+        Assert.Equal(length, read);
+        Assert.Equal(stream.Length, stream.Position);
     }
 }

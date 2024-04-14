@@ -24,18 +24,17 @@ using System.IO;
 using DiscUtils;
 using Xunit;
 
-namespace LibraryTests
-{
-    public sealed class FileSystemManagerTest
-    {
-        [Fact]
-        public void Detect()
-        {
-            var shortStream = new MemoryStream(new byte[5]);
-            Assert.Empty(FileSystemManager.DetectFileSystems(shortStream));
+namespace LibraryTests;
 
-            var longStream = new MemoryStream(new byte[100000]);
-            Assert.Empty(FileSystemManager.DetectFileSystems(longStream));
-        }
+public sealed class FileSystemManagerTest
+{
+    [Fact]
+    public void Detect()
+    {
+        var shortStream = new MemoryStream(new byte[5]);
+        Assert.Empty(FileSystemManager.DetectFileSystems(shortStream));
+
+        var longStream = new MemoryStream(new byte[100000]);
+        Assert.Empty(FileSystemManager.DetectFileSystems(longStream));
     }
 }

@@ -37,8 +37,5 @@ internal class Type1Partition : LogicalPartition
         _physical = context.PhysicalPartitions[partitionMap.PartitionNumber];
     }
 
-    public override IBuffer Content
-    {
-        get { return _physical.Content; }
-    }
+    public override IBuffer Content => _physical.Content;
 }

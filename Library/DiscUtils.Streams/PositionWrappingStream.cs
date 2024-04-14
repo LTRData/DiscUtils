@@ -41,7 +41,7 @@ public class PositionWrappingStream : WrappingStream
     private long _position;
     public override long Position
     {
-        get { return _position; }
+        get => _position;
         set
         {
             if (_position == value)
@@ -87,10 +87,7 @@ public class PositionWrappingStream : WrappingStream
         return _position;
     }
 
-    public override bool CanSeek
-    {
-        get { return true; }
-    }
+    public override bool CanSeek => true;
 
     public override int Read(byte[] buffer, int offset, int count)
     {

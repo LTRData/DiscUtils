@@ -212,15 +212,12 @@ internal struct Inode : IByteArraySerializable
     /// creating a new file that reuses the inode.
     /// </summary>
     public uint Generation { get; private set; }
-    
-    public UnixFileType FileType { get { return (UnixFileType) ((Mode >> 12) & 0xF); } }
+
+    public UnixFileType FileType => (UnixFileType)((Mode >> 12) & 0xF);
 
     public byte[] DataFork { get; private set; }
 
-    public int Size
-    {
-        get { return 96; }
-    }
+    public int Size => 96;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

@@ -26,23 +26,50 @@ using System.Text;
 using DiscUtils.Compression;
 using Xunit;
 
-namespace LibraryTests.Compression
+namespace LibraryTests.Compression;
+
+public class ZlibStreamTest
 {
-    public class ZlibStreamTest
+    [Fact]
+    public void TestRoundtrip()
     {
-        [Fact]
-        public void TestRoundtrip()
+        var testData = Encoding.ASCII.GetBytes("This is a test string");
+
+        var compressedStream = new MemoryStream();
+
+        using (var zs = new ZlibStream(compressedStream, CompressionMode.Compress, true))
         {
-            var testData = Encoding.ASCII.GetBytes("This is a test string");
+            zs.Write(testData, 0, testData.Length);
+        }
 
-            var compressedStream = new MemoryStream();
+        compressedStream.Position = 0;
+        using var uzs = new ZlibStream(compressedStream, CompressionMode.Decompress, true);
+        var outData = new byte[testData.Length];
+        uzs.Read(outData, 0, outData.Length);
+        Assert.Equal(testData, outData);
 
-            using (var zs = new ZlibStream(compressedStream, CompressionMode.Compress, true))
-            {
-                zs.Write(testData, 0, testData.Length);
-            }
+        // Should be end of stream
+        Assert.Equal(-1, uzs.ReadByte());
+    }
 
-            compressedStream.Position = 0;
+    [Fact]
+    public void TestInvalidChecksum()
+    {
+        var testData = Encoding.ASCII.GetBytes("This is a test string");
+
+        var compressedStream = new MemoryStream();
+
+        using (var zs = new ZlibStream(compressedStream, CompressionMode.Compress, true))
+        {
+            zs.Write(testData, 0, testData.Length);
+        }
+
+        compressedStream.Seek(-2, SeekOrigin.End);
+        compressedStream.Write(new byte[] { 0, 0 }, 0, 2);
+
+        compressedStream.Position = 0;
+        Assert.Throws<InvalidDataException>(() =>
+        {
             using var uzs = new ZlibStream(compressedStream, CompressionMode.Decompress, true);
             var outData = new byte[testData.Length];
             uzs.Read(outData, 0, outData.Length);
@@ -50,34 +77,6 @@ namespace LibraryTests.Compression
 
             // Should be end of stream
             Assert.Equal(-1, uzs.ReadByte());
-        }
-
-        [Fact]
-        public void TestInvalidChecksum()
-        {
-            var testData = Encoding.ASCII.GetBytes("This is a test string");
-
-            var compressedStream = new MemoryStream();
-
-            using (var zs = new ZlibStream(compressedStream, CompressionMode.Compress, true))
-            {
-                zs.Write(testData, 0, testData.Length);
-            }
-
-            compressedStream.Seek(-2, SeekOrigin.End);
-            compressedStream.Write(new byte[] { 0, 0 }, 0, 2);
-
-            compressedStream.Position = 0;
-            Assert.Throws<InvalidDataException>(() =>
-            {
-                using var uzs = new ZlibStream(compressedStream, CompressionMode.Decompress, true);
-                var outData = new byte[testData.Length];
-                uzs.Read(outData, 0, outData.Length);
-                Assert.Equal(testData, outData);
-
-                // Should be end of stream
-                Assert.Equal(-1, uzs.ReadByte());
-            });
-        }
+        });
     }
 }

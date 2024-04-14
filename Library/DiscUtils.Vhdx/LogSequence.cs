@@ -26,15 +26,9 @@ namespace DiscUtils.Vhdx;
 
 internal sealed class LogSequence : List<LogEntry>
 {
-    public LogEntry Head
-    {
-        get { return Count > 0 ? this[Count - 1] : null; }
-    }
+    public LogEntry Head => Count > 0 ? this[Count - 1] : null;
 
-    public LogEntry Tail
-    {
-        get { return Count > 0 ? this[0] : null; }
-    }
+    public LogEntry Tail => Count > 0 ? this[0] : null;
 
     public bool Contains(long position)
     {

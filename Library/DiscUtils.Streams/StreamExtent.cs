@@ -392,11 +392,8 @@ public readonly struct StreamExtent : IEquatable<StreamExtent>, IComparable<Stre
                     yield return new Range<long, long>((long)rangeStart, rangeLength);
                     rangeStart = extentStartBlock;
                 }
-                else if (rangeStart == null)
-                {
-                    // First extent, so start first range
-                    rangeStart = extentStartBlock;
-                }
+                else                     // First extent, so start first range
+                    rangeStart ??= extentStartBlock;
 
                 // Set the length of the current range, based on the end of this extent
                 rangeLength = extentNextBlock - (long)rangeStart;

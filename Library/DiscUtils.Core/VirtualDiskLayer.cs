@@ -49,18 +49,12 @@ public abstract class VirtualDiskLayer : IDisposable
     /// <summary>
     /// Gets and sets the logical extents that make up this layer.
     /// </summary>
-    public virtual IList<VirtualDiskExtent> Extents
-    {
-        get { return new List<VirtualDiskExtent>(); }
-    }
+    public virtual IList<VirtualDiskExtent> Extents => new List<VirtualDiskExtent>();
 
     /// <summary>
     /// Gets the full path to this disk layer, or empty string.
     /// </summary>
-    public virtual string FullPath
-    {
-        get { return string.Empty; }
-    }
+    public virtual string FullPath => string.Empty;
 
     /// <summary>
     /// Gets the geometry of the virtual disk layer.

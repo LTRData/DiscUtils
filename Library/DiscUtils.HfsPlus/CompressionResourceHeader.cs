@@ -33,10 +33,7 @@ internal class CompressionResourceHeader
 
     public uint HeaderSize { get; private set; }
 
-    public static int Size
-    {
-        get { return 16; }
-    }
+    public static int Size => 16;
 
     public uint TotalSize { get; private set; }
 

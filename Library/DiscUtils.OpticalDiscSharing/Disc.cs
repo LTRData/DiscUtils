@@ -39,10 +39,7 @@ internal sealed class Disc : VirtualDisk
     /// <summary>
     /// Gets the sector size of the disk (2048 for optical discs).
     /// </summary>
-    public override int BlockSize
-    {
-        get { return DiscImageFile.Mode1SectorSize; }
-    }
+    public override int BlockSize => DiscImageFile.Mode1SectorSize;
 
     /// <summary>
     /// Gets a value indicating whether the layer data is opened for writing.
@@ -52,10 +49,7 @@ internal sealed class Disc : VirtualDisk
     /// <summary>
     /// Gets the capacity of the disc (in bytes).
     /// </summary>
-    public override long Capacity
-    {
-        get { return _file.Capacity; }
-    }
+    public override long Capacity => _file.Capacity;
 
     /// <summary>
     /// Gets the content of the disc as a stream.
@@ -63,47 +57,32 @@ internal sealed class Disc : VirtualDisk
     /// <remarks>Note the returned stream is not guaranteed to be at any particular position.  The actual position
     /// will depend on the last partition table/file system activity, since all access to the disk contents pass
     /// through a single stream instance.  Set the stream position before accessing the stream.</remarks>
-    public override SparseStream Content
-    {
-        get { return _file.Content; }
-    }
+    public override SparseStream Content => _file.Content;
 
     /// <summary>
     /// Gets the type of disk represented by this object.
     /// </summary>
-    public override VirtualDiskClass DiskClass
-    {
-        get { return VirtualDiskClass.OpticalDisk; }
-    }
+    public override VirtualDiskClass DiskClass => VirtualDiskClass.OpticalDisk;
 
     /// <summary>
     /// Gets information about the type of disk.
     /// </summary>
     /// <remarks>This property provides access to meta-data about the disk format, for example whether the
     /// BIOS geometry is preserved in the disk file.</remarks>
-    public override VirtualDiskTypeInfo DiskTypeInfo
+    public override VirtualDiskTypeInfo DiskTypeInfo => new VirtualDiskTypeInfo
     {
-        get
-        {
-            return new VirtualDiskTypeInfo
-            {
-                Name = "Optical",
-                Variant = string.Empty,
-                CanBeHardDisk = false,
-                DeterministicGeometry = true,
-                PreservesBiosGeometry = false,
-                CalcGeometry = c => new Geometry(1, 1, 1, 2048)
-            };
-        }
-    }
+        Name = "Optical",
+        Variant = string.Empty,
+        CanBeHardDisk = false,
+        DeterministicGeometry = true,
+        PreservesBiosGeometry = false,
+        CalcGeometry = c => new Geometry(1, 1, 1, 2048)
+    };
 
     /// <summary>
     /// Gets the geometry of the disk.
     /// </summary>
-    public override Geometry Geometry
-    {
-        get { return _file.Geometry; }
-    }
+    public override Geometry Geometry => _file.Geometry;
 
     /// <summary>
     /// Gets the layers that make up the disc.
@@ -144,10 +123,7 @@ internal sealed class Disc : VirtualDisk
         {
             if (disposing)
             {
-                if (_file != null)
-                {
-                    _file.Dispose();
-                }
+                _file?.Dispose();
 
                 _file = null;
             }

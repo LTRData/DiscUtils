@@ -24,32 +24,31 @@ using DiscUtils.Nfs;
 using System.IO;
 using Xunit;
 
-namespace LibraryTests.Nfs
+namespace LibraryTests.Nfs;
+
+public class Nfs3ModifyResultTest
 {
-    public class Nfs3ModifyResultTest
+    [Fact]
+    public void RoundTripTest()
     {
-        [Fact]
-        public void RoundTripTest()
+        var result = new Nfs3ModifyResult()
         {
-            var result = new Nfs3ModifyResult()
-            {
-                CacheConsistency = new Nfs3WeakCacheConsistency(),
-                Status = Nfs3Status.Ok
-            };
+            CacheConsistency = new Nfs3WeakCacheConsistency(),
+            Status = Nfs3Status.Ok
+        };
 
-            Nfs3ModifyResult clone = null;
+        Nfs3ModifyResult clone = null;
 
-            using (var stream = new MemoryStream())
-            {
-                var writer = new XdrDataWriter(stream);
-                result.Write(writer);
+        using (var stream = new MemoryStream())
+        {
+            var writer = new XdrDataWriter(stream);
+            result.Write(writer);
 
-                stream.Position = 0;
-                var reader = new XdrDataReader(stream);
-                clone = new Nfs3ModifyResult(reader);
-            }
-
-            Assert.Equal(result, clone);
+            stream.Position = 0;
+            var reader = new XdrDataReader(stream);
+            clone = new Nfs3ModifyResult(reader);
         }
+
+        Assert.Equal(result, clone);
     }
 }

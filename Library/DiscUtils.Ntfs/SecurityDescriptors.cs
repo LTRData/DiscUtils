@@ -316,10 +316,7 @@ internal sealed class SecurityDescriptors : IDiagnosticTraceable
         public uint Hash;
         public uint Id;
 
-        public int Size
-        {
-            get { return 8; }
-        }
+        public int Size => 8;
 
         public int ReadFrom(ReadOnlySpan<byte> buffer)
         {
@@ -340,10 +337,7 @@ internal sealed class SecurityDescriptors : IDiagnosticTraceable
 
     internal sealed class HashIndexData : IndexData, IByteArraySerializable
     {
-        public int Size
-        {
-            get { return 0x14; }
-        }
+        public int Size => 0x14;
 
         public int ReadFrom(ReadOnlySpan<byte> buffer)
         {
@@ -373,10 +367,7 @@ internal sealed class SecurityDescriptors : IDiagnosticTraceable
             Id = id;
         }
 
-        public int Size
-        {
-            get { return 4; }
-        }
+        public int Size => 4;
 
         public int ReadFrom(ReadOnlySpan<byte> buffer)
         {
@@ -394,10 +385,7 @@ internal sealed class SecurityDescriptors : IDiagnosticTraceable
 
     internal sealed class IdIndexData : IndexData, IByteArraySerializable
     {
-        public int Size
-        {
-            get { return 0x14; }
-        }
+        public int Size => 0x14;
 
         public int ReadFrom(ReadOnlySpan<byte> buffer)
         {

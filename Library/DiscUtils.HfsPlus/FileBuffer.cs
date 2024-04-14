@@ -45,20 +45,11 @@ internal sealed class FileBuffer : Buffer
         _cnid = catalogNodeId;
     }
 
-    public override bool CanRead
-    {
-        get { return true; }
-    }
+    public override bool CanRead => true;
 
-    public override bool CanWrite
-    {
-        get { return false; }
-    }
+    public override bool CanWrite => false;
 
-    public override long Capacity
-    {
-        get { return (long)_baseData.LogicalSize; }
-    }
+    public override long Capacity => (long)_baseData.LogicalSize;
 
     public IEnumerable<StreamExtent> EnumerateAllocationExtents()
     {

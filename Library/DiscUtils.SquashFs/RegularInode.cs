@@ -34,7 +34,7 @@ internal class RegularInode : Inode
 
     public override long FileSize
     {
-        get { return _fileSize; }
+        get => _fileSize;
 
         set
         {
@@ -48,10 +48,7 @@ internal class RegularInode : Inode
         }
     }
 
-    public override int Size
-    {
-        get { return 32; }
-    }
+    public override int Size => 32;
 
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {

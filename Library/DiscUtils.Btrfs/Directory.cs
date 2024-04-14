@@ -70,10 +70,7 @@ internal class Directory : File, IVfsDirectory<DirEntry, File>
         }
     }
 
-    public DirEntry Self
-    {
-        get { return DirEntry; }
-    }
+    public DirEntry Self => DirEntry;
 
     public DirEntry GetEntryByName(string name)
         => AllEntries.TryGetValue(name, out var entry) ? entry : null;

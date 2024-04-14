@@ -110,8 +110,5 @@ internal class FileAllocationTable
         _buffer.FreeChain(head);
     }
 
-    internal int NumEntries
-    {
-        get { return _buffer.NumEntries; }
-    }
+    internal int NumEntries => _buffer.NumEntries;
 }

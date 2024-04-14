@@ -42,35 +42,21 @@ public class ZeroStream : MappedStream
         _length = length;
     }
 
-    public override bool CanRead
-    {
-        get { return true; }
-    }
+    public override bool CanRead => true;
 
-    public override bool CanSeek
-    {
-        get { return true; }
-    }
+    public override bool CanSeek => true;
 
-    public override bool CanWrite
-    {
-        get { return false; }
-    }
+    public override bool CanWrite => false;
 
     public override IEnumerable<StreamExtent> Extents
-    {
         // The stream is entirely sparse
-        get { return new List<StreamExtent>(0); }
-    }
+        => new List<StreamExtent>(0);
 
-    public override long Length
-    {
-        get { return _length; }
-    }
+    public override long Length => _length;
 
     public override long Position
     {
-        get { return _position; }
+        get => _position;
 
         set
         {

@@ -36,10 +36,7 @@ internal class BooleanElementValue : ElementValue
         _value = value;
     }
 
-    public override ElementFormat Format
-    {
-        get { return ElementFormat.Boolean; }
-    }
+    public override ElementFormat Format => ElementFormat.Boolean;
 
     public override string ToString()
     {

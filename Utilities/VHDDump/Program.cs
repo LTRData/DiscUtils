@@ -94,7 +94,7 @@ class Program : ProgramBase
         Console.WriteLine("         Saved State: {0}", info.SavedState);
         Console.WriteLine();
 
-        if (info.DiskType == FileType.Differencing || info.DiskType == FileType.Dynamic)
+        if (info.DiskType is FileType.Differencing or FileType.Dynamic)
         {
             Console.WriteLine();
             Console.WriteLine("Dynamic Disk Info");

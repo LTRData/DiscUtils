@@ -184,7 +184,7 @@ internal class ExtentDescriptor
     public override string ToString()
     {
         var basic = $"{FormatAccess(Access)} {SizeInSectors} {FormatExtentType(Type)} \"{FileName}\"";
-        if (Type != ExtentType.Sparse && Type != ExtentType.VmfsSparse && Type != ExtentType.Zero)
+        if (Type is not ExtentType.Sparse and not ExtentType.VmfsSparse and not ExtentType.Zero)
         {
             return $"{basic} {Offset}";
         }

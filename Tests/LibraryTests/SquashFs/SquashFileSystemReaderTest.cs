@@ -24,23 +24,22 @@ using System.IO;
 using DiscUtils.SquashFs;
 using Xunit;
 
-namespace LibraryTests.SquashFs
+namespace LibraryTests.SquashFs;
+
+public sealed class SquashFileSystemReaderTest
 {
-    public sealed class SquashFileSystemReaderTest
+    [Fact]
+    public void Detect()
     {
-        [Fact]
-        public void Detect()
-        {
-            var ms = new MemoryStream(new byte[1000]);
-            Assert.False(SquashFileSystemReader.Detect(ms));
+        var ms = new MemoryStream(new byte[1000]);
+        Assert.False(SquashFileSystemReader.Detect(ms));
 
-            ms = new MemoryStream(new byte[10]);
-            Assert.False(SquashFileSystemReader.Detect(ms));
+        ms = new MemoryStream(new byte[10]);
+        Assert.False(SquashFileSystemReader.Detect(ms));
 
-            var emptyFs = new MemoryStream();
-            var builder = new SquashFileSystemBuilder();
-            builder.Build(emptyFs);
-            Assert.True(SquashFileSystemReader.Detect(emptyFs));
-        }
+        var emptyFs = new MemoryStream();
+        var builder = new SquashFileSystemBuilder();
+        builder.Build(emptyFs);
+        Assert.True(SquashFileSystemReader.Detect(emptyFs));
     }
 }

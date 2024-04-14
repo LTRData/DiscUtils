@@ -64,10 +64,7 @@ internal abstract class PartitionMap : IByteArraySerializable
             };
         }
 
-        if (result != null)
-        {
-            result.ReadFrom(buffer);
-        }
+        result?.ReadFrom(buffer);
 
         return result;
     }

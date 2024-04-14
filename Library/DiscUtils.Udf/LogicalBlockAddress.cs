@@ -30,10 +30,7 @@ internal struct LogicalBlockAddress : IByteArraySerializable
     public uint LogicalBlock;
     public ushort Partition;
 
-    public int Size
-    {
-        get { return 6; }
-    }
+    public int Size => 6;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

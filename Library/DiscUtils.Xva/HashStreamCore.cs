@@ -44,31 +44,19 @@ internal class HashStreamCore : CompatibilityStream
         _hashAlg = hashAlg;
     }
 
-    public override bool CanRead
-    {
-        get { return _wrapped.CanRead; }
-    }
+    public override bool CanRead => _wrapped.CanRead;
 
-    public override bool CanSeek
-    {
-        get { return _wrapped.CanSeek; }
-    }
+    public override bool CanSeek => _wrapped.CanSeek;
 
-    public override bool CanWrite
-    {
-        get { return _wrapped.CanWrite; }
-    }
+    public override bool CanWrite => _wrapped.CanWrite;
 
-    public override long Length
-    {
-        get { return _wrapped.Length; }
-    }
+    public override long Length => _wrapped.Length;
 
     public override long Position
     {
-        get { return _wrapped.Position; }
+        get => _wrapped.Position;
 
-        set { _wrapped.Position = value; }
+        set => _wrapped.Position = value;
     }
 
     public override void Flush()
@@ -184,37 +172,19 @@ internal class HashStreamDotnet : CompatibilityStream
         _hashAlg = hashAlg;
     }
 
-    public override bool CanRead
-    {
-        get { return _wrapped.CanRead; }
-    }
+    public override bool CanRead => _wrapped.CanRead;
 
-    public override bool CanSeek
-    {
-        get { return _wrapped.CanSeek; }
-    }
+    public override bool CanSeek => _wrapped.CanSeek;
 
-    public override bool CanWrite
-    {
-        get { return _wrapped.CanWrite; }
-    }
+    public override bool CanWrite => _wrapped.CanWrite;
 
-    public override long Length
-    {
-        get { return _wrapped.Length; }
-    }
+    public override long Length => _wrapped.Length;
 
     public override long Position
     {
-        get
-        {
-            return _wrapped.Position;
-        }
+        get => _wrapped.Position;
 
-        set
-        {
-            _wrapped.Position = value;
-        }
+        set => _wrapped.Position = value;
     }
 
     public override void Flush()

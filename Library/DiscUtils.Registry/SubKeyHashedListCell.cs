@@ -49,15 +49,9 @@ internal sealed class SubKeyHashedListCell : ListCell
         _hive = hive;
     }
 
-    internal override int Count
-    {
-        get { return _subKeyIndexes.Count; }
-    }
+    internal override int Count => _subKeyIndexes.Count;
 
-    public override int Size
-    {
-        get { return 0x4 + _numElements * 0x8; }
-    }
+    public override int Size => 0x4 + _numElements * 0x8;
 
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {

@@ -25,46 +25,45 @@ using System;
 using System.IO;
 using Xunit;
 
-namespace LibraryTests.Nfs
+namespace LibraryTests.Nfs;
+
+public class Nfs3FileSystemStatResultTest
 {
-    public class Nfs3FileSystemStatResultTest
+    [Fact]
+    public void RoundTripTest()
     {
-        [Fact]
-        public void RoundTripTest()
+        var result = new Nfs3FileSystemStatResult()
         {
-            var result = new Nfs3FileSystemStatResult()
+            FileSystemStat = new Nfs3FileSystemStat()
             {
-                FileSystemStat = new Nfs3FileSystemStat()
-                {
-                    AvailableFreeFileSlotCount = 1,
-                    AvailableFreeSpaceBytes = 2,
-                    FileSlotCount = 3,
-                    FreeFileSlotCount = 4,
-                    FreeSpaceBytes = 5,
-                    Invariant = TimeSpan.FromSeconds(7),
-                    TotalSizeBytes = 8
-                },
-                PostOpAttributes = new Nfs3FileAttributes()
-                {
-                    AccessTime = new Nfs3FileTime(new DateTime(2017, 1, 1)),
-                    ChangeTime = new Nfs3FileTime(new DateTime(2017, 1, 2)),
-                    ModifyTime = new Nfs3FileTime(new DateTime(2017, 1, 3))
-                }
-            };
-
-            Nfs3FileSystemStatResult clone = null;
-
-            using (var stream = new MemoryStream())
+                AvailableFreeFileSlotCount = 1,
+                AvailableFreeSpaceBytes = 2,
+                FileSlotCount = 3,
+                FreeFileSlotCount = 4,
+                FreeSpaceBytes = 5,
+                Invariant = TimeSpan.FromSeconds(7),
+                TotalSizeBytes = 8
+            },
+            PostOpAttributes = new Nfs3FileAttributes()
             {
-                var writer = new XdrDataWriter(stream);
-                result.Write(writer);
-
-                stream.Position = 0;
-                var reader = new XdrDataReader(stream);
-                clone = new Nfs3FileSystemStatResult(reader);
+                AccessTime = new Nfs3FileTime(new DateTime(2017, 1, 1)),
+                ChangeTime = new Nfs3FileTime(new DateTime(2017, 1, 2)),
+                ModifyTime = new Nfs3FileTime(new DateTime(2017, 1, 3))
             }
+        };
 
-            Assert.Equal(result, clone);
+        Nfs3FileSystemStatResult clone = null;
+
+        using (var stream = new MemoryStream())
+        {
+            var writer = new XdrDataWriter(stream);
+            result.Write(writer);
+
+            stream.Position = 0;
+            var reader = new XdrDataReader(stream);
+            clone = new Nfs3FileSystemStatResult(reader);
         }
+
+        Assert.Equal(result, clone);
     }
 }

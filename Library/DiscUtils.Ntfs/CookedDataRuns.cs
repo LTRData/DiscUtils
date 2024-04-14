@@ -46,10 +46,7 @@ public class CookedDataRuns
 
     public ReadOnlyCollection<CookedDataRun> AsReadOnly() => _runs.AsReadOnly();
 
-    public int Count
-    {
-        get { return _runs.Count; }
-    }
+    public int Count => _runs.Count;
 
     public CookedDataRun this[int index]
     {

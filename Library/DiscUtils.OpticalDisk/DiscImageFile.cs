@@ -79,10 +79,7 @@ public sealed class DiscImageFile : VirtualDiskLayer
         }
 
         Content = stream as SparseStream;
-        if (Content == null)
-        {
-            Content = SparseStream.FromStream(stream, Ownership.None);
-        }
+        Content ??= SparseStream.FromStream(stream, Ownership.None);
 
         if (_format == OpticalFormat.Mode2)
         {
@@ -96,10 +93,7 @@ public sealed class DiscImageFile : VirtualDiskLayer
     /// </summary>
     public override bool CanWrite => false;
 
-    public override long Capacity
-    {
-        get { return Content.Length; }
-    }
+    public override long Capacity => Content.Length;
 
     internal SparseStream Content { get; private set; }
 
@@ -111,32 +105,21 @@ public sealed class DiscImageFile : VirtualDiskLayer
     /// sector size is accurate.
     /// </remarks>
     public override Geometry Geometry
-    {
         // Note external sector size is always 2048 - 2352 just has extra header
         // & error-correction info
-        get { return new Geometry(1, 1, 1, Mode1SectorSize); }
-    }
+        => new Geometry(1, 1, 1, Mode1SectorSize);
 
     /// <summary>
     /// Gets a value indicating if the layer only stores meaningful sectors.
     /// </summary>
-    public override bool IsSparse
-    {
-        get { return false; }
-    }
+    public override bool IsSparse => false;
 
     /// <summary>
     /// Gets a value indicating whether the file is a differencing disk.
     /// </summary>
-    public override bool NeedsParent
-    {
-        get { return false; }
-    }
+    public override bool NeedsParent => false;
 
-    public override FileLocator RelativeFileLocator
-    {
-        get { return null; }
-    }
+    public override FileLocator RelativeFileLocator => null;
 
     /// <summary>
     /// Gets the content of this layer.

@@ -95,42 +95,30 @@ public class ZlibStream : CompatibilityStream
     /// <summary>
     /// Gets whether the stream can be read.
     /// </summary>
-    public override bool CanRead
-    {
-        get { return _deflateStream.CanRead; }
-    }
+    public override bool CanRead => _deflateStream.CanRead;
 
     /// <summary>
     /// Gets whether the stream pointer can be changed.
     /// </summary>
-    public override bool CanSeek
-    {
-        get { return false; }
-    }
+    public override bool CanSeek => false;
 
     /// <summary>
     /// Gets whether the stream can be written to.
     /// </summary>
-    public override bool CanWrite
-    {
-        get { return _deflateStream.CanWrite; }
-    }
+    public override bool CanWrite => _deflateStream.CanWrite;
 
     /// <summary>
     /// Gets the length of the stream.
     /// </summary>
-    public override long Length
-    {
-        get { throw new NotSupportedException(); }
-    }
+    public override long Length => throw new NotSupportedException();
 
     /// <summary>
     /// Gets and sets the stream position.
     /// </summary>
     public override long Position
     {
-        get { throw new NotSupportedException(); }
-        set { throw new NotSupportedException(); }
+        get => throw new NotSupportedException();
+        set => throw new NotSupportedException();
     }
 
     /// <summary>

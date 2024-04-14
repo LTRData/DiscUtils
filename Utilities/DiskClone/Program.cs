@@ -68,18 +68,12 @@ class Program : ProgramBase
         return StandardSwitches.OutputFormatAndAdapterType;
     }
 
-    protected override string[] HelpRemarks
-    {
-        get
-        {
-            return new string[]
+    protected override string[] HelpRemarks => new string[]
             {
                 "DiskClone clones a live disk into a virtual disk file.  The volumes cloned must be formatted with NTFS, and partitioned using a conventional partition table.",
                 "Only Windows 7 is supported.",
                 "The tool must be run with administrator privilege."
             };
-        }
-    }
 
     protected override void DoRun()
     {
@@ -433,7 +427,7 @@ class Program : ProgramBase
 
         async.QueryStatus(out var hResult, ref reserved);
 
-        if (hResult != 0 && hResult != 0x0004230a /* VSS_S_ASYNC_FINISHED */)
+        if (hResult is not 0 and not 0x0004230a /* VSS_S_ASYNC_FINISHED */)
         {
             Marshal.ThrowExceptionForHR((int)hResult);
         }

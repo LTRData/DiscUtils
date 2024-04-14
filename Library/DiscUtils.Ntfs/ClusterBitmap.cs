@@ -46,7 +46,7 @@ internal class ClusterBitmap : IDisposable
                 file.Context.BiosParameterBlock.SectorsPerCluster));
     }
 
-    internal Bitmap Bitmap { get { return _bitmap; } }
+    internal Bitmap Bitmap => _bitmap;
 
     public void Dispose()
     {

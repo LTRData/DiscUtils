@@ -44,7 +44,7 @@ public sealed class DiskBuilder : DiskImageBuilder
     /// </summary>
     public long BlockSize
     {
-        get { return _blockSize; }
+        get => _blockSize;
         set
         {
             if (value % Sizes.OneMiB != 0)

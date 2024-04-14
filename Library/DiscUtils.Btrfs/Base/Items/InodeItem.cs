@@ -108,11 +108,8 @@ internal class InodeItem : BaseItem
     /// Timestamp of inode creation
     /// </summary>
     public TimeSpec OTime { get; private set; }
-    
-    public override int Size
-    {
-        get { return Length; }
-    }
+
+    public override int Size => Length;
 
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {

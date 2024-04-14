@@ -38,10 +38,7 @@ internal class CompressedBlock : IByteArraySerializable
     public long SectorCount;
     public uint Signature;
 
-    public int Size
-    {
-        get { throw new NotImplementedException(); }
-    }
+    public int Size => throw new NotImplementedException();
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

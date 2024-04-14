@@ -54,10 +54,7 @@ public abstract class Buffer : MarshalByRefObject, IBuffer, IDisposable
     /// Gets the parts of the stream that are stored.
     /// </summary>
     /// <remarks>This may be an empty enumeration if all bytes are zero.</remarks>
-    public virtual IEnumerable<StreamExtent> Extents
-    {
-        get { return GetExtentsInRange(0, Capacity); }
-    }
+    public virtual IEnumerable<StreamExtent> Extents => GetExtentsInRange(0, Capacity);
 
     /// <summary>
     /// Reads from the buffer into a byte array.

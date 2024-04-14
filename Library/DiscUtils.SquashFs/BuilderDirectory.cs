@@ -39,10 +39,7 @@ internal sealed class BuilderDirectory : BuilderNode
         _index = new FastDictionary<Entry>(StringComparer.Ordinal, entry => entry.Name);
     }
 
-    public override Inode Inode
-    {
-        get { return _inode; }
-    }
+    public override Inode Inode => _inode;
 
     public void AddChild(string name, BuilderNode node)
     {
@@ -177,8 +174,8 @@ internal sealed class BuilderDirectory : BuilderNode
                 record.WriteTo(context.IoBuffer);
                 context.DirectoryWriter.Write(context.IoBuffer, 0, record.Size);
 
-                if (child.Node.Inode.Type == InodeType.Directory
-                    || child.Node.Inode.Type == InodeType.ExtendedDirectory)
+                if (child.Node.Inode.Type is InodeType.Directory
+                    or InodeType.ExtendedDirectory)
                 {
                     ++numDirs;
                 }

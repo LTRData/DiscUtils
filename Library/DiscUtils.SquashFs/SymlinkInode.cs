@@ -29,10 +29,7 @@ internal class SymlinkInode : Inode
 {
     public uint SymlinkSize;
 
-    public override int Size
-    {
-        get { return 24; }
-    }
+    public override int Size => 24;
 
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {

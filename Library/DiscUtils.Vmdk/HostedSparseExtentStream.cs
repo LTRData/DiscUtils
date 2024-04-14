@@ -66,7 +66,7 @@ internal sealed class HostedSparseExtentStream : CommonSparseExtentStream
 
         _header = _hostedHeader;
 
-        if (_hostedHeader.CompressAlgorithm != 0 && _hostedHeader.CompressAlgorithm != 1)
+        if (_hostedHeader.CompressAlgorithm is not 0 and not 1)
         {
             throw new NotSupportedException("Only uncompressed and DEFLATE compressed disks supported");
         }
@@ -76,16 +76,11 @@ internal sealed class HostedSparseExtentStream : CommonSparseExtentStream
         LoadGlobalDirectory();
     }
 
-    public override bool CanWrite
-    {
-        get
-        {
+    public override bool CanWrite =>
             // No write support for streamOptimized disks
-            return _fileStream.CanWrite &&
+            _fileStream.CanWrite &&
                    (_hostedHeader.Flags &
                     (HostedSparseExtentFlags.CompressedGrains | HostedSparseExtentFlags.MarkersInUse)) == 0;
-        }
-    }
 
     public override void Write(byte[] buffer, int offset, int count)
     {

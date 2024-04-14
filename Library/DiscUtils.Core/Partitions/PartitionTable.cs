@@ -43,10 +43,7 @@ public abstract class PartitionTable
     /// <summary>
     /// Gets the number of User partitions on the disk.
     /// </summary>
-    public int Count
-    {
-        get { return Partitions.Count; }
-    }
+    public int Count => Partitions.Count;
 
     /// <summary>
     /// Gets the GUID that uniquely identifies this disk, if supported (else returns <c>null</c>).

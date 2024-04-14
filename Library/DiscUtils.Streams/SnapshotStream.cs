@@ -80,18 +80,12 @@ public sealed class SnapshotStream : SparseStream
     /// <summary>
     /// Gets an indication as to whether the stream can be read.
     /// </summary>
-    public override bool CanRead
-    {
-        get { return _baseStream.CanRead; }
-    }
+    public override bool CanRead => _baseStream.CanRead;
 
     /// <summary>
     /// Gets an indication as to whether the stream position can be changed.
     /// </summary>
-    public override bool CanSeek
-    {
-        get { return _baseStream.CanSeek; }
-    }
+    public override bool CanSeek => _baseStream.CanSeek;
 
     /// <summary>
     /// Gets an indication as to whether the stream can be written to.
@@ -99,10 +93,7 @@ public sealed class SnapshotStream : SparseStream
     /// <remarks>This property is orthogonal to Freezing/Thawing, it's
     /// perfectly possible for a stream to be frozen and this method
     /// return <c>true</c>.</remarks>
-    public override bool CanWrite
-    {
-        get { return _diffStream != null || _baseStream.CanWrite; }
-    }
+    public override bool CanWrite => _diffStream != null || _baseStream.CanWrite;
 
     /// <summary>
     /// Returns an enumeration over the parts of the stream that contain real data.
@@ -141,9 +132,9 @@ public sealed class SnapshotStream : SparseStream
     /// </summary>
     public override long Position
     {
-        get { return _position; }
+        get => _position;
 
-        set { _position = value; }
+        set => _position = value;
     }
 
     /// <summary>
@@ -584,10 +575,7 @@ public sealed class SnapshotStream : SparseStream
 
             _baseStream = null;
 
-            if (_diffStream != null)
-            {
-                _diffStream.Dispose();
-            }
+            _diffStream?.Dispose();
 
             _diffStream = null;
         }

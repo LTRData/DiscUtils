@@ -24,40 +24,39 @@ using DiscUtils.Nfs;
 using System.IO;
 using Xunit;
 
-namespace LibraryTests.Nfs
+namespace LibraryTests.Nfs;
+
+public class RpcCallHeaderTest
 {
-    public class RpcCallHeaderTest
+    [Fact]
+    public void RoundTripTest()
     {
-        [Fact]
-        public void RoundTripTest()
+        var header = new RpcCallHeader()
         {
-            var header = new RpcCallHeader()
+            Credentials = new RpcAuthentication()
             {
-                Credentials = new RpcAuthentication()
-                {
-                },
-                Proc = (int)NfsProc3.Commit,
-                Program = 5,
-                RpcVersion = 6,
-                Verifier = new RpcAuthentication()
-                {
-                },
-                Version = 7
-            };
-
-            RpcCallHeader clone = null;
-
-            using (var stream = new MemoryStream())
+            },
+            Proc = (int)NfsProc3.Commit,
+            Program = 5,
+            RpcVersion = 6,
+            Verifier = new RpcAuthentication()
             {
-                var writer = new XdrDataWriter(stream);
-                header.Write(writer);
+            },
+            Version = 7
+        };
 
-                stream.Position = 0;
-                var reader = new XdrDataReader(stream);
-                clone = new RpcCallHeader(reader);
-            }
+        RpcCallHeader clone = null;
 
-            Assert.Equal(header, clone);
+        using (var stream = new MemoryStream())
+        {
+            var writer = new XdrDataWriter(stream);
+            header.Write(writer);
+
+            stream.Position = 0;
+            var reader = new XdrDataReader(stream);
+            clone = new RpcCallHeader(reader);
         }
+
+        Assert.Equal(header, clone);
     }
 }

@@ -23,75 +23,74 @@
 using DiscUtils;
 using Xunit;
 
-namespace LibraryTests
+namespace LibraryTests;
+
+public class GeometryTest
 {
-    public class GeometryTest
+    [Fact]
+    public void Create()
     {
-        [Fact]
-        public void Create()
-        {
-            var g = new Geometry(100, 16, 63);
-            Assert.Equal(100, g.Cylinders);
-            Assert.Equal(16, g.HeadsPerCylinder);
-            Assert.Equal(63, g.SectorsPerTrack);
-        }
+        var g = new Geometry(100, 16, 63);
+        Assert.Equal(100, g.Cylinders);
+        Assert.Equal(16, g.HeadsPerCylinder);
+        Assert.Equal(63, g.SectorsPerTrack);
+    }
 
-        [Fact]
-        public void LBARoundTrip()
-        {
-            var g = new Geometry(100, 16, 63);
+    [Fact]
+    public void LBARoundTrip()
+    {
+        var g = new Geometry(100, 16, 63);
 
-            const int TestCylinder = 54;
-            const int TestHead = 15;
-            const int TestSector = 63;
+        const int TestCylinder = 54;
+        const int TestHead = 15;
+        const int TestSector = 63;
 
-            var lba = g.ToLogicalBlockAddress(TestCylinder, TestHead, TestSector);
-            var chs = g.ToChsAddress(lba);
+        var lba = g.ToLogicalBlockAddress(TestCylinder, TestHead, TestSector);
+        var chs = g.ToChsAddress(lba);
 
-            Assert.Equal(TestCylinder, chs.Cylinder);
-            Assert.Equal(TestHead, chs.Head);
-            Assert.Equal(TestSector, chs.Sector);
-        }
+        Assert.Equal(TestCylinder, chs.Cylinder);
+        Assert.Equal(TestHead, chs.Head);
+        Assert.Equal(TestSector, chs.Sector);
+    }
 
-        [Fact]
-        public void TotalSectors()
-        {
-            var g = new Geometry(333, 22, 11);
-            Assert.Equal(333 * 22 * 11, g.TotalSectorsLong);
-        }
+    [Fact]
+    public void TotalSectors()
+    {
+        var g = new Geometry(333, 22, 11);
+        Assert.Equal(333 * 22 * 11, g.TotalSectorsLong);
+    }
 
-        [Fact]
-        public void Capacity()
-        {
-            var g = new Geometry(333, 22, 11);
-            Assert.Equal(333 * 22 * 11 * 512, g.Capacity);
-        }
+    [Fact]
+    public void Capacity()
+    {
+        var g = new Geometry(333, 22, 11);
+        Assert.Equal(333 * 22 * 11 * 512, g.Capacity);
+    }
 
-        [Fact]
-        public void FromCapacity()
-        {
-            // Check the capacity calculated is no greater than requested, and off by no more than 10%
-            const long ThreeTwentyMB = 1024 * 1024 * 320;
-            var g = Geometry.FromCapacity(ThreeTwentyMB);
-            Assert.True(g.Capacity <= ThreeTwentyMB && g.Capacity > ThreeTwentyMB * 0.9);
+    [Fact]
+    public void FromCapacity()
+    {
+        // Check the capacity calculated is no greater than requested, and off by no more than 10%
+        const long ThreeTwentyMB = 1024 * 1024 * 320;
+        var g = Geometry.FromCapacity(ThreeTwentyMB);
+        Assert.True(g.Capacity is <= ThreeTwentyMB and > (long)(ThreeTwentyMB * 0.9));
 
-            // Check exact sizes are maintained - do one pass to allow for finding a geometry that matches
-            // the algorithm - then expect identical results each time.
-            var startGeometry = new Geometry(333,22,11);
-            var trip1 = Geometry.FromCapacity(startGeometry.Capacity);
-            Assert.Equal(trip1, Geometry.FromCapacity(trip1.Capacity));
-        }
+        // Check exact sizes are maintained - do one pass to allow for finding a geometry that matches
+        // the algorithm - then expect identical results each time.
+        var startGeometry = new Geometry(333,22,11);
+        var trip1 = Geometry.FromCapacity(startGeometry.Capacity);
+        Assert.Equal(trip1, Geometry.FromCapacity(trip1.Capacity));
+    }
 
-        [Fact]
-        public void GeometryEquals()
-        {
-            Assert.Equal(Geometry.FromCapacity(1024 * 1024 * 32), Geometry.FromCapacity(1024 * 1024 * 32));
-        }
+    [Fact]
+    public void GeometryEquals()
+    {
+        Assert.Equal(Geometry.FromCapacity(1024 * 1024 * 32), Geometry.FromCapacity(1024 * 1024 * 32));
+    }
 
-        [Fact]
-        public void TestToString()
-        {
-            Assert.Equal("(333/22/11)", new Geometry(333, 22, 11).ToString());
-        }
+    [Fact]
+    public void TestToString()
+    {
+        Assert.Equal("(333/22/11)", new Geometry(333, 22, 11).ToString());
     }
 }

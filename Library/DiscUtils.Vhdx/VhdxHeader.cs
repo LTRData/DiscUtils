@@ -76,10 +76,7 @@ internal sealed class VhdxHeader : IByteArraySerializable
         }
     }
 
-    public int Size
-    {
-        get { return (int)(4 * Sizes.OneKiB); }
-    }
+    public int Size => (int)(4 * Sizes.OneKiB);
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

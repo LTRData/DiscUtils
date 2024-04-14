@@ -32,10 +32,7 @@ internal class FileInfo : IByteArraySerializable
     public FinderFlags FinderFlags;
     public Point Point;
 
-    public int Size
-    {
-        get { return 16; }
-    }
+    public int Size => 16;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

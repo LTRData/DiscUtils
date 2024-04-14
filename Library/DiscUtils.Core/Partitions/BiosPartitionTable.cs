@@ -640,7 +640,7 @@ public sealed class BiosPartitionTable : PartitionTable
 
     private static bool IsExtendedPartition(BiosPartitionRecord r)
     {
-        return r.PartitionType == BiosPartitionTypes.Extended || r.PartitionType == BiosPartitionTypes.ExtendedLba;
+        return r.PartitionType is BiosPartitionTypes.Extended or BiosPartitionTypes.ExtendedLba;
     }
 
     private static byte ConvertType(WellKnownPartitionType type, long size)

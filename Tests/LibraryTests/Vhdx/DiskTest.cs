@@ -28,110 +28,109 @@ using DiscUtils.Streams;
 using DiscUtils.Vhdx;
 using Xunit;
 
-namespace LibraryTests.Vhdx
+namespace LibraryTests.Vhdx;
+
+public class DiskTest
 {
-    public class DiskTest
+    [Fact]
+    public void InitializeFixed()
     {
-        [Fact]
-        public void InitializeFixed()
+        var ms = new MemoryStream();
+        using (var disk = Disk.InitializeDynamic(ms, Ownership.None, 8 * 1024 * 1024))
         {
-            var ms = new MemoryStream();
-            using (var disk = Disk.InitializeDynamic(ms, Ownership.None, 8 * 1024 * 1024))
-            {
-                Assert.NotNull(disk);
-                Assert.True(disk.Geometry.Capacity > 7.5 * 1024 * 1024 && disk.Geometry.Capacity <= 8 * 1024 * 1024);
-            }
-
-            // Check the stream is still valid
-            ms.ReadByte();
-            ms.Dispose();
+            Assert.NotNull(disk);
+            Assert.True(disk.Geometry.Capacity is > (long)(7.5 * 1024 * 1024) and <= (8 * 1024 * 1024));
         }
 
-        [Fact]
-        public void InitializeDynamicOwnStream()
-        {
-            var ms = new MemoryStream();
-            using (var disk = Disk.InitializeDynamic(ms, Ownership.Dispose, 8 * 1024 * 1024))
-            {
-            }
+        // Check the stream is still valid
+        ms.ReadByte();
+        ms.Dispose();
+    }
 
-            Assert.Throws<ObjectDisposedException>(() => ms.ReadByte());
+    [Fact]
+    public void InitializeDynamicOwnStream()
+    {
+        var ms = new MemoryStream();
+        using (var disk = Disk.InitializeDynamic(ms, Ownership.Dispose, 8 * 1024 * 1024))
+        {
         }
 
-        [Fact]
-        public void InitializeDynamic()
+        Assert.Throws<ObjectDisposedException>(() => ms.ReadByte());
+    }
+
+    [Fact]
+    public void InitializeDynamic()
+    {
+        var ms = new MemoryStream();
+        using (var disk = Disk.InitializeDynamic(ms, Ownership.None, 16 * 1024L * 1024 * 1024))
         {
-            var ms = new MemoryStream();
-            using (var disk = Disk.InitializeDynamic(ms, Ownership.None, 16 * 1024L * 1024 * 1024))
-            {
-                Assert.NotNull(disk);
-                Assert.True(disk.Geometry.Capacity > 15.8 * 1024L * 1024 * 1024 && disk.Geometry.Capacity <= 16 * 1024L * 1024 * 1024);
-            }
-
-            Assert.True(8 * 1024 * 1024 > ms.Length);
-
-            using (var disk = new Disk(ms, Ownership.Dispose))
-            {
-                Assert.True(disk.Geometry.Capacity > 15.8 * 1024L * 1024 * 1024 && disk.Geometry.Capacity <= 16 * 1024L * 1024 * 1024);
-            }
+            Assert.NotNull(disk);
+            Assert.True(disk.Geometry.Capacity is > (long)(15.8 * 1024L * 1024 * 1024) and <= (16 * 1024L * 1024 * 1024));
         }
 
-        [Fact]
-        public void InitializeDifferencing()
-        {
-            var baseStream = new MemoryStream();
-            var diffStream = new MemoryStream();
-            var baseFile = DiskImageFile.InitializeDynamic(baseStream, Ownership.Dispose, 16 * 1024L * 1024 * 1024);
-            using (var disk = Disk.InitializeDifferencing(diffStream, Ownership.None, baseFile, Ownership.Dispose, @"C:\TEMP\Base.vhd", @".\Base.vhd", DateTime.UtcNow))
-            {
-                Assert.NotNull(disk);
-                Assert.True(disk.Geometry.Capacity > 15.8 * 1024L * 1024 * 1024 && disk.Geometry.Capacity <= 16 * 1024L * 1024 * 1024);
-                Assert.True(disk.Geometry.Capacity == baseFile.Geometry.Capacity);
-                Assert.Equal(2, new List<VirtualDiskLayer>(disk.Layers).Count);
-            }
+        Assert.True(8 * 1024 * 1024 > ms.Length);
 
-            Assert.True(8 * 1024 * 1024 > diffStream.Length);
-            diffStream.Dispose();
+        using (var disk = new Disk(ms, Ownership.Dispose))
+        {
+            Assert.True(disk.Geometry.Capacity is > (long)(15.8 * 1024L * 1024 * 1024) and <= (16 * 1024L * 1024 * 1024));
+        }
+    }
+
+    [Fact]
+    public void InitializeDifferencing()
+    {
+        var baseStream = new MemoryStream();
+        var diffStream = new MemoryStream();
+        var baseFile = DiskImageFile.InitializeDynamic(baseStream, Ownership.Dispose, 16 * 1024L * 1024 * 1024);
+        using (var disk = Disk.InitializeDifferencing(diffStream, Ownership.None, baseFile, Ownership.Dispose, @"C:\TEMP\Base.vhd", @".\Base.vhd", DateTime.UtcNow))
+        {
+            Assert.NotNull(disk);
+            Assert.True(disk.Geometry.Capacity is > (long)(15.8 * 1024L * 1024 * 1024) and <= (16 * 1024L * 1024 * 1024));
+            Assert.True(disk.Geometry.Capacity == baseFile.Geometry.Capacity);
+            Assert.Equal(2, new List<VirtualDiskLayer>(disk.Layers).Count);
         }
 
-        [Fact]
-        public void ConstructorDynamic()
+        Assert.True(8 * 1024 * 1024 > diffStream.Length);
+        diffStream.Dispose();
+    }
+
+    [Fact]
+    public void ConstructorDynamic()
+    {
+        Geometry geometry;
+        var ms = new MemoryStream();
+        using (var disk = Disk.InitializeDynamic(ms, Ownership.None, 16 * 1024L * 1024 * 1024))
         {
-            Geometry geometry;
-            var ms = new MemoryStream();
-            using (var disk = Disk.InitializeDynamic(ms, Ownership.None, 16 * 1024L * 1024 * 1024))
-            {
-                geometry = disk.Geometry;
-            }
-
-            using (var disk = new Disk(ms, Ownership.None))
-            {
-                Assert.Equal(geometry, disk.Geometry);
-                Assert.NotNull(disk.Content);
-            }
-
-            using (var disk = new Disk(ms, Ownership.Dispose))
-            {
-                Assert.Equal(geometry, disk.Geometry);
-                Assert.NotNull(disk.Content);
-            }
+            geometry = disk.Geometry;
         }
 
-        [Fact]
-        public void ConstructorFromFiles()
+        using (var disk = new Disk(ms, Ownership.None))
         {
-            var baseStream = new MemoryStream();
-            var baseFile = DiskImageFile.InitializeDynamic(baseStream, Ownership.Dispose, 16 * 1024L * 1024 * 1024);
-
-            var childStream = new MemoryStream();
-            var childFile = DiskImageFile.InitializeDifferencing(childStream, Ownership.Dispose, baseFile, @"C:\temp\foo.vhd", @".\foo.vhd", DateTime.Now);
-
-            var grandChildStream = new MemoryStream();
-            var grandChildFile = DiskImageFile.InitializeDifferencing(grandChildStream, Ownership.Dispose, childFile, @"C:\temp\child1.vhd", @".\child1.vhd", DateTime.Now);
-
-            using var disk = new Disk(new DiskImageFile[] { grandChildFile, childFile, baseFile }, Ownership.Dispose);
+            Assert.Equal(geometry, disk.Geometry);
             Assert.NotNull(disk.Content);
         }
 
+        using (var disk = new Disk(ms, Ownership.Dispose))
+        {
+            Assert.Equal(geometry, disk.Geometry);
+            Assert.NotNull(disk.Content);
+        }
     }
+
+    [Fact]
+    public void ConstructorFromFiles()
+    {
+        var baseStream = new MemoryStream();
+        var baseFile = DiskImageFile.InitializeDynamic(baseStream, Ownership.Dispose, 16 * 1024L * 1024 * 1024);
+
+        var childStream = new MemoryStream();
+        var childFile = DiskImageFile.InitializeDifferencing(childStream, Ownership.Dispose, baseFile, @"C:\temp\foo.vhd", @".\foo.vhd", DateTime.Now);
+
+        var grandChildStream = new MemoryStream();
+        var grandChildFile = DiskImageFile.InitializeDifferencing(grandChildStream, Ownership.Dispose, childFile, @"C:\temp\child1.vhd", @".\child1.vhd", DateTime.Now);
+
+        using var disk = new Disk(new DiskImageFile[] { grandChildFile, childFile, baseFile }, Ownership.Dispose);
+        Assert.NotNull(disk.Content);
+    }
+
 }

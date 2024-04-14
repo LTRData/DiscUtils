@@ -44,41 +44,35 @@ internal class File : IVfsFile
 
     public DateTime LastAccessTimeUtc
     {
-        get { return Inode.AccessTime; }
-        set { throw new NotImplementedException(); }
+        get => Inode.AccessTime;
+        set => throw new NotImplementedException();
     }
 
     public DateTime LastWriteTimeUtc
     {
-        get { return Inode.ModificationTime; }
-        set { throw new NotImplementedException(); }
+        get => Inode.ModificationTime;
+        set => throw new NotImplementedException();
     }
 
     public DateTime CreationTimeUtc
     {
-        get { return Inode.CreationTime; }
-        set { throw new NotImplementedException(); }
+        get => Inode.CreationTime;
+        set => throw new NotImplementedException();
     }
 
     public FileAttributes FileAttributes
     {
-        get { return Utilities.FileAttributesFromUnixFileType(Inode.FileType); }
-        set { throw new NotImplementedException(); }
+        get => Utilities.FileAttributesFromUnixFileType(Inode.FileType);
+        set => throw new NotImplementedException();
     }
 
-    public long FileLength
-    {
-        get { return (long) Inode.Length; }
-    }
+    public long FileLength => (long)Inode.Length;
 
     public IBuffer FileContent
     {
         get
         {
-            if (_content == null)
-            {
-                _content = Inode.GetContentBuffer(Context);
-            }
+            _content ??= Inode.GetContentBuffer(Context);
 
             return _content;
         }

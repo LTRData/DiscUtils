@@ -191,11 +191,8 @@ public class RegistryHive : IDisposable
                 // If hive header failed validation, recover from latest log
                 if (headerSize == 0)
                 {
-                    var lastvalid = logfiles.LastOrDefault(logfile => logfile.HeaderValid);
-                    if (lastvalid is null)
-                    {
-                        throw new IOException("Registry transaction logs are corrupt");
-                    }
+                    var lastvalid = logfiles.LastOrDefault(logfile => logfile.HeaderValid)
+                        ?? throw new IOException("Registry transaction logs are corrupt");
 
                     _header = lastvalid.HiveHeader;
                 }
@@ -281,10 +278,7 @@ public class RegistryHive : IDisposable
     /// <summary>
     /// Gets the root key in the registry hive.
     /// </summary>
-    public RegistryKey Root
-    {
-        get { return new RegistryKey(this, GetCell<KeyNodeCell>(_header.RootCell)); }
-    }
+    public RegistryKey Root => new RegistryKey(this, GetCell<KeyNodeCell>(_header.RootCell));
 
     /// <summary>
     /// Disposes of this instance, freeing any underlying stream (if any).
@@ -415,10 +409,7 @@ public class RegistryHive : IDisposable
     {
         var bin = GetBin(index);
 
-        if (bin is not null)
-        {
-            bin.FreeCell(index);
-        }
+        bin?.FreeCell(index);
     }
 
     internal int UpdateCell(Cell cell, bool canRelocate)

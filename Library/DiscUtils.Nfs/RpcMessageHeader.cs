@@ -43,14 +43,8 @@ public class RpcMessageHeader
         ReplyHeader = new RpcReplyHeader(reader);
     }
 
-    public bool IsSuccess
-    {
-        get
-        {
-            return ReplyHeader != null && ReplyHeader.Status == RpcReplyStatus.Accepted &&
+    public bool IsSuccess => ReplyHeader != null && ReplyHeader.Status == RpcReplyStatus.Accepted &&
                    ReplyHeader.AcceptReply.AcceptStatus == RpcAcceptStatus.Success;
-        }
-    }
 
     public RpcReplyHeader ReplyHeader { get; set; }
 

@@ -64,37 +64,22 @@ public sealed class GuidPartitionTable : PartitionTable
     /// <summary>
     /// Gets the unique GPT identifier for this disk.
     /// </summary>
-    public override Guid DiskGuid
-    {
-        get { return _primaryHeader.DiskGuid; }
-    }
+    public override Guid DiskGuid => _primaryHeader.DiskGuid;
 
     /// <summary>
     /// Gets the first sector of the disk available to hold partitions.
     /// </summary>
-    public long FirstUsableSector
-    {
-        get { return _primaryHeader.FirstUsable; }
-    }
+    public long FirstUsableSector => _primaryHeader.FirstUsable;
 
     /// <summary>
     /// Gets the last sector of the disk available to hold partitions.
     /// </summary>
-    public long LastUsableSector
-    {
-        get { return _primaryHeader.LastUsable; }
-    }
+    public long LastUsableSector => _primaryHeader.LastUsable;
 
     /// <summary>
     /// Gets a collection of the partitions for storing Operating System file-systems.
     /// </summary>
-    public override ReadOnlyCollection<PartitionInfo> Partitions
-    {
-        get
-        {
-            return GetAllEntries().Select(e => new GuidPartitionInfo(this, e) as PartitionInfo).ToList().AsReadOnly();
-        }
-    }
+    public override ReadOnlyCollection<PartitionInfo> Partitions => GetAllEntries().Select(e => new GuidPartitionInfo(this, e) as PartitionInfo).ToList().AsReadOnly();
 
     /// <summary>
     /// Creates a new partition table on a disk.

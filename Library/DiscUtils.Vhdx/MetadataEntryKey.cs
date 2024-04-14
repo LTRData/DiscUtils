@@ -36,10 +36,7 @@ internal sealed class MetadataEntryKey : IEquatable<MetadataEntryKey>
 
     public bool IsUser { get; }
 
-    public Guid ItemId
-    {
-        get { return _itemId; }
-    }
+    public Guid ItemId => _itemId;
 
     public bool Equals(MetadataEntryKey other)
     {

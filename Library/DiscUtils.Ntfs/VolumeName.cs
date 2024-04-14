@@ -39,10 +39,7 @@ internal sealed class VolumeName : IByteArraySerializable, IDiagnosticTraceable
 
     public string Name { get; private set; }
 
-    public int Size
-    {
-        get { return Encoding.Unicode.GetByteCount(Name); }
-    }
+    public int Size => Encoding.Unicode.GetByteCount(Name);
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

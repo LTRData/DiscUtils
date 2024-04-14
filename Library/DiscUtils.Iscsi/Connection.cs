@@ -75,18 +75,12 @@ internal sealed class Connection : IDisposable
 
     internal ushort Id { get; }
 
-    internal LoginStages NextLoginStage
+    internal LoginStages NextLoginStage => CurrentLoginStage switch
     {
-        get
-        {
-            return CurrentLoginStage switch
-            {
-                LoginStages.SecurityNegotiation => LoginStages.LoginOperationalNegotiation,
-                LoginStages.LoginOperationalNegotiation => LoginStages.FullFeaturePhase,
-                _ => LoginStages.FullFeaturePhase,
-            };
-        }
-    }
+        LoginStages.SecurityNegotiation => LoginStages.LoginOperationalNegotiation,
+        LoginStages.LoginOperationalNegotiation => LoginStages.FullFeaturePhase,
+        _ => LoginStages.FullFeaturePhase,
+    };
 
     internal Session Session { get; }
 

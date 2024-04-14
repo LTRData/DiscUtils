@@ -42,10 +42,7 @@ public sealed class RegionTableInfo : ICollection<RegionInfo>
     /// <summary>
     /// Gets the checksum of the region table.
     /// </summary>
-    public int Checksum
-    {
-        get { return (int)_table.Checksum; }
-    }
+    public int Checksum => (int)_table.Checksum;
 
     private IEnumerable<RegionInfo> Entries
     {
@@ -77,18 +74,12 @@ public sealed class RegionTableInfo : ICollection<RegionInfo>
     /// <summary>
     /// Gets the number of metadata items present.
     /// </summary>
-    public int Count
-    {
-        get { return (int)_table.EntryCount; }
-    }
+    public int Count => (int)_table.EntryCount;
 
     /// <summary>
     /// Gets a value indicating whether this table is read-only (always true).
     /// </summary>
-    public bool IsReadOnly
-    {
-        get { return true; }
-    }
+    public bool IsReadOnly => true;
 
     /// <summary>
     /// Always throws InvalidOperationException.

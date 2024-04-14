@@ -36,26 +36,23 @@ internal struct BatEntry : IByteArraySerializable
 
     public PayloadBlockStatus PayloadBlockStatus
     {
-        get { return (PayloadBlockStatus)(_value & 0x7); }
-        set { _value = (_value & ~0x7ul) | (ulong)value; }
+        get => (PayloadBlockStatus)(_value & 0x7);
+        set => _value = (_value & ~0x7ul) | (ulong)value;
     }
 
     public bool BitmapBlockPresent
     {
-        get { return (_value & 0x7) == 6; }
-        set { _value = (_value & ~0x7ul) | (value ? 6u : 0u); }
+        get => (_value & 0x7) == 6;
+        set => _value = (_value & ~0x7ul) | (value ? 6u : 0u);
     }
 
     public long FileOffsetMB
     {
-        get { return (long)(_value >> 20) & 0xFFFFFFFFFFFL; }
-        set { _value = (_value & 0xFFFFF) | (ulong)value << 20; }
+        get => (long)(_value >> 20) & 0xFFFFFFFFFFFL;
+        set => _value = (_value & 0xFFFFF) | (ulong)value << 20;
     }
 
-    public int Size
-    {
-        get { return 8; }
-    }
+    public int Size => 8;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

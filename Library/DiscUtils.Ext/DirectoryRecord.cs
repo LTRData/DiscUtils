@@ -50,10 +50,7 @@ internal struct DirectoryRecord : IByteArraySerializable
         _nameEncoding = nameEncoding;
     }
 
-    public int Size
-    {
-        get { return MathUtilities.RoundUp(8 + Name.Length, 4); }
-    }
+    public int Size => MathUtilities.RoundUp(8 + Name.Length, 4);
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

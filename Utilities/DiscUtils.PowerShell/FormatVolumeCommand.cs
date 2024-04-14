@@ -102,10 +102,7 @@ public class FormatVolumeCommand : PSCmdlet
         if (driveProp != null)
         {
             var drive = driveProp.Value as VirtualDiskPSDriveInfo;
-            if (drive != null)
-            {
-                drive.UncacheFileSystem(volInfo.Identity);
-            }
+            drive?.UncacheFileSystem(volInfo.Identity);
         }
 
         NtfsFileSystem.Format(volInfo, Label);

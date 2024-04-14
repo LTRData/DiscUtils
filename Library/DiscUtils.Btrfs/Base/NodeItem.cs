@@ -34,11 +34,8 @@ internal class NodeItem : IByteArraySerializable
     public uint DataOffset { get; set; }
 
     public uint DataSize { get; set; }
-    
-    public virtual int Size
-    {
-        get { return Length; }
-    }
+
+    public virtual int Size => Length;
 
     public virtual int ReadFrom(ReadOnlySpan<byte> buffer)
     {

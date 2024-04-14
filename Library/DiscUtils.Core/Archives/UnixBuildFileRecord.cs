@@ -67,30 +67,15 @@ internal sealed class UnixBuildFileRecord
         _modificationTime = modificationTime;
     }
 
-    public string Name
-    {
-        get { return _name; }
-    }
+    public string Name => _name;
 
-    public UnixFilePermissions FileMode
-    {
-        get { return this._fileMode; }
-    }
+    public UnixFilePermissions FileMode => this._fileMode;
 
-    public int OwnerId
-    {
-        get { return this._ownerId; }
-    }
+    public int OwnerId => this._ownerId;
 
-    public int GroupId
-    {
-        get { return this._groupId; }
-    }
+    public int GroupId => this._groupId;
 
-    public DateTime ModificationTime
-    {
-        get { return this._modificationTime; }
-    }
+    public DateTime ModificationTime => this._modificationTime;
 
     public long Length => _source.Length;
 

@@ -63,34 +63,22 @@ public class WimFile
     /// <summary>
     /// Gets the (zero-based) index of the bootable image.
     /// </summary>
-    public int BootImage
-    {
-        get { return (int)_fileHeader.BootIndex; }
-    }
+    public int BootImage => (int)_fileHeader.BootIndex;
 
     /// <summary>
     /// Gets the version of the file format.
     /// </summary>
-    public int FileFormatVersion
-    {
-        get { return (int)_fileHeader.Version; }
-    }
+    public int FileFormatVersion => (int)_fileHeader.Version;
 
     /// <summary>
     /// Gets the identifying GUID for this WIM file.
     /// </summary>
-    public Guid Guid
-    {
-        get { return _fileHeader.WimGuid; }
-    }
+    public Guid Guid => _fileHeader.WimGuid;
 
     /// <summary>
     /// Gets the number of disk images within this file.
     /// </summary>
-    public int ImageCount
-    {
-        get { return (int)_fileHeader.ImageCount; }
-    }
+    public int ImageCount => (int)_fileHeader.ImageCount;
 
     /// <summary>
     /// Gets the embedded manifest describing the file and the contained images.

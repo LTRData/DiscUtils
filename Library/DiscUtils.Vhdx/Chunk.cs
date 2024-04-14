@@ -62,14 +62,11 @@ public sealed class Chunk
         _batData = bat.ReadExactly((_blocksPerChunk + 1) * 8);
     }
 
-    public bool HasSectorBitmap
-    {
-        get { return new BatEntry(_batData, _blocksPerChunk * 8).BitmapBlockPresent; }
-    }
+    public bool HasSectorBitmap => new BatEntry(_batData, _blocksPerChunk * 8).BitmapBlockPresent;
 
     private long SectorBitmapPos
     {
-        get { return new BatEntry(_batData, _blocksPerChunk * 8).FileOffsetMB * Sizes.OneMiB; }
+        get => new BatEntry(_batData, _blocksPerChunk * 8).FileOffsetMB * Sizes.OneMiB;
 
         set
         {
@@ -130,8 +127,8 @@ public sealed class Chunk
             dataModified = true;
         }
 
-        if (blockEntry.PayloadBlockStatus != PayloadBlockStatus.FullyPresent
-            && blockEntry.PayloadBlockStatus != PayloadBlockStatus.PartiallyPresent)
+        if (blockEntry.PayloadBlockStatus is not PayloadBlockStatus.FullyPresent
+            and not PayloadBlockStatus.PartiallyPresent)
         {
             if ((_fileParameters.Flags & FileParametersFlags.HasParent) != 0)
             {

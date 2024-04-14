@@ -45,14 +45,14 @@ internal class File : IVfsFile
 
     public DateTime CreationTimeUtc
     {
-        get { return DirEntry.CreationTimeUtc; }
-        set { throw new NotImplementedException(); }
+        get => DirEntry.CreationTimeUtc;
+        set => throw new NotImplementedException();
     }
 
     public FileAttributes FileAttributes
     {
-        get { return DirEntry.FileAttributes; }
-        set { throw new NotImplementedException(); }
+        get => DirEntry.FileAttributes;
+        set => throw new NotImplementedException();
     }
 
     public IBuffer FileContent
@@ -85,20 +85,17 @@ internal class File : IVfsFile
         return new StreamBuffer(new BuiltStream((long)DirEntry.FileSize, builderExtents), Ownership.Dispose);
     }
 
-    public long FileLength
-    {
-        get { return (long)DirEntry.FileSize; }
-    }
+    public long FileLength => (long)DirEntry.FileSize;
 
     public DateTime LastAccessTimeUtc
     {
-        get { return DirEntry.LastAccessTimeUtc; }
-        set { throw new NotImplementedException(); }
+        get => DirEntry.LastAccessTimeUtc;
+        set => throw new NotImplementedException();
     }
 
     public DateTime LastWriteTimeUtc
     {
-        get { return DirEntry.LastWriteTimeUtc; }
-        set { throw new NotImplementedException(); }
+        get => DirEntry.LastWriteTimeUtc;
+        set => throw new NotImplementedException();
     }
 }

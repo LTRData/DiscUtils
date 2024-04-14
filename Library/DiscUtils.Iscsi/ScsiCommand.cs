@@ -32,17 +32,11 @@ internal abstract class ScsiCommand : IByteArraySerializable
         TargetLun = targetLun;
     }
 
-    public virtual bool ImmediateDelivery
-    {
-        get { return false; }
-    }
+    public virtual bool ImmediateDelivery => false;
 
     public ulong TargetLun { get; }
 
-    public virtual TaskAttributes TaskAttributes
-    {
-        get { return TaskAttributes.Untagged; }
-    }
+    public virtual TaskAttributes TaskAttributes => TaskAttributes.Untagged;
 
     #region IByteArraySerializable Members
 

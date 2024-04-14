@@ -32,15 +32,9 @@ internal struct Extent : IByteArraySerializable
     public uint FirstPhysicalBlockLow;
     public ushort NumBlocks;
 
-    public ulong FirstPhysicalBlock
-    {
-        get { return FirstPhysicalBlockLow | ((ulong)FirstPhysicalBlockHi << 32); }
-    }
+    public ulong FirstPhysicalBlock => FirstPhysicalBlockLow | ((ulong)FirstPhysicalBlockHi << 32);
 
-    public int Size
-    {
-        get { return 12; }
-    }
+    public int Size => 12;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

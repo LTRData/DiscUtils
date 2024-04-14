@@ -76,15 +76,9 @@ internal class AttributeList : IByteArraySerializable, IDiagnosticTraceable, ICo
         }
     }
 
-    public int Count
-    {
-        get { return _records.Count; }
-    }
+    public int Count => _records.Count;
 
-    public bool IsReadOnly
-    {
-        get { return false; }
-    }
+    public bool IsReadOnly => false;
 
     public void Add(AttributeListRecord item)
     {

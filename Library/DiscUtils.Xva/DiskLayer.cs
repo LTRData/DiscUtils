@@ -49,42 +49,27 @@ public sealed class DiskLayer : VirtualDiskLayer
     /// <summary>
     /// Gets the capacity of the layer (in bytes).
     /// </summary>
-    public override long Capacity
-    {
-        get { return _capacity; }
-    }
+    public override long Capacity => _capacity;
 
     /// <summary>
     /// Gets the disk's geometry.
     /// </summary>
     /// <remarks>The geometry is not stored with the disk, so this is at best
     /// a guess of the actual geometry.</remarks>
-    public override Geometry Geometry
-    {
-        get { return Geometry.FromCapacity(_capacity); }
-    }
+    public override Geometry Geometry => Geometry.FromCapacity(_capacity);
 
     /// <summary>
     /// Gets a indication of whether the disk is 'sparse'.
     /// </summary>
     /// <remarks>Always true for XVA disks.</remarks>
-    public override bool IsSparse
-    {
-        get { return true; }
-    }
+    public override bool IsSparse => true;
 
     /// <summary>
     /// Gets a value indicating whether the file is a differencing disk.
     /// </summary>
-    public override bool NeedsParent
-    {
-        get { return false; }
-    }
+    public override bool NeedsParent => false;
 
-    public override FileLocator RelativeFileLocator
-    {
-        get { return null; }
-    }
+    public override FileLocator RelativeFileLocator => null;
 
     /// <summary>
     /// Opens the content of the disk layer as a stream.

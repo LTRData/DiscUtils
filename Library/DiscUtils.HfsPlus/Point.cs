@@ -30,10 +30,7 @@ internal sealed class Point : IByteArraySerializable
     public short Horizontal;
     public short Vertical;
 
-    public int Size
-    {
-        get { return 4; }
-    }
+    public int Size => 4;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

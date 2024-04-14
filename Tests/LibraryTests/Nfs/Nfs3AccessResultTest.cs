@@ -25,38 +25,37 @@ using System;
 using System.IO;
 using Xunit;
 
-namespace LibraryTests.Nfs
+namespace LibraryTests.Nfs;
+
+public class Nfs3AccessResultTest
 {
-    public class Nfs3AccessResultTest
+    [Fact]
+    public void RoundTripTest()
     {
-        [Fact]
-        public void RoundTripTest()
+        var result = new Nfs3AccessResult()
         {
-            var result = new Nfs3AccessResult()
+            Access = Nfs3AccessPermissions.Execute,
+            ObjectAttributes = new Nfs3FileAttributes()
             {
-                Access = Nfs3AccessPermissions.Execute,
-                ObjectAttributes = new Nfs3FileAttributes()
-                {
-                    AccessTime = new Nfs3FileTime(new DateTime(2017, 1, 1)),
-                    ChangeTime = new Nfs3FileTime(new DateTime(2017, 1, 2)),
-                    ModifyTime = new Nfs3FileTime(new DateTime(2017, 1, 3))
-                },
-                Status = Nfs3Status.AccessDenied
-            };
+                AccessTime = new Nfs3FileTime(new DateTime(2017, 1, 1)),
+                ChangeTime = new Nfs3FileTime(new DateTime(2017, 1, 2)),
+                ModifyTime = new Nfs3FileTime(new DateTime(2017, 1, 3))
+            },
+            Status = Nfs3Status.AccessDenied
+        };
 
-            Nfs3AccessResult clone = null;
+        Nfs3AccessResult clone = null;
 
-            using (var stream = new MemoryStream())
-            {
-                var writer = new XdrDataWriter(stream);
-                result.Write(writer);
+        using (var stream = new MemoryStream())
+        {
+            var writer = new XdrDataWriter(stream);
+            result.Write(writer);
 
-                stream.Position = 0;
-                var reader = new XdrDataReader(stream);
-                clone = new Nfs3AccessResult(reader);
-            }
-
-            Assert.Equal(result, clone);
+            stream.Position = 0;
+            var reader = new XdrDataReader(stream);
+            clone = new Nfs3AccessResult(reader);
         }
+
+        Assert.Equal(result, clone);
     }
 }

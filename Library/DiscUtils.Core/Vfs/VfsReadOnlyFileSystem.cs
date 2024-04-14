@@ -52,10 +52,7 @@ public abstract class VfsReadOnlyFileSystem<TDirEntry, TFile, TDirectory, TConte
     /// Indicates whether the file system is read-only or read-write.
     /// </summary>
     /// <returns>Always false.</returns>
-    public override bool CanWrite
-    {
-        get { return false; }
-    }
+    public override bool CanWrite => false;
 
     /// <summary>
     /// Copies a file - not supported on read-only file systems.

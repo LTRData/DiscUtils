@@ -91,15 +91,9 @@ internal class ReaderDirectory : File, IVfsDirectory<ReaderDirEntry, File>
         }
     }
 
-    public override byte[] SystemUseData
-    {
-        get { return Self.Record.SystemUseData; }
-    }
+    public override byte[] SystemUseData => Self.Record.SystemUseData;
 
-    public IReadOnlyDictionary<string, ReaderDirEntry> AllEntries
-    {
-        get { return _records; }
-    }
+    public IReadOnlyDictionary<string, ReaderDirEntry> AllEntries => _records;
 
     public ReaderDirEntry Self { get; }
 

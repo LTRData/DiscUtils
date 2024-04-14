@@ -42,10 +42,7 @@ internal sealed class StandardInformation : IByteArraySerializable, IDiagnosticT
     public ulong UpdateSequenceNumber;
     public uint Version;
 
-    public int Size
-    {
-        get { return _haveExtraFields ? 0x48 : 0x30; }
-    }
+    public int Size => _haveExtraFields ? 0x48 : 0x30;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

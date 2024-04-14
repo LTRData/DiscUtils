@@ -27,80 +27,79 @@ using System.Collections.Generic;
 using System.IO;
 using Xunit;
 
-namespace LibraryTests.Nfs
+namespace LibraryTests.Nfs;
+
+public class Nfs3ReadDirPlusResultTest
 {
-    public class Nfs3ReadDirPlusResultTest
+    [Fact]
+    public void RoundTripTest()
     {
-        [Fact]
-        public void RoundTripTest()
+        var result = new Nfs3ReadDirPlusResult()
         {
-            var result = new Nfs3ReadDirPlusResult()
+            CookieVerifier = 1,
+            DirAttributes = new Nfs3FileAttributes()
             {
-                CookieVerifier = 1,
-                DirAttributes = new Nfs3FileAttributes()
-                {
-                    AccessTime = new Nfs3FileTime(new DateTime(2017, 1, 1)),
-                    BytesUsed = 1,
-                    ChangeTime = new Nfs3FileTime(new DateTime(2017, 1, 2)),
-                    FileId = 2,
-                    FileSystemId = 3,
-                    Gid = 4,
-                    LinkCount = 5,
-                    Mode = UnixFilePermissions.GroupAll,
-                    ModifyTime = new Nfs3FileTime(new DateTime(2017, 1, 3)),
-                    RdevMajor = 6,
-                    RdevMinor = 7,
-                    Size = 8,
-                    Type = Nfs3FileType.BlockDevice,
-                    Uid = 9
-                },
-                DirEntries = new List<Nfs3DirectoryEntry>()
-                {
-                    new Nfs3DirectoryEntry()
-                    {
-                         Cookie = 2,
-                         FileAttributes = new Nfs3FileAttributes()
-                         {
-                            AccessTime = new Nfs3FileTime(new DateTime(2017, 1, 10)),
-                            BytesUsed = 11,
-                            ChangeTime = new Nfs3FileTime(new DateTime(2017, 1, 12)),
-                            FileId = 12,
-                            FileSystemId = 13,
-                            Gid = 14,
-                            LinkCount = 15,
-                            Mode = UnixFilePermissions.GroupWrite,
-                            ModifyTime = new Nfs3FileTime(new DateTime(2017, 1, 13)),
-                            RdevMajor = 16,
-                            RdevMinor = 17,
-                            Size = 18,
-                            Type = Nfs3FileType.Socket,
-                            Uid = 19
-                         },
-                         FileHandle = new Nfs3FileHandle()
-                         {
-                              Value = new byte[]{0xa}
-                         },
-                         FileId = 99,
-                         Name = "test"
-                    }
-                },
-                Eof = false,
-                Status = Nfs3Status.Ok
-            };
-
-            Nfs3ReadDirPlusResult clone = null;
-
-            using (var stream = new MemoryStream())
+                AccessTime = new Nfs3FileTime(new DateTime(2017, 1, 1)),
+                BytesUsed = 1,
+                ChangeTime = new Nfs3FileTime(new DateTime(2017, 1, 2)),
+                FileId = 2,
+                FileSystemId = 3,
+                Gid = 4,
+                LinkCount = 5,
+                Mode = UnixFilePermissions.GroupAll,
+                ModifyTime = new Nfs3FileTime(new DateTime(2017, 1, 3)),
+                RdevMajor = 6,
+                RdevMinor = 7,
+                Size = 8,
+                Type = Nfs3FileType.BlockDevice,
+                Uid = 9
+            },
+            DirEntries = new List<Nfs3DirectoryEntry>()
             {
-                var writer = new XdrDataWriter(stream);
-                result.Write(writer);
+                new Nfs3DirectoryEntry()
+                {
+                     Cookie = 2,
+                     FileAttributes = new Nfs3FileAttributes()
+                     {
+                        AccessTime = new Nfs3FileTime(new DateTime(2017, 1, 10)),
+                        BytesUsed = 11,
+                        ChangeTime = new Nfs3FileTime(new DateTime(2017, 1, 12)),
+                        FileId = 12,
+                        FileSystemId = 13,
+                        Gid = 14,
+                        LinkCount = 15,
+                        Mode = UnixFilePermissions.GroupWrite,
+                        ModifyTime = new Nfs3FileTime(new DateTime(2017, 1, 13)),
+                        RdevMajor = 16,
+                        RdevMinor = 17,
+                        Size = 18,
+                        Type = Nfs3FileType.Socket,
+                        Uid = 19
+                     },
+                     FileHandle = new Nfs3FileHandle()
+                     {
+                          Value = new byte[]{0xa}
+                     },
+                     FileId = 99,
+                     Name = "test"
+                }
+            },
+            Eof = false,
+            Status = Nfs3Status.Ok
+        };
 
-                stream.Position = 0;
-                var reader = new XdrDataReader(stream);
-                clone = new Nfs3ReadDirPlusResult(reader);
-            }
+        Nfs3ReadDirPlusResult clone = null;
 
-            Assert.Equal(result, clone);
+        using (var stream = new MemoryStream())
+        {
+            var writer = new XdrDataWriter(stream);
+            result.Write(writer);
+
+            stream.Position = 0;
+            var reader = new XdrDataReader(stream);
+            clone = new Nfs3ReadDirPlusResult(reader);
         }
+
+        Assert.Equal(result, clone);
     }
 }

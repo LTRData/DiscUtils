@@ -42,10 +42,7 @@ internal class MoveToFront
         }
     }
 
-    public byte Head
-    {
-        get { return _buffer[0]; }
-    }
+    public byte Head => _buffer[0];
 
     public void Set(int pos, byte val)
     {

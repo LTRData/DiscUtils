@@ -138,18 +138,12 @@ public sealed class DiskImageFile : VirtualDiskLayer
     /// </summary>
     public override bool CanWrite => _fileStream.CanWrite;
 
-    public override long Capacity
-    {
-        get { return _footer.CurrentSize; }
-    }
+    public override long Capacity => _footer.CurrentSize;
 
     /// <summary>
     /// Gets the timestamp for this file (when it was created).
     /// </summary>
-    public DateTime CreationTimestamp
-    {
-        get { return _footer.Timestamp; }
-    }
+    public DateTime CreationTimestamp => _footer.Timestamp;
 
     /// <summary>
     /// Gets the extent that comprises this file.
@@ -183,60 +177,36 @@ public sealed class DiskImageFile : VirtualDiskLayer
     /// <summary>
     /// Gets the geometry of the virtual disk.
     /// </summary>
-    public override Geometry Geometry
-    {
-        get { return _footer.Geometry; }
-    }
+    public override Geometry Geometry => _footer.Geometry;
 
     /// <summary>
     /// Gets detailed information about the VHD file.
     /// </summary>
-    public DiskImageFileInfo Information
-    {
-        get { return new DiskImageFileInfo(_footer, _dynamicHeader, _fileStream); }
-    }
+    public DiskImageFileInfo Information => new DiskImageFileInfo(_footer, _dynamicHeader, _fileStream);
 
     /// <summary>
     /// Gets a value indicating if the layer only stores meaningful sectors.
     /// </summary>
-    public override bool IsSparse
-    {
-        get { return _footer.DiskType != FileType.Fixed; }
-    }
+    public override bool IsSparse => _footer.DiskType != FileType.Fixed;
 
     /// <summary>
     /// Gets a value indicating whether the file is a differencing disk.
     /// </summary>
-    public override bool NeedsParent
-    {
-        get { return _footer.DiskType == FileType.Differencing; }
-    }
+    public override bool NeedsParent => _footer.DiskType == FileType.Differencing;
 
     /// <summary>
     /// Gets the unique id of the parent disk.
     /// </summary>
-    public Guid ParentUniqueId
-    {
-        get { return _dynamicHeader == null ? Guid.Empty : _dynamicHeader.ParentUniqueId; }
-    }
+    public Guid ParentUniqueId => _dynamicHeader == null ? Guid.Empty : _dynamicHeader.ParentUniqueId;
 
-    public override FileLocator RelativeFileLocator
-    {
-        get { return _fileLocator; }
-    }
+    public override FileLocator RelativeFileLocator => _fileLocator;
 
-    internal long StoredSize
-    {
-        get { return _fileStream.Length; }
-    }
+    internal long StoredSize => _fileStream.Length;
 
     /// <summary>
     /// Gets the unique id of this file.
     /// </summary>
-    public Guid UniqueId
-    {
-        get { return _footer.UniqueId; }
-    }
+    public Guid UniqueId => _footer.UniqueId;
 
     /// <summary>
     /// Initializes a stream as a fixed-sized VHD file.
@@ -388,10 +358,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
         }
         finally
         {
-            if (stream != null)
-            {
-                stream.Dispose();
-            }
+            stream?.Dispose();
         }
 
         return result;
@@ -410,10 +377,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
         }
         finally
         {
-            if (stream != null)
-            {
-                stream.Dispose();
-            }
+            stream?.Dispose();
         }
 
         return result;
@@ -510,7 +474,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
 
     private static void InitializeDynamicInternal(Stream stream, long capacity, Geometry geometry, long blockSize)
     {
-        if (blockSize > uint.MaxValue || blockSize < 0)
+        if (blockSize is > uint.MaxValue or < 0)
         {
             throw new ArgumentOutOfRangeException(nameof(blockSize), "Must be in the range 0 to uint.MaxValue");
         }
@@ -613,18 +577,15 @@ public sealed class DiskImageFile : VirtualDiskLayer
             throw new InvalidOperationException("Only differencing disks contain parent locations");
         }
 
-        if (fileLocator == null)
-        {
-            // Use working directory by default
-            fileLocator = new LocalFileLocator(string.Empty, useAsync: false);
-        }
+        // Use working directory by default
+        fileLocator ??= new LocalFileLocator(string.Empty, useAsync: false);
 
         var absPaths = new List<string>(8);
         var relPaths = new List<string>(8);
         foreach (var pl in _dynamicHeader.ParentLocators)
         {
-            if (pl.PlatformCode == ParentLocator.PlatformCodeWindowsAbsoluteUnicode
-                || pl.PlatformCode == ParentLocator.PlatformCodeWindowsRelativeUnicode)
+            if (pl.PlatformCode is ParentLocator.PlatformCodeWindowsAbsoluteUnicode
+                or ParentLocator.PlatformCodeWindowsRelativeUnicode)
             {
                 _fileStream.Position = pl.PlatformDataOffset;
                 var buffer = _fileStream.ReadExactly(pl.PlatformDataLength);

@@ -30,10 +30,7 @@ internal sealed class ObjectId : IByteArraySerializable, IDiagnosticTraceable
 {
     public Guid Id;
 
-    public int Size
-    {
-        get { return 16; }
-    }
+    public int Size => 16;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

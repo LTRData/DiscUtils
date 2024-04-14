@@ -61,10 +61,7 @@ internal class File
     /// <summary>
     /// Gets an enumeration of all the attributes.
     /// </summary>
-    internal IEnumerable<NtfsAttribute> AllAttributes
-    {
-        get { return _attributes; }
-    }
+    internal IEnumerable<NtfsAttribute> AllAttributes => _attributes;
 
     public IEnumerable<NtfsStream> AllStreams
     {
@@ -124,10 +121,7 @@ internal class File
         }
     }
 
-    internal INtfsContext Context
-    {
-        get { return _context; }
-    }
+    internal INtfsContext Context => _context;
 
     public DirectoryEntry? DirectoryEntry
     {
@@ -165,8 +159,8 @@ internal class File
 
     public ushort HardLinkCount
     {
-        get { return _records[0].HardLinkCount; }
-        set { _records[0].HardLinkCount = value; }
+        get => _records[0].HardLinkCount;
+        set => _records[0].HardLinkCount = value;
     }
 
     public bool HasWin32OrDosName
@@ -186,27 +180,15 @@ internal class File
         }
     }
 
-    public uint IndexInMft
-    {
-        get { return _records[0].MasterFileTableIndex; }
-    }
+    public uint IndexInMft => _records[0].MasterFileTableIndex;
 
-    public bool IsDirectory
-    {
-        get { return (_records[0].Flags & FileRecordFlags.IsDirectory) != 0; }
-    }
+    public bool IsDirectory => (_records[0].Flags & FileRecordFlags.IsDirectory) != 0;
 
-    public uint MaxMftRecordSize
-    {
-        get { return _records[0].AllocatedSize; }
-    }
+    public uint MaxMftRecordSize => _records[0].AllocatedSize;
 
     public bool MftRecordIsDirty { get; private set; }
 
-    public FileRecordReference MftReference
-    {
-        get { return _records[0].Reference; }
-    }
+    public FileRecordReference MftReference => _records[0].Reference;
 
     public IEnumerable<string> Names
     {
@@ -242,10 +224,7 @@ internal class File
         }
     }
 
-    public StandardInformation StandardInformation
-    {
-        get { return GetStream(AttributeType.StandardInformation, null)?.GetContent<StandardInformation>(); }
-    }
+    public StandardInformation StandardInformation => GetStream(AttributeType.StandardInformation, null)?.GetContent<StandardInformation>();
 
     public static File CreateNew(INtfsContext context, NtfsFileAttributes dirFlags)
     {
@@ -471,10 +450,7 @@ internal class File
         // If the attribute list record remains, free any possible clusters it owns.  We've now freed
         // all clusters.
         var attrList = GetAttribute(AttributeType.AttributeList, null);
-        if (attrList != null)
-        {
-            attrList.GetDataBuffer().SetCapacity(0);
-        }
+        attrList?.GetDataBuffer().SetCapacity(0);
 
         // Now go through the MFT records, freeing them up
         foreach (var mftRecord in _records)
@@ -1290,36 +1266,21 @@ internal class File
             _wrapped = attr.Open(access);
         }
 
-        public override bool CanRead
-        {
-            get { return _wrapped.CanRead; }
-        }
+        public override bool CanRead => _wrapped.CanRead;
 
-        public override bool CanSeek
-        {
-            get { return _wrapped.CanSeek; }
-        }
+        public override bool CanSeek => _wrapped.CanSeek;
 
-        public override bool CanWrite
-        {
-            get { return _wrapped.CanWrite; }
-        }
+        public override bool CanWrite => _wrapped.CanWrite;
 
-        public override IEnumerable<StreamExtent> Extents
-        {
-            get { return _wrapped.Extents; }
-        }
+        public override IEnumerable<StreamExtent> Extents => _wrapped.Extents;
 
-        public override long Length
-        {
-            get { return _wrapped.Length; }
-        }
+        public override long Length => _wrapped.Length;
 
         public override long Position
         {
-            get { return _wrapped.Position; }
+            get => _wrapped.Position;
 
-            set { _wrapped.Position = value; }
+            set => _wrapped.Position = value;
         }
 
         protected override void Dispose(bool disposing)

@@ -298,10 +298,7 @@ public sealed class Disk : VirtualDisk
     /// <summary>
     /// Gets the capacity of the disk (in bytes).
     /// </summary>
-    public override long Capacity
-    {
-        get { return _files[0].DiakImageFile.Capacity; }
-    }
+    public override long Capacity => _files[0].DiakImageFile.Capacity;
 
     /// <summary>
     /// Gets the content of the disk as a stream.
@@ -331,28 +328,19 @@ public sealed class Disk : VirtualDisk
     /// <summary>
     /// Gets the type of disk represented by this object.
     /// </summary>
-    public override VirtualDiskClass DiskClass
-    {
-        get { return VirtualDiskClass.HardDisk; }
-    }
+    public override VirtualDiskClass DiskClass => VirtualDiskClass.HardDisk;
 
     /// <summary>
     /// Gets information about the type of disk.
     /// </summary>
     /// <remarks>This property provides access to meta-data about the disk format, for example whether the
     /// BIOS geometry is preserved in the disk file.</remarks>
-    public override VirtualDiskTypeInfo DiskTypeInfo
-    {
-        get { return DiskFactory.MakeDiskTypeInfo(_files[_files.Count - 1].DiakImageFile.IsSparse ? "dynamic" : "fixed"); }
-    }
+    public override VirtualDiskTypeInfo DiskTypeInfo => DiskFactory.MakeDiskTypeInfo(_files[_files.Count - 1].DiakImageFile.IsSparse ? "dynamic" : "fixed");
 
     /// <summary>
     /// Gets the geometry of the disk.
     /// </summary>
-    public override Geometry Geometry
-    {
-        get { return _files[0].DiakImageFile.Geometry; }
-    }
+    public override Geometry Geometry => _files[0].DiakImageFile.Geometry;
 
     /// <summary>
     /// Gets the layers that make up the disk.

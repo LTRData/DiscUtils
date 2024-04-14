@@ -77,10 +77,7 @@ public sealed class TracingStream : CompatibilityStream
 
             _wrapped = null;
 
-            if (_fileOut != null)
-            {
-                _fileOut.Dispose();
-            }
+            _fileOut?.Dispose();
 
             _fileOut = null;
         }
@@ -124,8 +121,8 @@ public sealed class TracingStream : CompatibilityStream
     /// </summary>
     public bool CaptureStackTraces
     {
-        get { return _captureStack; }
-        set { _captureStack = value; }
+        get => _captureStack;
+        set => _captureStack = value;
     }
 
     /// <summary>
@@ -133,8 +130,8 @@ public sealed class TracingStream : CompatibilityStream
     /// </summary>
     public bool TraceReads
     {
-        get { return _traceReads; }
-        set { _traceReads = value; }
+        get => _traceReads;
+        set => _traceReads = value;
     }
 
     /// <summary>
@@ -142,8 +139,8 @@ public sealed class TracingStream : CompatibilityStream
     /// </summary>
     public bool TraceWrites
     {
-        get { return _traceWrites; }
-        set { _traceWrites = value; }
+        get => _traceWrites;
+        set => _traceWrites = value;
     }
 
     /// <summary>
@@ -170,37 +167,22 @@ public sealed class TracingStream : CompatibilityStream
     /// <summary>
     /// Gets a log of all recorded stream activity.
     /// </summary>
-    public IEnumerable<StreamTraceRecord> Log
-    {
-        get
-        {
-            return _records;
-        }
-    }
+    public IEnumerable<StreamTraceRecord> Log => _records;
 
     /// <summary>
     /// Gets an indication as to whether the stream can be read.
     /// </summary>
-    public override bool CanRead
-    {
-        get { return _wrapped.CanRead; }
-    }
+    public override bool CanRead => _wrapped.CanRead;
 
     /// <summary>
     /// Gets an indication as to whether the stream position can be changed.
     /// </summary>
-    public override bool CanSeek
-    {
-        get { return _wrapped.CanSeek; }
-    }
+    public override bool CanSeek => _wrapped.CanSeek;
 
     /// <summary>
     /// Gets an indication as to whether the stream can be written to.
     /// </summary>
-    public override bool CanWrite
-    {
-        get { return _wrapped.CanWrite; }
-    }
+    public override bool CanWrite => _wrapped.CanWrite;
 
     /// <summary>
     /// Flushes the stream.
@@ -213,24 +195,15 @@ public sealed class TracingStream : CompatibilityStream
     /// <summary>
     /// Gets the length of the stream.
     /// </summary>
-    public override long Length
-    {
-        get { return _wrapped.Length; }
-    }
+    public override long Length => _wrapped.Length;
 
     /// <summary>
     /// Gets and sets the current stream position.
     /// </summary>
     public override long Position
     {
-        get
-        {
-            return _wrapped.Position;
-        }
-        set
-        {
-            _wrapped.Position = value;
-        }
+        get => _wrapped.Position;
+        set => _wrapped.Position = value;
     }
 
     /// <summary>

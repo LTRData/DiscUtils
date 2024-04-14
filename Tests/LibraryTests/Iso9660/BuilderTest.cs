@@ -27,69 +27,68 @@ using DiscUtils.Partitions;
 using DiscUtils.Streams;
 using Xunit;
 
-namespace LibraryTests.Iso9660
+namespace LibraryTests.Iso9660;
+
+public class BuilderTest
 {
-    public class BuilderTest
+    [Fact]
+    public void AddFileStream()
     {
-        [Fact]
-        public void AddFileStream()
-        {
-            var builder = new CDBuilder();
-            builder.AddFile(@"ADIR\AFILE.TXT", new MemoryStream());
-            var fs = new CDReader(builder.Build(), false);
+        var builder = new CDBuilder();
+        builder.AddFile(@"ADIR\AFILE.TXT", new MemoryStream());
+        var fs = new CDReader(builder.Build(), false);
 
-            Assert.True(fs.Exists(@"ADIR\AFILE.TXT"));
+        Assert.True(fs.Exists(@"ADIR\AFILE.TXT"));
+    }
+
+    [Fact]
+    public void AddFileBytes()
+    {
+        var builder = new CDBuilder();
+        builder.AddFile(@"ADIR\AFILE.TXT", System.Array.Empty<byte>());
+        var fs = new CDReader(builder.Build(), false);
+
+        Assert.True(fs.Exists(@"ADIR\AFILE.TXT"));
+    }
+
+    [Fact]
+    public void BootImage()
+    {
+        var bytes = new byte[3133440];
+
+        for(var i = 0; i < bytes.Length; ++i)
+        {
+            bytes[i] = (byte)i;
         }
 
-        [Fact]
-        public void AddFileBytes()
+        var stream = new MemoryStream(bytes);
+
+        var partitionTable = BiosPartitionTable.Initialize(stream, Geometry.FromCapacity(stream.Length));
+
+        partitionTable.Create(WellKnownPartitionType.WindowsFat, active: true);
+
+        var builder = new CDBuilder();
+
+        builder.SetBootImage(stream, BootDeviceEmulation.HardDisk, 0x543);
+
+        var fs = new CDReader(builder.Build(), false);
+
+        Assert.True(fs.HasBootImage);
+
+        using (var bootImg = fs.OpenBootImage())
         {
-            var builder = new CDBuilder();
-            builder.AddFile(@"ADIR\AFILE.TXT", System.Array.Empty<byte>());
-            var fs = new CDReader(builder.Build(), false);
+            Assert.Equal(bytes.Length, bootImg.Length);
 
-            Assert.True(fs.Exists(@"ADIR\AFILE.TXT"));
-        }
-
-        [Fact]
-        public void BootImage()
-        {
-            var bytes = new byte[3133440];
-
-            for(var i = 0; i < bytes.Length; ++i)
+            for (var i = 0; i < bootImg.Length; ++i)
             {
-                bytes[i] = (byte)i;
-            }
-
-            var stream = new MemoryStream(bytes);
-
-            var partitionTable = BiosPartitionTable.Initialize(stream, Geometry.FromCapacity(stream.Length));
-
-            partitionTable.Create(WellKnownPartitionType.WindowsFat, active: true);
-
-            var builder = new CDBuilder();
-
-            builder.SetBootImage(stream, BootDeviceEmulation.HardDisk, 0x543);
-
-            var fs = new CDReader(builder.Build(), false);
-
-            Assert.True(fs.HasBootImage);
-
-            using (var bootImg = fs.OpenBootImage())
-            {
-                Assert.Equal(bytes.Length, bootImg.Length);
-
-                for (var i = 0; i < bootImg.Length; ++i)
+                if (bytes[i] != bootImg.ReadByte())
                 {
-                    if (bytes[i] != bootImg.ReadByte())
-                    {
-                        Assert.Fail("Boot image corrupted");
-                    }
+                    Assert.Fail("Boot image corrupted");
                 }
             }
-
-            Assert.Equal(BootDeviceEmulation.HardDisk, fs.BootEmulation);
-            Assert.Equal(0x543, fs.BootLoadSegment);
         }
+
+        Assert.Equal(BootDeviceEmulation.HardDisk, fs.BootEmulation);
+        Assert.Equal(0x543, fs.BootLoadSegment);
     }
 }

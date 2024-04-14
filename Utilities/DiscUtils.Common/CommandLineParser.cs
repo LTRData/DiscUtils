@@ -217,8 +217,5 @@ public class CommandLineParser
         return true;
     }
 
-    public bool ParseSucceeded
-    {
-        get { return !_parseFailed; }
-    }
+    public bool ParseSucceeded => !_parseFailed;
 }

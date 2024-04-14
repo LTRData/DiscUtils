@@ -24,26 +24,25 @@ using System;
 using System.Runtime.InteropServices;
 using Xunit;
 
-namespace LibraryTests
-{
-    public class MacOSOnlyTheoryAttribute : TheoryAttribute
-    {
-        public override string Skip
-        {
-            get
-            {
-#if NETCOREAPP
-                if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                {
-                    return "This test runs on macOS only";
-                }
+namespace LibraryTests;
 
-                return null;
-#else
+public class MacOSOnlyTheoryAttribute : TheoryAttribute
+{
+    public override string Skip
+    {
+        get
+        {
+#if NETCOREAPP
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
                 return "This test runs on macOS only";
-#endif
             }
-            set => throw new NotSupportedException();
+
+            return null;
+#else
+            return "This test runs on macOS only";
+#endif
         }
+        set => throw new NotSupportedException();
     }
 }

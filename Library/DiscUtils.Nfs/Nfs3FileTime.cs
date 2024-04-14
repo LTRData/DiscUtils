@@ -65,13 +65,7 @@ public sealed class Nfs3FileTime
         writer.Write(_nseconds);
     }
 
-    public static Nfs3FileTime Precision
-    {
-        get
-        {
-            return new Nfs3FileTime(0, 1);
-        }
-    }
+    public static Nfs3FileTime Precision => new Nfs3FileTime(0, 1);
 
     public override bool Equals(object obj)
     {

@@ -37,10 +37,7 @@ internal class IndexView<K, D>
         _index = index;
     }
 
-    public int Count
-    {
-        get { return _index.Count; }
-    }
+    public int Count => _index.Count;
 
     public IEnumerable<KeyValuePair<K, D>> Entries
     {
@@ -55,9 +52,9 @@ internal class IndexView<K, D>
 
     public D this[K key]
     {
-        get { return Convert<D>(_index[Unconvert(key)]); }
+        get => Convert<D>(_index[Unconvert(key)]);
 
-        set { _index[Unconvert(key)] = Unconvert(value); }
+        set => _index[Unconvert(key)] = Unconvert(value);
     }
 
     public IEnumerable<KeyValuePair<K, D>> FindAll(IComparable<byte[]> query)

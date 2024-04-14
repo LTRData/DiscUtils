@@ -52,14 +52,11 @@ internal sealed class BTree<TKey> : BTree
         }
     }
 
-    internal override int NodeSize
-    {
-        get { return _header.NodeSize; }
-    }
+    internal override int NodeSize => _header.NodeSize;
 
     public byte[] Find(TKey key)
     {
-        return _rootNode == null ? null : _rootNode.FindKey(key);
+        return _rootNode?.FindKey(key);
     }
 
     public void VisitRange(BTreeVisitor<TKey> visitor)

@@ -157,10 +157,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
     /// </summary>
     public override bool CanWrite => _fileStream.CanWrite;
 
-    public override long Capacity
-    {
-        get { return (long)_metadata.DiskSize; }
-    }
+    public override long Capacity => (long)_metadata.DiskSize;
 
     /// <summary>
     /// Gets the extent that comprises this file.
@@ -194,10 +191,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
     /// <summary>
     /// Gets the geometry of the virtual disk.
     /// </summary>
-    public override Geometry Geometry
-    {
-        get { return Geometry.FromCapacity(Capacity, (int)_metadata.LogicalSectorSize); }
-    }
+    public override Geometry Geometry => Geometry.FromCapacity(Capacity, (int)_metadata.LogicalSectorSize);
 
     /// <summary>
     /// Gets detailed information about the VHDX file.
@@ -225,26 +219,17 @@ public sealed class DiskImageFile : VirtualDiskLayer
     /// <summary>
     /// Gets a value indicating if the layer only stores meaningful sectors.
     /// </summary>
-    public override bool IsSparse
-    {
-        get { return true; }
-    }
+    public override bool IsSparse => true;
 
     /// <summary>
     /// Gets the logical sector size of the virtual disk.
     /// </summary>
-    public long LogicalSectorSize
-    {
-        get { return _metadata.LogicalSectorSize; }
-    }
+    public long LogicalSectorSize => _metadata.LogicalSectorSize;
 
     /// <summary>
     /// Gets a value indicating whether the file is a differencing disk.
     /// </summary>
-    public override bool NeedsParent
-    {
-        get { return (_metadata.FileParameters.Flags & FileParametersFlags.HasParent) != 0; }
-    }
+    public override bool NeedsParent => (_metadata.FileParameters.Flags & FileParametersFlags.HasParent) != 0;
 
     /// <summary>
     /// Gets the unique id of the parent disk.
@@ -267,23 +252,14 @@ public sealed class DiskImageFile : VirtualDiskLayer
         }
     }
 
-    public override FileLocator RelativeFileLocator
-    {
-        get { return _fileLocator; }
-    }
+    public override FileLocator RelativeFileLocator => _fileLocator;
 
-    internal long StoredSize
-    {
-        get { return _fileStream.Length; }
-    }
+    internal long StoredSize => _fileStream.Length;
 
     /// <summary>
     /// Gets the unique id of this file.
     /// </summary>
-    public Guid UniqueId
-    {
-        get { return _header.DataWriteGuid; }
-    }
+    public Guid UniqueId => _header.DataWriteGuid;
 
     /// <summary>
     /// Initializes a stream as a fixed-sized VHDX file.
@@ -435,10 +411,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
         }
         finally
         {
-            if (stream != null)
-            {
-                stream.Dispose();
-            }
+            stream?.Dispose();
         }
 
         return result;
@@ -456,10 +429,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
         }
         finally
         {
-            if (stream != null)
-            {
-                stream.Dispose();
-            }
+            stream?.Dispose();
         }
 
         return result;
@@ -973,11 +943,8 @@ public sealed class DiskImageFile : VirtualDiskLayer
             throw new InvalidOperationException("Only differencing disks contain parent locations");
         }
 
-        if (fileLocator == null)
-        {
-            // Use working directory by default
-            fileLocator = new LocalFileLocator(string.Empty, useAsync: false);
-        }
+        // Use working directory by default
+        fileLocator ??= new LocalFileLocator(string.Empty, useAsync: false);
 
         var locator = _metadata.ParentLocator;
 

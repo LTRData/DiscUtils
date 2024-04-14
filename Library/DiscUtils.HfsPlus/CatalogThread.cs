@@ -31,10 +31,7 @@ internal sealed class CatalogThread : IByteArraySerializable
     public CatalogNodeId ParentId;
     public CatalogRecordType RecordType;
 
-    public int Size
-    {
-        get { return 0; }
-    }
+    public int Size => 0;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

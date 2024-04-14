@@ -96,14 +96,14 @@ internal sealed class NonResidentAttributeRecord : AttributeRecord
     /// </summary>
     public override long AllocatedLength
     {
-        get { return (long)_dataAllocatedSize; }
-        set { _dataAllocatedSize = (ulong)value; }
+        get => (long)_dataAllocatedSize;
+        set => _dataAllocatedSize = (ulong)value;
     }
 
     public long CompressedDataSize
     {
-        get { return (long)_compressedSize; }
-        set { _compressedSize = (ulong)value; }
+        get => (long)_compressedSize;
+        set => _compressedSize = (ulong)value;
     }
 
     /// <summary>
@@ -111,8 +111,8 @@ internal sealed class NonResidentAttributeRecord : AttributeRecord
     /// </summary>
     public int CompressionUnitSize
     {
-        get { return 1 << _compressionUnitSize; }
-        set { _compressionUnitSize = (ushort)MathUtilities.Log2(value); }
+        get => 1 << _compressionUnitSize;
+        set => _compressionUnitSize = (ushort)MathUtilities.Log2(value);
     }
 
     /// <summary>
@@ -120,8 +120,8 @@ internal sealed class NonResidentAttributeRecord : AttributeRecord
     /// </summary>
     public override long DataLength
     {
-        get { return (long)_dataRealSize; }
-        set { _dataRealSize = (ulong)value; }
+        get => (long)_dataRealSize;
+        set => _dataRealSize = (ulong)value;
     }
 
     public List<DataRun> DataRuns { get; private set; }
@@ -131,14 +131,14 @@ internal sealed class NonResidentAttributeRecord : AttributeRecord
     /// </summary>
     public override long InitializedDataLength
     {
-        get { return (long)_initializedDataSize; }
-        set { _initializedDataSize = (ulong)value; }
+        get => (long)_initializedDataSize;
+        set => _initializedDataSize = (ulong)value;
     }
 
     public long LastVcn
     {
-        get { return (long)_lastVCN; }
-        set { _lastVCN = (ulong)value; }
+        get => (long)_lastVCN;
+        set => _lastVCN = (ulong)value;
     }
 
     public override int Size
@@ -168,10 +168,7 @@ internal sealed class NonResidentAttributeRecord : AttributeRecord
         }
     }
 
-    public override long StartVcn
-    {
-        get { return (long)_startingVCN; }
-    }
+    public override long StartVcn => (long)_startingVCN;
 
     public void ReplaceRun(DataRun oldRun, DataRun newRun)
     {

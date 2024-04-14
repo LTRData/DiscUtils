@@ -39,18 +39,12 @@ public sealed class RegionInfo
     /// <summary>
     /// Gets the file offset of this region within the VHDX file.
     /// </summary>
-    public long FileOffset
-    {
-        get { return _entry.FileOffset; }
-    }
+    public long FileOffset => _entry.FileOffset;
 
     /// <summary>
     /// Gets the unique identifier for this region.
     /// </summary>
-    public Guid Guid
-    {
-        get { return _entry.Guid; }
-    }
+    public Guid Guid => _entry.Guid;
 
     /// <summary>
     /// Gets a value indicating whether this region is required.
@@ -58,18 +52,12 @@ public sealed class RegionInfo
     /// <remarks>
     /// To load a VHDX file, a parser must be able to interpret all regions marked as required.
     /// </remarks>
-    public bool IsRequired
-    {
-        get { return (_entry.Flags & RegionFlags.Required) != 0; }
-    }
+    public bool IsRequired => (_entry.Flags & RegionFlags.Required) != 0;
 
     /// <summary>
     /// Gets the length of this region within the VHDX file.
     /// </summary>
-    public long Length
-    {
-        get { return _entry.Length; }
-    }
+    public long Length => _entry.Length;
 
     /// <summary>
     /// Gets the well-known name (if any) of the region.

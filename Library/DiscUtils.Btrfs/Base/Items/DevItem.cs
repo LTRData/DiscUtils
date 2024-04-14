@@ -104,10 +104,7 @@ internal class DevItem : BaseItem
     /// </summary>
     public Guid FsUuid { get; private set; }
 
-    public override int Size
-    {
-        get { return Length; }
-    }
+    public override int Size => Length;
 
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {

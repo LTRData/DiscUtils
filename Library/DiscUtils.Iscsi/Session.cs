@@ -99,10 +99,7 @@ public sealed class Session : IDisposable
     /// </summary>
     public void Dispose()
     {
-        if (ActiveConnection != null)
-        {
-            ActiveConnection.Close(LogoutReason.CloseSession);
-        }
+        ActiveConnection?.Close(LogoutReason.CloseSession);
 
         ActiveConnection = null;
     }
@@ -367,10 +364,7 @@ public sealed class Session : IDisposable
     /// Gets the name of the iSCSI initiator seen by the target for this session.
     /// </summary>
     [ProtocolKey("InitiatorName", null, KeyUsagePhase.SecurityNegotiation, KeySender.Initiator, KeyType.Declarative, UsedForDiscovery = true)]
-    public static string InitiatorName
-    {
-        get { return "iqn.2008-2010-04.discutils.codeplex.com"; }
-    }
+    public static string InitiatorName => "iqn.2008-2010-04.discutils.codeplex.com";
 
     /// <summary>
     /// Gets the friendly name of the iSCSI target this session is connected to.

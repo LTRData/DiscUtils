@@ -25,19 +25,18 @@ using DiscUtils.BootConfig;
 using DiscUtils.Registry;
 using Xunit;
 
-namespace LibraryTests.BootConfig
-{
-    public class ElementTest
-    {
-        [Fact]
-        public void FriendlyName()
-        {
-            var hive = RegistryHive.Create(new MemoryStream());
-            var s = Store.Initialize(hive.Root);
-            var obj = s.CreateInherit(InheritType.AnyObject);
+namespace LibraryTests.BootConfig;
 
-            var el = obj.AddElement(WellKnownElement.LibraryApplicationPath, ElementValue.ForString(@"a\path\to\nowhere"));
-            Assert.Equal("{path}", el.FriendlyName);
-        }
+public class ElementTest
+{
+    [Fact]
+    public void FriendlyName()
+    {
+        var hive = RegistryHive.Create(new MemoryStream());
+        var s = Store.Initialize(hive.Root);
+        var obj = s.CreateInherit(InheritType.AnyObject);
+
+        var el = obj.AddElement(WellKnownElement.LibraryApplicationPath, ElementValue.ForString(@"a\path\to\nowhere"));
+        Assert.Equal("{path}", el.FriendlyName);
     }
 }

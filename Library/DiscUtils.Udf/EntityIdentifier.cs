@@ -31,10 +31,7 @@ internal abstract class EntityIdentifier : IByteArraySerializable
     public string Identifier;
     public byte[] Suffix;
 
-    public int Size
-    {
-        get { return 32; }
-    }
+    public int Size => 32;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

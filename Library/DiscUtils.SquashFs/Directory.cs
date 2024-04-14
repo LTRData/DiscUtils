@@ -71,10 +71,7 @@ internal class Directory : File, IVfsDirectory<DirectoryEntry, File>
         }
     }
 
-    public DirectoryEntry Self
-    {
-        get { return null; }
-    }
+    public DirectoryEntry Self => null;
 
     public DirectoryEntry GetEntryByName(string name)
         => AllEntries.TryGetValue(name, out var entry) ? entry : null;

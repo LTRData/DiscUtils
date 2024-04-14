@@ -44,10 +44,7 @@ public abstract class GenericAttribute : IAttributeLocator
     /// <summary>
     /// Gets the type of the attribute.
     /// </summary>
-    public AttributeType AttributeType
-    {
-        get { return _record.AttributeType; }
-    }
+    public AttributeType AttributeType => _record.AttributeType;
 
     /// <summary>
     /// Gets a buffer that can access the content of the attribute.
@@ -64,18 +61,12 @@ public abstract class GenericAttribute : IAttributeLocator
     /// <summary>
     /// Gets the amount of valid data in the attribute's content.
     /// </summary>
-    public long ContentLength
-    {
-        get { return _record.DataLength; }
-    }
+    public long ContentLength => _record.DataLength;
 
     /// <summary>
     /// Gets the flags indicating how the content of the attribute is stored.
     /// </summary>
-    public AttributeFlags Flags
-    {
-        get { return (AttributeFlags)_record.Flags; }
-    }
+    public AttributeFlags Flags => (AttributeFlags)_record.Flags;
 
     /// <summary>
     /// Gets the unique id of the attribute.
@@ -85,18 +76,12 @@ public abstract class GenericAttribute : IAttributeLocator
     /// <summary>
     /// Gets a value indicating whether the attribute content is stored in the MFT record itself.
     /// </summary>
-    public bool IsResident
-    {
-        get { return !_record.IsNonResident; }
-    }
+    public bool IsResident => !_record.IsNonResident;
 
     /// <summary>
     /// Gets the name of the attribute (if any).
     /// </summary>
-    public string Name
-    {
-        get { return _record.Name; }
-    }
+    public string Name => _record.Name;
 
     public long FirstFileCluster => _record.StartVcn;
 

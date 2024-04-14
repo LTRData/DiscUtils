@@ -209,10 +209,7 @@ internal class MasterFileTable : IDiagnosticTraceable, IDisposable
     {
         _self = file;
 
-        if (_recordStream != null)
-        {
-            _recordStream.Dispose();
-        }
+        _recordStream?.Dispose();
 
         var bitmapStream = _self.GetStream(AttributeType.Bitmap, null).Value;
         _bitmap = new Bitmap(bitmapStream.Open(FileAccess.ReadWrite), long.MaxValue);
@@ -415,10 +412,7 @@ internal class MasterFileTable : IDiagnosticTraceable, IDisposable
         if (_self.MftRecordIsDirty)
         {
             var dirEntry = _self.DirectoryEntry;
-            if (dirEntry != null)
-            {
-                dirEntry.Value.UpdateFrom(_self);
-            }
+            dirEntry?.UpdateFrom(_self);
 
             _self.UpdateRecordInMft();
         }

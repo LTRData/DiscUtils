@@ -49,34 +49,25 @@ public sealed class StreamTraceRecord
     /// <summary>
     /// Unique identity for this record.
     /// </summary>
-    public int Id
-    {
-        get { return _id; }
-    }
+    public int Id => _id;
 
     /// <summary>
     /// The type of action being performed.
     /// </summary>
-    public string FileAction
-    {
-        get { return _fileAction; }
-    }
+    public string FileAction => _fileAction;
 
     /// <summary>
     /// The stream position when the action was performed.
     /// </summary>
-    public long FilePosition
-    {
-        get { return _filePosition; }
-    }
+    public long FilePosition => _filePosition;
 
     /// <summary>
     /// The count argument (if relevant) when the action was performed.
     /// </summary>
     public long CountArg
     {
-        get { return _countArg; }
-        internal set { _countArg = value; }
+        get => _countArg;
+        internal set => _countArg = value;
     }
 
     /// <summary>
@@ -84,8 +75,8 @@ public sealed class StreamTraceRecord
     /// </summary>
     public long Result
     {
-        get { return _result; }
-        internal set { _result = value; }
+        get => _result;
+        internal set => _result = value;
     }
 
     /// <summary>
@@ -93,17 +84,14 @@ public sealed class StreamTraceRecord
     /// </summary>
     public Exception ExceptionThrown
     {
-        get { return _exThrown; }
-        internal set { _exThrown = value; }
+        get => _exThrown;
+        internal set => _exThrown = value;
     }
 
     /// <summary>
     /// A full stack trace at the point the action was performed.
     /// </summary>
-    public StackTrace Stack
-    {
-        get { return _stack; }
-    }
+    public StackTrace Stack => _stack;
 
     /// <summary>
     /// Gets a string representation of the common fields.

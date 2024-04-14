@@ -53,11 +53,8 @@ internal class RootRef : BaseItem
     /// name
     /// </summary>
     public string Name { get; private set; }
-    
-    public override int Size
-    {
-        get { return 0x12+NameLength; }
-    }
+
+    public override int Size => 0x12 + NameLength;
 
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {

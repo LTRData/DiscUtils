@@ -45,10 +45,7 @@ internal class IntegerElementValue : ElementValue
         _value = value;
     }
 
-    public override ElementFormat Format
-    {
-        get { return ElementFormat.Integer; }
-    }
+    public override ElementFormat Format => ElementFormat.Integer;
 
     public override string ToString() => _value.ToString(NumberFormatInfo.InvariantInfo);
 

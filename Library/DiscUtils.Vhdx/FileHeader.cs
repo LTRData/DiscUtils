@@ -34,15 +34,9 @@ internal sealed class FileHeader : IByteArraySerializable
 
     public ulong Signature = VhdxSignature;
 
-    public bool IsValid
-    {
-        get { return Signature == VhdxSignature; }
-    }
+    public bool IsValid => Signature == VhdxSignature;
 
-    public int Size
-    {
-        get { return (int)(64 * Sizes.OneKiB); }
-    }
+    public int Size => (int)(64 * Sizes.OneKiB);
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

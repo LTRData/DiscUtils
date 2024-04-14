@@ -34,10 +34,7 @@ internal sealed class ForkData : IByteArraySerializable
     public ulong LogicalSize;
     public uint TotalBlocks;
 
-    public int Size
-    {
-        get { return StructSize; }
-    }
+    public int Size => StructSize;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

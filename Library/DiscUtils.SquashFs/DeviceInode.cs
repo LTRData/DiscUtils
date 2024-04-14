@@ -29,10 +29,7 @@ internal sealed class DeviceInode : Inode
 {
     public uint DeviceId { get; set; }
 
-    public override int Size
-    {
-        get { return 24; }
-    }
+    public override int Size => 24;
 
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {

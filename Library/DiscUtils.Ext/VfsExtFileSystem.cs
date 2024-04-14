@@ -106,15 +106,9 @@ internal sealed class VfsExtFileSystem : VfsReadOnlyFileSystem<DirEntry, File, D
         RootDirectory = new Directory(Context, 2, GetInode(2));
     }
 
-    public override string FriendlyName
-    {
-        get { return "EXT-family"; }
-    }
+    public override string FriendlyName => "EXT-family";
 
-    public override string VolumeLabel
-    {
-        get { return Context.SuperBlock.VolumeName; }
-    }
+    public override string VolumeLabel => Context.SuperBlock.VolumeName;
 
     public UnixFileSystemInfo GetUnixFileInfo(string path)
     {
@@ -124,7 +118,7 @@ internal sealed class VfsExtFileSystem : VfsReadOnlyFileSystem<DirEntry, File, D
         var fileType = (UnixFileType)((inode.Mode >> 12) & 0xff);
 
         uint deviceId = 0;
-        if (fileType == UnixFileType.Character || fileType == UnixFileType.Block)
+        if (fileType is UnixFileType.Character or UnixFileType.Block)
         {
             if (inode.DirectBlocks[0] != 0)
             {
@@ -240,10 +234,7 @@ internal sealed class VfsExtFileSystem : VfsReadOnlyFileSystem<DirEntry, File, D
     /// <summary>
     /// Used space of the Filesystem in bytes
     /// </summary>
-    public override long UsedSpace
-    {
-        get { return Size - AvailableSpace; }
-    }
+    public override long UsedSpace => Size - AvailableSpace;
 
     /// <summary>
     /// Available space of the Filesystem in bytes

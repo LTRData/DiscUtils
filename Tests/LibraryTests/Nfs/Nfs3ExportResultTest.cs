@@ -25,42 +25,41 @@ using System.Collections.Generic;
 using System.IO;
 using Xunit;
 
-namespace LibraryTests.Nfs
+namespace LibraryTests.Nfs;
+
+public class Nfs3ExportResultTest
 {
-    public class Nfs3ExportResultTest
+    [Fact]
+    public void RoundTripTest()
     {
-        [Fact]
-        public void RoundTripTest()
+        var result = new Nfs3ExportResult()
         {
-            var result = new Nfs3ExportResult()
-            {
-                Exports = new List<Nfs3Export>()
-                 {
-                      new Nfs3Export()
-                      {
-                           DirPath = "export",
-                           Groups = new List<string>()
-                           {
-                                "GroupA",
-                                "GroupB"
-                           }
-                      }
-                 }
-            };
+            Exports = new List<Nfs3Export>()
+             {
+                  new Nfs3Export()
+                  {
+                       DirPath = "export",
+                       Groups = new List<string>()
+                       {
+                            "GroupA",
+                            "GroupB"
+                       }
+                  }
+             }
+        };
 
-            Nfs3ExportResult clone = null;
+        Nfs3ExportResult clone = null;
 
-            using (var stream = new MemoryStream())
-            {
-                var writer = new XdrDataWriter(stream);
-                result.Write(writer);
+        using (var stream = new MemoryStream())
+        {
+            var writer = new XdrDataWriter(stream);
+            result.Write(writer);
 
-                stream.Position = 0;
-                var reader = new XdrDataReader(stream);
-                clone = new Nfs3ExportResult(reader);
-            }
-
-            Assert.Equal(result, clone);
+            stream.Position = 0;
+            var reader = new XdrDataReader(stream);
+            clone = new Nfs3ExportResult(reader);
         }
+
+        Assert.Equal(result, clone);
     }
 }

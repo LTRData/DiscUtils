@@ -100,24 +100,12 @@ internal class SuperBlock : IByteArraySerializable
     public ushort WantExtraInodeSize;
     public uint WriteTime;
 
-    public bool Has64Bit
-    {
-        get
-        {
-            return (IncompatibleFeatures & IncompatibleFeatures.SixtyFourBit) ==
+    public bool Has64Bit => (IncompatibleFeatures & IncompatibleFeatures.SixtyFourBit) ==
                    IncompatibleFeatures.SixtyFourBit && DescriptorSize >= 64;
-        }
-    }
 
-    public uint BlockSize
-    {
-        get { return (uint)(1024 << (int)LogBlockSize); }
-    }
+    public uint BlockSize => (uint)(1024 << (int)LogBlockSize);
 
-    public int Size
-    {
-        get { return 1024; }
-    }
+    public int Size => 1024;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

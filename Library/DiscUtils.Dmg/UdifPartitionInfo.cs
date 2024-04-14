@@ -37,40 +37,19 @@ internal class UdifPartitionInfo : PartitionInfo
         _disk = disk;
     }
 
-    public override byte BiosType
-    {
-        get { return 0; }
-    }
+    public override byte BiosType => 0;
 
-    public override long FirstSector
-    {
-        get { return _block.FirstSector; }
-    }
+    public override long FirstSector => _block.FirstSector;
 
-    public override Guid GuidType
-    {
-        get { return Guid.Empty; }
-    }
+    public override Guid GuidType => Guid.Empty;
 
-    public override long LastSector
-    {
-        get { return _block.FirstSector + _block.SectorCount; }
-    }
+    public override long LastSector => _block.FirstSector + _block.SectorCount;
 
-    public override long SectorCount
-    {
-        get { return _block.SectorCount; }
-    }
+    public override long SectorCount => _block.SectorCount;
 
-    public override string TypeAsString
-    {
-        get { return GetType().FullName; }
-    }
+    public override string TypeAsString => GetType().FullName;
 
-    public override PhysicalVolumeType VolumeType
-    {
-        get { return PhysicalVolumeType.ApplePartition; }
-    }
+    public override PhysicalVolumeType VolumeType => PhysicalVolumeType.ApplePartition;
 
     public override SparseStream Open()
     {

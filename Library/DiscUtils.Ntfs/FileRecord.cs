@@ -49,41 +49,26 @@ internal class FileRecord : FixupRecordBase
 
     public FileRecordReference BaseFile { get; set; }
 
-    public AttributeRecord FirstAttribute
-    {
-        get { return Attributes.Count > 0 ? Attributes[0] : null; }
-    }
+    public AttributeRecord FirstAttribute => Attributes.Count > 0 ? Attributes[0] : null;
 
     public FileRecordFlags Flags { get; set; }
 
     public ushort HardLinkCount { get; set; }
 
-    public bool IsMftRecord
-    {
-        get
-        {
-            return MasterFileTableIndex == MasterFileTable.MftIndex ||
+    public bool IsMftRecord => MasterFileTableIndex == MasterFileTable.MftIndex ||
                    (BaseFile.MftIndex == MasterFileTable.MftIndex && BaseFile.SequenceNumber != 0);
-        }
-    }
 
     public uint LoadedIndex { get; set; }
 
     public ulong LogFileSequenceNumber { get; private set; }
 
-    public uint MasterFileTableIndex
-    {
-        get { return _haveIndex ? _index : LoadedIndex; }
-    }
+    public uint MasterFileTableIndex => _haveIndex ? _index : LoadedIndex;
 
     public ushort NextAttributeId { get; private set; }
 
     public uint RealSize { get; private set; }
 
-    public FileRecordReference Reference
-    {
-        get { return new FileRecordReference(MasterFileTableIndex, SequenceNumber); }
-    }
+    public FileRecordReference Reference => new FileRecordReference(MasterFileTableIndex, SequenceNumber);
 
     public ushort SequenceNumber { get; set; }
 

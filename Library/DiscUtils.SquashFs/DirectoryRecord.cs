@@ -33,10 +33,7 @@ internal class DirectoryRecord : IByteArraySerializable
     public ushort Offset;
     public InodeType Type;
 
-    public int Size
-    {
-        get { return 8 + Name.Length; }
-    }
+    public int Size => 8 + Name.Length;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

@@ -37,10 +37,7 @@ public abstract class ElementValue
     /// <summary>
     /// Gets the parent object (only for Device values).
     /// </summary>
-    public virtual Guid ParentObject
-    {
-        get { return Guid.Empty; }
-    }
+    public virtual Guid ParentObject => Guid.Empty;
 
     /// <summary>
     /// Gets a value representing a device (aka partition).

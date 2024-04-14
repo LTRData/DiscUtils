@@ -32,10 +32,7 @@ internal struct ExtentBlock : IByteArraySerializable
     public ExtentHeader Header;
     public ExtentIndex[] Index;
 
-    public int Size
-    {
-        get { return 12 + Header.MaxEntries * 12; }
-    }
+    public int Size => 12 + Header.MaxEntries * 12;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

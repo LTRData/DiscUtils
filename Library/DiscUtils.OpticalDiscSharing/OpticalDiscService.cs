@@ -83,10 +83,7 @@ public sealed class OpticalDiscService
     /// <summary>
     /// Gets the display name of this service.
     /// </summary>
-    public string DisplayName
-    {
-        get { return _instance.DisplayName; }
-    }
+    public string DisplayName => _instance.DisplayName;
 
     /// <summary>
     /// Connects to the service.

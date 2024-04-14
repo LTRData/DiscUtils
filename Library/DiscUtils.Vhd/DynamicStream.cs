@@ -95,7 +95,7 @@ public class DynamicStream : MappedStream
 
     public bool AutoCommitFooter
     {
-        get { return _autoCommitFooter; }
+        get => _autoCommitFooter;
 
         set
         {
@@ -136,10 +136,7 @@ public class DynamicStream : MappedStream
         }
     }
 
-    public override IEnumerable<StreamExtent> Extents
-    {
-        get { return GetExtentsInRange(0, Length); }
-    }
+    public override IEnumerable<StreamExtent> Extents => GetExtentsInRange(0, Length);
 
     public override long Length
     {

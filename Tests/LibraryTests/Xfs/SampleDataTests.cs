@@ -11,90 +11,89 @@ using LibraryTests.Utilities;
 using Xunit;
 using File=System.IO.File;
 
-namespace LibraryTests.Xfs
+namespace LibraryTests.Xfs;
+
+public class SampleDataTests
 {
-    public class SampleDataTests
+    [Fact]
+    public void XfsVhdxZip()
     {
-        [Fact]
-        public void XfsVhdxZip()
+        SetupHelper.SetupComplete();
+        using var vhdx = Helpers.Helpers.LoadTestDataFileFromGZipFile("Xfs", "xfs.vhdx.gz");
+        using var diskImage = new DiskImageFile(vhdx, Ownership.Dispose);
+        using var disk = new Disk(new List<DiskImageFile> { diskImage }, Ownership.Dispose);
+        var manager = new VolumeManager(disk);
+        var logicalVolumes = manager.GetLogicalVolumes();
+        Assert.Single(logicalVolumes);
+
+        var volume = logicalVolumes[0];
+        var filesystems = FileSystemManager.DetectFileSystems(volume);
+        Assert.Single(filesystems);
+
+        var filesystem = filesystems[0];
+        Assert.Equal("xfs", filesystem.Name);
+
+        using var xfs = filesystem.Open(volume);
+        Assert.IsType<XfsFileSystem>(xfs);
+
+        Assert.Equal(9081139200, xfs.AvailableSpace);
+        Assert.Equal(10725863424, xfs.Size);
+        Assert.Equal(1644724224, xfs.UsedSpace);
+        ValidateContent(xfs);
+    }
+
+    [Fact]
+    public void Xfs5VhdxZip()
+    {
+        SetupHelper.SetupComplete();
+        using var vhdx = Helpers.Helpers.LoadTestDataFileFromGZipFile("Xfs", "xfs5.vhdx.gz");
+        using var diskImage = new DiskImageFile(vhdx, Ownership.Dispose);
+        using var disk = new Disk(new List<DiskImageFile> { diskImage }, Ownership.Dispose);
+        var manager = new VolumeManager(disk);
+        var logicalVolumes = manager.GetLogicalVolumes();
+        Assert.Single(logicalVolumes);
+
+        var volume = logicalVolumes[0];
+        var filesystems = FileSystemManager.DetectFileSystems(volume);
+        Assert.Single(filesystems);
+
+        var filesystem = filesystems[0];
+        Assert.Equal("xfs", filesystem.Name);
+
+        using var xfs = filesystem.Open(volume);
+        Assert.IsType<XfsFileSystem>(xfs);
+
+        Assert.Equal(9080827904, xfs.AvailableSpace);
+        Assert.Equal(10725883904, xfs.Size);
+        Assert.Equal(1645056000, xfs.UsedSpace);
+        ValidateContent(xfs);
+    }
+
+    private static void ValidateContent(DiscFileSystem xfs)
+    {
+        Assert.True(xfs.DirectoryExists(""));
+        Assert.True(xfs.FileExists("folder\\nested\\file"));
+        Assert.Empty(xfs.GetFileSystemEntries("empty"));
+        for (var i = 1; i <= 1000; i++)
         {
-            SetupHelper.SetupComplete();
-            using var vhdx = Helpers.Helpers.LoadTestDataFileFromGZipFile("Xfs", "xfs.vhdx.gz");
-            using var diskImage = new DiskImageFile(vhdx, Ownership.Dispose);
-            using var disk = new Disk(new List<DiskImageFile> { diskImage }, Ownership.Dispose);
-            var manager = new VolumeManager(disk);
-            var logicalVolumes = manager.GetLogicalVolumes();
-            Assert.Single(logicalVolumes);
-
-            var volume = logicalVolumes[0];
-            var filesystems = FileSystemManager.DetectFileSystems(volume);
-            Assert.Single(filesystems);
-
-            var filesystem = filesystems[0];
-            Assert.Equal("xfs", filesystem.Name);
-
-            using var xfs = filesystem.Open(volume);
-            Assert.IsType<XfsFileSystem>(xfs);
-
-            Assert.Equal(9081139200, xfs.AvailableSpace);
-            Assert.Equal(10725863424, xfs.Size);
-            Assert.Equal(1644724224, xfs.UsedSpace);
-            ValidateContent(xfs);
+            Assert.True(xfs.FileExists($"folder\\file.{i}"), $"File file.{i} not found");
         }
 
-        [Fact]
-        public void Xfs5VhdxZip()
+        using (var file = xfs.OpenFile("folder\\file.100", FileMode.Open))
         {
-            SetupHelper.SetupComplete();
-            using var vhdx = Helpers.Helpers.LoadTestDataFileFromGZipFile("Xfs", "xfs5.vhdx.gz");
-            using var diskImage = new DiskImageFile(vhdx, Ownership.Dispose);
-            using var disk = new Disk(new List<DiskImageFile> { diskImage }, Ownership.Dispose);
-            var manager = new VolumeManager(disk);
-            var logicalVolumes = manager.GetLogicalVolumes();
-            Assert.Single(logicalVolumes);
-
-            var volume = logicalVolumes[0];
-            var filesystems = FileSystemManager.DetectFileSystems(volume);
-            Assert.Single(filesystems);
-
-            var filesystem = filesystems[0];
-            Assert.Equal("xfs", filesystem.Name);
-
-            using var xfs = filesystem.Open(volume);
-            Assert.IsType<XfsFileSystem>(xfs);
-
-            Assert.Equal(9080827904, xfs.AvailableSpace);
-            Assert.Equal(10725883904, xfs.Size);
-            Assert.Equal(1645056000, xfs.UsedSpace);
-            ValidateContent(xfs);
+            var md5 = MD5.Create().ComputeHash(file);
+            Assert.Equal("620f0b67a91f7f74151bc5be745b7110", BitConverter.ToString(md5).ToLowerInvariant().Replace("-", string.Empty));
         }
 
-        private static void ValidateContent(DiscFileSystem xfs)
+        using (var file = xfs.OpenFile("folder\\file.random", FileMode.Open))
         {
-            Assert.True(xfs.DirectoryExists(""));
-            Assert.True(xfs.FileExists("folder\\nested\\file"));
-            Assert.Empty(xfs.GetFileSystemEntries("empty"));
-            for (var i = 1; i <= 1000; i++)
-            {
-                Assert.True(xfs.FileExists($"folder\\file.{i}"), $"File file.{i} not found");
-            }
+            var md5 = MD5.Create().ComputeHash(file);
+            Assert.Equal("9a202a11d6e87688591eb97714ed56f1", BitConverter.ToString(md5).ToLowerInvariant().Replace("-", string.Empty));
+        }
 
-            using (var file = xfs.OpenFile("folder\\file.100", FileMode.Open))
-            {
-                var md5 = MD5.Create().ComputeHash(file);
-                Assert.Equal("620f0b67a91f7f74151bc5be745b7110", BitConverter.ToString(md5).ToLowerInvariant().Replace("-", string.Empty));
-            }
-
-            using (var file = xfs.OpenFile("folder\\file.random", FileMode.Open))
-            {
-                var md5 = MD5.Create().ComputeHash(file);
-                Assert.Equal("9a202a11d6e87688591eb97714ed56f1", BitConverter.ToString(md5).ToLowerInvariant().Replace("-", string.Empty));
-            }
-
-            for (var i = 1; i <= 999; i++)
-            {
-                Assert.True(xfs.FileExists($"huge\\{i}"), $"File huge/{i} not found");
-            }
+        for (var i = 1; i <= 999; i++)
+        {
+            Assert.True(xfs.FileExists($"huge\\{i}"), $"File huge/{i} not found");
         }
     }
 }

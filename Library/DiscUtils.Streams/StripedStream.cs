@@ -69,36 +69,24 @@ public class StripedStream : SparseStream
         _length = subStreamLength * _wrapped.Count;
     }
 
-    public override bool CanRead
-    {
-        get { return _canRead; }
-    }
+    public override bool CanRead => _canRead;
 
-    public override bool CanSeek
-    {
-        get { return true; }
-    }
+    public override bool CanSeek => true;
 
-    public override bool CanWrite
-    {
-        get { return _canWrite; }
-    }
+    public override bool CanWrite => _canWrite;
 
     // Temporary, indicate there are no 'unstored' extents.
     // Consider combining extent information from all wrapped streams in future.
     public override IEnumerable<StreamExtent> Extents
         => SingleValueEnumerable.Get(new StreamExtent(0, _length));
 
-    public override long Length
-    {
-        get { return _length; }
-    }
+    public override long Length => _length;
 
     public override long Position
     {
-        get { return _position; }
+        get => _position;
 
-        set { _position = value; }
+        set => _position = value;
     }
 
     public override void Flush()

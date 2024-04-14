@@ -38,10 +38,7 @@ internal class DirectoryEntry : VfsDirEntry
         _record = record;
     }
 
-    public override DateTime CreationTimeUtc
-    {
-        get { throw new NotSupportedException(); }
-    }
+    public override DateTime CreationTimeUtc => throw new NotSupportedException();
 
     public override FileAttributes FileAttributes
     {
@@ -52,48 +49,21 @@ internal class DirectoryEntry : VfsDirEntry
         }
     }
 
-    public override string FileName
-    {
-        get { return _record.Name; }
-    }
+    public override string FileName => _record.Name;
 
-    public override bool HasVfsFileAttributes
-    {
-        get { return true; }
-    }
+    public override bool HasVfsFileAttributes => true;
 
-    public override bool HasVfsTimeInfo
-    {
-        get { return false; }
-    }
+    public override bool HasVfsTimeInfo => false;
 
-    public MetadataRef InodeReference
-    {
-        get { return new MetadataRef(_header.StartBlock, _record.Offset); }
-    }
+    public MetadataRef InodeReference => new MetadataRef(_header.StartBlock, _record.Offset);
 
-    public override bool IsDirectory
-    {
-        get { return _record.Type == InodeType.Directory || _record.Type == InodeType.ExtendedDirectory; }
-    }
+    public override bool IsDirectory => _record.Type is InodeType.Directory or InodeType.ExtendedDirectory;
 
-    public override bool IsSymlink
-    {
-        get { return _record.Type == InodeType.Symlink || _record.Type == InodeType.ExtendedSymlink; }
-    }
+    public override bool IsSymlink => _record.Type is InodeType.Symlink or InodeType.ExtendedSymlink;
 
-    public override DateTime LastAccessTimeUtc
-    {
-        get { throw new NotSupportedException(); }
-    }
+    public override DateTime LastAccessTimeUtc => throw new NotSupportedException();
 
-    public override DateTime LastWriteTimeUtc
-    {
-        get { throw new NotSupportedException(); }
-    }
+    public override DateTime LastWriteTimeUtc => throw new NotSupportedException();
 
-    public override long UniqueCacheId
-    {
-        get { return _header.InodeNumber + _record.InodeNumber; }
-    }
+    public override long UniqueCacheId => _header.InodeNumber + _record.InodeNumber;
 }

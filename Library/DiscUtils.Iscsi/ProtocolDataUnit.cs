@@ -38,10 +38,7 @@ internal class ProtocolDataUnit
 
     public byte[] HeaderData { get; }
 
-    public OpCode OpCode
-    {
-        get { return (OpCode)(HeaderData[0] & 0x3F); }
-    }
+    public OpCode OpCode => (OpCode)(HeaderData[0] & 0x3F);
 
     public static ProtocolDataUnit ReadFrom(Stream stream, bool headerDigestEnabled, bool dataDigestEnabled)
     {

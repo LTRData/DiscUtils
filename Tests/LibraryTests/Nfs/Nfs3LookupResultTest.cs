@@ -26,69 +26,68 @@ using System;
 using System.IO;
 using Xunit;
 
-namespace LibraryTests.Nfs
+namespace LibraryTests.Nfs;
+
+public class Nfs3LookupResultTest
 {
-    public class Nfs3LookupResultTest
+    [Fact]
+    public void RoundTripTest()
     {
-        [Fact]
-        public void RoundTripTest()
+        var result = new Nfs3LookupResult()
         {
-            var result = new Nfs3LookupResult()
+            DirAttributes = new Nfs3FileAttributes()
             {
-                DirAttributes = new Nfs3FileAttributes()
-                {
-                    AccessTime = new Nfs3FileTime(new DateTime(2017, 1, 1)),
-                    BytesUsed = 1,
-                    ChangeTime = new Nfs3FileTime(new DateTime(2017, 1, 2)),
-                    FileId = 2,
-                    FileSystemId = 3,
-                    Gid = 4,
-                    LinkCount = 5,
-                    Mode = UnixFilePermissions.GroupAll,
-                    ModifyTime = new Nfs3FileTime(new DateTime(2017, 1, 3)),
-                    RdevMajor = 6,
-                    RdevMinor = 7,
-                    Size = 8,
-                    Type = Nfs3FileType.BlockDevice,
-                    Uid = 9
-                },
-                ObjectAttributes = new Nfs3FileAttributes()
-                {
-                    AccessTime = new Nfs3FileTime(new DateTime(2017, 1, 10)),
-                    BytesUsed = 11,
-                    ChangeTime = new Nfs3FileTime(new DateTime(2017, 1, 12)),
-                    FileId = 12,
-                    FileSystemId = 13,
-                    Gid = 14,
-                    LinkCount = 15,
-                    Mode = UnixFilePermissions.GroupWrite,
-                    ModifyTime = new Nfs3FileTime(new DateTime(2017, 1, 13)),
-                    RdevMajor = 16,
-                    RdevMinor = 17,
-                    Size = 18,
-                    Type = Nfs3FileType.Socket,
-                    Uid = 19
-                },
-                ObjectHandle = new Nfs3FileHandle()
-                {
-                    Value = new byte[] { 0x20 }
-                },
-                Status = Nfs3Status.Ok
-            };
-
-            Nfs3LookupResult clone = null;
-
-            using (var stream = new MemoryStream())
+                AccessTime = new Nfs3FileTime(new DateTime(2017, 1, 1)),
+                BytesUsed = 1,
+                ChangeTime = new Nfs3FileTime(new DateTime(2017, 1, 2)),
+                FileId = 2,
+                FileSystemId = 3,
+                Gid = 4,
+                LinkCount = 5,
+                Mode = UnixFilePermissions.GroupAll,
+                ModifyTime = new Nfs3FileTime(new DateTime(2017, 1, 3)),
+                RdevMajor = 6,
+                RdevMinor = 7,
+                Size = 8,
+                Type = Nfs3FileType.BlockDevice,
+                Uid = 9
+            },
+            ObjectAttributes = new Nfs3FileAttributes()
             {
-                var writer = new XdrDataWriter(stream);
-                result.Write(writer);
+                AccessTime = new Nfs3FileTime(new DateTime(2017, 1, 10)),
+                BytesUsed = 11,
+                ChangeTime = new Nfs3FileTime(new DateTime(2017, 1, 12)),
+                FileId = 12,
+                FileSystemId = 13,
+                Gid = 14,
+                LinkCount = 15,
+                Mode = UnixFilePermissions.GroupWrite,
+                ModifyTime = new Nfs3FileTime(new DateTime(2017, 1, 13)),
+                RdevMajor = 16,
+                RdevMinor = 17,
+                Size = 18,
+                Type = Nfs3FileType.Socket,
+                Uid = 19
+            },
+            ObjectHandle = new Nfs3FileHandle()
+            {
+                Value = new byte[] { 0x20 }
+            },
+            Status = Nfs3Status.Ok
+        };
 
-                stream.Position = 0;
-                var reader = new XdrDataReader(stream);
-                clone = new Nfs3LookupResult(reader);
-            }
+        Nfs3LookupResult clone = null;
 
-            Assert.Equal(result, clone);
+        using (var stream = new MemoryStream())
+        {
+            var writer = new XdrDataWriter(stream);
+            result.Write(writer);
+
+            stream.Position = 0;
+            var reader = new XdrDataReader(stream);
+            clone = new Nfs3LookupResult(reader);
         }
+
+        Assert.Equal(result, clone);
     }
 }

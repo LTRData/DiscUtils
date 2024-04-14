@@ -161,44 +161,23 @@ internal sealed class ReaderDirEntry : VfsDirEntry
         }
     }
 
-    public override string FileName
-    {
-        get { return _fileName; }
-    }
+    public override string FileName => _fileName;
 
-    public override bool HasVfsFileAttributes
-    {
-        get { return true; }
-    }
+    public override bool HasVfsFileAttributes => true;
 
-    public override bool HasVfsTimeInfo
-    {
-        get { return true; }
-    }
+    public override bool HasVfsTimeInfo => true;
 
-    public override bool IsDirectory
-    {
-        get { return (_record.Flags & FileFlags.Directory) != 0; }
-    }
+    public override bool IsDirectory => (_record.Flags & FileFlags.Directory) != 0;
 
-    public override bool IsSymlink
-    {
-        get { return false; }
-    }
+    public override bool IsSymlink => false;
 
     public override DateTime LastAccessTimeUtc { get; }
 
     public override DateTime LastWriteTimeUtc { get; }
 
-    public DirectoryRecord Record
-    {
-        get { return _record; }
-    }
+    public DirectoryRecord Record => _record;
 
     public SuspRecords SuspRecords { get; }
 
-    public override long UniqueCacheId
-    {
-        get { return ((long)_record.LocationOfExtent << 32) | _record.DataLength; }
-    }
+    public override long UniqueCacheId => ((long)_record.LocationOfExtent << 32) | _record.DataLength;
 }

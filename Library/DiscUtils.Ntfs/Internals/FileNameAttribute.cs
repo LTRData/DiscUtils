@@ -54,74 +54,47 @@ public sealed class FileNameAttribute : GenericAttribute
     /// <summary>
     /// Gets the amount of disk space allocated for the file.
     /// </summary>
-    public long AllocatedSize
-    {
-        get { return (long)_fnr.AllocatedSize; }
-    }
+    public long AllocatedSize => (long)_fnr.AllocatedSize;
 
     /// <summary>
     /// Gets the creation time of the file.
     /// </summary>
-    public DateTime CreationTime
-    {
-        get { return _fnr.CreationTime; }
-    }
+    public DateTime CreationTime => _fnr.CreationTime;
 
     /// <summary>
     /// Gets the extended attributes size, or a reparse tag, depending on the nature of the file.
     /// </summary>
-    public long ExtendedAttributesSizeOrReparsePointTag
-    {
-        get { return _fnr.EASizeOrReparsePointTag; }
-    }
+    public long ExtendedAttributesSizeOrReparsePointTag => _fnr.EASizeOrReparsePointTag;
 
     /// <summary>
     /// Gets the attributes of the file, as stored by NTFS.
     /// </summary>
-    public NtfsFileAttributes FileAttributes
-    {
-        get { return (NtfsFileAttributes)_fnr.Flags; }
-    }
+    public NtfsFileAttributes FileAttributes => (NtfsFileAttributes)_fnr.Flags;
 
     /// <summary>
     /// Gets the name of the file within the parent directory.
     /// </summary>
-    public string FileName
-    {
-        get { return _fnr.FileName; }
-    }
+    public string FileName => _fnr.FileName;
 
     /// <summary>
     /// Gets the namespace of the FileName property.
     /// </summary>
-    public NtfsNamespace FileNameNamespace
-    {
-        get { return (NtfsNamespace)_fnr.FileNameNamespace; }
-    }
+    public NtfsNamespace FileNameNamespace => (NtfsNamespace)_fnr.FileNameNamespace;
 
     /// <summary>
     /// Gets the last access time of the file.
     /// </summary>
-    public DateTime LastAccessTime
-    {
-        get { return _fnr.LastAccessTime; }
-    }
+    public DateTime LastAccessTime => _fnr.LastAccessTime;
 
     /// <summary>
     /// Gets the last time the Master File Table entry for the file was changed.
     /// </summary>
-    public DateTime MasterFileTableChangedTime
-    {
-        get { return _fnr.MftChangedTime; }
-    }
+    public DateTime MasterFileTableChangedTime => _fnr.MftChangedTime;
 
     /// <summary>
     /// Gets the modification time of the file.
     /// </summary>
-    public DateTime ModificationTime
-    {
-        get { return _fnr.ModificationTime; }
-    }
+    public DateTime ModificationTime => _fnr.ModificationTime;
 
     /// <summary>
     /// Gets the reference to the parent directory.
@@ -130,16 +103,10 @@ public sealed class FileNameAttribute : GenericAttribute
     /// This attribute stores the name of a file within a directory, this field
     /// provides the link back to the directory.
     /// </remarks>
-    public MasterFileTableReference ParentDirectory
-    {
-        get { return new MasterFileTableReference(_fnr.ParentDirectory); }
-    }
+    public MasterFileTableReference ParentDirectory => new MasterFileTableReference(_fnr.ParentDirectory);
 
     /// <summary>
     /// Gets the amount of data stored in the file.
     /// </summary>
-    public long RealSize
-    {
-        get { return (long)_fnr.RealSize; }
-    }
+    public long RealSize => (long)_fnr.RealSize;
 }

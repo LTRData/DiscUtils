@@ -39,10 +39,7 @@ internal struct IndexRoot : IByteArraySerializable, IDiagnosticTraceable
 
     public byte RawClustersPerIndexRecord { get; set; }
 
-    public int Size
-    {
-        get { return 16; }
-    }
+    public int Size => 16;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

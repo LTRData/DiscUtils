@@ -46,10 +46,7 @@ internal abstract class FixupRecordBase
 
     public string Magic { get; private set; }
 
-    public int Size
-    {
-        get { return CalcSize(); }
-    }
+    public int Size => CalcSize();
 
     public ushort UpdateSequenceCount { get; private set; }
 
@@ -57,10 +54,7 @@ internal abstract class FixupRecordBase
 
     public ushort UpdateSequenceOffset { get; private set; }
 
-    public int UpdateSequenceSize
-    {
-        get { return UpdateSequenceCount * 2; }
-    }
+    public int UpdateSequenceSize => UpdateSequenceCount * 2;
 
     public void FromStream(Stream stream, int length, bool ignoreMagic = false)
     {

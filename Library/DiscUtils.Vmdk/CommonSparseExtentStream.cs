@@ -130,10 +130,7 @@ internal abstract class CommonSparseExtentStream : MappedStream
         }
     }
 
-    public override IEnumerable<StreamExtent> Extents
-    {
-        get { return GetExtentsInRange(0, Length); }
-    }
+    public override IEnumerable<StreamExtent> Extents => GetExtentsInRange(0, Length);
 
     public override long Length
     {

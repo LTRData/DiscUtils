@@ -24,31 +24,30 @@ using DiscUtils.Nfs;
 using System.IO;
 using Xunit;
 
-namespace LibraryTests.Nfs
+namespace LibraryTests.Nfs;
+
+public class Nfs3FileHandleTest
 {
-    public class Nfs3FileHandleTest
+    [Fact]
+    public void RoundTripTest()
     {
-        [Fact]
-        public void RoundTripTest()
+        var attributes = new Nfs3FileHandle()
         {
-            var attributes = new Nfs3FileHandle()
-            {
-                Value = new byte[] { 0x01 }
-            };
+            Value = new byte[] { 0x01 }
+        };
 
-            Nfs3FileHandle clone = null;
+        Nfs3FileHandle clone = null;
 
-            using (var stream = new MemoryStream())
-            {
-                var writer = new XdrDataWriter(stream);
-                attributes.Write(writer);
+        using (var stream = new MemoryStream())
+        {
+            var writer = new XdrDataWriter(stream);
+            attributes.Write(writer);
 
-                stream.Position = 0;
-                var reader = new XdrDataReader(stream);
-                clone = new Nfs3FileHandle(reader);
-            }
-
-            Assert.Equal(attributes, clone);
+            stream.Position = 0;
+            var reader = new XdrDataReader(stream);
+            clone = new Nfs3FileHandle(reader);
         }
+
+        Assert.Equal(attributes, clone);
     }
 }

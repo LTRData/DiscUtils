@@ -30,10 +30,7 @@ internal class DeviceAndPathRecord : DeviceRecord
     private DeviceRecord _container;
     private string _path;
 
-    public override int Size
-    {
-        get { throw new NotImplementedException(); }
-    }
+    public override int Size => throw new NotImplementedException();
 
     public override void GetBytes(byte[] data, int offset)
     {

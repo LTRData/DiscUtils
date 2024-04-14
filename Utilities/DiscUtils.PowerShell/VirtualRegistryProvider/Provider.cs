@@ -61,7 +61,7 @@ public sealed class Provider : NavigationCmdletProvider, IDynamicPropertyCmdletP
         }
 
         var mountPaths = drive.Root.Split('!');
-        if (mountPaths.Length < 1 || mountPaths.Length > 2)
+        if (mountPaths.Length is < 1 or > 2)
         {
             WriteError(new ErrorRecord(
                 new ArgumentException("drive"),
@@ -421,17 +421,14 @@ public sealed class Provider : NavigationCmdletProvider, IDynamicPropertyCmdletP
 
     #endregion
 
-    private VirtualRegistryPSDriveInfo DriveInfo
-    {
-        get { return PSDriveInfo as VirtualRegistryPSDriveInfo; }
-    }
+    private VirtualRegistryPSDriveInfo DriveInfo => PSDriveInfo as VirtualRegistryPSDriveInfo;
 
     private RegistryHive Hive
     {
         get
         {
             var driveInfo = DriveInfo;
-            return (driveInfo != null) ? driveInfo.Hive : null;
+            return driveInfo?.Hive;
         }
     }
 
@@ -456,12 +453,7 @@ public sealed class Provider : NavigationCmdletProvider, IDynamicPropertyCmdletP
             }
         }
 
-        var hive = Hive;
-        if (hive == null)
-        {
-            throw new NotImplementedException("Accessing registry hives outside of a mounted drive");
-        }
-
+        var hive = Hive ?? throw new NotImplementedException("Accessing registry hives outside of a mounted drive");
         return hive.Root.OpenSubKey(relPath);
     }
 

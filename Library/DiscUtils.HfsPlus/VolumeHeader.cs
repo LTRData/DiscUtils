@@ -64,15 +64,9 @@ internal sealed class VolumeHeader : IByteArraySerializable
 
     public uint WriteCount;
 
-    public bool IsValid
-    {
-        get { return Array.IndexOf(HfsPlusSignatures, Signature) >= 0; }
-    }
+    public bool IsValid => Array.IndexOf(HfsPlusSignatures, Signature) >= 0;
 
-    public int Size
-    {
-        get { return 512; }
-    }
+    public int Size => 512;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

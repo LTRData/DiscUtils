@@ -39,8 +39,5 @@ public class LengthWrappingStream : WrappingStream
         _length = length;
     }
 
-    public override long Length
-    {
-        get { return _length; }
-    }
+    public override long Length => _length;
 }

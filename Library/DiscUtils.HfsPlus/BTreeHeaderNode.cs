@@ -31,10 +31,7 @@ internal class BTreeHeaderNode : BTreeNode
     public BTreeHeaderNode(BTree tree, BTreeNodeDescriptor descriptor)
         : base(tree, descriptor) {}
 
-    public BTreeHeaderRecord HeaderRecord
-    {
-        get { return Records[0] as BTreeHeaderRecord; }
-    }
+    public BTreeHeaderRecord HeaderRecord => Records[0] as BTreeHeaderRecord;
 
     protected override IList<BTreeNodeRecord> ReadRecords(ReadOnlySpan<byte> buffer)
     {

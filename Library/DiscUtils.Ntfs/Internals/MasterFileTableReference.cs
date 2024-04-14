@@ -37,10 +37,7 @@ public readonly struct MasterFileTableReference
     /// <summary>
     /// Gets the index of the referred entry in the Master File Table.
     /// </summary>
-    public long RecordIndex
-    {
-        get { return _ref.MftIndex; }
-    }
+    public long RecordIndex => _ref.MftIndex;
 
     /// <summary>
     /// Gets the revision number of the entry.
@@ -49,10 +46,7 @@ public readonly struct MasterFileTableReference
     /// This value prevents accidental reference to an entry - it will get out
     /// of sync with the actual entry if the entry is re-allocated or de-allocated.
     /// </remarks>
-    public int RecordSequenceNumber
-    {
-        get { return _ref.SequenceNumber; }
-    }
+    public int RecordSequenceNumber => _ref.SequenceNumber;
 
     /// <summary>
     /// Compares to instances for equality.
@@ -83,7 +77,7 @@ public readonly struct MasterFileTableReference
     /// <returns><code>true</code> if the other object is equivalent, else <code>false</code>.</returns>
     public override bool Equals(object obj)
     {
-        if (obj == null || obj is not MasterFileTableReference)
+        if (obj is null or not MasterFileTableReference)
         {
             return false;
         }

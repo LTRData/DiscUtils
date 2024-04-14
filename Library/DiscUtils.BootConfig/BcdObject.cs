@@ -165,18 +165,12 @@ public class BcdObject
     /// <summary>
     /// Gets the image type for this application.
     /// </summary>
-    public ApplicationImageType ApplicationImageType
-    {
-        get { return IsApplication ? (ApplicationImageType)((_type & 0x00F00000) >> 20) : 0; }
-    }
+    public ApplicationImageType ApplicationImageType => IsApplication ? (ApplicationImageType)((_type & 0x00F00000) >> 20) : 0;
 
     /// <summary>
     /// Gets the application type for this application.
     /// </summary>
-    public ApplicationType ApplicationType
-    {
-        get { return IsApplication ? (ApplicationType)(_type & 0xFFFFF) : 0; }
-    }
+    public ApplicationType ApplicationType => IsApplication ? (ApplicationType)(_type & 0xFFFFF) : 0;
 
     /// <summary>
     /// Gets the elements in this object.
@@ -211,23 +205,14 @@ public class BcdObject
     /// <summary>
     /// Gets the identity of this object.
     /// </summary>
-    public Guid Identity
-    {
-        get { return _id; }
-    }
+    public Guid Identity => _id;
 
-    private bool IsApplication
-    {
-        get { return ObjectType == ObjectType.Application; }
-    }
+    private bool IsApplication => ObjectType == ObjectType.Application;
 
     /// <summary>
     /// Gets the object type for this object.
     /// </summary>
-    public ObjectType ObjectType
-    {
-        get { return (ObjectType)((_type >> 28) & 0xF); }
-    }
+    public ObjectType ObjectType => (ObjectType)((_type >> 28) & 0xF);
 
     /// <summary>
     /// Indicates if the settings in this object are inheritable by another object.

@@ -38,10 +38,7 @@ internal sealed class SecurityDescriptor : IByteArraySerializable, IDiagnosticTr
 
     public RawSecurityDescriptor Descriptor { get; set; }
 
-    public int Size
-    {
-        get { return Descriptor.BinaryLength; }
-    }
+    public int Size => Descriptor.BinaryLength;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

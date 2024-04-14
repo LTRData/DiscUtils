@@ -139,7 +139,7 @@ internal class Directory : File, IVfsDirectory<DirEntry, File>
             }
 
             var name = Context.Options.FileNameEncoding.GetString(dirEntry.Name).SanitizeFileName();
-            if (name == "." || name == "..")
+            if (name is "." or "..")
             {
                 continue;
             }
@@ -148,10 +148,7 @@ internal class Directory : File, IVfsDirectory<DirEntry, File>
         }
     }
 
-    public DirEntry Self
-    {
-        get { return null; }
-    }
+    public DirEntry Self => null;
 
     public DirEntry GetEntryByName(string name)
         => AllEntries.TryGetValue(name, out var entry) ? entry : null;

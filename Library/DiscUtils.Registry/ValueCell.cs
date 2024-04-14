@@ -49,10 +49,7 @@ internal sealed class ValueCell : Cell
 
     public string Name { get; private set; }
 
-    public override int Size
-    {
-        get { return 0x14 + (string.IsNullOrEmpty(Name) ? 0 : Name.Length); }
-    }
+    public override int Size => 0x14 + (string.IsNullOrEmpty(Name) ? 0 : Name.Length);
 
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {

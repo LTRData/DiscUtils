@@ -39,10 +39,7 @@ internal abstract class BTreeExtentHeaderV5 : BTreeExtentHeader
     
     public uint Crc { get; private set; }
 
-    public override int Size
-    {
-        get { return base.Size + 48; }
-    }
+    public override int Size => base.Size + 48;
 
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {

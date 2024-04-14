@@ -41,10 +41,7 @@ internal sealed class CatalogKey : BTreeKey, IComparable<CatalogKey>
 
     public CatalogNodeId NodeId { get; private set; }
 
-    public override int Size
-    {
-        get { throw new NotImplementedException(); }
-    }
+    public override int Size => throw new NotImplementedException();
 
     public int CompareTo(CatalogKey other)
     {

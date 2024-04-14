@@ -31,10 +31,7 @@ internal class UdifChecksum : IByteArraySerializable
     public byte[] Data;
     public uint Type;
 
-    public int Size
-    {
-        get { return 136; }
-    }
+    public int Size => 136;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

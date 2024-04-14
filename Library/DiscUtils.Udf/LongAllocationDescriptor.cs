@@ -31,10 +31,7 @@ internal class LongAllocationDescriptor : IByteArraySerializable
     public LogicalBlockAddress ExtentLocation;
     public byte[] ImplementationUse;
 
-    public int Size
-    {
-        get { return 16; }
-    }
+    public int Size => 16;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

@@ -238,10 +238,7 @@ internal class VfsCDReader : VfsReadOnlyFileSystem<ReaderDirEntry, File, ReaderD
     /// <summary>
     /// Provides the friendly name for the CD filesystem.
     /// </summary>
-    public override string FriendlyName
-    {
-        get { return "ISO 9660 (CD-ROM)"; }
-    }
+    public override string FriendlyName => "ISO 9660 (CD-ROM)";
 
     public bool HasBootImage
     {
@@ -266,20 +263,11 @@ internal class VfsCDReader : VfsReadOnlyFileSystem<ReaderDirEntry, File, ReaderD
     /// <summary>
     /// Gets the Volume Identifier.
     /// </summary>
-    public override string VolumeLabel
-    {
-        get { return Context.VolumeDescriptor.VolumeIdentifier; }
-    }
+    public override string VolumeLabel => Context.VolumeDescriptor.VolumeIdentifier;
 
-    public int SectorSize
-    {
-        get { return IsoUtilities.SectorSize; }
-    }
+    public int SectorSize => IsoUtilities.SectorSize;
 
-    public long TotalSectors
-    {
-        get { return Context.VolumeDescriptor.VolumeSpaceSize; }
-    }
+    public long TotalSectors => Context.VolumeDescriptor.VolumeSpaceSize;
 
     public long ClusterSize => SectorSize;
 
@@ -298,36 +286,24 @@ internal class VfsCDReader : VfsReadOnlyFileSystem<ReaderDirEntry, File, ReaderD
     /// <summary>
     /// Size of the Filesystem in bytes
     /// </summary>
-    public override long Size
-    {
-        get { throw new NotSupportedException("Filesystem size is not (yet) supported"); }
-    }
+    public override long Size => throw new NotSupportedException("Filesystem size is not (yet) supported");
 
     /// <summary>
     /// Used space of the Filesystem in bytes
     /// </summary>
-    public override long UsedSpace
-    {
-        get { throw new NotSupportedException("Filesystem size is not (yet) supported"); }
-    }
+    public override long UsedSpace => throw new NotSupportedException("Filesystem size is not (yet) supported");
 
     /// <summary>
     /// Available space of the Filesystem in bytes
     /// </summary>
-    public override long AvailableSpace
-    {
-        get { throw new NotSupportedException("Filesystem size is not (yet) supported"); }
-    }
+    public override long AvailableSpace => throw new NotSupportedException("Filesystem size is not (yet) supported");
 
     public override bool SupportsUsedAvailableSpace => false;
 
     public IEnumerable<Range<long, long>> PathToClusters(string path)
     {
-        var entry = GetDirectoryEntry(path);
-        if (entry == null)
-        {
-            throw new FileNotFoundException("File not found", path);
-        }
+        var entry = GetDirectoryEntry(path)
+            ?? throw new FileNotFoundException("File not found", path);
 
         if (entry.Record.FileUnitSize != 0 || entry.Record.InterleaveGapSize != 0)
         {
@@ -341,11 +317,8 @@ internal class VfsCDReader : VfsReadOnlyFileSystem<ReaderDirEntry, File, ReaderD
 
     public IEnumerable<StreamExtent> PathToExtents(string path)
     {
-        var entry = GetDirectoryEntry(path);
-        if (entry == null)
-        {
-            throw new FileNotFoundException("File not found", path);
-        }
+        var entry = GetDirectoryEntry(path)
+            ?? throw new FileNotFoundException("File not found", path);
 
         if (entry.Record.FileUnitSize != 0 || entry.Record.InterleaveGapSize != 0)
         {
@@ -358,11 +331,8 @@ internal class VfsCDReader : VfsReadOnlyFileSystem<ReaderDirEntry, File, ReaderD
 
     public long GetAllocatedClustersCount(string path)
     {
-        var entry = GetDirectoryEntry(path);
-        if (entry == null)
-        {
-            throw new FileNotFoundException("File not found", path);
-        }
+        var entry = GetDirectoryEntry(path)
+            ?? throw new FileNotFoundException("File not found", path);
 
         if (entry.Record.FileUnitSize != 0 || entry.Record.InterleaveGapSize != 0)
         {

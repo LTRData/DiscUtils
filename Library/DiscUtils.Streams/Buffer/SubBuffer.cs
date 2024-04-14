@@ -58,35 +58,23 @@ public class SubBuffer : Buffer
     /// <summary>
     /// Can this buffer be read.
     /// </summary>
-    public override bool CanRead
-    {
-        get { return _parent.CanRead; }
-    }
+    public override bool CanRead => _parent.CanRead;
 
     /// <summary>
     /// Can this buffer be modified.
     /// </summary>
-    public override bool CanWrite
-    {
-        get { return _parent.CanWrite; }
-    }
+    public override bool CanWrite => _parent.CanWrite;
 
     /// <summary>
     /// Gets the current capacity of the buffer, in bytes.
     /// </summary>
-    public override long Capacity
-    {
-        get { return _length; }
-    }
+    public override long Capacity => _length;
 
     /// <summary>
     /// Gets the parts of the buffer that are stored.
     /// </summary>
     /// <remarks>This may be an empty enumeration if all bytes are zero.</remarks>
-    public override IEnumerable<StreamExtent> Extents
-    {
-        get { return OffsetExtents(_parent.GetExtentsInRange(_first, _length)); }
-    }
+    public override IEnumerable<StreamExtent> Extents => OffsetExtents(_parent.GetExtentsInRange(_first, _length));
 
     /// <summary>
     /// Flushes all data to the underlying storage.

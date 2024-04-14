@@ -58,20 +58,11 @@ internal class UdifBuffer : Buffer
 
     public List<CompressedBlock> Blocks { get; }
 
-    public override bool CanRead
-    {
-        get { return true; }
-    }
+    public override bool CanRead => true;
 
-    public override bool CanWrite
-    {
-        get { return false; }
-    }
+    public override bool CanWrite => false;
 
-    public override long Capacity
-    {
-        get { return _sectorCount * Sizes.Sector; }
-    }
+    public override long Capacity => _sectorCount * Sizes.Sector;
 
     public override int Read(long pos, byte[] buffer, int offset, int count)
     {

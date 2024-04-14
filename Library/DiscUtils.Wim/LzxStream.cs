@@ -89,26 +89,17 @@ internal class LzxStream : ReadOnlyCompatibilityStream
         ReadBlocks();
     }
 
-    public override bool CanRead
-    {
-        get { return true; }
-    }
+    public override bool CanRead => true;
 
-    public override bool CanSeek
-    {
-        get { return false; }
-    }
+    public override bool CanSeek => false;
 
-    public override long Length
-    {
-        get { return _bufferCount; }
-    }
+    public override long Length => _bufferCount;
 
     public override long Position
     {
-        get { return _position; }
+        get => _position;
 
-        set { _position = value; }
+        set => _position = value;
     }
 
     public override int Read(byte[] buffer, int offset, int count)

@@ -49,10 +49,7 @@ public sealed class ServiceInstanceEndPoint
     /// <summary>
     /// Gets the IP addresses (as IPEndPoint instances) of this EndPoint.
     /// </summary>
-    public IEnumerable<IPEndPoint> IPEndPoints
-    {
-        get { return _ipEndPoints; }
-    }
+    public IEnumerable<IPEndPoint> IPEndPoints => _ipEndPoints;
 
     /// <summary>
     /// Gets the port of this EndPoint.

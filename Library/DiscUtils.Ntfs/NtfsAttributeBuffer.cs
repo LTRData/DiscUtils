@@ -41,20 +41,11 @@ internal class NtfsAttributeBuffer : Buffer, IMappedBuffer
         _attribute = attribute;
     }
 
-    public override bool CanRead
-    {
-        get { return true; }
-    }
+    public override bool CanRead => true;
 
-    public override bool CanWrite
-    {
-        get { return _file.Context.RawStream.CanWrite; }
-    }
+    public override bool CanWrite => _file.Context.RawStream.CanWrite;
 
-    public override long Capacity
-    {
-        get { return _attribute.PrimaryRecord.DataLength; }
-    }
+    public override long Capacity => _attribute.PrimaryRecord.DataLength;
 
     public long MapPosition(long pos)
     {

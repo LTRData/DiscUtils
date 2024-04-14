@@ -73,10 +73,7 @@ public sealed class RegistryKey
     /// <summary>
     /// Gets the flags of this registry key.
     /// </summary>
-    public RegistryKeyFlags Flags
-    {
-        get { return _cell.Flags; }
-    }
+    public RegistryKeyFlags Flags => _cell.Flags;
 
     /// <summary>
     /// Gets the full path of this key within the hive.
@@ -124,10 +121,7 @@ public sealed class RegistryKey
     /// <summary>
     /// Gets the number of child keys.
     /// </summary>
-    public int SubKeyCount
-    {
-        get { return _cell.NumSubKeys; }
-    }
+    public int SubKeyCount => _cell.NumSubKeys;
 
     /// <summary>
     /// Gets an enumerator over all sub child keys.
@@ -159,18 +153,12 @@ public sealed class RegistryKey
     /// <summary>
     /// Gets the time the key was last modified.
     /// </summary>
-    public DateTime Timestamp
-    {
-        get { return _cell.Timestamp; }
-    }
+    public DateTime Timestamp => _cell.Timestamp;
 
     /// <summary>
     /// Gets the number of values in this key.
     /// </summary>
-    public int ValueCount
-    {
-        get { return _cell.NumValues; }
-    }
+    public int ValueCount => _cell.NumValues;
 
     /// <summary>
     /// Gets an enumerator over all values in this key.
@@ -425,12 +413,7 @@ public sealed class RegistryKey
     /// <param name="valueType">The registry type of the data.</param>
     public void SetValue(string name, object value, RegistryValueType valueType)
     {
-        var valObj = GetRegistryValue(name);
-        if (valObj == null)
-        {
-            valObj = AddRegistryValue(name);
-        }
-
+        var valObj = GetRegistryValue(name) ?? AddRegistryValue(name);
         valObj.SetValue(value, valueType);
     }
 
@@ -819,13 +802,9 @@ public sealed class RegistryKey
     {
         if (_cell.NumSubKeys != 0)
         {
-            var listCell = _hive.GetCell<ListCell>(_cell.SubKeysIndex);
+            var listCell = _hive.GetCell<ListCell>(_cell.SubKeysIndex)
+                ?? throw new RegistryCorruptException($"Missing cell for subkeys for key '{Name}'");
 
-            if (listCell is null)
-            {
-                throw new RegistryCorruptException($"Missing cell for subkeys for key '{Name}'");
-            }
-            
             if (listCell.FindKey(name, out var cellIndex) == 0)
             {
                 return cellIndex;

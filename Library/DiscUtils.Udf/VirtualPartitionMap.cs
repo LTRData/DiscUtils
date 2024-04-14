@@ -30,10 +30,7 @@ internal sealed class VirtualPartitionMap : PartitionMap
     public ushort PartitionNumber;
     public ushort VolumeSequenceNumber;
 
-    public override int Size
-    {
-        get { return 64; }
-    }
+    public override int Size => 64;
 
     protected override int Parse(ReadOnlySpan<byte> buffer)
     {

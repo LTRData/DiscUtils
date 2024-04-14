@@ -35,10 +35,7 @@ internal sealed class InverseBurrowsWheeler : DataBlockTransform
         _nextPos = new int[256];
     }
 
-    protected override bool BuffersMustNotOverlap
-    {
-        get { return true; }
-    }
+    protected override bool BuffersMustNotOverlap => true;
 
     public int OriginalIndex { get; set; }
 

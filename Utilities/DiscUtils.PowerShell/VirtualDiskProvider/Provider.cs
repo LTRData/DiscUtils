@@ -65,7 +65,7 @@ public sealed class Provider : NavigationCmdletProvider, IContentCmdletProvider
         }
 
         var mountPaths = Utilities.NormalizePath(drive.Root).Split('!');
-        if (mountPaths.Length < 1 || mountPaths.Length > 2)
+        if (mountPaths.Length is < 1 or > 2)
         {
             WriteError(new ErrorRecord(
                 new ArgumentException("drive"),
@@ -523,17 +523,14 @@ public sealed class Provider : NavigationCmdletProvider, IContentCmdletProvider
     }
     #endregion
 
-    private VirtualDiskPSDriveInfo DriveInfo
-    {
-        get { return PSDriveInfo as VirtualDiskPSDriveInfo; }
-    }
+    private VirtualDiskPSDriveInfo DriveInfo => PSDriveInfo as VirtualDiskPSDriveInfo;
 
     private VirtualDisk Disk
     {
         get
         {
             var driveInfo = DriveInfo;
-            return (driveInfo != null) ? driveInfo.Disk : null;
+            return driveInfo?.Disk;
         }
     }
 

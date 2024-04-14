@@ -58,10 +58,7 @@ internal abstract class DeviceRecord
                 throw new NotImplementedException($"Unknown device type: {type}");
         }
 
-        if (newRecord != null)
-        {
-            newRecord.DoParse(data, offset);
-        }
+        newRecord?.DoParse(data, offset);
 
         return newRecord;
     }

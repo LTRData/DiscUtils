@@ -31,10 +31,7 @@ internal sealed class ReparsePointRecord : IByteArraySerializable, IDiagnosticTr
     public byte[] Content;
     public uint Tag;
 
-    public int Size
-    {
-        get { return 8 + Content.Length; }
-    }
+    public int Size => 8 + Content.Length;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

@@ -137,7 +137,7 @@ public static class HexDump
                                 output.Write(" ");
                             }
 
-                            output.Write((buffer[i + j] >= 32 && buffer[i + j] < 127) ? (char)buffer[i + j] : '.');
+                            output.Write((buffer[i + j] is >= 32 and < 127) ? (char)buffer[i + j] : '.');
                         }
 
                         output.Write('|');

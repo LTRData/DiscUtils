@@ -26,90 +26,89 @@ using DiscUtils.BootConfig;
 using DiscUtils.Registry;
 using Xunit;
 
-namespace LibraryTests.BootConfig
+namespace LibraryTests.BootConfig;
+
+public class StoreTest
 {
-    public class StoreTest
+    [Fact]
+    public void Initialize()
     {
-        [Fact]
-        public void Initialize()
+        var hive = RegistryHive.Create(new MemoryStream());
+        var s = Store.Initialize(hive.Root);
+
+        var i = 0;
+        foreach (var obj in s.Objects)
         {
-            var hive = RegistryHive.Create(new MemoryStream());
-            var s = Store.Initialize(hive.Root);
-
-            var i = 0;
-            foreach (var obj in s.Objects)
-            {
-                ++i;
-            }
-
-            Assert.Equal(0, i);
+            ++i;
         }
 
-        [Fact]
-        public void CreateApplication()
-        {
-            var hive = RegistryHive.Create(new MemoryStream());
-            var s = Store.Initialize(hive.Root);
+        Assert.Equal(0, i);
+    }
 
-            var obj = s.CreateApplication(ApplicationImageType.WindowsBoot, ApplicationType.BootManager);
-            Assert.NotEqual(Guid.Empty, obj.Identity);
+    [Fact]
+    public void CreateApplication()
+    {
+        var hive = RegistryHive.Create(new MemoryStream());
+        var s = Store.Initialize(hive.Root);
 
-            Assert.Equal(ObjectType.Application, obj.ObjectType);
+        var obj = s.CreateApplication(ApplicationImageType.WindowsBoot, ApplicationType.BootManager);
+        Assert.NotEqual(Guid.Empty, obj.Identity);
 
-            var reGet = s.GetObject(obj.Identity);
-            Assert.Equal(obj.Identity, reGet.Identity);
-        }
+        Assert.Equal(ObjectType.Application, obj.ObjectType);
 
-        [Fact]
-        public void CreateDevice()
-        {
-            var hive = RegistryHive.Create(new MemoryStream());
-            var s = Store.Initialize(hive.Root);
+        var reGet = s.GetObject(obj.Identity);
+        Assert.Equal(obj.Identity, reGet.Identity);
+    }
 
-            var obj = s.CreateDevice();
-            Assert.NotEqual(Guid.Empty, obj.Identity);
+    [Fact]
+    public void CreateDevice()
+    {
+        var hive = RegistryHive.Create(new MemoryStream());
+        var s = Store.Initialize(hive.Root);
 
-            Assert.Equal(ObjectType.Device, obj.ObjectType);
+        var obj = s.CreateDevice();
+        Assert.NotEqual(Guid.Empty, obj.Identity);
 
-            var reGet = s.GetObject(obj.Identity);
-            Assert.Equal(obj.Identity, reGet.Identity);
-        }
+        Assert.Equal(ObjectType.Device, obj.ObjectType);
 
-        [Fact]
-        public void CreateInherit()
-        {
-            var hive = RegistryHive.Create(new MemoryStream());
-            var s = Store.Initialize(hive.Root);
+        var reGet = s.GetObject(obj.Identity);
+        Assert.Equal(obj.Identity, reGet.Identity);
+    }
 
-            var obj = s.CreateInherit(InheritType.ApplicationObjects);
-            Assert.NotEqual(Guid.Empty, obj.Identity);
+    [Fact]
+    public void CreateInherit()
+    {
+        var hive = RegistryHive.Create(new MemoryStream());
+        var s = Store.Initialize(hive.Root);
 
-            Assert.Equal(ObjectType.Inherit, obj.ObjectType);
+        var obj = s.CreateInherit(InheritType.ApplicationObjects);
+        Assert.NotEqual(Guid.Empty, obj.Identity);
 
-            Assert.True(obj.IsInheritableBy(ObjectType.Application));
-            Assert.False(obj.IsInheritableBy(ObjectType.Device));
+        Assert.Equal(ObjectType.Inherit, obj.ObjectType);
 
-            var reGet = s.GetObject(obj.Identity);
-            Assert.Equal(obj.Identity, reGet.Identity);
-        }
+        Assert.True(obj.IsInheritableBy(ObjectType.Application));
+        Assert.False(obj.IsInheritableBy(ObjectType.Device));
 
-        [Fact]
-        public void RemoveObject()
-        {
-            var hive = RegistryHive.Create(new MemoryStream());
-            var s = Store.Initialize(hive.Root);
+        var reGet = s.GetObject(obj.Identity);
+        Assert.Equal(obj.Identity, reGet.Identity);
+    }
 
-            var obj = s.CreateInherit(InheritType.AnyObject);
-            s.RemoveObject(obj.Identity);
-        }
+    [Fact]
+    public void RemoveObject()
+    {
+        var hive = RegistryHive.Create(new MemoryStream());
+        var s = Store.Initialize(hive.Root);
 
-        [Fact]
-        public void RemoveObject_NonExistent()
-        {
-            var hive = RegistryHive.Create(new MemoryStream());
-            var s = Store.Initialize(hive.Root);
+        var obj = s.CreateInherit(InheritType.AnyObject);
+        s.RemoveObject(obj.Identity);
+    }
 
-            s.RemoveObject(Guid.NewGuid());
-        }
+    [Fact]
+    public void RemoveObject_NonExistent()
+    {
+        var hive = RegistryHive.Create(new MemoryStream());
+        var s = Store.Initialize(hive.Root);
+
+        s.RemoveObject(Guid.NewGuid());
     }
 }

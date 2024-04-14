@@ -141,7 +141,7 @@ internal static class UdfUtilities
 
         var alg = buffer[0];
 
-        if (alg != 8 && alg != 16)
+        if (alg is not 8 and not 16)
         {
             throw new InvalidDataException("Corrupt compressed unicode string");
         }

@@ -61,7 +61,7 @@ public sealed class FatFileSystemOptions : DiscFileSystemOptions
     /// </summary>
     public Encoding FileNameEncoding
     {
-        get { return _encoding; }
+        get => _encoding;
 
         set
         {

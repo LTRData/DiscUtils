@@ -43,25 +43,16 @@ public class Section
     /// <summary>
     /// Gets the length of the section.
     /// </summary>
-    public long Length
-    {
-        get { return _record.Size; }
-    }
+    public long Length => _record.Size;
 
     /// <summary>
     /// Gets the MBR partition type of the partition, for "PART" sections.
     /// </summary>
-    public byte PartitionType
-    {
-        get { return (byte)_record.PartitionType; }
-    }
+    public byte PartitionType => (byte)_record.PartitionType;
 
     /// <summary>
     /// Gets the type of this section.
     /// </summary>
     /// <remarks>Sample types are "PART" (disk partition), "WIM" (Windows Imaging Format).</remarks>
-    public string SectionType
-    {
-        get { return _record.SectionType; }
-    }
+    public string SectionType => _record.SectionType;
 }

@@ -57,19 +57,13 @@ public abstract class VirtualDisk :
     /// Gets the set of disk formats supported as an array of file extensions.
     /// </summary>
     [Obsolete("Use VirtualDiskManager.SupportedDiskFormats")]
-    public static ICollection<string> SupportedDiskFormats
-    {
-        get { return VirtualDiskManager.SupportedDiskFormats; }
-    }
+    public static ICollection<string> SupportedDiskFormats => VirtualDiskManager.SupportedDiskFormats;
 
     /// <summary>
     /// Gets the set of disk types supported, as an array of identifiers.
     /// </summary>
     [Obsolete("Use VirtualDiskManager.SupportedDiskTypes")]
-    public static ICollection<string> SupportedDiskTypes
-    {
-        get { return VirtualDiskManager.SupportedDiskTypes; }
-    }
+    public static ICollection<string> SupportedDiskTypes => VirtualDiskManager.SupportedDiskTypes;
 
     /// <summary>
     /// Gets a value indicating whether the layer data is opened for writing.
@@ -84,10 +78,7 @@ public abstract class VirtualDisk :
     /// <summary>
     /// Gets the geometry of the disk as it is anticipated a hypervisor BIOS will represent it.
     /// </summary>
-    public virtual Geometry BiosGeometry
-    {
-        get { return DiscUtils.Geometry.MakeBiosSafe(Geometry, Capacity); }
-    }
+    public virtual Geometry BiosGeometry => DiscUtils.Geometry.MakeBiosSafe(Geometry, Capacity);
 
     /// <summary>
     /// Gets the type of disk represented by this object.
@@ -102,19 +93,13 @@ public abstract class VirtualDisk :
     /// <summary>
     /// Gets the size of the disk's logical blocks (aka sector size), in bytes.
     /// </summary>
-    public virtual int BlockSize
-    {
-        get { return Sizes.Sector; }
-    }
+    public virtual int BlockSize => Sizes.Sector;
 
     /// <summary>
     /// Gets the logical sector size of the disk, in bytes.
     /// </summary>
     /// <remarks>This is an alias for the <c>BlockSize</c> property.</remarks>
-    public int SectorSize
-    {
-        get { return BlockSize; }
-    }
+    public int SectorSize => BlockSize;
 
     /// <summary>
     /// Gets the content of the disk as a stream.
@@ -155,10 +140,7 @@ public abstract class VirtualDisk :
     /// <remarks>There is no reliable way to determine whether a disk has a valid partition
     /// table.  The 'guess' consists of checking for basic indicators and looking for obviously
     /// invalid data, such as overlapping partitions.</remarks>
-    public virtual bool IsPartitioned
-    {
-        get { return PartitionTable.IsPartitioned(Content); }
-    }
+    public virtual bool IsPartitioned => PartitionTable.IsPartitioned(Content);
 
     /// <summary>
     /// Gets the object that interprets the partition structure.
@@ -212,20 +194,14 @@ public abstract class VirtualDisk :
     /// Gets the parameters of the disk.
     /// </summary>
     /// <remarks>Most of the parameters are also available individually, such as DiskType and Capacity.</remarks>
-    public virtual VirtualDiskParameters Parameters
+    public virtual VirtualDiskParameters Parameters => new VirtualDiskParameters
     {
-        get
-        {
-            return new VirtualDiskParameters
-            {
-                DiskType = DiskClass,
-                Capacity = Capacity,
-                Geometry = Geometry,
-                BiosGeometry = BiosGeometry,
-                AdapterType = GenericDiskAdapterType.Ide
-            };
-        }
-    }
+        DiskType = DiskClass,
+        Capacity = Capacity,
+        Geometry = Geometry,
+        BiosGeometry = BiosGeometry,
+        AdapterType = GenericDiskAdapterType.Ide
+    };
 
     /// <summary>
     /// Gets information about the type of disk.
@@ -431,10 +407,7 @@ public abstract class VirtualDisk :
         }
         finally
         {
-            if (transport is not null)
-            {
-                transport.Dispose();
-            }
+            transport?.Dispose();
         }
     }
 
@@ -574,10 +547,7 @@ public abstract class VirtualDisk :
         }
         finally
         {
-            if (transport is not null)
-            {
-                transport.Dispose();
-            }
+            transport?.Dispose();
         }
     }
 
@@ -744,10 +714,7 @@ public abstract class VirtualDisk :
             {
                 Disposing?.Invoke(this, EventArgs.Empty);
 
-                if (_transport is not null)
-                {
-                    _transport.Dispose();
-                }
+                _transport?.Dispose();
 
                 _transport = null;
             }

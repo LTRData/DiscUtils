@@ -59,28 +59,28 @@ internal sealed class IndexEntry
 
     public long ChildrenVirtualCluster
     {
-        get { return _vcn; }
-        set { _vcn = value; }
+        get => _vcn;
+        set => _vcn = value;
     }
 
     public byte[] DataBuffer
     {
-        get { return _dataBuffer; }
-        set { _dataBuffer = value; }
+        get => _dataBuffer;
+        set => _dataBuffer = value;
     }
 
     public IndexEntryFlags Flags
     {
-        get { return _flags; }
-        set { _flags = value; }
+        get => _flags;
+        set => _flags = value;
     }
 
     private readonly bool IsFileIndexEntry;
 
     public byte[] KeyBuffer
     {
-        get { return _keyBuffer; }
-        set { _keyBuffer = value; }
+        get => _keyBuffer;
+        set => _keyBuffer = value;
     }
 
     public int Size

@@ -25,67 +25,66 @@ using System.IO;
 using DiscUtils.Streams;
 using Xunit;
 
-namespace LibraryTests
+namespace LibraryTests;
+
+public class VirtualDiskTest
 {
-    public class VirtualDiskTest
+    [Fact]
+    public void TestSignature()
     {
-        [Fact]
-        public void TestSignature()
-        {
-            var ms = new MemoryStream();
-            ms.SetLength(1024 * 1024);
+        var ms = new MemoryStream();
+        ms.SetLength(1024 * 1024);
 
-            var rawDisk = new DiscUtils.Raw.Disk(ms, Ownership.Dispose);
-            Assert.Equal(0, rawDisk.Signature);
-            rawDisk.Signature = unchecked((int)0xDEADBEEF);
-            Assert.Equal(unchecked((int)0xDEADBEEF), rawDisk.Signature);
+        var rawDisk = new DiscUtils.Raw.Disk(ms, Ownership.Dispose);
+        Assert.Equal(0, rawDisk.Signature);
+        rawDisk.Signature = unchecked((int)0xDEADBEEF);
+        Assert.Equal(unchecked((int)0xDEADBEEF), rawDisk.Signature);
+    }
+
+    [Fact]
+    public void TestMbr()
+    {
+        var ms = new MemoryStream();
+        ms.SetLength(1024 * 1024);
+
+        var newMbr = new byte[512];
+        for (var i = 0; i < 512; i++)
+        {
+            newMbr[i] = (byte)i;
         }
 
-        [Fact]
-        public void TestMbr()
+        var rawDisk = new DiscUtils.Raw.Disk(ms, Ownership.Dispose);
+        rawDisk.SetMasterBootRecord(newMbr);
+
+        var readMbr = rawDisk.GetMasterBootRecord();
+        Assert.Equal(512, readMbr.Length);
+
+        for (var i = 0; i < 512; i++)
         {
-            var ms = new MemoryStream();
-            ms.SetLength(1024 * 1024);
-
-            var newMbr = new byte[512];
-            for (var i = 0; i < 512; i++)
+            if (readMbr[i] != (byte)i)
             {
-                newMbr[i] = (byte)i;
-            }
-
-            var rawDisk = new DiscUtils.Raw.Disk(ms, Ownership.Dispose);
-            rawDisk.SetMasterBootRecord(newMbr);
-
-            var readMbr = rawDisk.GetMasterBootRecord();
-            Assert.Equal(512, readMbr.Length);
-
-            for (var i = 0; i < 512; i++)
-            {
-                if (readMbr[i] != (byte)i)
-                {
-                    Assert.Fail($"Mismatch on byte {i}, expected {(byte)i} was {readMbr[i]}");
-                }
+                Assert.Fail($"Mismatch on byte {i}, expected {(byte)i} was {readMbr[i]}");
             }
         }
+    }
 
-        [Fact]
-        public void TestMbr_Null()
-        {
-            var ms = new MemoryStream();
-            ms.SetLength(1024 * 1024);
+    [Fact]
+    public void TestMbr_Null()
+    {
+        var ms = new MemoryStream();
+        ms.SetLength(1024 * 1024);
 
-            var rawDisk = new DiscUtils.Raw.Disk(ms, Ownership.Dispose);
-            Assert.Throws<ArgumentException>(() => rawDisk.SetMasterBootRecord(null));
-        }
+        var rawDisk = new DiscUtils.Raw.Disk(ms, Ownership.Dispose);
+        Assert.Throws<ArgumentException>(() => rawDisk.SetMasterBootRecord(null));
+    }
 
-        [Fact]
-        public void TestMbr_WrongSize()
-        {
-            var ms = new MemoryStream();
-            ms.SetLength(1024 * 1024);
+    [Fact]
+    public void TestMbr_WrongSize()
+    {
+        var ms = new MemoryStream();
+        ms.SetLength(1024 * 1024);
 
-            var rawDisk = new DiscUtils.Raw.Disk(ms, Ownership.Dispose);
-            Assert.Throws<ArgumentException>(() => rawDisk.SetMasterBootRecord(new byte[513]));
-        }
+        var rawDisk = new DiscUtils.Raw.Disk(ms, Ownership.Dispose);
+        Assert.Throws<ArgumentException>(() => rawDisk.SetMasterBootRecord(new byte[513]));
     }
 }

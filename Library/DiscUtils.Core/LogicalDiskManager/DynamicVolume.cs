@@ -36,27 +36,15 @@ internal class DynamicVolume
         Identity = volumeId;
     }
 
-    public byte BiosType
-    {
-        get { return Record.BiosType; }
-    }
+    public byte BiosType => Record.BiosType;
 
     public Guid Identity { get; }
 
-    public long Length
-    {
-        get { return Record.Size * Sizes.Sector; }
-    }
+    public long Length => Record.Size * Sizes.Sector;
 
-    private VolumeRecord Record
-    {
-        get { return _group.GetVolume(Identity); }
-    }
+    private VolumeRecord Record => _group.GetVolume(Identity);
 
-    public LogicalVolumeStatus Status
-    {
-        get { return _group.GetVolumeStatus(Record.Id); }
-    }
+    public LogicalVolumeStatus Status => _group.GetVolumeStatus(Record.Id);
 
     public SparseStream Open()
     {

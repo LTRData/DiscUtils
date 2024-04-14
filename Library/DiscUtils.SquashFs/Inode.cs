@@ -39,8 +39,8 @@ internal abstract class Inode : IByteArraySerializable
 
     public virtual long FileSize
     {
-        get { return 0; }
-        set { throw new NotImplementedException(); }
+        get => 0;
+        set => throw new NotImplementedException();
     }
 
     public abstract int Size { get; }

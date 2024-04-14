@@ -49,15 +49,9 @@ internal class UdifResourceFile : IByteArraySerializable
     public ulong XmlLength;
     public ulong XmlOffset;
 
-    public bool SignatureValid
-    {
-        get { return Signature == 0x6B6F6C79; }
-    }
+    public bool SignatureValid => Signature == 0x6B6F6C79;
 
-    public int Size
-    {
-        get { return 512; }
-    }
+    public int Size => 512;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

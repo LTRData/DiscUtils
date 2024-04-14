@@ -110,10 +110,7 @@ public class ThreadSafeStream : SparseStream
     /// <summary>
     /// Gets a value indicating if this stream supports seeking (always true).
     /// </summary>
-    public override bool CanSeek
-    {
-        get { return true; }
-    }
+    public override bool CanSeek => true;
 
     /// <summary>
     /// Gets a value indicating if this stream supports writes (currently, always false).
@@ -163,21 +160,16 @@ public class ThreadSafeStream : SparseStream
     /// </summary>
     public override long Position
     {
-        get { return _position; }
+        get => _position;
 
-        set { _position = value; }
+        set => _position = value;
     }
 
     private SparseStream Wrapped
     {
         get
         {
-            var wrapped = _common.WrappedStream;
-            if (wrapped == null)
-            {
-                throw new ObjectDisposedException("ThreadSafeStream");
-            }
-
+            var wrapped = _common.WrappedStream ?? throw new ObjectDisposedException("ThreadSafeStream");
             return wrapped;
         }
     }

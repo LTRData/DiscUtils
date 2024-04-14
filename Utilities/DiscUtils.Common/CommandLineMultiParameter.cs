@@ -43,32 +43,17 @@ public class CommandLineMultiParameter
         _values = new List<string>();
     }
 
-    public bool IsPresent
-    {
-        get { return _isPresent; }
-    }
+    public bool IsPresent => _isPresent;
 
-    public string[] Values
-    {
-        get { return _values.ToArray(); }
-    }
+    public string[] Values => _values.ToArray();
 
-    public virtual bool IsValid
-    {
-        get { return _isOptional || _isPresent; }
-    }
+    public virtual bool IsValid => _isOptional || _isPresent;
 
-    internal bool IsOptional
-    {
-        get { return _isOptional; }
-    }
+    internal bool IsOptional => _isOptional;
 
     internal string CommandLineText => _isOptional ? $"[{_name}0 {_name}1 ...]" : $"{_name}0 {_name}1 ...";
 
-    internal int NameDisplayLength
-    {
-        get { return _name.Length + 4; }
-    }
+    internal int NameDisplayLength => _name.Length + 4;
 
     internal void WriteDescription(TextWriter writer, string lineTemplate, int perLineDescWidth)
     {

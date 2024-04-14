@@ -39,15 +39,9 @@ internal sealed class Nfs3Mount : RpcProgram
     public Nfs3Mount(IRpcClient client)
         : base(client) { }
 
-    public override int Identifier
-    {
-        get { return ProgramIdentifier; }
-    }
+    public override int Identifier => ProgramIdentifier;
 
-    public override int Version
-    {
-        get { return ProgramVersion; }
-    }
+    public override int Version => ProgramVersion;
 
     public IEnumerable<Nfs3Export> Exports()
     {

@@ -34,15 +34,9 @@ internal readonly struct MetadataRef
         Value = (block << 16) | (uint)(offset & 0xFFFF);
     }
 
-    public long Block
-    {
-        get { return (Value >> 16) & 0xFFFFFFFFFFFF; }
-    }
+    public long Block => (Value >> 16) & 0xFFFFFFFFFFFF;
 
-    public int Offset
-    {
-        get { return (int)(Value & 0xFFFF); }
-    }
+    public int Offset => (int)(Value & 0xFFFF);
 
     public long Value { get; }
 }

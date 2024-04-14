@@ -40,10 +40,7 @@ internal abstract class BTreeExtentHeader : IByteArraySerializable
 
     public long RightSibling { get; private set; }
 
-    public virtual int Size
-    {
-        get { return 24; }
-    }
+    public virtual int Size => 24;
 
     public virtual int ReadFrom(ReadOnlySpan<byte> buffer)
     {

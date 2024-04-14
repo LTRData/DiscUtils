@@ -53,10 +53,7 @@ internal class Key : IByteArraySerializable
     /// </summary>
     public ulong ObjectId { get; private set; }
 
-    public ReservedObjectId ReservedObjectId
-    {
-        get { return (ReservedObjectId)ObjectId; }
-    }
+    public ReservedObjectId ReservedObjectId => (ReservedObjectId)ObjectId;
 
     /// <summary>
     /// Item type.
@@ -68,10 +65,7 @@ internal class Key : IByteArraySerializable
     /// </summary>
     public ulong Offset { get; private set; }
 
-    public int Size
-    {
-        get { return Length; }
-    }
+    public int Size => Length;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

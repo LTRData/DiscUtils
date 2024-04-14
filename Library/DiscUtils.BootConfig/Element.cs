@@ -53,26 +53,17 @@ public class Element
     /// <summary>
     /// Gets the class of the element.
     /// </summary>
-    public ElementClass Class
-    {
-        get { return (ElementClass)((_identifier >> 28) & 0xF); }
-    }
+    public ElementClass Class => (ElementClass)((_identifier >> 28) & 0xF);
 
     /// <summary>
     /// Gets the element's format.
     /// </summary>
-    public ElementFormat Format
-    {
-        get { return (ElementFormat)((_identifier >> 24) & 0xF); }
-    }
+    public ElementFormat Format => (ElementFormat)((_identifier >> 24) & 0xF);
 
     /// <summary>
     /// Gets the friendly name of the element, if any.
     /// </summary>
-    public string FriendlyName
-    {
-        get { return $"{{{IdentifierToName(_appType, _identifier)}}}"; }
-    }
+    public string FriendlyName => $"{{{IdentifierToName(_appType, _identifier)}}}";
 
     /// <summary>
     /// Gets or sets the element's value.
@@ -81,10 +72,7 @@ public class Element
     {
         get
         {
-            if (_value == null)
-            {
-                _value = LoadValue();
-            }
+            _value ??= LoadValue();
 
             return _value;
         }

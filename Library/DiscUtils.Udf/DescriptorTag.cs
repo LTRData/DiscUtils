@@ -36,10 +36,7 @@ internal class DescriptorTag : IByteArraySerializable
     public uint TagLocation;
     public ushort TagSerialNumber;
 
-    public int Size
-    {
-        get { return 16; }
-    }
+    public int Size => 16;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

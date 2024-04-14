@@ -39,10 +39,7 @@ internal class ScsiInquiryCommand : ScsiCommand
         _expected = expected;
     }
 
-    public override int Size
-    {
-        get { return 6; }
-    }
+    public override int Size => 6;
 
     ////public ScsiInquiryCommand(ulong targetLun, byte pageCode, uint expected)
     ////    : base(targetLun)
@@ -52,10 +49,7 @@ internal class ScsiInquiryCommand : ScsiCommand
     ////    _expected = expected;
     ////}
 
-    public override TaskAttributes TaskAttributes
-    {
-        get { return TaskAttributes.Untagged; }
-    }
+    public override TaskAttributes TaskAttributes => TaskAttributes.Untagged;
 
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {

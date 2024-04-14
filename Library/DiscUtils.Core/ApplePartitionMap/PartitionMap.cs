@@ -67,18 +67,12 @@ public sealed class PartitionMap : PartitionTable
     /// <summary>
     /// Gets the GUID of the disk, always returns Guid.Empty.
     /// </summary>
-    public override Guid DiskGuid
-    {
-        get { return Guid.Empty; }
-    }
+    public override Guid DiskGuid => Guid.Empty;
 
     /// <summary>
     /// Gets the partitions present on the disk.
     /// </summary>
-    public override ReadOnlyCollection<PartitionInfo> Partitions
-    {
-        get { return new ReadOnlyCollection<PartitionInfo>(_partitions); }
-    }
+    public override ReadOnlyCollection<PartitionInfo> Partitions => new ReadOnlyCollection<PartitionInfo>(_partitions);
 
     /// <summary>
     /// Creates a new partition that encompasses the entire disk.

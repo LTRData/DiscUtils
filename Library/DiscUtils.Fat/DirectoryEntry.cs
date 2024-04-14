@@ -111,20 +111,20 @@ internal class DirectoryEntry
 
     public FatAttributes Attributes
     {
-        get { return (FatAttributes)_attr; }
-        set { _attr = (byte)value; }
+        get => (FatAttributes)_attr;
+        set => _attr = (byte)value;
     }
 
     public DateTime CreationTime
     {
-        get { return FileTimeToDateTime(_creationDate, _creationTime, _creationTimeTenth); }
-        set { DateTimeToFileTime(value, out _creationDate, out _creationTime, out _creationTimeTenth); }
+        get => FileTimeToDateTime(_creationDate, _creationTime, _creationTimeTenth);
+        set => DateTimeToFileTime(value, out _creationDate, out _creationTime, out _creationTimeTenth);
     }
 
     public int FileSize
     {
-        get { return (int)_fileSize; }
-        set { _fileSize = (uint)value; }
+        get => (int)_fileSize;
+        set => _fileSize = (uint)value;
     }
 
     public uint FirstCluster
@@ -152,14 +152,14 @@ internal class DirectoryEntry
 
     public DateTime LastAccessTime
     {
-        get { return FileTimeToDateTime(_lastAccessDate, 0, 0); }
-        set { DateTimeToFileTime(value, out _lastAccessDate); }
+        get => FileTimeToDateTime(_lastAccessDate, 0, 0);
+        set => DateTimeToFileTime(value, out _lastAccessDate);
     }
 
     public DateTime LastWriteTime
     {
-        get { return FileTimeToDateTime(_lastWriteDate, _lastWriteTime, 0); }
-        set { DateTimeToFileTime(value, out _lastWriteDate, out _lastWriteTime); }
+        get => FileTimeToDateTime(_lastWriteDate, _lastWriteTime, 0);
+        set => DateTimeToFileTime(value, out _lastWriteDate, out _lastWriteTime);
     }
 
     public FileName Name { get; set; }
@@ -185,7 +185,7 @@ internal class DirectoryEntry
 
     private static DateTime FileTimeToDateTime(ushort date, ushort time, byte tenths)
     {
-        if (date == 0 || date == 0xFFFF)
+        if (date is 0 or 0xFFFF)
         {
             // Return Epoch - this is an invalid date
             return FatFileSystem.Epoch;

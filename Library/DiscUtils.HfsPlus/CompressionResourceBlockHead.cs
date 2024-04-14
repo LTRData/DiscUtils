@@ -31,10 +31,7 @@ internal class CompressionResourceBlockHead
 
     public uint NumBlocks { get; private set; }
 
-    public static int Size
-    {
-        get { return 8; }
-    }
+    public static int Size => 8;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

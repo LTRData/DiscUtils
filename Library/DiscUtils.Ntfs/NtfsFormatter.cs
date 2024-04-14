@@ -312,10 +312,7 @@ internal class NtfsFormatter
 
         file.UpdateRecordInMft();
 
-        if (_context.ClusterBitmap != null)
-        {
-            _context.ClusterBitmap.MarkAllocated(firstCluster, (long)numClusters);
-        }
+        _context.ClusterBitmap?.MarkAllocated(firstCluster, (long)numClusters);
 
         return file;
     }

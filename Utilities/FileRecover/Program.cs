@@ -60,15 +60,9 @@ class Program : ProgramBase
         return StandardSwitches.UserAndPassword | StandardSwitches.PartitionOrVolume;
     }
 
-    protected override string[] HelpRemarks
-    {
-        get
-        {
-            return new string[] {
+    protected override string[] HelpRemarks => new string[] {
                 "By default this utility shows the files that it may be possible to recover from an NTFS formatted virtual disk.  Once a "
                 + "candidate file is determined, use the '-r' option to attempt recovery of the file's contents." };
-        }
-    }
 
     protected override void DoRun()
     {

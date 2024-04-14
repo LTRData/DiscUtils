@@ -129,10 +129,7 @@ internal class Index : IDisposable
         }
     }
 
-    internal uint IndexBufferSize
-    {
-        get { return _root.IndexAllocationSize; }
-    }
+    internal uint IndexBufferSize => _root.IndexAllocationSize;
 
     internal bool IsFileIndex { get; }
 

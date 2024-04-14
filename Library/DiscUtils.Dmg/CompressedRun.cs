@@ -33,10 +33,7 @@ internal class CompressedRun : IByteArraySerializable
     public long SectorStart;
     public RunType Type;
 
-    public int Size
-    {
-        get { return 40; }
-    }
+    public int Size => 40;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

@@ -52,38 +52,17 @@ internal readonly struct MessageFlags
 
     public ushort Value { get; }
 
-    public bool IsResponse
-    {
-        get { return (Value & 0x8000) != 0; }
-    }
+    public bool IsResponse => (Value & 0x8000) != 0;
 
-    public OpCode OpCode
-    {
-        get { return (OpCode)((Value >> 11) & 0xF); }
-    }
+    public OpCode OpCode => (OpCode)((Value >> 11) & 0xF);
 
-    public bool IsAuthorative
-    {
-        get { return (Value & 0x0400) != 0; }
-    }
+    public bool IsAuthorative => (Value & 0x0400) != 0;
 
-    public bool IsTruncated
-    {
-        get { return (Value & 0x0200) != 0; }
-    }
+    public bool IsTruncated => (Value & 0x0200) != 0;
 
-    public bool RecursionDesired
-    {
-        get { return (Value & 0x0100) != 0; }
-    }
+    public bool RecursionDesired => (Value & 0x0100) != 0;
 
-    public bool RecursionAvailable
-    {
-        get { return (Value & 0x0080) != 0; }
-    }
+    public bool RecursionAvailable => (Value & 0x0080) != 0;
 
-    public ResponseCode ResponseCode
-    {
-        get { return (ResponseCode)(Value & 0x000F); }
-    }
+    public ResponseCode ResponseCode => (ResponseCode)(Value & 0x000F);
 }

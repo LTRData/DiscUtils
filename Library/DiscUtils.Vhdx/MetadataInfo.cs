@@ -39,50 +39,32 @@ public sealed class MetadataInfo
     /// <summary>
     /// Gets a value indicating whether parsing this metadata is needed to open the VHDX file.
     /// </summary>
-    public bool IsRequired
-    {
-        get { return (_entry.Flags & MetadataEntryFlags.IsRequired) != 0; }
-    }
+    public bool IsRequired => (_entry.Flags & MetadataEntryFlags.IsRequired) != 0;
 
     /// <summary>
     /// Gets a value indicating whether this is system or user metadata.
     /// </summary>
-    public bool IsUser
-    {
-        get { return (_entry.Flags & MetadataEntryFlags.IsUser) != 0; }
-    }
+    public bool IsUser => (_entry.Flags & MetadataEntryFlags.IsUser) != 0;
 
     /// <summary>
     /// Gets a value indicating whether this is virtual disk metadata, or VHDX file metadata.
     /// </summary>
-    public bool IsVirtualDisk
-    {
-        get { return (_entry.Flags & MetadataEntryFlags.IsVirtualDisk) != 0; }
-    }
+    public bool IsVirtualDisk => (_entry.Flags & MetadataEntryFlags.IsVirtualDisk) != 0;
 
     /// <summary>
     /// Gets the unique identifier for the metadata.
     /// </summary>
-    public Guid ItemId
-    {
-        get { return _entry.ItemId; }
-    }
+    public Guid ItemId => _entry.ItemId;
 
     /// <summary>
     /// Gets the length of the metadata.
     /// </summary>
-    public long Length
-    {
-        get { return _entry.Length; }
-    }
+    public long Length => _entry.Length;
 
     /// <summary>
     /// Gets the offset within the metadata region of the metadata.
     /// </summary>
-    public long Offset
-    {
-        get { return _entry.Offset; }
-    }
+    public long Offset => _entry.Offset;
 
     /// <summary>
     /// Gets the descriptive name for well-known metadata.

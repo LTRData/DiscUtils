@@ -75,15 +75,9 @@ public class UnbufferedNativeStream : SparseStream.ReadOnlySparseStream
         base.Dispose(disposing);
     }
 
-    public override bool CanRead
-    {
-        get { return true; }
-    }
+    public override bool CanRead => true;
 
-    public override bool CanSeek
-    {
-        get { return true; }
-    }
+    public override bool CanSeek => true;
 
     public override long Length
     {
@@ -102,14 +96,8 @@ public class UnbufferedNativeStream : SparseStream.ReadOnlySparseStream
 
     public override long Position
     {
-        get
-        {
-            return _position;
-        }
-        set
-        {
-            _position = value;
-        }
+        get => _position;
+        set => _position = value;
     }
 
     public override int Read(byte[] buffer, int offset, int count)

@@ -35,10 +35,7 @@ internal sealed class DiscTransport : VirtualDiskTransport
     private OpticalDiscServiceClient _odsClient;
     private OpticalDiscService _service;
 
-    public override bool IsRawDisk
-    {
-        get { return true; }
-    }
+    public override bool IsRawDisk => true;
 
     public override void Connect(Uri uri, string username, string password)
     {

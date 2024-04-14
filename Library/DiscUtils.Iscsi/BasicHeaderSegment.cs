@@ -36,10 +36,7 @@ internal class BasicHeaderSegment : IByteArraySerializable
 
     #region IByteArraySerializable Members
 
-    public int Size
-    {
-        get { return 48; }
-    }
+    public int Size => 48;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

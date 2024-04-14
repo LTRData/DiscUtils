@@ -108,7 +108,7 @@ public class DataRun
             buffer[pos] = (byte)(val & 0xFF);
             val >>= 8;
             pos++;
-        } while (val != 0 && val != -1);
+        } while (val is not 0 and not (-1));
 
         // Avoid appearing to have a negative number that is actually positive,
         // record an extra empty byte if needed.
@@ -136,7 +136,7 @@ public class DataRun
             lastByteHighBitSet = (val & 0x80) != 0;
             val >>= 8;
             len++;
-        } while (val != 0 && val != -1);
+        } while (val is not 0 and not (-1));
 
         if ((isPositive && lastByteHighBitSet) || (!isPositive && !lastByteHighBitSet))
         {

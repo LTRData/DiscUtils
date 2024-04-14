@@ -45,20 +45,11 @@ internal class ZlibBuffer : Buffer
         position = 0;
     }
 
-    public override bool CanRead
-    {
-        get { return _stream.CanRead; }
-    }
+    public override bool CanRead => _stream.CanRead;
 
-    public override bool CanWrite
-    {
-        get { return _stream.CanWrite; }
-    }
+    public override bool CanWrite => _stream.CanWrite;
 
-    public override long Capacity
-    {
-        get { return _stream.Length; }
-    }
+    public override long Capacity => _stream.Length;
 
     public override int Read(long pos, byte[] buffer, int offset, int count)
     {

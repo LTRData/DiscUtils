@@ -43,10 +43,7 @@ internal class IntegerListElementValue : ElementValue
         _values = values;
     }
 
-    public override ElementFormat Format
-    {
-        get { return ElementFormat.IntegerList; }
-    }
+    public override ElementFormat Format => ElementFormat.IntegerList;
 
     public override string ToString()
     {

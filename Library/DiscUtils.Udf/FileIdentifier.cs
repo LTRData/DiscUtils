@@ -38,60 +38,27 @@ internal class FileIdentifier : VfsDirEntry, IByteArraySerializable
     public string Name;
     public byte NameLength;
 
-    public override DateTime CreationTimeUtc
-    {
-        get { throw new NotSupportedException(); }
-    }
+    public override DateTime CreationTimeUtc => throw new NotSupportedException();
 
-    public override FileAttributes FileAttributes
-    {
-        get { throw new NotSupportedException(); }
-    }
+    public override FileAttributes FileAttributes => throw new NotSupportedException();
 
-    public override string FileName
-    {
-        get { return Name; }
-    }
+    public override string FileName => Name;
 
-    public override bool HasVfsFileAttributes
-    {
-        get { return false; }
-    }
+    public override bool HasVfsFileAttributes => false;
 
-    public override bool HasVfsTimeInfo
-    {
-        get { return false; }
-    }
+    public override bool HasVfsTimeInfo => false;
 
-    public override bool IsDirectory
-    {
-        get { return (FileCharacteristics & FileCharacteristic.Directory) != 0; }
-    }
+    public override bool IsDirectory => (FileCharacteristics & FileCharacteristic.Directory) != 0;
 
-    public override bool IsSymlink
-    {
-        get { return false; }
-    }
+    public override bool IsSymlink => false;
 
-    public override DateTime LastAccessTimeUtc
-    {
-        get { throw new NotSupportedException(); }
-    }
+    public override DateTime LastAccessTimeUtc => throw new NotSupportedException();
 
-    public override DateTime LastWriteTimeUtc
-    {
-        get { throw new NotSupportedException(); }
-    }
+    public override DateTime LastWriteTimeUtc => throw new NotSupportedException();
 
-    public override long UniqueCacheId
-    {
-        get { return (long)FileLocation.ExtentLocation.Partition << 32 | FileLocation.ExtentLocation.LogicalBlock; }
-    }
+    public override long UniqueCacheId => (long)FileLocation.ExtentLocation.Partition << 32 | FileLocation.ExtentLocation.LogicalBlock;
 
-    public int Size
-    {
-        get { throw new NotImplementedException(); }
-    }
+    public int Size => throw new NotImplementedException();
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

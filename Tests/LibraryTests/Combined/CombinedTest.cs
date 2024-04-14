@@ -28,34 +28,33 @@ using DiscUtils.Streams;
 using DiscUtils.Vhd;
 using Xunit;
 
-namespace LibraryTests.Combined
+namespace LibraryTests.Combined;
+
+public class CombinedTest
 {
-    public class CombinedTest
+    [Fact]
+    public void SimpleVhdFat()
     {
-        [Fact]
-        public void SimpleVhdFat()
-        {
-            using var disk = Disk.InitializeDynamic(new MemoryStream(), Ownership.Dispose, 16 * 1024 * 1024);
-            BiosPartitionTable.Initialize(disk, WellKnownPartitionType.WindowsFat);
-            using var fs = FatFileSystem.FormatPartition(disk, 0, null);
-            fs.CreateDirectory("Foo");
-        }
-
-        [Fact]
-        public void FormatSecondFatPartition()
-        {
-            var ms = new MemoryStream();
-
-            VirtualDisk disk = Disk.InitializeDynamic(ms, Ownership.Dispose, 30 * 1024 * 1204);
-
-            PartitionTable pt = BiosPartitionTable.Initialize(disk);
-            pt.Create(15 * 1024 * 1024, WellKnownPartitionType.WindowsFat, false);
-            pt.Create(5 * 1024 * 1024, WellKnownPartitionType.WindowsFat, false);
-
-            var fileSystem = FatFileSystem.FormatPartition(disk, 1, null);
-            var fileSystemSize = fileSystem.TotalSectors * fileSystem.SectorSize;
-            Assert.True(fileSystemSize > (5 * 1024 * 1024) * 0.9);
-        }
-
+        using var disk = Disk.InitializeDynamic(new MemoryStream(), Ownership.Dispose, 16 * 1024 * 1024);
+        BiosPartitionTable.Initialize(disk, WellKnownPartitionType.WindowsFat);
+        using var fs = FatFileSystem.FormatPartition(disk, 0, null);
+        fs.CreateDirectory("Foo");
     }
+
+    [Fact]
+    public void FormatSecondFatPartition()
+    {
+        var ms = new MemoryStream();
+
+        VirtualDisk disk = Disk.InitializeDynamic(ms, Ownership.Dispose, 30 * 1024 * 1204);
+
+        PartitionTable pt = BiosPartitionTable.Initialize(disk);
+        pt.Create(15 * 1024 * 1024, WellKnownPartitionType.WindowsFat, false);
+        pt.Create(5 * 1024 * 1024, WellKnownPartitionType.WindowsFat, false);
+
+        var fileSystem = FatFileSystem.FormatPartition(disk, 1, null);
+        var fileSystemSize = fileSystem.TotalSectors * fileSystem.SectorSize;
+        Assert.True(fileSystemSize > (5 * 1024 * 1024) * 0.9);
+    }
+
 }

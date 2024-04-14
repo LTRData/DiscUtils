@@ -37,7 +37,7 @@ internal class Symlink : File, IVfsSymlink<DirEntry, File>
     {
         get
         {
-            if (Inode.Format != InodeFormat.Local && Inode.Format != InodeFormat.Extents)
+            if (Inode.Format is not InodeFormat.Local and not InodeFormat.Extents)
             {
                 throw new IOException("invalid Inode format for symlink");
             }

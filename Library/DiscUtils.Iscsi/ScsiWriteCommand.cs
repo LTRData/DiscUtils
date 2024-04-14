@@ -38,15 +38,9 @@ internal class ScsiWriteCommand : ScsiCommand
 
     public ushort NumBlocks { get; }
 
-    public override int Size
-    {
-        get { return 10; }
-    }
+    public override int Size => 10;
 
-    public override TaskAttributes TaskAttributes
-    {
-        get { return TaskAttributes.Simple; }
-    }
+    public override TaskAttributes TaskAttributes => TaskAttributes.Simple;
 
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {

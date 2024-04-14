@@ -59,30 +59,15 @@ public class CommandLineSwitch
         _description = description;
     }
 
-    public string ParameterName
-    {
-        get { return _paramName; }
-    }
+    public string ParameterName => _paramName;
 
-    public string FullSwitchName
-    {
-        get { return _fullSwitch; }
-    }
+    public string FullSwitchName => _fullSwitch;
 
-    public virtual string FullDescription
-    {
-        get { return _description; }
-    }
+    public virtual string FullDescription => _description;
 
-    public bool IsPresent
-    {
-        get { return _isPresent; }
-    }
+    public bool IsPresent => _isPresent;
 
-    public string Value
-    {
-        get { return _paramValue; }
-    }
+    public string Value => _paramValue;
 
     internal void WriteDescription(TextWriter writer, string lineTemplate, int perLineDescWidth)
     {

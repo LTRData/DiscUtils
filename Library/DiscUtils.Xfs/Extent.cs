@@ -38,10 +38,7 @@ internal struct Extent : IByteArraySerializable
 
     public ExtentFlag Flag { get; private set; }
 
-    public int Size
-    {
-        get { return 16; }
-    }
+    public int Size => 16;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

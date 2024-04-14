@@ -50,10 +50,7 @@ public sealed class Nfs3AccessResult : Nfs3CallResult
     {
         writer.Write((int)Status);
         writer.Write(ObjectAttributes != null);
-        if (ObjectAttributes != null)
-        {
-            ObjectAttributes.Write(writer);
-        }
+        ObjectAttributes?.Write(writer);
 
         writer.Write((int)Access);
     }

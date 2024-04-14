@@ -41,15 +41,9 @@ public abstract class DataReader
         _stream = stream;
     }
 
-    public long Length
-    {
-        get { return _stream.Length; }
-    }
+    public long Length => _stream.Length;
 
-    public long Position
-    {
-        get { return _stream.Position; }
-    }
+    public long Position => _stream.Position;
 
     public void Skip(int bytes)
     {
@@ -73,10 +67,7 @@ public abstract class DataReader
 
     protected void ReadToBuffer(int count)
     {
-        if (_buffer == null)
-        {
-            _buffer = new byte[_bufferSize];
-        }
+        _buffer ??= new byte[_bufferSize];
 
         _stream.ReadExactly(_buffer, 0, count);
     }

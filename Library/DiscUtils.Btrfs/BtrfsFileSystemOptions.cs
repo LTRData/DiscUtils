@@ -33,7 +33,7 @@ public class BtrfsFileSystemOptions : DiscFileSystemOptions
 
     public ulong SubvolumeId
     {
-        get { return _subvolumeId; }
+        get => _subvolumeId;
         set
         {
             _subvolumeId = value;

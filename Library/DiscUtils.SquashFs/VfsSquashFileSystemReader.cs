@@ -105,15 +105,9 @@ internal class VfsSquashFileSystemReader : VfsReadOnlyFileSystem<DirectoryEntry,
         RootDirectory = new Directory(_context, dirInode, _context.SuperBlock.RootInode);
     }
 
-    public override string FriendlyName
-    {
-        get { return "SquashFs"; }
-    }
+    public override string FriendlyName => "SquashFs";
 
-    public override string VolumeLabel
-    {
-        get { return string.Empty; }
-    }
+    public override string VolumeLabel => string.Empty;
 
     public UnixFileSystemInfo GetUnixFileInfo(string path)
     {
@@ -137,26 +131,17 @@ internal class VfsSquashFileSystemReader : VfsReadOnlyFileSystem<DirectoryEntry,
     /// <summary>
     /// Size of the Filesystem in bytes
     /// </summary>
-    public override long Size
-    {
-        get { throw new NotSupportedException("Filesystem size is not (yet) supported"); }
-    }
+    public override long Size => throw new NotSupportedException("Filesystem size is not (yet) supported");
 
     /// <summary>
     /// Used space of the Filesystem in bytes
     /// </summary>
-    public override long UsedSpace
-    {
-        get { throw new NotSupportedException("Filesystem size is not (yet) supported"); }
-    }
+    public override long UsedSpace => throw new NotSupportedException("Filesystem size is not (yet) supported");
 
     /// <summary>
     /// Available space of the Filesystem in bytes
     /// </summary>
-    public override long AvailableSpace
-    {
-        get { throw new NotSupportedException("Filesystem size is not (yet) supported"); }
-    }
+    public override long AvailableSpace => throw new NotSupportedException("Filesystem size is not (yet) supported");
 
     public override bool SupportsUsedAvailableSpace => false;
 

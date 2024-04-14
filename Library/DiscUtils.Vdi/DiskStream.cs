@@ -383,7 +383,7 @@ internal class DiskStream : SparseStream
                 }
             }
 
-            if (_blockTable[block] == BlockFree || _blockTable[block] == BlockZero)
+            if (_blockTable[block] is BlockFree or BlockZero)
             {
                 var writeBuffer = buffer;
                 var writeBufferOffset = offset + numWritten;
@@ -492,7 +492,7 @@ internal class DiskStream : SparseStream
                 }
             }
 
-            if (_blockTable[block] == BlockFree || _blockTable[block] == BlockZero)
+            if (_blockTable[block] is BlockFree or BlockZero)
             {
                 var writeBuffer = buffer;
                 var writeBufferOffset = numWritten;
@@ -602,7 +602,7 @@ internal class DiskStream : SparseStream
                 }
             }
 
-            if (_blockTable[block] == BlockFree || _blockTable[block] == BlockZero)
+            if (_blockTable[block] is BlockFree or BlockZero)
             {
                 var writeBuffer = buffer;
                 var writeBufferOffset = numWritten;

@@ -35,33 +35,24 @@ public class DiscFileInfo : DiscFileSystemInfo
     /// <summary>
     /// Gets an instance of the parent directory.
     /// </summary>
-    public DiscDirectoryInfo Directory
-    {
-        get { return Parent; }
-    }
+    public DiscDirectoryInfo Directory => Parent;
 
     /// <summary>
     /// Gets a string representing the directory's full path.
     /// </summary>
-    public string DirectoryName
-    {
-        get { return Directory.FullName; }
-    }
+    public string DirectoryName => Directory.FullName;
 
     /// <summary>
     /// Gets a value indicating whether the file exists.
     /// </summary>
-    public override bool Exists
-    {
-        get { return FileSystem.FileExists(Path); }
-    }
+    public override bool Exists => FileSystem.FileExists(Path);
 
     /// <summary>
     /// Gets or sets a value indicating whether the file is read-only.
     /// </summary>
     public bool IsReadOnly
     {
-        get { return (Attributes & FileAttributes.ReadOnly) != 0; }
+        get => (Attributes & FileAttributes.ReadOnly) != 0;
 
         set
         {
@@ -79,10 +70,7 @@ public class DiscFileInfo : DiscFileSystemInfo
     /// <summary>
     /// Gets the length of the current file in bytes.
     /// </summary>
-    public virtual long Length
-    {
-        get { return FileSystem.GetFileLength(Path); }
-    }
+    public virtual long Length => FileSystem.GetFileLength(Path);
 
     /// <summary>
     /// Deletes a file.

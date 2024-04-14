@@ -30,10 +30,7 @@ internal class ScsiInquiryStandardResponse : ScsiResponse
 
     public LunClass DeviceType { get; private set; }
 
-    public override uint NeededDataLength
-    {
-        get { return 36; }
-    }
+    public override uint NeededDataLength => 36;
 
     public string ProductId { get; private set; }
 
@@ -43,10 +40,7 @@ internal class ScsiInquiryStandardResponse : ScsiResponse
 
     public byte SpecificationVersion { get; private set; }
 
-    public override bool Truncated
-    {
-        get { return _truncated; }
-    }
+    public override bool Truncated => _truncated;
 
     public string VendorId { get; private set; }
 

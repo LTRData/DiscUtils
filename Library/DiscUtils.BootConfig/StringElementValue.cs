@@ -31,10 +31,7 @@ internal class StringElementValue : ElementValue
         _value = value;
     }
 
-    public override ElementFormat Format
-    {
-        get { return ElementFormat.String; }
-    }
+    public override ElementFormat Format => ElementFormat.String;
 
     public override string ToString()
     {

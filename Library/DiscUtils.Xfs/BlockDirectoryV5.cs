@@ -39,22 +39,13 @@ internal class BlockDirectoryV5 : BlockDirectory
 
     public ulong Owner { get; private set; }
 
-    protected override int HeaderPadding
-    {
-        get { return 4; }
-    }
+    protected override int HeaderPadding => 4;
 
-    public override int Size
-    {
-        get { return 0x30 + 3 * 32 + 4; }
-    }
+    public override int Size => 0x30 + 3 * 32 + 4;
 
     public BlockDirectoryV5(Context context) : base(context) { }
 
-    public override bool HasValidMagic
-    {
-        get { return Magic == HeaderMagicV5; }
-    }
+    public override bool HasValidMagic => Magic == HeaderMagicV5;
 
     protected override int ReadHeader(ReadOnlySpan<byte> buffer)
     {

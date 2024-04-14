@@ -25,262 +25,261 @@ using System.Collections.Generic;
 using DiscUtils.Streams;
 using Xunit;
 
-namespace LibraryTests
+namespace LibraryTests;
+
+public class StreamExtentTest
 {
-    public class StreamExtentTest
+    [Fact]
+    public void TestIntersect1()
     {
-        [Fact]
-        public void TestIntersect1()
+        var s1 = new StreamExtent[] {
+            new StreamExtent(0,4)};
+        var s2 = new StreamExtent[] {
+            new StreamExtent(4,8)};
+        var r = Array.Empty<StreamExtent>();
+
+        Compare(r, StreamExtent.Intersect(s1, s2));
+    }
+
+    [Fact]
+    public void TestIntersect2()
+    {
+        var s1 = new StreamExtent[] {
+            new StreamExtent(0,4)};
+        var s2 = new StreamExtent[] {
+            new StreamExtent(3,8)};
+        var r = new StreamExtent[] {
+            new StreamExtent(3,1)};
+
+        Compare(r, StreamExtent.Intersect(s1, s2));
+    }
+
+    [Fact]
+    public void TestIntersect3()
+    {
+        var s1 = new StreamExtent[] {
+            new StreamExtent(0,4),
+            new StreamExtent(10, 10)};
+        var s2 = new StreamExtent[] {
+            new StreamExtent(3,8)};
+        var r = new StreamExtent[] {
+            new StreamExtent(3,1),
+            new StreamExtent(10,1)};
+
+        Compare(r, StreamExtent.Intersect(s1, s2));
+    }
+
+    [Fact]
+    public void TestIntersect4()
+    {
+        var s1 = new StreamExtent[] {
+            new StreamExtent(0,4)};
+        var s2 = new StreamExtent[] {
+            new StreamExtent(3,8)};
+        var s3 = new StreamExtent[] {
+            new StreamExtent(10,10)};
+        var r = Array.Empty<StreamExtent>();
+
+        Compare(r, StreamExtent.Intersect(s1, s2, s3));
+    }
+
+    [Fact]
+    public void TestIntersect5()
+    {
+        var s1 = new StreamExtent[] {
+            new StreamExtent(0,10)};
+        var s2 = new StreamExtent[] {
+            new StreamExtent(3,5)};
+        var r = new StreamExtent[] {
+            new StreamExtent(3,5)};
+
+        Compare(r, StreamExtent.Intersect(s1, s2));
+    }
+
+    [Fact]
+    public void TestUnion1()
+    {
+        var s1 = new StreamExtent[] {
+            new StreamExtent(0,4)};
+        var s2 = new StreamExtent[] {
+            new StreamExtent(4,8)};
+        var r = new StreamExtent[] {
+            new StreamExtent(0,12)};
+
+        Compare(r, StreamExtent.Union(s1, s2));
+    }
+
+    [Fact]
+    public void TestUnion2()
+    {
+        var s1 = new StreamExtent[] {
+            new StreamExtent(0,4)};
+        var s2 = new StreamExtent[] {
+            new StreamExtent(5,8)};
+        var r = new StreamExtent[] {
+            new StreamExtent(0,4),
+            new StreamExtent(5,8)};
+
+        Compare(r, StreamExtent.Union(s1, s2));
+    }
+
+    [Fact]
+    public void TestUnion3()
+    {
+        var s1 = new StreamExtent[] {
+            new StreamExtent(0,4)};
+        var s2 = new StreamExtent[] {
+            new StreamExtent(2,8)};
+        var r = new StreamExtent[] {
+            new StreamExtent(0,10)};
+
+        Compare(r, StreamExtent.Union(s1, s2));
+    }
+
+    [Fact]
+    public void TestUnion4()
+    {
+        var s1 = new StreamExtent[] {
+            new StreamExtent(0,4),
+            new StreamExtent(4,4)};
+        var r = new StreamExtent[] {
+            new StreamExtent(0,8)};
+
+        Compare(r, StreamExtent.Union(s1));
+    }
+
+    [Fact]
+    public void TestUnion5()
+    {
+        var r = Array.Empty<StreamExtent>();
+
+        Compare(r, StreamExtent.Union());
+    }
+
+    [Fact]
+    public void TestBlockCount()
+    {
+        var s = new StreamExtent[] {
+            new StreamExtent(0,8),
+            new StreamExtent(11, 4)
+        };
+
+        Assert.Equal(2, StreamExtent.BlockCount(s, 10));
+
+        s = new StreamExtent[] {
+            new StreamExtent(0,8),
+            new StreamExtent(9, 8)
+        };
+
+        Assert.Equal(2, StreamExtent.BlockCount(s, 10));
+
+        s = new StreamExtent[] {
+            new StreamExtent(3, 4),
+            new StreamExtent(19, 4),
+            new StreamExtent(44, 4)
+        };
+
+        Assert.Equal(4, StreamExtent.BlockCount(s, 10));
+    }
+
+    [Fact]
+    public void TestBlocks()
+    {
+        var s = new StreamExtent[] {
+            new StreamExtent(0,8),
+            new StreamExtent(11, 4)
+        };
+
+        var ranges = new List<Range<long,long>>(StreamExtent.Blocks(s, 10));
+
+        Assert.Single(ranges);
+        Assert.Equal(0, ranges[0].Offset);
+        Assert.Equal(2, ranges[0].Count);
+
+        s = new StreamExtent[] {
+            new StreamExtent(0,8),
+            new StreamExtent(9, 8)
+        };
+
+        ranges = new List<Range<long, long>>(StreamExtent.Blocks(s, 10));
+
+        Assert.Single(ranges);
+        Assert.Equal(0, ranges[0].Offset);
+        Assert.Equal(2, ranges[0].Count);
+
+        s = new StreamExtent[] {
+            new StreamExtent(3, 4),
+            new StreamExtent(19, 4),
+            new StreamExtent(44, 4)
+        };
+
+        ranges = new List<Range<long, long>>(StreamExtent.Blocks(s, 10));
+
+        Assert.Equal(2, ranges.Count);
+        Assert.Equal(0, ranges[0].Offset);
+        Assert.Equal(3, ranges[0].Count);
+        Assert.Equal(4, ranges[1].Offset);
+        Assert.Equal(1, ranges[1].Count);
+    }
+
+    private static void Compare(IEnumerable<StreamExtent> expected, IEnumerable<StreamExtent> actual)
+    {
+        var eList = new List<StreamExtent>(expected);
+        var aList = new List<StreamExtent>(actual);
+
+        var failed = false;
+        var failedIndex = -1;
+        if (eList.Count == aList.Count)
         {
-            var s1 = new StreamExtent[] {
-                new StreamExtent(0,4)};
-            var s2 = new StreamExtent[] {
-                new StreamExtent(4,8)};
-            var r = Array.Empty<StreamExtent>();
-
-            Compare(r, StreamExtent.Intersect(s1, s2));
-        }
-
-        [Fact]
-        public void TestIntersect2()
-        {
-            var s1 = new StreamExtent[] {
-                new StreamExtent(0,4)};
-            var s2 = new StreamExtent[] {
-                new StreamExtent(3,8)};
-            var r = new StreamExtent[] {
-                new StreamExtent(3,1)};
-
-            Compare(r, StreamExtent.Intersect(s1, s2));
-        }
-
-        [Fact]
-        public void TestIntersect3()
-        {
-            var s1 = new StreamExtent[] {
-                new StreamExtent(0,4),
-                new StreamExtent(10, 10)};
-            var s2 = new StreamExtent[] {
-                new StreamExtent(3,8)};
-            var r = new StreamExtent[] {
-                new StreamExtent(3,1),
-                new StreamExtent(10,1)};
-
-            Compare(r, StreamExtent.Intersect(s1, s2));
-        }
-
-        [Fact]
-        public void TestIntersect4()
-        {
-            var s1 = new StreamExtent[] {
-                new StreamExtent(0,4)};
-            var s2 = new StreamExtent[] {
-                new StreamExtent(3,8)};
-            var s3 = new StreamExtent[] {
-                new StreamExtent(10,10)};
-            var r = Array.Empty<StreamExtent>();
-
-            Compare(r, StreamExtent.Intersect(s1, s2, s3));
-        }
-
-        [Fact]
-        public void TestIntersect5()
-        {
-            var s1 = new StreamExtent[] {
-                new StreamExtent(0,10)};
-            var s2 = new StreamExtent[] {
-                new StreamExtent(3,5)};
-            var r = new StreamExtent[] {
-                new StreamExtent(3,5)};
-
-            Compare(r, StreamExtent.Intersect(s1, s2));
-        }
-
-        [Fact]
-        public void TestUnion1()
-        {
-            var s1 = new StreamExtent[] {
-                new StreamExtent(0,4)};
-            var s2 = new StreamExtent[] {
-                new StreamExtent(4,8)};
-            var r = new StreamExtent[] {
-                new StreamExtent(0,12)};
-
-            Compare(r, StreamExtent.Union(s1, s2));
-        }
-
-        [Fact]
-        public void TestUnion2()
-        {
-            var s1 = new StreamExtent[] {
-                new StreamExtent(0,4)};
-            var s2 = new StreamExtent[] {
-                new StreamExtent(5,8)};
-            var r = new StreamExtent[] {
-                new StreamExtent(0,4),
-                new StreamExtent(5,8)};
-
-            Compare(r, StreamExtent.Union(s1, s2));
-        }
-
-        [Fact]
-        public void TestUnion3()
-        {
-            var s1 = new StreamExtent[] {
-                new StreamExtent(0,4)};
-            var s2 = new StreamExtent[] {
-                new StreamExtent(2,8)};
-            var r = new StreamExtent[] {
-                new StreamExtent(0,10)};
-
-            Compare(r, StreamExtent.Union(s1, s2));
-        }
-
-        [Fact]
-        public void TestUnion4()
-        {
-            var s1 = new StreamExtent[] {
-                new StreamExtent(0,4),
-                new StreamExtent(4,4)};
-            var r = new StreamExtent[] {
-                new StreamExtent(0,8)};
-
-            Compare(r, StreamExtent.Union(s1));
-        }
-
-        [Fact]
-        public void TestUnion5()
-        {
-            var r = Array.Empty<StreamExtent>();
-
-            Compare(r, StreamExtent.Union());
-        }
-
-        [Fact]
-        public void TestBlockCount()
-        {
-            var s = new StreamExtent[] {
-                new StreamExtent(0,8),
-                new StreamExtent(11, 4)
-            };
-
-            Assert.Equal(2, StreamExtent.BlockCount(s, 10));
-
-            s = new StreamExtent[] {
-                new StreamExtent(0,8),
-                new StreamExtent(9, 8)
-            };
-
-            Assert.Equal(2, StreamExtent.BlockCount(s, 10));
-
-            s = new StreamExtent[] {
-                new StreamExtent(3, 4),
-                new StreamExtent(19, 4),
-                new StreamExtent(44, 4)
-            };
-
-            Assert.Equal(4, StreamExtent.BlockCount(s, 10));
-        }
-
-        [Fact]
-        public void TestBlocks()
-        {
-            var s = new StreamExtent[] {
-                new StreamExtent(0,8),
-                new StreamExtent(11, 4)
-            };
-
-            var ranges = new List<Range<long,long>>(StreamExtent.Blocks(s, 10));
-
-            Assert.Single(ranges);
-            Assert.Equal(0, ranges[0].Offset);
-            Assert.Equal(2, ranges[0].Count);
-
-            s = new StreamExtent[] {
-                new StreamExtent(0,8),
-                new StreamExtent(9, 8)
-            };
-
-            ranges = new List<Range<long, long>>(StreamExtent.Blocks(s, 10));
-
-            Assert.Single(ranges);
-            Assert.Equal(0, ranges[0].Offset);
-            Assert.Equal(2, ranges[0].Count);
-
-            s = new StreamExtent[] {
-                new StreamExtent(3, 4),
-                new StreamExtent(19, 4),
-                new StreamExtent(44, 4)
-            };
-
-            ranges = new List<Range<long, long>>(StreamExtent.Blocks(s, 10));
-
-            Assert.Equal(2, ranges.Count);
-            Assert.Equal(0, ranges[0].Offset);
-            Assert.Equal(3, ranges[0].Count);
-            Assert.Equal(4, ranges[1].Offset);
-            Assert.Equal(1, ranges[1].Count);
-        }
-
-        private static void Compare(IEnumerable<StreamExtent> expected, IEnumerable<StreamExtent> actual)
-        {
-            var eList = new List<StreamExtent>(expected);
-            var aList = new List<StreamExtent>(actual);
-
-            var failed = false;
-            var failedIndex = -1;
-            if (eList.Count == aList.Count)
+            for (var i = 0; i < eList.Count; ++i)
             {
-                for (var i = 0; i < eList.Count; ++i)
+                if (eList[i] != aList[i])
                 {
-                    if (eList[i] != aList[i])
-                    {
-                        failed = true;
-                        failedIndex = i;
-                        break;
-                    }
+                    failed = true;
+                    failedIndex = i;
+                    break;
                 }
             }
-            else
+        }
+        else
+        {
+            failed = true;
+        }
+
+        if (failed)
+        {
+            var str = $"Expected {eList.Count}(<";
+            for (var i = 0; i < Math.Min(4, eList.Count); ++i)
             {
-                failed = true;
+                str += $"{eList[i]},";
             }
 
-            if (failed)
+            if (eList.Count > 4)
             {
-                var str = $"Expected {eList.Count}(<";
-                for (var i = 0; i < Math.Min(4, eList.Count); ++i)
-                {
-                    str += $"{eList[i]},";
-                }
-
-                if (eList.Count > 4)
-                {
-                    str += "...";
-                }
-
-                str += ">)";
-
-                str += $", actual {aList.Count}(<";
-                for (var i = 0; i < Math.Min(4, aList.Count); ++i)
-                {
-                    str += $"{aList[i]},";
-                }
-
-                if (aList.Count > 4)
-                {
-                    str += "...";
-                }
-
-                str += ">)";
-
-                if (failedIndex != -1)
-                {
-                    str += $" - different at index {failedIndex}";
-                }
-
-                Assert.Fail(str);
+                str += "...";
             }
+
+            str += ">)";
+
+            str += $", actual {aList.Count}(<";
+            for (var i = 0; i < Math.Min(4, aList.Count); ++i)
+            {
+                str += $"{aList[i]},";
+            }
+
+            if (aList.Count > 4)
+            {
+                str += "...";
+            }
+
+            str += ">)";
+
+            if (failedIndex != -1)
+            {
+                str += $" - different at index {failedIndex}";
+            }
+
+            Assert.Fail(str);
         }
     }
 }

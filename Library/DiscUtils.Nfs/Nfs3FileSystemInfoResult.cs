@@ -55,10 +55,7 @@ public sealed class Nfs3FileSystemInfoResult : Nfs3CallResult
 
         writer.Write(PostOpAttributes != null);
 
-        if (PostOpAttributes != null)
-        {
-            PostOpAttributes.Write(writer);
-        }
+        PostOpAttributes?.Write(writer);
 
         if (Status == Nfs3Status.Ok)
         {

@@ -37,10 +37,7 @@ internal class LeafNode:NodeHeader
 
     public BaseItem[] NodeData { get; private set; }
 
-    public override int Size
-    {
-        get { return (int)(base.Size + ItemCount*KeyPointer.Length); }
-    }
+    public override int Size => (int)(base.Size + ItemCount * KeyPointer.Length);
 
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {

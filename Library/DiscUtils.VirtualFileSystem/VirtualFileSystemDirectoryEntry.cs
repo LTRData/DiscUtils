@@ -36,8 +36,10 @@ public abstract class VirtualFileSystemDirectoryEntry
 
     public abstract long FileId { get; }
 
-    internal VirtualFileSystemDirectoryEntry(VirtualFileSystem fileSystem) =>
+    internal VirtualFileSystemDirectoryEntry(VirtualFileSystem fileSystem)
+    {
         FileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
+    }
 
     internal VirtualFileSystemDirectoryEntry(VirtualFileSystemDirectory parent, string name)
     {

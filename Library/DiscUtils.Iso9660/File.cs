@@ -41,10 +41,7 @@ internal class File : IVfsFile
         _dirEntry = dirEntry;
     }
 
-    public virtual byte[] SystemUseData
-    {
-        get { return _dirEntry.Record.SystemUseData; }
-    }
+    public virtual byte[] SystemUseData => _dirEntry.Record.SystemUseData;
 
     public UnixFileSystemInfo UnixFileInfo
     {
@@ -78,36 +75,33 @@ internal class File : IVfsFile
 
     public DateTime LastAccessTimeUtc
     {
-        get { return _dirEntry.LastAccessTimeUtc; }
+        get => _dirEntry.LastAccessTimeUtc;
 
-        set { throw new NotSupportedException(); }
+        set => throw new NotSupportedException();
     }
 
     public DateTime LastWriteTimeUtc
     {
-        get { return _dirEntry.LastWriteTimeUtc; }
+        get => _dirEntry.LastWriteTimeUtc;
 
-        set { throw new NotSupportedException(); }
+        set => throw new NotSupportedException();
     }
 
     public DateTime CreationTimeUtc
     {
-        get { return _dirEntry.CreationTimeUtc; }
+        get => _dirEntry.CreationTimeUtc;
 
-        set { throw new NotSupportedException(); }
+        set => throw new NotSupportedException();
     }
 
     public FileAttributes FileAttributes
     {
-        get { return _dirEntry.FileAttributes; }
+        get => _dirEntry.FileAttributes;
 
-        set { throw new NotSupportedException(); }
+        set => throw new NotSupportedException();
     }
 
-    public long FileLength
-    {
-        get { return _dirEntry.Record.DataLength; }
-    }
+    public long FileLength => _dirEntry.Record.DataLength;
 
     public IBuffer FileContent
     {

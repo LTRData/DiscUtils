@@ -31,10 +31,7 @@ internal class ExtendedAttributeRecord : IByteArraySerializable
     public byte AttributeSubType;
     public uint AttributeType;
 
-    public int Size
-    {
-        get { return 12 + AttributeData.Length; }
-    }
+    public int Size => 12 + AttributeData.Length;
 
     public virtual int ReadFrom(ReadOnlySpan<byte> buffer)
     {

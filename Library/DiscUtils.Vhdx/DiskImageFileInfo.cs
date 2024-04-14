@@ -98,111 +98,69 @@ public sealed class DiskImageFileInfo
     /// <summary>
     /// Gets the block size of the VHDX file.
     /// </summary>
-    public long BlockSize
-    {
-        get { return _metadata.FileParameters.BlockSize; }
-    }
+    public long BlockSize => _metadata.FileParameters.BlockSize;
 
     /// <summary>
     /// Gets the VHDX 'parser' that created the VHDX file.
     /// </summary>
-    public string Creator
-    {
-        get { return _fileHeader.Creator; }
-    }
+    public string Creator => _fileHeader.Creator;
 
     /// <summary>
     /// Gets the logical size of the disk represented by the VHDX file.
     /// </summary>
-    public long DiskSize
-    {
-        get { return (long)_metadata.DiskSize; }
-    }
+    public long DiskSize => (long)_metadata.DiskSize;
 
     /// <summary>
     /// Gets the first header (by file location) of the VHDX file.
     /// </summary>
-    public HeaderInfo FirstHeader
-    {
-        get { return new HeaderInfo(_vhdxHeader1); }
-    }
+    public HeaderInfo FirstHeader => new HeaderInfo(_vhdxHeader1);
 
     /// <summary>
     /// Gets a value indicating whether the VHDX file has a parent file (i.e. is a differencing file).
     /// </summary>
-    public bool HasParent
-    {
-        get { return (_metadata.FileParameters.Flags & FileParametersFlags.HasParent) != 0; }
-    }
+    public bool HasParent => (_metadata.FileParameters.Flags & FileParametersFlags.HasParent) != 0;
 
     /// <summary>
     /// Gets a value indicating whether blocks should be left allocated within the file.
     /// </summary>
-    public bool LeaveBlocksAllocated
-    {
-        get { return (_metadata.FileParameters.Flags & FileParametersFlags.LeaveBlocksAllocated) != 0; }
-    }
+    public bool LeaveBlocksAllocated => (_metadata.FileParameters.Flags & FileParametersFlags.LeaveBlocksAllocated) != 0;
 
     /// <summary>
     /// Gets the logical sector size of the disk represented by the VHDX file.
     /// </summary>
-    public long LogicalSectorSize
-    {
-        get { return _metadata.LogicalSectorSize; }
-    }
+    public long LogicalSectorSize => _metadata.LogicalSectorSize;
 
     /// <summary>
     /// Gets the metadata table of the VHDX file.
     /// </summary>
-    public MetadataTableInfo MetadataTable
-    {
-        get { return new MetadataTableInfo(_metadata.Table); }
-    }
+    public MetadataTableInfo MetadataTable => new MetadataTableInfo(_metadata.Table);
 
     /// <summary>
     /// Gets the set of parent locators, for differencing files.
     /// </summary>
-    public IDictionary<string, string> ParentLocatorEntries
-    {
-        get
-        {
-            return _metadata.ParentLocator != null
+    public IDictionary<string, string> ParentLocatorEntries => _metadata.ParentLocator != null
                 ? _metadata.ParentLocator.Entries
                 : new Dictionary<string, string>();
-        }
-    }
 
     /// <summary>
     /// Gets the parent locator type, for differencing files.
     /// </summary>
-    public Guid ParentLocatorType
-    {
-        get { return _metadata.ParentLocator != null ? _metadata.ParentLocator.LocatorType : Guid.Empty; }
-    }
+    public Guid ParentLocatorType => _metadata.ParentLocator != null ? _metadata.ParentLocator.LocatorType : Guid.Empty;
 
     /// <summary>
     /// Gets the physical sector size of disk represented by the VHDX file.
     /// </summary>
-    public long PhysicalSectorSize
-    {
-        get { return _metadata.PhysicalSectorSize; }
-    }
+    public long PhysicalSectorSize => _metadata.PhysicalSectorSize;
 
     /// <summary>
     /// Gets the region table of the VHDX file.
     /// </summary>
-    public RegionTableInfo RegionTable
-    {
-        get { return new RegionTableInfo(_regions); }
-    }
+    public RegionTableInfo RegionTable => new RegionTableInfo(_regions);
 
     /// <summary>
     /// Gets the second header (by file location) of the VHDX file.
     /// </summary>
-    public HeaderInfo SecondHeader
-    {
-        get { return new HeaderInfo(_vhdxHeader2); }
-    }
+    public HeaderInfo SecondHeader => new HeaderInfo(_vhdxHeader2);
 
     /// <summary>
     /// Gets the file signature.

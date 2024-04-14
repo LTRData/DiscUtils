@@ -34,7 +34,7 @@ internal class PvHeader : IByteArraySerializable
     public List<DiskArea> DiskAreas;
     public List<DiskArea> MetadataDiskAreas;
     /// <inheritdoc />
-    public int Size { get { return PhysicalVolume.SECTOR_SIZE; } }
+    public int Size => PhysicalVolume.SECTOR_SIZE;
 
     /// <inheritdoc />
     public int ReadFrom(ReadOnlySpan<byte> buffer)

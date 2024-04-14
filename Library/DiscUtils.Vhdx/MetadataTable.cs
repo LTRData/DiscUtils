@@ -75,10 +75,7 @@ internal sealed class MetadataTable : IByteArraySerializable
         }
     }
 
-    public int Size
-    {
-        get { return FixedSize; }
-    }
+    public int Size => FixedSize;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

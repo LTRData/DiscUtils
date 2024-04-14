@@ -40,10 +40,7 @@ internal abstract class BTreeNode : IByteArraySerializable
 
     protected BTree Tree { get; }
 
-    public int Size
-    {
-        get { return Tree.NodeSize; }
-    }
+    public int Size => Tree.NodeSize;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

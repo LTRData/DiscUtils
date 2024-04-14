@@ -79,10 +79,7 @@ internal class ChunkItem : BaseItem
 
     public Stripe[] Stripes { get; private set; }
 
-    public override int Size
-    {
-        get { return 0x30 + StripeCount * Stripe.Length; }
-    }
+    public override int Size => 0x30 + StripeCount * Stripe.Length;
 
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {

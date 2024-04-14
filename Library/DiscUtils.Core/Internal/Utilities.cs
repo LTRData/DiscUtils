@@ -346,7 +346,7 @@ public static class Utilities
 
         var split = name.Split('.');
 
-        if (split.Length > 2 || split.Length < 1)
+        if (split.Length is > 2 or < 1)
         {
             return false;
         }
@@ -400,7 +400,7 @@ public static class Utilities
     /// </remarks>
     public static Func<string, bool> ConvertWildcardsToRegEx(string pattern, bool ignoreCase)
     {
-        if (pattern == "*" || pattern == "*.*")
+        if (pattern is "*" or "*.*")
         {
             return null;
         }

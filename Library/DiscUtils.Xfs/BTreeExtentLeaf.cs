@@ -30,10 +30,7 @@ internal class BTreeExtentLeaf : BTreeExtentHeader
 {
     public Extent[] Extents { get; private set; }
 
-    public override int Size
-    {
-        get { return base.Size + (NumberOfRecords * 0x10); }
-    }
+    public override int Size => base.Size + (NumberOfRecords * 0x10);
 
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {

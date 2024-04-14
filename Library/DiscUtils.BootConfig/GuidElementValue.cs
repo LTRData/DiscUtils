@@ -31,10 +31,7 @@ internal class GuidElementValue : ElementValue
         _value = value;
     }
 
-    public override ElementFormat Format
-    {
-        get { return ElementFormat.Guid; }
-    }
+    public override ElementFormat Format => ElementFormat.Guid;
 
     public override string ToString()
     {

@@ -68,10 +68,7 @@ public sealed class RpcUnixCredential : RpcCredentials
         _gids = groups;
     }
 
-    internal override RpcAuthFlavour AuthFlavour
-    {
-        get { return RpcAuthFlavour.Unix; }
-    }
+    internal override RpcAuthFlavour AuthFlavour => RpcAuthFlavour.Unix;
 
     internal override void Write(XdrDataWriter writer)
     {

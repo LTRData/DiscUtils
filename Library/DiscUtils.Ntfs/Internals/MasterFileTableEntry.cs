@@ -47,34 +47,22 @@ public sealed class MasterFileTableEntry
     /// All entries that form part of the same file have the same value for
     /// this property.
     /// </remarks>
-    public MasterFileTableReference BaseRecordReference
-    {
-        get { return new MasterFileTableReference(_fileRecord.BaseFile); }
-    }
+    public MasterFileTableReference BaseRecordReference => new MasterFileTableReference(_fileRecord.BaseFile);
 
     /// <summary>
     /// Gets the flags indicating the nature of the entry.
     /// </summary>
-    public MasterFileTableEntryFlags Flags
-    {
-        get { return (MasterFileTableEntryFlags)_fileRecord.Flags; }
-    }
+    public MasterFileTableEntryFlags Flags => (MasterFileTableEntryFlags)_fileRecord.Flags;
 
     /// <summary>
     /// Gets the number of hard links referencing this file.
     /// </summary>
-    public int HardLinkCount
-    {
-        get { return _fileRecord.HardLinkCount; }
-    }
+    public int HardLinkCount => _fileRecord.HardLinkCount;
 
     /// <summary>
     /// Gets the index of this entry in the Master File Table.
     /// </summary>
-    public long Index
-    {
-        get { return _fileRecord.LoadedIndex; }
-    }
+    public long Index => _fileRecord.LoadedIndex;
 
     /// <summary>
     /// Gets the change identifier that is updated each time the file is modified by Windows, relates to the NTFS log file.
@@ -82,18 +70,12 @@ public sealed class MasterFileTableEntry
     /// <remarks>
     /// The NTFS log file provides journalling, preventing meta-data corruption in the event of a system crash.
     /// </remarks>
-    public long LogFileSequenceNumber
-    {
-        get { return (long)_fileRecord.LogFileSequenceNumber; }
-    }
+    public long LogFileSequenceNumber => (long)_fileRecord.LogFileSequenceNumber;
 
     /// <summary>
     /// Gets the next attribute identity that will be allocated.
     /// </summary>
-    public int NextAttributeId
-    {
-        get { return _fileRecord.NextAttributeId; }
-    }
+    public int NextAttributeId => _fileRecord.NextAttributeId;
 
     /// <summary>
     /// Gets the index of this entry in the Master File Table (as stored in the entry itself).
@@ -101,10 +83,7 @@ public sealed class MasterFileTableEntry
     /// <remarks>
     /// Note - older versions of Windows did not store this value, so it may be Zero.
     /// </remarks>
-    public long SelfIndex
-    {
-        get { return _fileRecord.MasterFileTableIndex; }
-    }
+    public long SelfIndex => _fileRecord.MasterFileTableIndex;
 
     /// <summary>
     /// Gets the revision number of the entry.
@@ -112,10 +91,7 @@ public sealed class MasterFileTableEntry
     /// <remarks>
     /// Each time an entry is allocated or de-allocated, this number is incremented by one.
     /// </remarks>
-    public int SequenceNumber
-    {
-        get { return _fileRecord.SequenceNumber; }
-    }
+    public int SequenceNumber => _fileRecord.SequenceNumber;
 
     /// <summary>
     /// Gets the attributes contained in this entry.

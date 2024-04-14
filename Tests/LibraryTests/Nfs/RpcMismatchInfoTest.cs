@@ -24,32 +24,31 @@ using DiscUtils.Nfs;
 using System.IO;
 using Xunit;
 
-namespace LibraryTests.Nfs
+namespace LibraryTests.Nfs;
+
+public class RpcMismatchInfoTest
 {
-    public class RpcMismatchInfoTest
+    [Fact]
+    public void RoundTripTest()
     {
-        [Fact]
-        public void RoundTripTest()
+        var info = new RpcMismatchInfo()
         {
-            var info = new RpcMismatchInfo()
-            {
-                 High = 1,
-                 Low = 2
-            };
+             High = 1,
+             Low = 2
+        };
 
-            RpcMismatchInfo clone = null;
+        RpcMismatchInfo clone = null;
 
-            using (var stream = new MemoryStream())
-            {
-                var writer = new XdrDataWriter(stream);
-                info.Write(writer);
+        using (var stream = new MemoryStream())
+        {
+            var writer = new XdrDataWriter(stream);
+            info.Write(writer);
 
-                stream.Position = 0;
-                var reader = new XdrDataReader(stream);
-                clone = new RpcMismatchInfo(reader);
-            }
-
-            Assert.Equal(info, clone);
+            stream.Position = 0;
+            var reader = new XdrDataReader(stream);
+            clone = new RpcMismatchInfo(reader);
         }
+
+        Assert.Equal(info, clone);
     }
 }

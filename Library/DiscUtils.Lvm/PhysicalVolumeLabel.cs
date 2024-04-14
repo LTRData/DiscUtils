@@ -36,9 +36,9 @@ internal class PhysicalVolumeLabel : IByteArraySerializable
     public ulong CalculatedCrc;
     public ulong Offset;
     public string Label2;
-    
+
     /// <inheritdoc />
-    public int Size { get { return PhysicalVolume.SECTOR_SIZE; } }
+    public int Size => PhysicalVolume.SECTOR_SIZE;
 
     /// <inheritdoc />
     public int ReadFrom(ReadOnlySpan<byte> buffer)

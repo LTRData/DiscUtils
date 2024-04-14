@@ -25,37 +25,36 @@ using System;
 using System.IO;
 using Xunit;
 
-namespace LibraryTests.Nfs
+namespace LibraryTests.Nfs;
+
+public class Nfs3FileSystemStatTest
 {
-    public class Nfs3FileSystemStatTest
+    [Fact]
+    public void RoundTripTest()
     {
-        [Fact]
-        public void RoundTripTest()
+        var attributes = new Nfs3FileSystemStat()
         {
-            var attributes = new Nfs3FileSystemStat()
-            {
-                AvailableFreeFileSlotCount = 1,
-                AvailableFreeSpaceBytes = 2,
-                FileSlotCount = 3,
-                FreeFileSlotCount = 4,
-                FreeSpaceBytes = 5,
-                Invariant = TimeSpan.FromSeconds(7),
-                TotalSizeBytes = 8
-            };
+            AvailableFreeFileSlotCount = 1,
+            AvailableFreeSpaceBytes = 2,
+            FileSlotCount = 3,
+            FreeFileSlotCount = 4,
+            FreeSpaceBytes = 5,
+            Invariant = TimeSpan.FromSeconds(7),
+            TotalSizeBytes = 8
+        };
 
-            Nfs3FileSystemStat clone = null;
+        Nfs3FileSystemStat clone = null;
 
-            using (var stream = new MemoryStream())
-            {
-                var writer = new XdrDataWriter(stream);
-                attributes.Write(writer);
+        using (var stream = new MemoryStream())
+        {
+            var writer = new XdrDataWriter(stream);
+            attributes.Write(writer);
 
-                stream.Position = 0;
-                var reader = new XdrDataReader(stream);
-                clone = new Nfs3FileSystemStat(reader);
-            }
-
-            Assert.Equal(attributes, clone);
+            stream.Position = 0;
+            var reader = new XdrDataReader(stream);
+            clone = new Nfs3FileSystemStat(reader);
         }
+
+        Assert.Equal(attributes, clone);
     }
 }

@@ -76,10 +76,7 @@ internal class SuperBlock : IByteArraySerializable
     public ushort UidGidCount;
     public long UidGidTableStart;
 
-    public int Size
-    {
-        get { return 96; }
-    }
+    public int Size => 96;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

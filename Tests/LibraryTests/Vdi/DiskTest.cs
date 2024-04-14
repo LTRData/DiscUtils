@@ -27,78 +27,77 @@ using DiscUtils.Streams;
 using DiscUtils.Vdi;
 using Xunit;
 
-namespace LibraryTests.Vdi
+namespace LibraryTests.Vdi;
+
+public class DiskTest
 {
-    public class DiskTest
+    [Fact]
+    public void InitializeFixed()
     {
-        [Fact]
-        public void InitializeFixed()
+        var ms = new MemoryStream();
+        using (var disk = Disk.InitializeFixed(ms, Ownership.None, 8 * 1024 * 1024))
         {
-            var ms = new MemoryStream();
-            using (var disk = Disk.InitializeFixed(ms, Ownership.None, 8 * 1024 * 1024))
-            {
-                Assert.NotNull(disk);
-                Assert.True(disk.Geometry.Capacity > 7.5 * 1024 * 1024 && disk.Geometry.Capacity < 8 * 1024 * 1024);
-                Assert.True(disk.Geometry.Capacity <= disk.Content.Length);
-            }
-
-            // Check the stream is still valid
-            ms.ReadByte();
-            ms.Dispose();
+            Assert.NotNull(disk);
+            Assert.True(disk.Geometry.Capacity is > (long)(7.5 * 1024 * 1024) and < (8 * 1024 * 1024));
+            Assert.True(disk.Geometry.Capacity <= disk.Content.Length);
         }
 
-        [Fact]
-        public void InitializeFixedOwnStream()
-        {
-            var ms = new MemoryStream();
-            using (var disk = Disk.InitializeFixed(ms, Ownership.Dispose, 8 * 1024 * 1024))
-            {
-            }
+        // Check the stream is still valid
+        ms.ReadByte();
+        ms.Dispose();
+    }
 
-            Assert.Throws<ObjectDisposedException>(() => ms.ReadByte());
+    [Fact]
+    public void InitializeFixedOwnStream()
+    {
+        var ms = new MemoryStream();
+        using (var disk = Disk.InitializeFixed(ms, Ownership.Dispose, 8 * 1024 * 1024))
+        {
         }
 
-        [Fact]
-        public void InitializeDynamic()
+        Assert.Throws<ObjectDisposedException>(() => ms.ReadByte());
+    }
+
+    [Fact]
+    public void InitializeDynamic()
+    {
+        var ms = new MemoryStream();
+        using (var disk = Disk.InitializeDynamic(ms, Ownership.None, 16 * 1024L * 1024 * 1024))
         {
-            var ms = new MemoryStream();
-            using (var disk = Disk.InitializeDynamic(ms, Ownership.None, 16 * 1024L * 1024 * 1024))
-            {
-                Assert.NotNull(disk);
-                Assert.True(disk.Geometry.Capacity > 15.8 * 1024L * 1024 * 1024 && disk.Geometry.Capacity < 16 * 1024L * 1024 * 1024);
-                Assert.True(disk.Geometry.Capacity <= disk.Content.Length);
-            }
-
-            Assert.True(1 * 1024 * 1024 > ms.Length);
-
-            using (var disk = new Disk(ms))
-            {
-                Assert.True(disk.Geometry.Capacity > 15.8 * 1024L * 1024 * 1024 && disk.Geometry.Capacity < 16 * 1024L * 1024 * 1024);
-                Assert.True(disk.Geometry.Capacity <= disk.Content.Length);
-            }
+            Assert.NotNull(disk);
+            Assert.True(disk.Geometry.Capacity is > (long)(15.8 * 1024L * 1024 * 1024) and < (16 * 1024L * 1024 * 1024));
+            Assert.True(disk.Geometry.Capacity <= disk.Content.Length);
         }
 
-        [Fact]
-        public void ConstructorDynamic()
+        Assert.True(1 * 1024 * 1024 > ms.Length);
+
+        using (var disk = new Disk(ms))
         {
-            Geometry geometry;
-            var ms = new MemoryStream();
-            using (var disk = Disk.InitializeDynamic(ms, Ownership.None, 16 * 1024L * 1024 * 1024))
-            {
-                geometry = disk.Geometry;
-            }
+            Assert.True(disk.Geometry.Capacity is > (long)(15.8 * 1024L * 1024 * 1024) and < (16 * 1024L * 1024 * 1024));
+            Assert.True(disk.Geometry.Capacity <= disk.Content.Length);
+        }
+    }
 
-            using (var disk = new Disk(ms))
-            {
-                Assert.Equal(geometry, disk.Geometry);
-                Assert.NotNull(disk.Content);
-            }
+    [Fact]
+    public void ConstructorDynamic()
+    {
+        Geometry geometry;
+        var ms = new MemoryStream();
+        using (var disk = Disk.InitializeDynamic(ms, Ownership.None, 16 * 1024L * 1024 * 1024))
+        {
+            geometry = disk.Geometry;
+        }
 
-            using (var disk = new Disk(ms, Ownership.Dispose))
-            {
-                Assert.Equal(geometry, disk.Geometry);
-                Assert.NotNull(disk.Content);
-            }
+        using (var disk = new Disk(ms))
+        {
+            Assert.Equal(geometry, disk.Geometry);
+            Assert.NotNull(disk.Content);
+        }
+
+        using (var disk = new Disk(ms, Ownership.Dispose))
+        {
+            Assert.Equal(geometry, disk.Geometry);
+            Assert.NotNull(disk.Content);
         }
     }
 }

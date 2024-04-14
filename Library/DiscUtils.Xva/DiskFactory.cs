@@ -31,10 +31,7 @@ namespace DiscUtils.Xva;
 [VirtualDiskFactory("XVA", ".xva")]
 internal sealed class DiskFactory : VirtualDiskFactory
 {
-    public override string[] Variants
-    {
-        get { return new[] { "dynamic" }; }
-    }
+    public override string[] Variants => new[] { "dynamic" };
 
     public override VirtualDiskTypeInfo GetDiskTypeInformation(string variant)
     {

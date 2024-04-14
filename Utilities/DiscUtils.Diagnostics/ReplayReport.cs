@@ -72,121 +72,55 @@ public sealed class ReplayReport
     /// <summary>
     /// The exception (if any) that caused the file system verification check to fail.
     /// </summary>
-    public Exception VerificationFailureException
-    {
-        get
-        {
-            return _failureException;
-        }
-    }
+    public Exception VerificationFailureException => _failureException;
 
     /// <summary>
     /// The exception (if any) that cause the full replay to fail.
     /// </summary>
-    public Exception ReplayException
-    {
-        get
-        {
-            return _replayException;
-        }
-    }
+    public Exception ReplayException => _replayException;
 
     /// <summary>
     /// The stream activities traced whilst replaying the file system action that broke the file system.
     /// </summary>
-    public IEnumerable<StreamTraceRecord> InterCheckpointStreamTraceLog
-    {
-        get
-        {
-            return _globalTraceReport;
-        }
-    }
+    public IEnumerable<StreamTraceRecord> InterCheckpointStreamTraceLog => _globalTraceReport;
 
     /// <summary>
     /// The stream activities traced whilst replaying the file system action that broke the file system.
     /// </summary>
-    public IEnumerable<StreamTraceRecord> ReplayStreamTraceLog
-    {
-        get
-        {
-            return _traceReport;
-        }
-    }
+    public IEnumerable<StreamTraceRecord> ReplayStreamTraceLog => _traceReport;
 
     /// <summary>
     /// The number of replay events available to replay.
     /// </summary>
-    public int ReplayEventsAvailable
-    {
-        get
-        {
-            return _replayBufferSize;
-        }
-    }
+    public int ReplayEventsAvailable => _replayBufferSize;
 
     /// <summary>
     /// The number of replay events successfully replayed.
     /// </summary>
-    public int ReplayEventsProcessed
-    {
-        get
-        {
-            return _eventsReplayed;
-        }
-    }
+    public int ReplayEventsProcessed => _eventsReplayed;
 
     /// <summary>
     /// Gets whether file system corruption was detected whilst replaying events.
     /// </summary>
-    public bool ReplayFailedVerification
-    {
-        get
-        {
-            return _failedVerifyOnReplay;
-        }
-    }
+    public bool ReplayFailedVerification => _failedVerifyOnReplay;
 
     /// <summary>
     /// Gets the file system verification report generated at the last checkpoint.
     /// </summary>
-    public string LastCheckpointReport
-    {
-        get
-        {
-            return _lastCheckpointReport;
-        }
-    }
+    public string LastCheckpointReport => _lastCheckpointReport;
 
     /// <summary>
     /// Gets the file system verification report generated whilst just before replaying the file system action that failed.
     /// </summary>
-    public string ReplayPreVerificationReport
-    {
-        get
-        {
-            return _replayPreVerificationReport;
-        }
-    }
+    public string ReplayPreVerificationReport => _replayPreVerificationReport;
 
     /// <summary>
     /// Gets the file system verification report generated whilst replaying the file system action that failed.
     /// </summary>
-    public string ReplayVerificationReport
-    {
-        get
-        {
-            return _replayVerificationReport;
-        }
-    }
+    public string ReplayVerificationReport => _replayVerificationReport;
 
     /// <summary>
     /// The total number of events processed (ignoring events run during replay).
     /// </summary>
-    public long TotalEventsProcessed
-    {
-        get
-        {
-            return _eventsBeforeLockdown;
-        }
-    }
+    public long TotalEventsProcessed => _eventsBeforeLockdown;
 }

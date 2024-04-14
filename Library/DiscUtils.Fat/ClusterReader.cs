@@ -53,10 +53,7 @@ internal sealed class ClusterReader
         _clusterSize = _sectorsPerCluster * _bytesPerSector;
     }
 
-    public int ClusterSize
-    {
-        get { return _clusterSize; }
-    }
+    public int ClusterSize => _clusterSize;
 
     public int BytesPerSector => _bytesPerSector;
 

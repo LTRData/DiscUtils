@@ -38,17 +38,11 @@ internal class CompressionAttribute
 
     public uint AttrSize { get; private set; }
 
-    public string CompressionMagic
-    {
-        get { return Encoding.ASCII.GetString(BitConverter.GetBytes(_compressionMagic)); }
-    }
+    public string CompressionMagic => Encoding.ASCII.GetString(BitConverter.GetBytes(_compressionMagic));
 
     public FileCompressionType CompressionType { get; private set; }
 
-    public static int Size
-    {
-        get { return 32; }
-    }
+    public static int Size => 32;
 
     public uint UncompressedSize { get; private set; }
 

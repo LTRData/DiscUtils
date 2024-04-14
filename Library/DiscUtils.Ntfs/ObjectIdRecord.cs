@@ -32,10 +32,7 @@ internal struct ObjectIdRecord : IByteArraySerializable
     public Guid BirthVolumeId;
     public FileRecordReference MftReference;
 
-    public int Size
-    {
-        get { return 0x38; }
-    }
+    public int Size => 0x38;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

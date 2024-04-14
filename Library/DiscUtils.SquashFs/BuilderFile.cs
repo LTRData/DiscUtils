@@ -52,10 +52,7 @@ internal sealed class BuilderFile : BuilderNode
         NumLinks = 1;
     }
 
-    public override Inode Inode
-    {
-        get { return _inode; }
-    }
+    public override Inode Inode => _inode;
 
     public override void Reset()
     {

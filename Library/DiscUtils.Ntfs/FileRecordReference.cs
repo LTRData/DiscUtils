@@ -40,25 +40,13 @@ internal struct FileRecordReference : IByteArraySerializable, IComparable<FileRe
 
     public ulong Value { get; private set; }
 
-    public long MftIndex
-    {
-        get { return (long)(Value & 0x0000FFFFFFFFFFFFL); }
-    }
+    public long MftIndex => (long)(Value & 0x0000FFFFFFFFFFFFL);
 
-    public ushort SequenceNumber
-    {
-        get { return (ushort)((Value >> 48) & 0xFFFF); }
-    }
+    public ushort SequenceNumber => (ushort)((Value >> 48) & 0xFFFF);
 
-    public int Size
-    {
-        get { return 8; }
-    }
+    public int Size => 8;
 
-    public bool IsNull
-    {
-        get { return SequenceNumber == 0; }
-    }
+    public bool IsNull => SequenceNumber == 0;
 
     public static bool operator ==(FileRecordReference a, FileRecordReference b)
     {

@@ -79,15 +79,9 @@ internal class DeviceElementValue : ElementValue
         _record = DeviceRecord.Parse(value, 0x10);
     }
 
-    public override ElementFormat Format
-    {
-        get { return ElementFormat.Device; }
-    }
+    public override ElementFormat Format => ElementFormat.Device;
 
-    public override Guid ParentObject
-    {
-        get { return _parentObject; }
-    }
+    public override Guid ParentObject => _parentObject;
 
     public override string ToString()
     {

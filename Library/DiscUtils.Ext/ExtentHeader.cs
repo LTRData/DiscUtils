@@ -35,10 +35,7 @@ internal struct ExtentHeader : IByteArraySerializable
     public ushort Magic;
     public ushort MaxEntries;
 
-    public int Size
-    {
-        get { return 12; }
-    }
+    public int Size => 12;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

@@ -81,10 +81,7 @@ internal class ReparsePoints
         public FileRecordReference File;
         public uint Tag;
 
-        public int Size
-        {
-            get { return 12; }
-        }
+        public int Size => 12;
 
         public int ReadFrom(ReadOnlySpan<byte> buffer)
         {
@@ -105,10 +102,7 @@ internal class ReparsePoints
 
     internal struct Data : IByteArraySerializable
     {
-        public int Size
-        {
-            get { return 0; }
-        }
+        public int Size => 0;
 
         public int ReadFrom(ReadOnlySpan<byte> buffer)
         {

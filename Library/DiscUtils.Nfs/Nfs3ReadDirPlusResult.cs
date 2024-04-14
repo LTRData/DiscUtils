@@ -69,10 +69,7 @@ public sealed class Nfs3ReadDirPlusResult : Nfs3CallResult
         writer.Write((int)Status);
 
         writer.Write(DirAttributes != null);
-        if (DirAttributes != null)
-        {
-            DirAttributes.Write(writer);
-        }
+        DirAttributes?.Write(writer);
 
         if (Status == Nfs3Status.Ok)
         {

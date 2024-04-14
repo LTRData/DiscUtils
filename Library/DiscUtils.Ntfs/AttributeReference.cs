@@ -51,10 +51,7 @@ internal readonly struct AttributeReference : IComparable<AttributeReference>, I
     /// <summary>
     /// Gets the file containing the attribute.
     /// </summary>
-    public FileRecordReference File
-    {
-        get { return _fileReference; }
-    }
+    public FileRecordReference File => _fileReference;
 
     #region IComparable<AttributeReference> Members
 

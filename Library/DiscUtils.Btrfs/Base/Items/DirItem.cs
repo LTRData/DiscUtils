@@ -70,10 +70,7 @@ internal class DirItem : BaseItem
     /// </summary>
     public byte[] Data { get; private set; }
 
-    public override int Size
-    {
-        get { return 0x1e+NameLength+DataLength; }
-    }
+    public override int Size => 0x1e + NameLength + DataLength;
 
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {

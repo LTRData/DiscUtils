@@ -45,25 +45,13 @@ internal sealed class LogEntry
         _descriptors = descriptors;
     }
 
-    public ulong FlushedFileOffset
-    {
-        get { return _header.FlushedFileOffset; }
-    }
+    public ulong FlushedFileOffset => _header.FlushedFileOffset;
 
-    public bool IsEmpty
-    {
-        get { return _descriptors.Count == 0; }
-    }
+    public bool IsEmpty => _descriptors.Count == 0;
 
-    public ulong LastFileOffset
-    {
-        get { return _header.LastFileOffset; }
-    }
+    public ulong LastFileOffset => _header.LastFileOffset;
 
-    public Guid LogGuid
-    {
-        get { return _header.LogGuid; }
-    }
+    public Guid LogGuid => _header.LogGuid;
 
     public IEnumerable<Range<ulong, ulong>> ModifiedExtents
     {
@@ -78,15 +66,9 @@ internal sealed class LogEntry
 
     public long Position { get; }
 
-    public ulong SequenceNumber
-    {
-        get { return _header.SequenceNumber; }
-    }
+    public ulong SequenceNumber => _header.SequenceNumber;
 
-    public uint Tail
-    {
-        get { return _header.Tail; }
-    }
+    public uint Tail => _header.Tail;
 
     public void Replay(Stream target)
     {
@@ -197,10 +179,7 @@ internal sealed class LogEntry
 
         public abstract ulong FileLength { get; }
 
-        public int Size
-        {
-            get { return 32; }
-        }
+        public int Size => 32;
 
         public abstract int ReadFrom(ReadOnlySpan<byte> buffer);
 
@@ -215,10 +194,7 @@ internal sealed class LogEntry
     {
         public ulong ZeroLength;
 
-        public override ulong FileLength
-        {
-            get { return ZeroLength; }
-        }
+        public override ulong FileLength => ZeroLength;
 
         public override int ReadFrom(ReadOnlySpan<byte> buffer)
         {
@@ -281,10 +257,7 @@ internal sealed class LogEntry
             _offset = offset;
         }
 
-        public override ulong FileLength
-        {
-            get { return LogSectorSize; }
-        }
+        public override ulong FileLength => LogSectorSize;
 
         public override int ReadFrom(ReadOnlySpan<byte> buffer)
         {

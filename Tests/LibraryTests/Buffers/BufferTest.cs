@@ -24,25 +24,24 @@ using DiscUtils.Streams;
 using System.Linq;
 using Xunit;
 
-namespace LibraryTests.Buffers
+namespace LibraryTests.Buffers;
+
+public class BufferTest
 {
-    public class BufferTest
+    [Fact]
+    public void SparseMemoryBufferClear()
     {
-        [Fact]
-        public void SparseMemoryBufferClear()
-        {
-            var memoryBuffer = new SparseMemoryBuffer(10);
-            var buffer = new byte[20];
+        var memoryBuffer = new SparseMemoryBuffer(10);
+        var buffer = new byte[20];
 
-            memoryBuffer.Write(0, buffer, 0, 20);
-            Assert.Equal(2, memoryBuffer.AllocatedChunks.Count());
-            memoryBuffer.Clear(0, 20);
-            Assert.Empty(memoryBuffer.AllocatedChunks);
+        memoryBuffer.Write(0, buffer, 0, 20);
+        Assert.Equal(2, memoryBuffer.AllocatedChunks.Count());
+        memoryBuffer.Clear(0, 20);
+        Assert.Empty(memoryBuffer.AllocatedChunks);
 
-            memoryBuffer.Write(0, buffer, 0, 15);
-            Assert.Equal(2, memoryBuffer.AllocatedChunks.Count());
-            memoryBuffer.Clear(0, 15);
-            Assert.Single(memoryBuffer.AllocatedChunks);
-        }
+        memoryBuffer.Write(0, buffer, 0, 15);
+        Assert.Equal(2, memoryBuffer.AllocatedChunks.Count());
+        memoryBuffer.Clear(0, 15);
+        Assert.Single(memoryBuffer.AllocatedChunks);
     }
 }

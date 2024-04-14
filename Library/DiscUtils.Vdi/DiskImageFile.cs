@@ -76,10 +76,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
     /// </summary>
     public override bool CanWrite => _stream.CanWrite;
 
-    public override long Capacity
-    {
-        get { return _header.DiskSize; }
-    }
+    public override long Capacity => _header.DiskSize;
 
     /// <summary>
     /// Gets (a guess at) the geometry of the virtual disk.
@@ -105,24 +102,16 @@ public sealed class DiskImageFile : VirtualDiskLayer
     /// <summary>
     /// Gets a value indicating if the layer only stores meaningful sectors.
     /// </summary>
-    public override bool IsSparse
-    {
-        get { return _header.ImageType != ImageType.Fixed; }
-    }
+    public override bool IsSparse => _header.ImageType != ImageType.Fixed;
 
     /// <summary>
     /// Gets a value indicating whether the file is a differencing disk.
     /// </summary>
-    public override bool NeedsParent
-    {
-        get { return _header.ImageType == ImageType.Differencing || _header.ImageType == ImageType.Undo; }
-    }
+    public override bool NeedsParent => _header.ImageType is ImageType.Differencing or ImageType.Undo;
 
     public override FileLocator RelativeFileLocator
-    {
         // Differencing disks not yet supported.
-        get { return null; }
-    }
+        => null;
 
     /// <summary>
     /// Initializes a stream as a fixed-sized VDI file.

@@ -83,10 +83,7 @@ public abstract class DataWriter
 
     protected void EnsureBuffer()
     {
-        if (_buffer == null)
-        {
-            _buffer = new byte[_bufferSize];
-        }
+        _buffer ??= new byte[_bufferSize];
     }
 
     protected void FlushBuffer(int count)

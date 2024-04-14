@@ -36,10 +36,7 @@ internal class InformationControlBlock : IByteArraySerializable
     public ushort StrategyParameter;
     public ushort StrategyType;
 
-    public int Size
-    {
-        get { return 20; }
-    }
+    public int Size => 20;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

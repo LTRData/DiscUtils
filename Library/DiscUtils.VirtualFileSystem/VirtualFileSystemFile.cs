@@ -13,7 +13,10 @@ public sealed class VirtualFileSystemFile : VirtualFileSystemDirectoryEntry
     }
 
     public VirtualFileSystemFile(VirtualFileSystemDirectory parent, string name, VirtualFileSystem.FileOpenDelegate open)
-        : base(parent, name) => OpenFunc = open;
+        : base(parent, name)
+    {
+        OpenFunc = open;
+    }
 
     public VirtualFileSystemFile(VirtualFileSystemDirectory parent, string name, VirtualFileSystemFile existing_link)
         : this(parent, name, existing_link.OpenFunc)
@@ -26,7 +29,9 @@ public sealed class VirtualFileSystemFile : VirtualFileSystemDirectoryEntry
 
     public SparseStream Open(FileMode mode, FileAccess access)
     {
-        var stream = (OpenFunc?.Invoke(mode, access)) ?? throw new NotSupportedException($"File '{FullPath}' cannot be opened");
+        var stream = (OpenFunc?.Invoke(mode, access))
+            ?? throw new NotSupportedException($"File '{FullPath}' cannot be opened");
+
         Length = stream.Length;
 
         if (stream is not SparseStream sparse)

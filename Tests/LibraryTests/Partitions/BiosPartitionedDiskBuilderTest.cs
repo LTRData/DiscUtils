@@ -26,32 +26,31 @@ using DiscUtils.Partitions;
 using DiscUtils.Streams;
 using Xunit;
 
-namespace LibraryTests.Partitions
+namespace LibraryTests.Partitions;
+
+public class BiosPartitionedDiskBuilderTest
 {
-    public class BiosPartitionedDiskBuilderTest
+    [Fact]
+    public void Basic()
     {
-        [Fact]
-        public void Basic()
-        {
-            long capacity = 10 * 1024 * 1024;
-            var geometry = Geometry.FromCapacity(capacity);
+        long capacity = 10 * 1024 * 1024;
+        var geometry = Geometry.FromCapacity(capacity);
 
-            var builder = new BiosPartitionedDiskBuilder(capacity, geometry);
-            builder.PartitionTable.Create(WellKnownPartitionType.WindowsNtfs, true);
-            var partitionContent = SparseStream.FromStream(new MemoryStream((int)(builder.PartitionTable[0].SectorCount * 512)), Ownership.Dispose);
-            partitionContent.Position = 4053;
-            partitionContent.WriteByte(0xAf);
-            builder.SetPartitionContent(0, partitionContent);
+        var builder = new BiosPartitionedDiskBuilder(capacity, geometry);
+        builder.PartitionTable.Create(WellKnownPartitionType.WindowsNtfs, true);
+        var partitionContent = SparseStream.FromStream(new MemoryStream((int)(builder.PartitionTable[0].SectorCount * 512)), Ownership.Dispose);
+        partitionContent.Position = 4053;
+        partitionContent.WriteByte(0xAf);
+        builder.SetPartitionContent(0, partitionContent);
 
-            var constructedStream = builder.Build() as SparseStream;
+        var constructedStream = builder.Build() as SparseStream;
 
-            var bpt = new BiosPartitionTable(constructedStream, geometry);
-            Assert.Equal(1, bpt.Count);
+        var bpt = new BiosPartitionTable(constructedStream, geometry);
+        Assert.Equal(1, bpt.Count);
 
-            using Stream builtPartitionStream = bpt.Partitions[0].Open();
-            builtPartitionStream.Position = 4053;
-            Assert.Equal(0xAf, builtPartitionStream.ReadByte());
+        using Stream builtPartitionStream = bpt.Partitions[0].Open();
+        builtPartitionStream.Position = 4053;
+        Assert.Equal(0xAf, builtPartitionStream.ReadByte());
 
-        }
     }
 }

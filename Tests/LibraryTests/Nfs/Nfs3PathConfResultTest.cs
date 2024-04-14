@@ -25,43 +25,42 @@ using System;
 using System.IO;
 using Xunit;
 
-namespace LibraryTests.Nfs
+namespace LibraryTests.Nfs;
+
+public class Nfs3PathConfResultTest
 {
-    public class Nfs3PathConfResultTest
+    [Fact]
+    public void RoundTripTest()
     {
-        [Fact]
-        public void RoundTripTest()
+        var authentication = new Nfs3PathConfResult()
         {
-            var authentication = new Nfs3PathConfResult()
+            Status = Nfs3Status.Ok,
+            CaseInsensitive = true,
+            CasePreserving = true,
+            ChownRestricted = true,
+            LinkMax = 1,
+            NameMax = 2,
+            NoTrunc = true,
+            ObjectAttributes = new Nfs3FileAttributes()
             {
-                Status = Nfs3Status.Ok,
-                CaseInsensitive = true,
-                CasePreserving = true,
-                ChownRestricted = true,
-                LinkMax = 1,
-                NameMax = 2,
-                NoTrunc = true,
-                ObjectAttributes = new Nfs3FileAttributes()
-                {
-                    AccessTime = new Nfs3FileTime(new DateTime(2017, 1, 1)),
-                    ChangeTime = new Nfs3FileTime(new DateTime(2017, 1, 2)),
-                    ModifyTime = new Nfs3FileTime(new DateTime(2017, 1, 2)),
-                }
-            };
-
-            Nfs3PathConfResult clone = null;
-
-            using (var stream = new MemoryStream())
-            {
-                var writer = new XdrDataWriter(stream);
-                authentication.Write(writer);
-
-                stream.Position = 0;
-                var reader = new XdrDataReader(stream);
-                clone = new Nfs3PathConfResult(reader);
+                AccessTime = new Nfs3FileTime(new DateTime(2017, 1, 1)),
+                ChangeTime = new Nfs3FileTime(new DateTime(2017, 1, 2)),
+                ModifyTime = new Nfs3FileTime(new DateTime(2017, 1, 2)),
             }
+        };
 
-            Assert.Equal(authentication, clone);
+        Nfs3PathConfResult clone = null;
+
+        using (var stream = new MemoryStream())
+        {
+            var writer = new XdrDataWriter(stream);
+            authentication.Write(writer);
+
+            stream.Position = 0;
+            var reader = new XdrDataReader(stream);
+            clone = new Nfs3PathConfResult(reader);
         }
+
+        Assert.Equal(authentication, clone);
     }
 }

@@ -190,12 +190,12 @@ public abstract class GenericAce
 
     public static bool Equals(GenericAce left, GenericAce right)
     {
-        if (ReferenceEquals(left, null))
+        if (left is null)
         {
-            return ReferenceEquals(right, null);
+            return right is null;
         }
 
-        if (ReferenceEquals(right, null))
+        if (right is null)
         {
             return false;
         }
@@ -461,11 +461,8 @@ public abstract class GenericAce
         while (pos < accessMask.Length - 1)
         {
             var flag = accessMask.Slice(pos, 2);
-            var right = SddlAccessRight.LookupByName(flag);
-            if (right == null)
-            {
-                throw new ArgumentException("Invalid SDDL string.", nameof(accessMask));
-            }
+            var right = SddlAccessRight.LookupByName(flag)
+                ?? throw new ArgumentException("Invalid SDDL string.", nameof(accessMask));
 
             ret |= right.Value;
             pos += 2;

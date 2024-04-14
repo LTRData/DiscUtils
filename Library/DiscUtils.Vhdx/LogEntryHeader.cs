@@ -41,15 +41,9 @@ internal sealed class LogEntryHeader : IByteArraySerializable
     public uint Signature { get; private set; }
     public uint Tail { get; private set; }
 
-    public bool IsValid
-    {
-        get { return Signature == LogEntrySignature; }
-    }
+    public bool IsValid => Signature == LogEntrySignature;
 
-    public int Size
-    {
-        get { return ByteCount; }
-    }
+    public int Size => ByteCount;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

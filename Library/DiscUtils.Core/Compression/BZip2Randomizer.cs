@@ -86,10 +86,7 @@ internal class BZip2Randomizer : DataBlockTransform
         936, 638
     };
 
-    protected override bool BuffersMustNotOverlap
-    {
-        get { return false; }
-    }
+    protected override bool BuffersMustNotOverlap => false;
 
     protected override int DoProcess(byte[] input, int inputOffset, int inputCount, byte[] output, int outputOffset)
     {

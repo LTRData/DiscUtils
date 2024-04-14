@@ -68,22 +68,13 @@ class Disk : VirtualDisk
     {
         get
         {
-            if (_stream == null)
-            {
-                _stream = new DiskStream(_handle);
-            }
+            _stream ??= new DiskStream(_handle);
 
             return _stream;
         }
     }
 
-    public override Geometry Geometry
-    {
-        get
-        {
-            return Geometry.FromCapacity(Capacity);
-        }
-    }
+    public override Geometry Geometry => Geometry.FromCapacity(Capacity);
 
     public override Geometry BiosGeometry
     {
@@ -94,38 +85,21 @@ class Disk : VirtualDisk
         }
     }
 
-    public override VirtualDiskClass DiskClass
-    {
-        get { return VirtualDiskClass.HardDisk; }
-    }
+    public override VirtualDiskClass DiskClass => VirtualDiskClass.HardDisk;
 
-    public override long Capacity
-    {
-        get
-        {
-            return Win32Wrapper.GetDiskCapacity(_handle);
-        }
-    }
+    public override long Capacity => Win32Wrapper.GetDiskCapacity(_handle);
 
-    public override IEnumerable<VirtualDiskLayer> Layers
-    {
-        get { throw new NotImplementedException(); }
-    }
+    public override IEnumerable<VirtualDiskLayer> Layers => throw new NotImplementedException();
 
-    public override VirtualDiskTypeInfo DiskTypeInfo
+    public override VirtualDiskTypeInfo DiskTypeInfo => new VirtualDiskTypeInfo()
     {
-        get {
-            return new VirtualDiskTypeInfo()
-            {
-                Name="Physical",
-                Variant = "",
-                CanBeHardDisk = true,
-                DeterministicGeometry = false,
-                PreservesBiosGeometry = false,
-                CalcGeometry = Geometry.FromCapacity,
-            };
-        }
-    }
+        Name = "Physical",
+        Variant = "",
+        CanBeHardDisk = true,
+        DeterministicGeometry = false,
+        PreservesBiosGeometry = false,
+        CalcGeometry = Geometry.FromCapacity,
+    };
 
     public override VirtualDisk CreateDifferencingDisk(DiscFileSystem fileSystem, string path)
     {

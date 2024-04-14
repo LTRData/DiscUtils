@@ -46,7 +46,7 @@ internal sealed class MetablockReader
 
     public void SetPosition(long blockStart, int blockOffset)
     {
-        if (blockOffset < 0 || blockOffset >= VfsSquashFileSystemReader.MetadataBufferSize)
+        if (blockOffset is < 0 or >= VfsSquashFileSystemReader.MetadataBufferSize)
         {
             throw new ArgumentOutOfRangeException(nameof(blockOffset), blockOffset,
                 "Offset must be positive and less than block size");

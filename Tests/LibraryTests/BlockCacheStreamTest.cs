@@ -24,32 +24,31 @@ using System.IO;
 using DiscUtils.Streams;
 using Xunit;
 
-namespace LibraryTests
+namespace LibraryTests;
+
+public sealed class BlockCacheStreamTest
 {
-    public sealed class BlockCacheStreamTest
+    [Fact]
+    public void Bug5203_IncreaseSize()
     {
-        [Fact]
-        public void Bug5203_IncreaseSize()
+        var ms = new MemoryStream();
+        var settings = new BlockCacheSettings { BlockSize = 64, LargeReadSize = 128, OptimumReadSize = 64, ReadCacheSize = 1024 };
+        var bcs = new BlockCacheStream(SparseStream.FromStream(ms, Ownership.Dispose), Ownership.Dispose, settings);
+
+        // Pre-load read cache with a 'short' block
+        bcs.Write(new byte[11], 0, 11);
+        bcs.Position = 0;
+        bcs.Read(new byte[11], 0, 11);
+
+        // Extend stream
+        for(var i = 0; i < 20; ++i)
         {
-            var ms = new MemoryStream();
-            var settings = new BlockCacheSettings { BlockSize = 64, LargeReadSize = 128, OptimumReadSize = 64, ReadCacheSize = 1024 };
-            var bcs = new BlockCacheStream(SparseStream.FromStream(ms, Ownership.Dispose), Ownership.Dispose, settings);
-
-            // Pre-load read cache with a 'short' block
             bcs.Write(new byte[11], 0, 11);
-            bcs.Position = 0;
-            bcs.Read(new byte[11], 0, 11);
-
-            // Extend stream
-            for(var i = 0; i < 20; ++i)
-            {
-                bcs.Write(new byte[11], 0, 11);
-            }
-
-            // Try to read from first block beyond length of original cached short length
-            // Bug was throwing exception here
-            bcs.Position = 60;
-            bcs.Read(new byte[20], 0, 20);
         }
+
+        // Try to read from first block beyond length of original cached short length
+        // Bug was throwing exception here
+        bcs.Position = 60;
+        bcs.Read(new byte[20], 0, 20);
     }
 }

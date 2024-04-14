@@ -62,10 +62,7 @@ internal sealed class SubKeyIndirectListCell : ListCell
 
     public string ListType { get; private set; }
 
-    public override int Size
-    {
-        get { return 4 + CellIndexes.Count * 4; }
-    }
+    public override int Size => 4 + CellIndexes.Count * 4;
 
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {

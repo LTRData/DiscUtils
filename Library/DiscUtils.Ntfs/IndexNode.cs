@@ -81,10 +81,7 @@ internal class IndexNode
         }
     }
 
-    public IEnumerable<IndexEntry> Entries
-    {
-        get { return _entries; }
-    }
+    public IEnumerable<IndexEntry> Entries => _entries;
 
     public IndexHeader Header { get; }
 

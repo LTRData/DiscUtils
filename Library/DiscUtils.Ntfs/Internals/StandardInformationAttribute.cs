@@ -48,82 +48,52 @@ public sealed class StandardInformationAttribute : GenericAttribute
     /// <summary>
     /// Gets the Unknown.
     /// </summary>
-    public long ClassId
-    {
-        get { return _si.ClassId; }
-    }
+    public long ClassId => _si.ClassId;
 
     /// <summary>
     /// Gets the creation time of the file.
     /// </summary>
-    public DateTime CreationTime
-    {
-        get { return _si.CreationTime; }
-    }
+    public DateTime CreationTime => _si.CreationTime;
 
     /// <summary>
     /// Gets the attributes of the file, as stored by NTFS.
     /// </summary>
-    public NtfsFileAttributes FileAttributes
-    {
-        get { return (NtfsFileAttributes)_si.FileAttributes; }
-    }
+    public NtfsFileAttributes FileAttributes => (NtfsFileAttributes)_si.FileAttributes;
 
     /// <summary>
     /// Gets the last update sequence number of the file (relates to the user-readable journal).
     /// </summary>
-    public long JournalSequenceNumber
-    {
-        get { return (long)_si.UpdateSequenceNumber; }
-    }
+    public long JournalSequenceNumber => (long)_si.UpdateSequenceNumber;
 
     /// <summary>
     /// Gets the last access time of the file.
     /// </summary>
-    public DateTime LastAccessTime
-    {
-        get { return _si.LastAccessTime; }
-    }
+    public DateTime LastAccessTime => _si.LastAccessTime;
 
     /// <summary>
     /// Gets the last time the Master File Table entry for the file was changed.
     /// </summary>
-    public DateTime MasterFileTableChangedTime
-    {
-        get { return _si.MftChangedTime; }
-    }
+    public DateTime MasterFileTableChangedTime => _si.MftChangedTime;
 
     /// <summary>
     /// Gets the maximum number of file versions (normally 0).
     /// </summary>
-    public long MaxVersions
-    {
-        get { return _si.MaxVersions; }
-    }
+    public long MaxVersions => _si.MaxVersions;
 
     /// <summary>
     /// Gets the modification time of the file.
     /// </summary>
-    public DateTime ModificationTime
-    {
-        get { return _si.ModificationTime; }
-    }
+    public DateTime ModificationTime => _si.ModificationTime;
 
     /// <summary>
     /// Gets the owner identity, for the purposes of quota allocation.
     /// </summary>
-    public long OwnerId
-    {
-        get { return _si.OwnerId; }
-    }
+    public long OwnerId => _si.OwnerId;
 
     /// <summary>
     /// Gets the amount charged to the owners quota for this file.
     /// </summary>
-    public long QuotaCharged
-    {
-        get { return (long)_si.QuotaCharged; }
-    }
+    public long QuotaCharged => (long)_si.QuotaCharged;
 
     /// <summary>
     /// Gets the identifier of the Security Descriptor for this file.
@@ -131,16 +101,10 @@ public sealed class StandardInformationAttribute : GenericAttribute
     /// <remarks>
     /// Security Descriptors are stored in the \$Secure meta-data file.
     /// </remarks>
-    public long SecurityId
-    {
-        get { return _si.SecurityId; }
-    }
+    public long SecurityId => _si.SecurityId;
 
     /// <summary>
     /// Gets the version number of the file (normally 0).
     /// </summary>
-    public long Version
-    {
-        get { return _si.Version; }
-    }
+    public long Version => _si.Version;
 }

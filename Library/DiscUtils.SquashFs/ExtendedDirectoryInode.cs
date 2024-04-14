@@ -31,14 +31,11 @@ internal class ExtendedDirectoryInode : Inode, IDirectoryInode
     private uint _fileSize;
     //private ushort _indexCount;
 
-    public override int Size
-    {
-        get { return 40; }
-    }
+    public override int Size => 40;
 
     public override long FileSize
     {
-        get { return _fileSize; }
+        get => _fileSize;
 
         set
         {

@@ -49,19 +49,10 @@ internal sealed class DiskExtent : VirtualDiskExtent
         _monolithicStream = monolithicStream;
     }
 
-    public override long Capacity
-    {
-        get { return _descriptor.SizeInSectors * Sizes.Sector; }
-    }
+    public override long Capacity => _descriptor.SizeInSectors * Sizes.Sector;
 
-    public override bool IsSparse
-    {
-        get
-        {
-            return _descriptor.Type == ExtentType.Sparse || _descriptor.Type == ExtentType.VmfsSparse ||
-                   _descriptor.Type == ExtentType.Zero;
-        }
-    }
+    public override bool IsSparse => _descriptor.Type is ExtentType.Sparse or ExtentType.VmfsSparse or
+                   ExtentType.Zero;
 
     public override long StoredSize
     {
@@ -88,18 +79,15 @@ internal sealed class DiskExtent : VirtualDiskExtent
             share = FileShare.None;
         }
 
-        if (_descriptor.Type != ExtentType.Sparse && _descriptor.Type != ExtentType.VmfsSparse &&
-            _descriptor.Type != ExtentType.Zero)
+        if (_descriptor.Type is not ExtentType.Sparse and not ExtentType.VmfsSparse and
+            not ExtentType.Zero)
         {
             if (ownsParent == Ownership.Dispose && parent != null)
             {
                 parent.Dispose();
             }
         }
-        else if (parent == null)
-        {
-            parent = new ZeroStream(_descriptor.SizeInSectors * Sizes.Sector);
-        }
+        else parent ??= new ZeroStream(_descriptor.SizeInSectors * Sizes.Sector);
 
         if (_monolithicStream != null)
         {

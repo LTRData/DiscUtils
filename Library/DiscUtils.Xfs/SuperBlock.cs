@@ -341,24 +341,12 @@ internal class SuperBlock : IByteArraySerializable
         }
     }
 
-    public ushort SbVersion
-    {
-        get { return (ushort)(Version & VersionFlags.NumberFlag); }
-    }
+    public ushort SbVersion => (ushort)(Version & VersionFlags.NumberFlag);
 
-    public bool SbVersionHasMoreBits
-    {
-        get { return (Version & VersionFlags.Features2) == VersionFlags.Features2; }
-    }
+    public bool SbVersionHasMoreBits => (Version & VersionFlags.Features2) == VersionFlags.Features2;
 
-    public bool HasFType
-    {
-        get
-        {
-            return SbVersion == 5 && ((IncompatibleFeatures & IncompatibleFeatures.FType) == IncompatibleFeatures.FType) ||
+    public bool HasFType => SbVersion == 5 && ((IncompatibleFeatures & IncompatibleFeatures.FType) == IncompatibleFeatures.FType) ||
                    SbVersionHasMoreBits && ((Features2 & Version2Features.FType) == Version2Features.FType);
-        }
-    }
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

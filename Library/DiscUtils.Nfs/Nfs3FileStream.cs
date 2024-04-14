@@ -47,33 +47,21 @@ internal sealed class Nfs3FileStream : SparseStream
         _length = _client.GetAttributes(_handle).Size;
     }
 
-    public override bool CanRead
-    {
-        get { return _access != FileAccess.Write; }
-    }
+    public override bool CanRead => _access != FileAccess.Write;
 
-    public override bool CanSeek
-    {
-        get { return true; }
-    }
+    public override bool CanSeek => true;
 
-    public override bool CanWrite
-    {
-        get { return _access != FileAccess.Read; }
-    }
+    public override bool CanWrite => _access != FileAccess.Read;
 
     public override IEnumerable<StreamExtent> Extents
         => SingleValueEnumerable.Get(new StreamExtent(0, Length));
 
-    public override long Length
-    {
-        get { return _length; }
-    }
+    public override long Length => _length;
 
     public override long Position
     {
-        get { return _position; }
-        set { _position = value; }
+        get => _position;
+        set => _position = value;
     }
 
     public override void Flush() {}

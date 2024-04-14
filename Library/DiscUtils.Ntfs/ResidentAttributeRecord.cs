@@ -51,19 +51,16 @@ internal sealed class ResidentAttributeRecord : AttributeRecord
 
     public override long AllocatedLength
     {
-        get { return MathUtilities.RoundUp(DataLength, 8); }
-        set { throw new NotSupportedException(); }
+        get => MathUtilities.RoundUp(DataLength, 8);
+        set => throw new NotSupportedException();
     }
 
-    public Buffer DataBuffer
-    {
-        get { return _memoryBuffer; }
-    }
+    public Buffer DataBuffer => _memoryBuffer;
 
     public override long DataLength
     {
-        get { return _memoryBuffer.Capacity; }
-        set { throw new NotSupportedException(); }
+        get => _memoryBuffer.Capacity;
+        set => throw new NotSupportedException();
     }
 
     public int DataOffset
@@ -85,8 +82,8 @@ internal sealed class ResidentAttributeRecord : AttributeRecord
     /// </summary>
     public override long InitializedDataLength
     {
-        get { return DataLength; }
-        set { throw new NotSupportedException(); }
+        get => DataLength;
+        set => throw new NotSupportedException();
     }
 
     public override int Size
@@ -105,10 +102,7 @@ internal sealed class ResidentAttributeRecord : AttributeRecord
         }
     }
 
-    public override long StartVcn
-    {
-        get { return 0; }
-    }
+    public override long StartVcn => 0;
 
     public override IBuffer GetReadOnlyDataBuffer(INtfsContext context)
     {

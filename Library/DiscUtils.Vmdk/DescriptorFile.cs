@@ -77,8 +77,8 @@ internal class DescriptorFile
 
     public DiskAdapterType AdapterType
     {
-        get { return ParseAdapterType(GetDiskDatabase(DiskDbAdapterType)); }
-        set { SetDiskDatabase(DiskDbAdapterType, FormatAdapterType(value)); }
+        get => ParseAdapterType(GetDiskDatabase(DiskDbAdapterType));
+        set => SetDiskDatabase(DiskDbAdapterType, FormatAdapterType(value));
     }
 
     public Geometry BiosGeometry
@@ -109,18 +109,15 @@ internal class DescriptorFile
 
     public uint ContentId
     {
-        get { return uint.Parse(GetHeader(HeaderContentId), NumberStyles.HexNumber, CultureInfo.InvariantCulture); }
-        set
-        {
-            SetHeader(HeaderContentId, value.ToString("x8", CultureInfo.InvariantCulture),
+        get => uint.Parse(GetHeader(HeaderContentId), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+        set => SetHeader(HeaderContentId, value.ToString("x8", CultureInfo.InvariantCulture),
                 DescriptorFileEntryType.Plain);
-        }
     }
 
     public DiskCreateType CreateType
     {
-        get { return ParseCreateType(GetHeader(HeaderCreateType)); }
-        set { SetHeader(HeaderCreateType, FormatCreateType(value), DescriptorFileEntryType.Plain); }
+        get => ParseCreateType(GetHeader(HeaderCreateType));
+        set => SetHeader(HeaderCreateType, FormatCreateType(value), DescriptorFileEntryType.Plain);
     }
 
     public Geometry DiskGeometry
@@ -154,30 +151,27 @@ internal class DescriptorFile
 
     public string HardwareVersion
     {
-        get { return GetDiskDatabase(DiskDbHardwareVersion); }
-        set { SetDiskDatabase(DiskDbHardwareVersion, value); }
+        get => GetDiskDatabase(DiskDbHardwareVersion);
+        set => SetDiskDatabase(DiskDbHardwareVersion, value);
     }
 
     public uint ParentContentId
     {
-        get { return uint.Parse(GetHeader(HeaderParentContentId), NumberStyles.HexNumber, CultureInfo.InvariantCulture); }
-        set
-        {
-            SetHeader(HeaderParentContentId, value.ToString("x8", CultureInfo.InvariantCulture),
+        get => uint.Parse(GetHeader(HeaderParentContentId), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+        set => SetHeader(HeaderParentContentId, value.ToString("x8", CultureInfo.InvariantCulture),
                 DescriptorFileEntryType.Plain);
-        }
     }
 
     public string ParentFileNameHint
     {
-        get { return GetHeader(HeaderParentFileNameHint); }
-        set { SetHeader(HeaderParentFileNameHint, value, DescriptorFileEntryType.Quoted); }
+        get => GetHeader(HeaderParentFileNameHint);
+        set => SetHeader(HeaderParentFileNameHint, value, DescriptorFileEntryType.Quoted);
     }
 
     public Guid UniqueId
     {
-        get { return ParseUuid(GetDiskDatabase(DiskDbUuid).AsSpan()); }
-        set { SetDiskDatabase(DiskDbUuid, FormatUuid(value)); }
+        get => ParseUuid(GetDiskDatabase(DiskDbUuid).AsSpan());
+        set => SetDiskDatabase(DiskDbUuid, FormatUuid(value));
     }
 
     internal void Write(Stream stream)

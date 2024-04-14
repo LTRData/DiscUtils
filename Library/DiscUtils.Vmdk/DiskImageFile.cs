@@ -80,8 +80,8 @@ public sealed class DiskImageFile : VirtualDiskLayer
             // For monolithic disks, keep hold of the stream - we won't try to use the file name
             // from the embedded descriptor because the file may have been renamed, making the 
             // descriptor out of date.
-            if (_descriptor.CreateType == DiskCreateType.StreamOptimized ||
-                _descriptor.CreateType == DiskCreateType.MonolithicSparse)
+            if (_descriptor.CreateType is DiskCreateType.StreamOptimized or
+                DiskCreateType.MonolithicSparse)
             {
                 _monolithicStream = fileStream;
                 _ownsMonolithicStream = Ownership.Dispose;
@@ -90,10 +90,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
         }
         finally
         {
-            if (fileStream != null)
-            {
-                fileStream.Dispose();
-            }
+            fileStream?.Dispose();
         }
 
     }
@@ -110,8 +107,8 @@ public sealed class DiskImageFile : VirtualDiskLayer
         LoadDescriptor(stream);
 
         var createTypeIsSparse =
-            _descriptor.CreateType == DiskCreateType.MonolithicSparse
-            || _descriptor.CreateType == DiskCreateType.StreamOptimized;
+            _descriptor.CreateType is DiskCreateType.MonolithicSparse
+            or DiskCreateType.StreamOptimized;
 
         if (!createTypeIsSparse || _descriptor.Extents.Count != 1
             || _descriptor.Extents[0].Type != ExtentType.Sparse || _descriptor.ParentContentId != uint.MaxValue)
@@ -151,8 +148,8 @@ public sealed class DiskImageFile : VirtualDiskLayer
             // For monolithic disks, keep hold of the stream - we won't try to use the file name
             // from the embedded descriptor because the file may have been renamed, making the 
             // descriptor out of date.
-            if (_descriptor.CreateType == DiskCreateType.StreamOptimized ||
-                _descriptor.CreateType == DiskCreateType.MonolithicSparse)
+            if (_descriptor.CreateType is DiskCreateType.StreamOptimized or
+                DiskCreateType.MonolithicSparse)
             {
                 _monolithicStream = fileStream;
                 _ownsMonolithicStream = Ownership.Dispose;
@@ -161,10 +158,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
         }
         finally
         {
-            if (fileStream != null)
-            {
-                fileStream.Dispose();
-            }
+            fileStream?.Dispose();
         }
 
         _fileLocator = fileLocator.GetRelativeLocator(fileLocator.GetDirectoryFromPath(file));
@@ -178,18 +172,12 @@ public sealed class DiskImageFile : VirtualDiskLayer
     /// <summary>
     /// Gets the IDE/SCSI adapter type of the disk.
     /// </summary>
-    internal DiskAdapterType AdapterType
-    {
-        get { return _descriptor.AdapterType; }
-    }
+    internal DiskAdapterType AdapterType => _descriptor.AdapterType;
 
     /// <summary>
     /// Gets the BIOS geometry of this disk.
     /// </summary>
-    internal Geometry BiosGeometry
-    {
-        get { return _descriptor.BiosGeometry; }
-    }
+    internal Geometry BiosGeometry => _descriptor.BiosGeometry;
 
     /// <summary>
     /// Gets the capacity of this disk (in bytes).
@@ -208,18 +196,12 @@ public sealed class DiskImageFile : VirtualDiskLayer
         }
     }
 
-    internal uint ContentId
-    {
-        get { return _descriptor.ContentId; }
-    }
+    internal uint ContentId => _descriptor.ContentId;
 
     /// <summary>
     /// Gets the 'CreateType' of this disk.
     /// </summary>
-    internal DiskCreateType CreateType
-    {
-        get { return _descriptor.CreateType; }
-    }
+    internal DiskCreateType CreateType => _descriptor.CreateType;
 
     /// <summary>
     /// Gets the relative paths to all of the disk's extents.
@@ -265,31 +247,19 @@ public sealed class DiskImageFile : VirtualDiskLayer
     /// <summary>
     /// Gets the Geometry of this disk.
     /// </summary>
-    public override Geometry Geometry
-    {
-        get { return _descriptor.DiskGeometry; }
-    }
+    public override Geometry Geometry => _descriptor.DiskGeometry;
 
     /// <summary>
     /// Gets an indication as to whether the disk file is sparse.
     /// </summary>
-    public override bool IsSparse
-    {
-        get
-        {
-            return _descriptor.CreateType == DiskCreateType.MonolithicSparse
-                   || _descriptor.CreateType == DiskCreateType.TwoGbMaxExtentSparse
-                   || _descriptor.CreateType == DiskCreateType.VmfsSparse;
-        }
-    }
+    public override bool IsSparse => _descriptor.CreateType is DiskCreateType.MonolithicSparse
+                   or DiskCreateType.TwoGbMaxExtentSparse
+                   or DiskCreateType.VmfsSparse;
 
     /// <summary>
     /// Gets a value indicating whether this disk is a linked differencing disk.
     /// </summary>
-    public override bool NeedsParent
-    {
-        get { return _descriptor.ParentContentId != uint.MaxValue; }
-    }
+    public override bool NeedsParent => _descriptor.ParentContentId != uint.MaxValue;
 
     /// <summary>
     /// Gets a <c>FileLocator</c> that can resolve relative paths, or <c>null</c>.
@@ -297,10 +267,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
     /// <remarks>
     /// Typically used to locate parent disks.
     /// </remarks>
-    public override FileLocator RelativeFileLocator
-    {
-        get { return _fileLocator; }
-    }
+    public override FileLocator RelativeFileLocator => _fileLocator;
 
     /// <summary>
     /// Creates a new virtual disk at the specified path.
@@ -444,8 +411,8 @@ public sealed class DiskImageFile : VirtualDiskLayer
     /// <returns>The new virtual disk.</returns>
     public static DiskImageFile InitializeDifferencing(string path, DiskCreateType type, string parent, bool useAsync = false)
     {
-        if (type != DiskCreateType.MonolithicSparse && type != DiskCreateType.TwoGbMaxExtentSparse &&
-            type != DiskCreateType.VmfsSparse)
+        if (type is not DiskCreateType.MonolithicSparse and not DiskCreateType.TwoGbMaxExtentSparse and
+            not DiskCreateType.VmfsSparse)
         {
             throw new ArgumentException("Differencing disks must be sparse", nameof(type));
         }
@@ -468,8 +435,8 @@ public sealed class DiskImageFile : VirtualDiskLayer
     public static DiskImageFile InitializeDifferencing(DiscFileSystem fileSystem, string path, DiskCreateType type,
                                                        string parent)
     {
-        if (type != DiskCreateType.MonolithicSparse && type != DiskCreateType.TwoGbMaxExtentSparse &&
-            type != DiskCreateType.VmfsSparse)
+        if (type is not DiskCreateType.MonolithicSparse and not DiskCreateType.TwoGbMaxExtentSparse and
+            not DiskCreateType.VmfsSparse)
         {
             throw new ArgumentException("Differencing disks must be sparse", nameof(type));
         }
@@ -688,8 +655,8 @@ public sealed class DiskImageFile : VirtualDiskLayer
             var extentType = CreateTypeToExtentType(type);
             long totalSize = 0;
             var extents = new List<ExtentDescriptor>();
-            if (type == DiskCreateType.MonolithicFlat || type == DiskCreateType.VmfsSparse ||
-                type == DiskCreateType.Vmfs)
+            if (type is DiskCreateType.MonolithicFlat or DiskCreateType.VmfsSparse or
+                DiskCreateType.Vmfs)
             {
                 var adornment = "flat";
                 if (type == DiskCreateType.VmfsSparse)
@@ -705,7 +672,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
                     fileName, 0));
                 totalSize = capacity;
             }
-            else if (type == DiskCreateType.TwoGbMaxExtentFlat || type == DiskCreateType.TwoGbMaxExtentSparse)
+            else if (type is DiskCreateType.TwoGbMaxExtentFlat or DiskCreateType.TwoGbMaxExtentSparse)
             {
                 var i = 1;
                 while (totalSize < capacity)
@@ -861,7 +828,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
     private static void CreateExtent(Stream extentStream, long size, ExtentType type, long descriptorLength,
                                      out long descriptorStart)
     {
-        if (type == ExtentType.Flat || type == ExtentType.Vmfs)
+        if (type is ExtentType.Flat or ExtentType.Vmfs)
         {
             extentStream.SetLength(size);
             descriptorStart = 0;
@@ -944,7 +911,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
             share = FileShare.None;
         }
 
-        if (extent.Type != ExtentType.Sparse && extent.Type != ExtentType.VmfsSparse)
+        if (extent.Type is not ExtentType.Sparse and not ExtentType.VmfsSparse)
         {
             if (ownsParent == Ownership.Dispose && parent != null)
             {

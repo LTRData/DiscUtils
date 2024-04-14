@@ -43,10 +43,7 @@ internal class AttributeKey : BTreeKey
 
     public string Name { get; private set; }
 
-    public override int Size
-    {
-        get { throw new NotImplementedException(); }
-    }
+    public override int Size => throw new NotImplementedException();
 
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {

@@ -35,10 +35,7 @@ internal abstract class LogicalPartition : Partition
         _volumeDescriptor = volumeDescriptor;
     }
 
-    public long LogicalBlockSize
-    {
-        get { return _volumeDescriptor.LogicalBlockSize; }
-    }
+    public long LogicalBlockSize => _volumeDescriptor.LogicalBlockSize;
 
     public static LogicalPartition FromDescriptor(UdfContext context, LogicalVolumeDescriptor volumeDescriptor,
                                                   int index)

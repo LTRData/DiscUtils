@@ -140,12 +140,7 @@ internal sealed class RawClusterStream : ClusterStream
         var totalVirtualClusters = _cookedRuns.NextVirtualCluster;
         if (totalVirtualClusters < numVirtualClusters)
         {
-            var realExtent = extent;
-            if (realExtent == null)
-            {
-                realExtent = _cookedRuns.Last.AttributeExtent;
-            }
-
+            var realExtent = extent ?? _cookedRuns.Last.AttributeExtent;
             var newRun = new DataRun(0, numVirtualClusters - totalVirtualClusters, true);
             realExtent.DataRuns.Add(newRun);
             _cookedRuns.Append(newRun, extent);
@@ -163,12 +158,7 @@ internal sealed class RawClusterStream : ClusterStream
         var totalVirtualClusters = _cookedRuns.NextVirtualCluster;
         if (totalVirtualClusters < numVirtualClusters)
         {
-            var realExtent = extent;
-            if (realExtent == null)
-            {
-                realExtent = _cookedRuns.Last.AttributeExtent;
-            }
-
+            var realExtent = extent ?? _cookedRuns.Last.AttributeExtent;
             var newRun = new DataRun(0, numVirtualClusters - totalVirtualClusters, true);
             realExtent.DataRuns.Add(newRun);
             _cookedRuns.Append(newRun, extent);

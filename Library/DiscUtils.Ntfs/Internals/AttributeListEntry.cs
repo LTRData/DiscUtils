@@ -40,26 +40,17 @@ public readonly struct AttributeListEntry : IAttributeLocator
     /// <summary>
     /// Gets the identifier of the attribute.
     /// </summary>
-    public ushort Identifier
-    {
-        get { return _record.AttributeId; }
-    }
+    public ushort Identifier => _record.AttributeId;
 
     /// <summary>
     /// Gets the name of the attribute (if any).
     /// </summary>
-    public string Name
-    {
-        get { return _record.Name; }
-    }
+    public string Name => _record.Name;
 
     /// <summary>
     /// Gets the type of the attribute.
     /// </summary>
-    public AttributeType AttributeType
-    {
-        get { return _record.Type; }
-    }
+    public AttributeType AttributeType => _record.Type;
 
     /// <summary>
     /// Gets the first cluster represented in this attribute (normally 0).
@@ -77,16 +68,10 @@ public readonly struct AttributeListEntry : IAttributeLocator
     /// represented in the attribute).
     /// </para>
     /// </remarks>
-    public long FirstFileCluster
-    {
-        get { return (long)_record.StartVcn; }
-    }
+    public long FirstFileCluster => (long)_record.StartVcn;
 
     /// <summary>
     /// Gets the Master File Table entry that contains the attribute.
     /// </summary>
-    public MasterFileTableReference MasterFileTableEntry
-    {
-        get { return new MasterFileTableReference(_record.BaseFileReference); }
-    }
+    public MasterFileTableReference MasterFileTableEntry => new MasterFileTableReference(_record.BaseFileReference);
 }

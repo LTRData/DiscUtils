@@ -192,13 +192,13 @@ internal static class IsoUtilities
     {
         for (var i = 0; i < str.Length; ++i)
         {
-            if (!(
-                (str[i] >= ' ' && str[i] <= '\"')
-                || (str[i] >= '%' && str[i] <= '/')
-                || (str[i] >= ':' && str[i] <= '?')
-                || (str[i] >= '0' && str[i] <= '9')
-                || (str[i] >= 'A' && str[i] <= 'Z')
-                || (str[i] == '_')))
+            if (str[i] is not
+                (>= ' ' and <= '\"'
+                or >= '%' and <= '/'
+                or >= ':' and <= '?'
+                or >= '0' and <= '9'
+                or >= 'A' and <= 'Z'
+                or '_'))
             {
                 return false;
             }
@@ -222,7 +222,7 @@ internal static class IsoUtilities
 
     internal static bool IsValidDChar(char ch)
     {
-        return (ch >= '0' && ch <= '9') || (ch >= 'A' && ch <= 'Z') || (ch == '_');
+        return ch is >= '0' and <= '9' or >= 'A' and <= 'Z' or '_';
     }
 
     internal static bool IsValidFileName(string str)
@@ -230,8 +230,8 @@ internal static class IsoUtilities
         for (var i = 0; i < str.Length; ++i)
         {
             if (
-                !((str[i] >= '0' && str[i] <= '9') || (str[i] >= 'A' && str[i] <= 'Z') || (str[i] == '_') ||
-                  (str[i] == '.') || (str[i] == ';')))
+str[i] is not (>= '0' and <= '9' or >= 'A' and <= 'Z' or '_' or
+                  '.' or ';'))
             {
                 return false;
             }
@@ -349,7 +349,7 @@ internal static class IsoUtilities
         var allNull = true;
         for (var i = 0; i < 16; ++i)
         {
-            if (data[i] != (byte)'0' && data[i] != 0)
+            if (data[i] is not ((byte)'0') and not 0)
             {
                 allNull = false;
                 break;
@@ -444,7 +444,7 @@ internal static class IsoUtilities
 
     internal static bool IsSpecialDirectory(DirectoryRecord r)
     {
-        return r.FileIdentifier == "\0" || r.FileIdentifier == "\x01";
+        return r.FileIdentifier is "\0" or "\x01";
     }
 
     private static int SafeParseInt(int minVal, int maxVal, ReadOnlySpan<char> str)

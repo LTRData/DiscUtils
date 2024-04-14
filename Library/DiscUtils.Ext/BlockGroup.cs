@@ -41,7 +41,7 @@ internal class BlockGroup64 : BlockGroup
         this._descriptorSize = descriptorSize;
     }
 
-    public override int Size { get { return this._descriptorSize; } }
+    public override int Size => this._descriptorSize;
 
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {
@@ -69,10 +69,7 @@ internal class BlockGroup : IByteArraySerializable
     public uint InodeTableBlock;
     public ushort UsedDirsCount;
 
-    public virtual int Size
-    {
-        get { return DescriptorSize; }
-    }
+    public virtual int Size => DescriptorSize;
 
     public virtual int ReadFrom(ReadOnlySpan<byte> buffer)
     {

@@ -48,15 +48,12 @@ public class CookedDataRun
 
     public DataRun DataRun { get; }
 
-    public bool IsSparse
-    {
-        get { return DataRun.IsSparse; }
-    }
+    public bool IsSparse => DataRun.IsSparse;
 
     public long Length
     {
-        get { return DataRun.RunLength; }
-        set { DataRun.RunLength = value; }
+        get => DataRun.RunLength;
+        set => DataRun.RunLength = value;
     }
 
     public long StartLcn { get; set; }

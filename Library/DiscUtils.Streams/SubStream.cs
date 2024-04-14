@@ -65,20 +65,11 @@ public class SubStream : MappedStream
         }
     }
 
-    public override bool CanRead
-    {
-        get { return _parent.CanRead; }
-    }
+    public override bool CanRead => _parent.CanRead;
 
-    public override bool CanSeek
-    {
-        get { return _parent.CanSeek; }
-    }
+    public override bool CanSeek => _parent.CanSeek;
 
-    public override bool CanWrite
-    {
-        get { return _parent.CanWrite; }
-    }
+    public override bool CanWrite => _parent.CanWrite;
 
     public override IEnumerable<StreamExtent> Extents
     {
@@ -94,14 +85,11 @@ public class SubStream : MappedStream
         }
     }
 
-    public override long Length
-    {
-        get { return _length; }
-    }
+    public override long Length => _length;
 
     public override long Position
     {
-        get { return _position; }
+        get => _position;
 
         set
         {

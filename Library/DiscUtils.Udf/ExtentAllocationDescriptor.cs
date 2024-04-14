@@ -30,10 +30,7 @@ internal sealed class ExtentAllocationDescriptor : IByteArraySerializable
     public uint ExtentLength;
     public uint ExtentLocation;
 
-    public int Size
-    {
-        get { return 8; }
-    }
+    public int Size => 8;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

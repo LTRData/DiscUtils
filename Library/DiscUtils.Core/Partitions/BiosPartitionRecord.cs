@@ -54,26 +54,17 @@ internal class BiosPartitionRecord : IComparable<BiosPartitionRecord>
 
     public byte EndSector { get; set; }
 
-    public string FriendlyPartitionType
-    {
-        get { return BiosPartitionTypes.ToString(PartitionType); }
-    }
+    public string FriendlyPartitionType => BiosPartitionTypes.ToString(PartitionType);
 
     public int Index { get; }
 
-    public bool IsValid
-    {
-        get { return EndHead != 0 || EndSector != 0 || EndCylinder != 0 || LBALength != 0; }
-    }
+    public bool IsValid => EndHead != 0 || EndSector != 0 || EndCylinder != 0 || LBALength != 0;
 
     public uint LBALength { get; set; }
 
     public uint LBAStart { get; set; }
 
-    public uint LBAStartAbsolute
-    {
-        get { return LBAStart + _lbaOffset; }
-    }
+    public uint LBAStartAbsolute => LBAStart + _lbaOffset;
 
     public byte PartitionType { get; set; }
 

@@ -163,10 +163,7 @@ public class ValidatingFileSystem<TFileSystem, TChecker> : DiscFileSystem
             }
             finally
             {
-                if (_globalTrace != null)
-                {
-                    _globalTrace.Dispose();
-                }
+                _globalTrace?.Dispose();
             }
         }
 
@@ -181,8 +178,8 @@ public class ValidatingFileSystem<TFileSystem, TChecker> : DiscFileSystem
     /// counts as an operation.</remarks>
     public int CheckpointInterval
     {
-        get { return _checkpointPeriod; }
-        set { _checkpointPeriod = value; }
+        get => _checkpointPeriod;
+        set => _checkpointPeriod = value;
     }
 
     /// <summary>
@@ -190,8 +187,8 @@ public class ValidatingFileSystem<TFileSystem, TChecker> : DiscFileSystem
     /// </summary>
     public bool RunGlobalIOTrace
     {
-        get { return _runGlobalTrace; }
-        set { _runGlobalTrace = value; }
+        get => _runGlobalTrace;
+        set => _runGlobalTrace = value;
     }
 
     /// <summary>
@@ -199,8 +196,8 @@ public class ValidatingFileSystem<TFileSystem, TChecker> : DiscFileSystem
     /// </summary>
     public bool GlobalIOTraceCapturesStackTraces
     {
-        get { return _globalTraceCaptureStackTraces; }
-        set { _globalTraceCaptureStackTraces = value; }
+        get => _globalTraceCaptureStackTraces;
+        set => _globalTraceCaptureStackTraces = value;
     }
 
     /// <summary>
@@ -419,10 +416,7 @@ public class ValidatingFileSystem<TFileSystem, TChecker> : DiscFileSystem
     /// <summary>
     /// Indicates if we're in lock-down (i.e. corruption has been detected).
     /// </summary>
-    internal bool InLockdown
-    {
-        get { return _lockdown; }
-    }
+    internal bool InLockdown => _lockdown;
 
     /// <summary>
     /// Replays a specified number of activities.
@@ -664,13 +658,7 @@ public class ValidatingFileSystem<TFileSystem, TChecker> : DiscFileSystem
     /// <summary>
     /// Gets the root directory of the file system.
     /// </summary>
-    public override DiscDirectoryInfo Root
-    {
-        get
-        {
-            return _root ??= new DiscDirectoryInfo(this, string.Empty);
-        }
-    }
+    public override DiscDirectoryInfo Root => _root ??= new DiscDirectoryInfo(this, string.Empty);
 
     /// <summary>
     /// Copies an existing file to a new file.

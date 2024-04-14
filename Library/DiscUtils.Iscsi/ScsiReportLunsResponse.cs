@@ -31,15 +31,9 @@ internal class ScsiReportLunsResponse : ScsiResponse
 
     public List<ulong> Luns { get; private set; }
 
-    public override uint NeededDataLength
-    {
-        get { return _availableLuns * 8 + 8; }
-    }
+    public override uint NeededDataLength => _availableLuns * 8 + 8;
 
-    public override bool Truncated
-    {
-        get { return _availableLuns != Luns.Count; }
-    }
+    public override bool Truncated => _availableLuns != Luns.Count;
 
     public override void ReadFrom(byte[] buffer, int offset, int count)
     {

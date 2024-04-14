@@ -64,7 +64,7 @@ internal class BiosExtendedPartitionTable
                     if (thisPart.StartCylinder != 0 || thisPart.StartHead != 0 || thisPart.StartSector != 0 ||
                         (thisPart.LBAStart != 0 && thisPart.LBALength != 0))
                     {
-                        if (thisPart.PartitionType != 0x05 && thisPart.PartitionType != 0x0F)
+                        if (thisPart.PartitionType is not 0x05 and not 0x0F)
                         {
                             yield return thisPart;
                         }
@@ -112,7 +112,7 @@ internal class BiosExtendedPartitionTable
 
                     if (thisPart.StartCylinder != 0 || thisPart.StartHead != 0 || thisPart.StartSector != 0)
                     {
-                        if (thisPart.PartitionType == 0x05 || thisPart.PartitionType == 0x0F)
+                        if (thisPart.PartitionType is 0x05 or 0x0F)
                         {
                             nextPartPos = _firstSector + thisPart.LBAStart;
                         }

@@ -30,10 +30,7 @@ namespace DiscUtils.Vdi;
 [VirtualDiskFactory("VDI", ".vdi")]
 internal sealed class DiskFactory : VirtualDiskFactory
 {
-    public override string[] Variants
-    {
-        get { return new[] { "fixed", "dynamic" }; }
-    }
+    public override string[] Variants => new[] { "fixed", "dynamic" };
 
     public override VirtualDiskTypeInfo GetDiskTypeInformation(string variant)
     {

@@ -32,10 +32,7 @@ internal class ExtendedFileEntry : FileEntry, IByteArraySerializable
     public ulong ObjectSize;
     public LongAllocationDescriptor StreamDirectoryIcb;
 
-    public override int Size
-    {
-        get { throw new NotImplementedException(); }
-    }
+    public override int Size => throw new NotImplementedException();
 
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {

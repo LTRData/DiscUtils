@@ -118,10 +118,7 @@ public class CreateIso : Task
             }
             finally
             {
-                if (bootImageStream != null)
-                {
-                    bootImageStream.Dispose();
-                }
+                bootImageStream?.Dispose();
             }
         }
         catch(Exception e)

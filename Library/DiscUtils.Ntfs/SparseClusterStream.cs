@@ -39,15 +39,9 @@ internal sealed class SparseClusterStream : ClusterStream
         _rawStream = rawStream;
     }
 
-    public override long AllocatedClusterCount
-    {
-        get { return _rawStream.AllocatedClusterCount; }
-    }
+    public override long AllocatedClusterCount => _rawStream.AllocatedClusterCount;
 
-    public override IEnumerable<Range<long, long>> StoredClusters
-    {
-        get { return _rawStream.StoredClusters; }
-    }
+    public override IEnumerable<Range<long, long>> StoredClusters => _rawStream.StoredClusters;
 
     public override bool IsClusterStored(long vcn)
     {

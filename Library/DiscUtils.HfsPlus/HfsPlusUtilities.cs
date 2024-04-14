@@ -417,7 +417,7 @@ internal static class HfsPlusUtilities
         result.Permissions = (UnixFilePermissions)(fileMode & 0xFFF);
 
         special = EndianUtilities.ToUInt32BigEndian(buffer.Slice(10));
-        if (result.FileType == UnixFileType.Block || result.FileType == UnixFileType.Character)
+        if (result.FileType is UnixFileType.Block or UnixFileType.Character)
         {
             result.DeviceId = special;
         }

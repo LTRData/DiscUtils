@@ -35,10 +35,7 @@ internal sealed class RegionEntry : IByteArraySerializable
     public Guid Guid;
     public uint Length;
 
-    public int Size
-    {
-        get { return 32; }
-    }
+    public int Size => 32;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

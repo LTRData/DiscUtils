@@ -36,10 +36,7 @@ internal class BTreeInodeNode : BtreeHeader
 
     public Dictionary<uint, BtreeHeader> Children { get; private set; }
 
-    public override int Size
-    {
-        get { return base.Size + (NumberOfRecords * 0x8); }
-    }
+    public override int Size => base.Size + (NumberOfRecords * 0x8);
 
     public BTreeInodeNode(uint superBlockVersion) : base(superBlockVersion) { }
 

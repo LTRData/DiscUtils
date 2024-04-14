@@ -32,10 +32,7 @@ internal sealed class DiskTransport : VirtualDiskTransport
     private LunInfo _lunInfo;
     private Session _session;
 
-    public override bool IsRawDisk
-    {
-        get { return true; }
-    }
+    public override bool IsRawDisk => true;
 
     public override void Connect(Uri uri, string username, string password)
     {
@@ -70,10 +67,7 @@ internal sealed class DiskTransport : VirtualDiskTransport
     {
         if (disposing)
         {
-            if (_session != null)
-            {
-                _session.Dispose();
-            }
+            _session?.Dispose();
 
             _session = null;
         }

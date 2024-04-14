@@ -87,10 +87,7 @@ internal class ExtentData : BaseItem
     /// </summary>
     public ulong LogicalSize { get; private set; }
 
-    public override int Size
-    {
-        get { return Type == ExtentDataType.Inline ? InlineData.Length + 0x15 : 0x35; }
-    }
+    public override int Size => Type == ExtentDataType.Inline ? InlineData.Length + 0x15 : 0x35;
 
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {

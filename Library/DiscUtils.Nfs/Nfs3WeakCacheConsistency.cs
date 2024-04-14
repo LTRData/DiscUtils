@@ -51,16 +51,10 @@ public sealed class Nfs3WeakCacheConsistency
     internal void Write(XdrDataWriter writer)
     {
         writer.Write(Before != null);
-        if (Before != null)
-        {
-            Before.Write(writer);
-        }
+        Before?.Write(writer);
 
         writer.Write(After != null);
-        if (After != null)
-        {
-            After.Write(writer);
-        }
+        After?.Write(writer);
     }
 
     public override bool Equals(object obj)

@@ -58,10 +58,7 @@ public abstract class DiskImageBuilder
     /// <summary>
     /// Gets a value indicating whether this file format preserves BIOS geometry information.
     /// </summary>
-    public virtual bool PreservesBiosGeometry
-    {
-        get { return false; }
-    }
+    public virtual bool PreservesBiosGeometry => false;
 
     private static Dictionary<string, VirtualDiskFactory> TypeMap
     {

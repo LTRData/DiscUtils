@@ -38,67 +38,33 @@ internal sealed class DirEntry : VfsDirEntry
 
     public CommonCatalogFileInfo CatalogFileInfo { get; }
 
-    public override DateTime CreationTimeUtc
-    {
-        get { return CatalogFileInfo.CreateTime; }
-    }
+    public override DateTime CreationTimeUtc => CatalogFileInfo.CreateTime;
 
-    public override FileAttributes FileAttributes
-    {
-        get { return Utilities.FileAttributesFromUnixFileType(CatalogFileInfo.FileSystemInfo.FileType); }
-    }
+    public override FileAttributes FileAttributes => Utilities.FileAttributesFromUnixFileType(CatalogFileInfo.FileSystemInfo.FileType);
 
     public override string FileName { get; }
 
-    public override bool HasVfsFileAttributes
-    {
-        get { return true; }
-    }
+    public override bool HasVfsFileAttributes => true;
 
-    public override bool HasVfsTimeInfo
-    {
-        get { return true; }
-    }
+    public override bool HasVfsTimeInfo => true;
 
-    public override bool IsDirectory
-    {
-        get { return CatalogFileInfo.RecordType == CatalogRecordType.FolderRecord; }
-    }
+    public override bool IsDirectory => CatalogFileInfo.RecordType == CatalogRecordType.FolderRecord;
 
-    public override bool IsSymlink
-    {
-        get
-        {
-            return
-                !IsDirectory
+    public override bool IsSymlink => !IsDirectory
                 && (FileTypeFlags)((CatalogFileInfo)CatalogFileInfo).FileInfo.FileType == FileTypeFlags.SymLinkFileType;
-        }
-    }
 
-    public override DateTime LastAccessTimeUtc
-    {
-        get { return CatalogFileInfo.AccessTime; }
-    }
+    public override DateTime LastAccessTimeUtc => CatalogFileInfo.AccessTime;
 
-    public override DateTime LastWriteTimeUtc
-    {
-        get { return CatalogFileInfo.ContentModifyTime; }
-    }
+    public override DateTime LastWriteTimeUtc => CatalogFileInfo.ContentModifyTime;
 
-    public CatalogNodeId NodeId
-    {
-        get { return CatalogFileInfo.FileId; }
-    }
+    public CatalogNodeId NodeId => CatalogFileInfo.FileId;
 
-    public override long UniqueCacheId
-    {
-        get { return CatalogFileInfo.FileId; }
-    }
+    public override long UniqueCacheId => CatalogFileInfo.FileId;
 
     internal static bool IsFileOrDirectory(byte[] dirEntryData)
     {
         var type = (CatalogRecordType)EndianUtilities.ToInt16BigEndian(dirEntryData, 0);
-        return type == CatalogRecordType.FolderRecord || type == CatalogRecordType.FileRecord;
+        return type is CatalogRecordType.FolderRecord or CatalogRecordType.FileRecord;
     }
 
     private static CommonCatalogFileInfo ParseDirEntryData(byte[] dirEntryData)

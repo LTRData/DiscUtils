@@ -41,25 +41,13 @@ public class CommandLineParameter
         _isOptional = isOptional;
     }
 
-    public bool IsPresent
-    {
-        get { return _isPresent; }
-    }
+    public bool IsPresent => _isPresent;
 
-    public string Value
-    {
-        get { return _value; }
-    }
+    public string Value => _value;
 
-    public virtual bool IsValid
-    {
-        get { return _isOptional || _isPresent; }
-    }
+    public virtual bool IsValid => _isOptional || _isPresent;
 
-    internal bool IsOptional
-    {
-        get { return _isOptional; }
-    }
+    internal bool IsOptional => _isOptional;
 
     internal string CommandLineText
     {
@@ -76,10 +64,7 @@ public class CommandLineParameter
         }
     }
 
-    internal int NameDisplayLength
-    {
-        get { return _name.Length; }
-    }
+    internal int NameDisplayLength => _name.Length;
 
     internal void WriteDescription(TextWriter writer, string lineTemplate, int perLineDescWidth)
     {

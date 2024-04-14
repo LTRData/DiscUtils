@@ -90,8 +90,8 @@ public sealed class CDBuilder : StreamBuilder, IFileSystemBuilder
     /// </summary>
     public bool UseJoliet
     {
-        get { return _buildParams.UseJoliet; }
-        set { _buildParams.UseJoliet = value; }
+        get => _buildParams.UseJoliet;
+        set => _buildParams.UseJoliet = value;
     }
 
     /// <summary>
@@ -103,7 +103,7 @@ public sealed class CDBuilder : StreamBuilder, IFileSystemBuilder
     /// </remarks>
     public string VolumeIdentifier
     {
-        get { return _buildParams.VolumeIdentifier; }
+        get => _buildParams.VolumeIdentifier;
 
         set
         {
@@ -555,12 +555,8 @@ public sealed class CDBuilder : StreamBuilder, IFileSystemBuilder
 
     private BuildDirectoryInfo GetDirectory(ReadOnlyMemory<char>[] path, int pathLength, bool createMissing)
     {
-        var di = TryGetDirectory(path, pathLength, createMissing);
-
-        if (di == null)
-        {
-            throw new DirectoryNotFoundException("Directory not found");
-        }
+        var di = TryGetDirectory(path, pathLength, createMissing)
+            ?? throw new DirectoryNotFoundException("Directory not found");
 
         return di;
     }

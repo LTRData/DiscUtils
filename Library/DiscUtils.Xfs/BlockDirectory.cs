@@ -41,10 +41,7 @@ internal class BlockDirectory : IByteArraySerializable
 
     public List<BlockDirectoryData> Entries { get; private set; }
 
-    public virtual int Size
-    {
-        get { return 16 + 3*32; }
-    }
+    public virtual int Size => 16 + 3 * 32;
 
     protected virtual int ReadHeader(ReadOnlySpan<byte> buffer)
     {
@@ -52,20 +49,14 @@ internal class BlockDirectory : IByteArraySerializable
         return 0x4;
     }
 
-    protected virtual int HeaderPadding
-    {
-        get { return 0; }
-    }
+    protected virtual int HeaderPadding => 0;
 
     public BlockDirectory(Context context)
     {
         _context = context;
     }
 
-    public virtual bool HasValidMagic
-    {
-        get { return Magic == HeaderMagic; }
-    }
+    public virtual bool HasValidMagic => Magic == HeaderMagic;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

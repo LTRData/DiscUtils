@@ -94,10 +94,7 @@ internal sealed class Quotas
             Sid = sid;
         }
 
-        public int Size
-        {
-            get { return Sid.BinaryLength; }
-        }
+        public int Size => Sid.BinaryLength;
 
         public int ReadFrom(ReadOnlySpan<byte> buffer)
         {
@@ -122,10 +119,7 @@ internal sealed class Quotas
             OwnerId = ownerId;
         }
 
-        public int Size
-        {
-            get { return 4; }
-        }
+        public int Size => 4;
 
         public int ReadFrom(ReadOnlySpan<byte> buffer)
         {
@@ -167,10 +161,7 @@ internal sealed class Quotas
             Sid = sid;
         }
 
-        public int Size
-        {
-            get { return 0x30 + (Sid == null ? 0 : Sid.BinaryLength); }
-        }
+        public int Size => 0x30 + (Sid == null ? 0 : Sid.BinaryLength);
 
         public int ReadFrom(ReadOnlySpan<byte> buffer)
         {
@@ -199,10 +190,7 @@ internal sealed class Quotas
             EndianUtilities.WriteBytesLittleEndian(WarningLimit, buffer.Slice(0x18));
             EndianUtilities.WriteBytesLittleEndian(HardLimit, buffer.Slice(0x20));
             EndianUtilities.WriteBytesLittleEndian(ExceededTime, buffer.Slice(0x28));
-            if (Sid != null)
-            {
-                Sid.GetBinaryForm(buffer.Slice(0x30));
-            }
+            Sid?.GetBinaryForm(buffer.Slice(0x30));
         }
 
         public override string ToString()

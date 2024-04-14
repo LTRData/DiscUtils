@@ -67,42 +67,27 @@ public class NfsFileSystem : DiscFileSystem
     /// <summary>
     /// Gets whether this file system supports modification (true for NFS).
     /// </summary>
-    public override bool CanWrite
-    {
-        get { return true; }
-    }
+    public override bool CanWrite => true;
 
     /// <summary>
     /// Gets the friendly name for this file system (NFS).
     /// </summary>
-    public override string FriendlyName
-    {
-        get { return "NFS"; }
-    }
+    public override string FriendlyName => "NFS";
 
     /// <summary>
     /// Gets the options controlling this instance.
     /// </summary>
-    public NfsFileSystemOptions NfsOptions
-    {
-        get { return (NfsFileSystemOptions)Options; }
-    }
+    public NfsFileSystemOptions NfsOptions => (NfsFileSystemOptions)Options;
 
     /// <summary>
     /// Gets the preferred NFS read size.
     /// </summary>
-    public int PreferredReadSize
-    {
-        get { return _client == null ? 0 : (int)_client.FileSystemInfo.ReadPreferredBytes; }
-    }
+    public int PreferredReadSize => _client == null ? 0 : (int)_client.FileSystemInfo.ReadPreferredBytes;
 
     /// <summary>
     /// Gets the preferred NFS write size.
     /// </summary>
-    public int PreferredWriteSize
-    {
-        get { return _client == null ? 0 : (int)_client.FileSystemInfo.WritePreferredBytes; }
-    }
+    public int PreferredWriteSize => _client == null ? 0 : (int)_client.FileSystemInfo.WritePreferredBytes;
 
     /// <summary>
     /// Gets the folders exported by a server.
@@ -135,13 +120,10 @@ public class NfsFileSystem : DiscFileSystem
             var sourceFileName = Utilities.GetFileFromPath(sourceFile);
             var destFileName = Utilities.GetFileFromPath(destinationFile);
 
-            var sourceFileHandle = _client.Lookup(sourceParent, sourceFileName);
-            if (sourceFileHandle == null)
-            {
-                throw new FileNotFoundException(
+            var sourceFileHandle = _client.Lookup(sourceParent, sourceFileName)
+                ?? throw new FileNotFoundException(
                     $"The file '{sourceFile}' does not exist",
                     sourceFile);
-            }
 
             var sourceAttrs = _client.GetAttributes(sourceFileHandle);
             if ((sourceAttrs.Type & Nfs3FileType.Directory) != 0)
@@ -406,11 +388,8 @@ public class NfsFileSystem : DiscFileSystem
             var sourceName = Utilities.GetFileFromPath(sourceDirectoryName);
             var destName = Utilities.GetFileFromPath(destinationDirectoryName);
 
-            var fileHandle = _client.Lookup(sourceParent, sourceName);
-            if (fileHandle == null)
-            {
-                throw new DirectoryNotFoundException($"The directory '{sourceDirectoryName}' does not exist");
-            }
+            var fileHandle = _client.Lookup(sourceParent, sourceName)
+                ?? throw new DirectoryNotFoundException($"The directory '{sourceDirectoryName}' does not exist");
 
             var sourceAttrs = _client.GetAttributes(fileHandle);
             if ((sourceAttrs.Type & Nfs3FileType.Directory) == 0)
@@ -442,13 +421,10 @@ public class NfsFileSystem : DiscFileSystem
             var sourceFileName = Utilities.GetFileFromPath(sourceName);
             var destFileName = Utilities.GetFileFromPath(destinationName);
 
-            var sourceFileHandle = _client.Lookup(sourceParent, sourceFileName);
-            if (sourceFileHandle == null)
-            {
-                throw new FileNotFoundException(
+            var sourceFileHandle = _client.Lookup(sourceParent, sourceFileName)
+                ?? throw new FileNotFoundException(
                     $"The file '{sourceName}' does not exist",
                     sourceName);
-            }
 
             var sourceAttrs = _client.GetAttributes(sourceFileHandle);
             if ((sourceAttrs.Type & Nfs3FileType.Directory) != 0)
@@ -560,7 +536,7 @@ public class NfsFileSystem : DiscFileSystem
             {
                 result |= FileAttributes.Directory;
             }
-            else if (nfsAttrs.Type == Nfs3FileType.BlockDevice || nfsAttrs.Type == Nfs3FileType.CharacterDevice)
+            else if (nfsAttrs.Type is Nfs3FileType.BlockDevice or Nfs3FileType.CharacterDevice)
             {
                 result |= FileAttributes.Device;
             }
@@ -731,26 +707,17 @@ public class NfsFileSystem : DiscFileSystem
     /// <summary>
     /// Size of the Filesystem in bytes
     /// </summary>
-    public override long Size
-    {
-        get { return (long) _client.FsStat(_client.RootHandle).TotalSizeBytes; }
-    }
+    public override long Size => (long)_client.FsStat(_client.RootHandle).TotalSizeBytes;
 
     /// <summary>
     /// Used space of the Filesystem in bytes
     /// </summary>
-    public override long UsedSpace
-    {
-        get { return Size - AvailableSpace; }
-    }
+    public override long UsedSpace => Size - AvailableSpace;
 
-     /// <summary>
+    /// <summary>
     /// Available space of the Filesystem in bytes
     /// </summary>
-    public override long AvailableSpace
-    {
-        get { return (long) _client.FsStat(_client.RootHandle).FreeSpaceBytes; }
-    }
+    public override long AvailableSpace => (long)_client.FsStat(_client.RootHandle).FreeSpaceBytes;
 
     /// <summary>
     /// Disposes of this instance, freeing up any resources used.
@@ -781,7 +748,7 @@ public class NfsFileSystem : DiscFileSystem
 
         foreach (var de in _client.ReadDirectory(dir, true))
         {
-            if (de.Name == "." || de.Name == "..")
+            if (de.Name is "." or "..")
             {
                 continue;
             }
@@ -813,11 +780,8 @@ public class NfsFileSystem : DiscFileSystem
         var file = Utilities.GetFileFromPath(path);
         var parent = GetParentDirectory(path);
 
-        var handle = _client.Lookup(parent, file);
-        if (handle == null)
-        {
-            throw new FileNotFoundException("No such file or directory", path);
-        }
+        var handle = _client.Lookup(parent, file)
+            ?? throw new FileNotFoundException("No such file or directory", path);
 
         return handle;
     }

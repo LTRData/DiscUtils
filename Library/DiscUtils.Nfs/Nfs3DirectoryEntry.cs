@@ -65,16 +65,10 @@ public sealed class Nfs3DirectoryEntry
         writer.Write(Cookie);
 
         writer.Write(FileAttributes != null);
-        if (FileAttributes != null)
-        {
-            FileAttributes.Write(writer);
-        }
+        FileAttributes?.Write(writer);
 
         writer.Write(FileHandle != null);
-        if (FileHandle != null)
-        {
-            FileHandle.Write(writer);
-        }
+        FileHandle?.Write(writer);
     }
 
     public override bool Equals(object obj)

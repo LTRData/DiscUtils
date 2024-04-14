@@ -49,11 +49,8 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
     {
         _file = file;
 
-        var metaDataFileInfo = _file.LocateImage(index);
-        if (metaDataFileInfo == null)
-        {
-            throw new ArgumentException($"No such image: {index}", nameof(index));
-        }
+        var metaDataFileInfo = _file.LocateImage(index)
+            ?? throw new ArgumentException($"No such image: {index}", nameof(index));
 
         _metaDataStream = _file.OpenResourceStream(metaDataFileInfo);
         ReadSecurityDescriptors();
@@ -68,10 +65,7 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
     /// <summary>
     /// Provides a friendly description of the file system type.
     /// </summary>
-    public override string FriendlyName
-    {
-        get { return "Microsoft WIM"; }
-    }
+    public override string FriendlyName => "Microsoft WIM";
 
     /// <summary>
     /// Gets the security descriptor associated with the file or directory.
@@ -115,11 +109,8 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
     {
         var dirEntry = GetEntry(path);
 
-        var hdr = _file.LocateResource(dirEntry.Hash);
-        if (hdr == null)
-        {
-            throw new IOException("No reparse point");
-        }
+        var hdr = _file.LocateResource(dirEntry.Hash)
+            ?? throw new IOException("No reparse point");
 
         using Stream s = _file.OpenResourceStream(hdr);
         var buffer = new byte[s.Length];
@@ -323,11 +314,8 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
     /// <returns>Array of files and subdirectories matching the search pattern.</returns>
     public override IEnumerable<string> GetFileSystemEntries(string path)
     {
-        var parentDirEntry = GetEntry(path);
-        if (parentDirEntry == null)
-        {
-            throw new DirectoryNotFoundException($"The directory '{path}' does not exist");
-        }
+        var parentDirEntry = GetEntry(path)
+            ?? throw new DirectoryNotFoundException($"The directory '{path}' does not exist");
 
         var parentDir = GetDirectory(parentDirEntry.SubdirOffset);
 
@@ -345,11 +333,8 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
     {
         var filter = Utilities.ConvertWildcardsToRegEx(searchPattern, ignoreCase: true);
 
-        var parentDirEntry = GetEntry(path);
-        if (parentDirEntry == null)
-        {
-            throw new DirectoryNotFoundException($"The directory '{path}' does not exist");
-        }
+        var parentDirEntry = GetEntry(path)
+            ?? throw new DirectoryNotFoundException($"The directory '{path}' does not exist");
 
         var parentDir = GetDirectory(parentDirEntry.SubdirOffset);
 
@@ -369,7 +354,7 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
     /// <returns>The new stream.</returns>
     public override SparseStream OpenFile(string path, FileMode mode, FileAccess access)
     {
-        if (mode != FileMode.Open && mode != FileMode.OpenOrCreate)
+        if (mode is not FileMode.Open and not FileMode.OpenOrCreate)
         {
             throw new NotSupportedException("No write support for WIM files");
         }
@@ -401,11 +386,8 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
     /// <returns>The attributes of the file or directory.</returns>
     public override FileAttributes GetAttributes(string path)
     {
-        var dirEntry = GetEntry(path);
-        if (dirEntry == null)
-        {
-            throw new FileNotFoundException("No such file or directory", path);
-        }
+        var dirEntry = GetEntry(path)
+            ?? throw new FileNotFoundException("No such file or directory", path);
 
         return dirEntry.Attributes;
     }
@@ -417,11 +399,8 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
     /// <returns>The creation time.</returns>
     public override DateTime GetCreationTimeUtc(string path)
     {
-        var dirEntry = GetEntry(path);
-        if (dirEntry == null)
-        {
-            throw new FileNotFoundException("No such file or directory", path);
-        }
+        var dirEntry = GetEntry(path)
+            ?? throw new FileNotFoundException("No such file or directory", path);
 
         return DateTime.FromFileTimeUtc(dirEntry.CreationTime);
     }
@@ -433,11 +412,8 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
     /// <returns>The last access time.</returns>
     public override DateTime GetLastAccessTimeUtc(string path)
     {
-        var dirEntry = GetEntry(path);
-        if (dirEntry == null)
-        {
-            throw new FileNotFoundException("No such file or directory", path);
-        }
+        var dirEntry = GetEntry(path)
+            ?? throw new FileNotFoundException("No such file or directory", path);
 
         return DateTime.FromFileTimeUtc(dirEntry.LastAccessTime);
     }
@@ -449,11 +425,8 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
     /// <returns>The last write time.</returns>
     public override DateTime GetLastWriteTimeUtc(string path)
     {
-        var dirEntry = GetEntry(path);
-        if (dirEntry == null)
-        {
-            throw new FileNotFoundException("No such file or directory", path);
-        }
+        var dirEntry = GetEntry(path)
+            ?? throw new FileNotFoundException("No such file or directory", path);
 
         return DateTime.FromFileTimeUtc(dirEntry.LastWriteTime);
     }
@@ -575,11 +548,8 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
     {
         SplitFileName(path, out var filePart, out var altStreamPart);
 
-        var dirEntry = GetEntry(filePart);
-        if (dirEntry == null)
-        {
-            throw new FileNotFoundException("No such file or directory", path);
-        }
+        var dirEntry = GetEntry(filePart)
+            ?? throw new FileNotFoundException("No such file or directory", path);
 
         return dirEntry.GetStreamHash(altStreamPart);
     }
@@ -587,26 +557,17 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
     /// <summary>
     /// Size of the Filesystem in bytes
     /// </summary>
-    public override long Size
-    {
-        get { throw new NotSupportedException("Filesystem size is not (yet) supported"); }
-    }
+    public override long Size => throw new NotSupportedException("Filesystem size is not (yet) supported");
 
     /// <summary>
     /// Used space of the Filesystem in bytes
     /// </summary>
-    public override long UsedSpace
-    {
-        get { throw new NotSupportedException("Filesystem size is not (yet) supported"); }
-    }
+    public override long UsedSpace => throw new NotSupportedException("Filesystem size is not (yet) supported");
 
     /// <summary>
     /// Available space of the Filesystem in bytes
     /// </summary>
-    public override long AvailableSpace
-    {
-        get { throw new NotSupportedException("Filesystem size is not (yet) supported"); }
-    }
+    public override long AvailableSpace => throw new NotSupportedException("Filesystem size is not (yet) supported");
 
     public override bool SupportsUsedAvailableSpace => false;
 

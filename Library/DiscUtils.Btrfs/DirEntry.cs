@@ -48,25 +48,13 @@ internal class DirEntry : VfsDirEntry
         _item = item;
     }
 
-    public override DateTime CreationTimeUtc
-    {
-        get { return _inode.CTime.DateTime.DateTime; }
-    }
+    public override DateTime CreationTimeUtc => _inode.CTime.DateTime.DateTime;
 
-    public override DateTime LastAccessTimeUtc
-    {
-        get { return _inode.ATime.DateTime.DateTime; }
-    }
+    public override DateTime LastAccessTimeUtc => _inode.ATime.DateTime.DateTime;
 
-    public override DateTime LastWriteTimeUtc
-    {
-        get { return _inode.MTime.DateTime.DateTime; }
-    }
+    public override DateTime LastWriteTimeUtc => _inode.MTime.DateTime.DateTime;
 
-    public override bool HasVfsTimeInfo
-    {
-        get { return true; }
-    }
+    public override bool HasVfsTimeInfo => true;
 
     public override FileAttributes FileAttributes
     {
@@ -96,25 +84,13 @@ internal class DirEntry : VfsDirEntry
         }
     }
 
-    public override bool HasVfsFileAttributes
-    {
-        get { return _item != null; }
-    }
+    public override bool HasVfsFileAttributes => _item != null;
 
-    public override string FileName
-    {
-        get { return _item.Name; }
-    }
+    public override string FileName => _item.Name;
 
-    public override bool IsDirectory
-    {
-        get { return _item.ChildType == DirItemChildType.Directory; }
-    }
+    public override bool IsDirectory => _item.ChildType == DirItemChildType.Directory;
 
-    public override bool IsSymlink
-    {
-        get { return _item.ChildType == DirItemChildType.Symlink; }
-    }
+    public override bool IsSymlink => _item.ChildType == DirItemChildType.Symlink;
 
     public override long UniqueCacheId
     {
@@ -132,13 +108,13 @@ internal class DirEntry : VfsDirEntry
 
     internal Directory CachedDirectory { get; set; }
 
-    internal DirItemChildType Type { get { return _item.ChildType; } }
+    internal DirItemChildType Type => _item.ChildType;
 
     internal ulong ObjectId { get; private set; }
 
-    internal ulong TreeId { get { return _treeId; } }
+    internal ulong TreeId => _treeId;
 
-    internal ulong FileSize { get { return _inode.FileSize; } }
+    internal ulong FileSize => _inode.FileSize;
 
-    internal bool IsSubtree { get { return _item != null && _item.ChildLocation.ItemType == ItemType.RootItem; } }
+    internal bool IsSubtree => _item != null && _item.ChildLocation.ItemType == ItemType.RootItem;
 }

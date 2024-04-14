@@ -33,10 +33,7 @@ internal sealed class MetadataEntry : IByteArraySerializable
     public uint Offset;
     public uint Reserved;
 
-    public int Size
-    {
-        get { return 32; }
-    }
+    public int Size => 32;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

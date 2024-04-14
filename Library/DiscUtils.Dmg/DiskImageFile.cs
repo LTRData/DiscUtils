@@ -69,36 +69,21 @@ internal sealed class DiskImageFile : VirtualDiskLayer
     /// </summary>
     public override bool CanWrite => _stream.CanWrite;
 
-    public override long Capacity
-    {
-        get { return Buffer is null ? _stream.Length : Buffer.Capacity; }
-    }
+    public override long Capacity => Buffer is null ? _stream.Length : Buffer.Capacity;
 
     /// <summary>
     /// Gets the geometry of the virtual disk layer.
     /// </summary>
-    public override Geometry Geometry
-    {
-        get { return Geometry.FromCapacity(Capacity); }
-    }
+    public override Geometry Geometry => Geometry.FromCapacity(Capacity);
 
-    public override bool IsSparse
-    {
-        get { return Buffer is not null; }
-    }
+    public override bool IsSparse => Buffer is not null;
 
     /// <summary>
     /// Gets a value indicating whether the file is a differencing disk.
     /// </summary>
-    public override bool NeedsParent
-    {
-        get { return false; }
-    }
+    public override bool NeedsParent => false;
 
-    public override FileLocator RelativeFileLocator
-    {
-        get { throw new NotImplementedException(); }
-    }
+    public override FileLocator RelativeFileLocator => throw new NotImplementedException();
 
     public override SparseStream OpenContent(SparseStream parentStream, Ownership ownsStream)
     {

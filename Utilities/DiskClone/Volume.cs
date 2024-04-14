@@ -78,10 +78,7 @@ internal sealed class Volume : IDisposable
     {
         get
         {
-            if (_stream == null)
-            {
-                _stream = new VolumeStream(_handle);
-            }
+            _stream ??= new VolumeStream(_handle);
 
             return _stream;
         }

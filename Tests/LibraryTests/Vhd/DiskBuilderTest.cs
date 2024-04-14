@@ -26,74 +26,73 @@ using DiscUtils.Streams;
 using DiscUtils.Vhd;
 using Xunit;
 
-namespace LibraryTests.Vhd
+namespace LibraryTests.Vhd;
+
+public class DiskBuilderTest
 {
-    public class DiskBuilderTest
+    private SparseStream diskContent;
+
+    public DiskBuilderTest()
     {
-        private SparseStream diskContent;
-
-        public DiskBuilderTest()
+        var fileStream = new MemoryStream();
+        var baseFile = Disk.InitializeDynamic(fileStream, Ownership.Dispose, 16 * 1024L * 1024);
+        for (var i = 0; i < 8; i += 1024 * 1024)
         {
-            var fileStream = new MemoryStream();
-            var baseFile = Disk.InitializeDynamic(fileStream, Ownership.Dispose, 16 * 1024L * 1024);
-            for (var i = 0; i < 8; i += 1024 * 1024)
-            {
-                baseFile.Content.Position = i;
-                baseFile.Content.WriteByte((byte)i);
-            }
-
-            baseFile.Content.Position = 15 * 1024 * 1024;
-            baseFile.Content.WriteByte(0xFF);
-
-            diskContent = baseFile.Content;
+            baseFile.Content.Position = i;
+            baseFile.Content.WriteByte((byte)i);
         }
 
-        [Fact]
-        public void BuildFixed()
+        baseFile.Content.Position = 15 * 1024 * 1024;
+        baseFile.Content.WriteByte(0xFF);
+
+        diskContent = baseFile.Content;
+    }
+
+    [Fact]
+    public void BuildFixed()
+    {
+        var builder = new DiskBuilder
         {
-            var builder = new DiskBuilder
-            {
-                DiskType = FileType.Fixed,
-                Content = diskContent
-            };
+            DiskType = FileType.Fixed,
+            Content = diskContent
+        };
 
-            var fileSpecs = builder.Build("foo").ToArray();
-            Assert.Single(fileSpecs);
-            Assert.Equal("foo.vhd", fileSpecs[0].Name);
+        var fileSpecs = builder.Build("foo").ToArray();
+        Assert.Single(fileSpecs);
+        Assert.Equal("foo.vhd", fileSpecs[0].Name);
 
-            using var disk = new Disk(fileSpecs[0].OpenStream(), Ownership.Dispose);
-            for (var i = 0; i < 8; i += 1024 * 1024)
-            {
-                disk.Content.Position = i;
-                Assert.Equal(i, disk.Content.ReadByte());
-            }
-
-            disk.Content.Position = 15 * 1024 * 1024;
-            Assert.Equal(0xFF, disk.Content.ReadByte());
+        using var disk = new Disk(fileSpecs[0].OpenStream(), Ownership.Dispose);
+        for (var i = 0; i < 8; i += 1024 * 1024)
+        {
+            disk.Content.Position = i;
+            Assert.Equal(i, disk.Content.ReadByte());
         }
 
-        [Fact]
-        public void BuildDynamic()
+        disk.Content.Position = 15 * 1024 * 1024;
+        Assert.Equal(0xFF, disk.Content.ReadByte());
+    }
+
+    [Fact]
+    public void BuildDynamic()
+    {
+        var builder = new DiskBuilder
         {
-            var builder = new DiskBuilder
-            {
-                DiskType = FileType.Dynamic,
-                Content = diskContent
-            };
+            DiskType = FileType.Dynamic,
+            Content = diskContent
+        };
 
-            var fileSpecs = builder.Build("foo").ToArray();
-            Assert.Single(fileSpecs);
-            Assert.Equal("foo.vhd", fileSpecs[0].Name);
+        var fileSpecs = builder.Build("foo").ToArray();
+        Assert.Single(fileSpecs);
+        Assert.Equal("foo.vhd", fileSpecs[0].Name);
 
-            using var disk = new Disk(fileSpecs[0].OpenStream(), Ownership.Dispose);
-            for (var i = 0; i < 8; i += 1024 * 1024)
-            {
-                disk.Content.Position = i;
-                Assert.Equal(i, disk.Content.ReadByte());
-            }
-
-            disk.Content.Position = 15 * 1024 * 1024;
-            Assert.Equal(0xFF, disk.Content.ReadByte());
+        using var disk = new Disk(fileSpecs[0].OpenStream(), Ownership.Dispose);
+        for (var i = 0; i < 8; i += 1024 * 1024)
+        {
+            disk.Content.Position = i;
+            Assert.Equal(i, disk.Content.ReadByte());
         }
+
+        disk.Content.Position = 15 * 1024 * 1024;
+        Assert.Equal(0xFF, disk.Content.ReadByte());
     }
 }

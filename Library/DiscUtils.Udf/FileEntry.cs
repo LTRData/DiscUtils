@@ -52,10 +52,7 @@ internal class FileEntry : IByteArraySerializable
     public uint Uid;
     public ulong UniqueId;
 
-    public virtual int Size
-    {
-        get { throw new NotImplementedException(); }
-    }
+    public virtual int Size => throw new NotImplementedException();
 
     public virtual int ReadFrom(ReadOnlySpan<byte> buffer)
     {

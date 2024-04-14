@@ -83,29 +83,20 @@ internal class FileResourceStream : SparseStream.ReadOnlySparseStream
         _currentChunk = -1;
     }
 
-    public override bool CanRead
-    {
-        get { return true; }
-    }
+    public override bool CanRead => true;
 
-    public override bool CanSeek
-    {
-        get { return false; }
-    }
+    public override bool CanSeek => false;
 
     public override IEnumerable<StreamExtent> Extents
         => SingleValueEnumerable.Get(new StreamExtent(0, Length));
 
-    public override long Length
-    {
-        get { return _header.OriginalSize; }
-    }
+    public override long Length => _header.OriginalSize;
 
     public override long Position
     {
-        get { return _position; }
+        get => _position;
 
-        set { _position = value; }
+        set => _position = value;
     }
 
     public override int Read(byte[] buffer, int offset, int count)

@@ -103,37 +103,25 @@ internal sealed class VfsBtrfsFileSystem : VfsReadOnlyFileSystem<DirEntry, File,
         RootDirectory = new Directory(dirEntry, Context);
     }
 
-    public override string FriendlyName
-    {
-        get { return "Btrfs"; }
-    }
+    public override string FriendlyName => "Btrfs";
 
     /// <inheritdoc />
-    public override string VolumeLabel { get { return Context.SuperBlock.Label; } }
-    
+    public override string VolumeLabel => Context.SuperBlock.Label;
+
     /// <summary>
     /// Size of the Filesystem in bytes
     /// </summary>
-    public override long Size
-    {
-        get { return (long) Context.SuperBlock.TotalBytes; }
-    }
+    public override long Size => (long)Context.SuperBlock.TotalBytes;
 
     /// <summary>
     /// Used space of the Filesystem in bytes
     /// </summary>
-    public override long UsedSpace
-    {
-        get { return (long)Context.SuperBlock.BytesUsed; }
-    }
+    public override long UsedSpace => (long)Context.SuperBlock.BytesUsed;
 
     /// <summary>
     /// Available space of the Filesystem in bytes
     /// </summary>
-    public override long AvailableSpace
-    {
-        get { return Size - UsedSpace; }
-    }
+    public override long AvailableSpace => Size - UsedSpace;
 
     public IEnumerable<Subvolume> GetSubvolumes()
     {
@@ -148,7 +136,7 @@ internal sealed class VfsBtrfsFileSystem : VfsReadOnlyFileSystem<DirEntry, File,
     {
         if (dirEntry.IsDirectory)
         {
-            return dirEntry.CachedDirectory ?? (dirEntry.CachedDirectory = new Directory(dirEntry, Context));
+            return dirEntry.CachedDirectory ??= new Directory(dirEntry, Context);
         }
         else if (dirEntry.IsSymlink)
         {

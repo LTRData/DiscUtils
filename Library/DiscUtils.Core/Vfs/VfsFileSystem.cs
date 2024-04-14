@@ -480,7 +480,7 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
             stream = fileStreams.OpenExistingStream(attributeName);
             if (stream == null)
             {
-                if (mode == FileMode.Create || mode == FileMode.OpenOrCreate)
+                if (mode is FileMode.Create or FileMode.OpenOrCreate)
                 {
                     stream = fileStreams.CreateStream(attributeName);
                 }
@@ -495,7 +495,7 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
             stream = new BufferStream(file.FileContent, access);
         }
 
-        if (mode == FileMode.Create || mode == FileMode.Truncate)
+        if (mode is FileMode.Create or FileMode.Truncate)
         {
             stream.SetLength(0);
         }
@@ -515,11 +515,8 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
             return RootDirectory.FileAttributes;
         }
 
-        var dirEntry = GetDirectoryEntry(path);
-        if (dirEntry == null)
-        {
-            throw new FileNotFoundException("File not found", path);
-        }
+        var dirEntry = GetDirectoryEntry(path)
+            ?? throw new FileNotFoundException("File not found", path);
 
         if (dirEntry.HasVfsFileAttributes)
         {
@@ -551,11 +548,8 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
             return RootDirectory.CreationTimeUtc;
         }
 
-        var dirEntry = GetDirectoryEntry(path);
-        if (dirEntry == null)
-        {
-            throw new FileNotFoundException("No such file or directory", path);
-        }
+        var dirEntry = GetDirectoryEntry(path)
+            ?? throw new FileNotFoundException("No such file or directory", path);
 
         if (dirEntry.HasVfsTimeInfo)
         {
@@ -587,11 +581,8 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
             return RootDirectory.LastAccessTimeUtc;
         }
 
-        var dirEntry = GetDirectoryEntry(path);
-        if (dirEntry == null)
-        {
-            throw new FileNotFoundException("No such file or directory", path);
-        }
+        var dirEntry = GetDirectoryEntry(path)
+            ?? throw new FileNotFoundException("No such file or directory", path);
 
         if (dirEntry.HasVfsTimeInfo)
         {
@@ -623,11 +614,8 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
             return RootDirectory.LastWriteTimeUtc;
         }
 
-        var dirEntry = GetDirectoryEntry(path);
-        if (dirEntry == null)
-        {
-            throw new FileNotFoundException("No such file or directory", path);
-        }
+        var dirEntry = GetDirectoryEntry(path)
+            ?? throw new FileNotFoundException("No such file or directory", path);
 
         if (dirEntry.HasVfsTimeInfo)
         {
@@ -753,11 +741,8 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
             return default(TFile);
         }
 
-        var dirEntry = GetDirectoryEntry(path);
-        if (dirEntry == null)
-        {
-            throw new FileNotFoundException("No such file or directory", path);
-        }
+        var dirEntry = GetDirectoryEntry(path)
+            ?? throw new FileNotFoundException("No such file or directory", path);
 
         if (dirEntry != null && dirEntry.IsSymlink)
         {
@@ -839,11 +824,8 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
 
     private IEnumerable<string> DoSearch(string path, string searchPattern, bool subFolders, bool dirs, bool files)
     {
-        var parentDir = GetDirectory(path);
-        if (parentDir == null)
-        {
-            throw new DirectoryNotFoundException($"The directory '{path}' was not found");
-        }
+        var parentDir = GetDirectory(path)
+            ?? throw new DirectoryNotFoundException($"The directory '{path}' was not found");
 
         var resultPrefixPath = path;
         if (IsRoot(path))
@@ -873,11 +855,8 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
 
     private IEnumerable<string> DoSearch(string path, Func<string, bool> filter, bool subFolders, bool dirs, bool files)
     {
-        var parentDir = GetDirectory(path);
-        if (parentDir == null)
-        {
-            throw new DirectoryNotFoundException($"The directory '{path}' was not found");
-        }
+        var parentDir = GetDirectory(path)
+            ?? throw new DirectoryNotFoundException($"The directory '{path}' was not found");
 
         var resultPrefixPath = path;
         if (IsRoot(path))

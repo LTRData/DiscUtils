@@ -47,40 +47,19 @@ internal sealed class PartitionMapEntry : PartitionInfo, IByteArraySerializable
         _diskStream = diskStream;
     }
 
-    public override byte BiosType
-    {
-        get { return 0xAF; }
-    }
+    public override byte BiosType => 0xAF;
 
-    public override long FirstSector
-    {
-        get { return PhysicalBlockStart; }
-    }
+    public override long FirstSector => PhysicalBlockStart;
 
-    public override Guid GuidType
-    {
-        get { return Guid.Empty; }
-    }
+    public override Guid GuidType => Guid.Empty;
 
-    public override long LastSector
-    {
-        get { return PhysicalBlockStart + PhysicalBlocks - 1; }
-    }
+    public override long LastSector => PhysicalBlockStart + PhysicalBlocks - 1;
 
-    public override string TypeAsString
-    {
-        get { return Type; }
-    }
+    public override string TypeAsString => Type;
 
-    public override PhysicalVolumeType VolumeType
-    {
-        get { return PhysicalVolumeType.ApplePartition; }
-    }
+    public override PhysicalVolumeType VolumeType => PhysicalVolumeType.ApplePartition;
 
-    public int Size
-    {
-        get { return 512; }
-    }
+    public int Size => 512;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

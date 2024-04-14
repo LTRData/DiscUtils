@@ -37,10 +37,7 @@ internal class ScsiReadCommand : ScsiCommand
         _numBlocks = numBlocks;
     }
 
-    public override int Size
-    {
-        get { return 10; }
-    }
+    public override int Size => 10;
 
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {

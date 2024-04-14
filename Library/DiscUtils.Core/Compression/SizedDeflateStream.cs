@@ -42,14 +42,11 @@ internal class SizedDeflateStream : DeflateStream
         _length = length;
     }
 
-    public override long Length
-    {
-        get { return _length; }
-    }
+    public override long Length => _length;
 
     public override long Position
     {
-        get { return _position; }
+        get => _position;
         set
         {
             if (value != Position)

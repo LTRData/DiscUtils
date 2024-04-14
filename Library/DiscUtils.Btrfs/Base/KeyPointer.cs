@@ -44,10 +44,7 @@ internal class KeyPointer : IByteArraySerializable
     /// </summary>
     public ulong Generation { get; internal set; }
 
-    public int Size
-    {
-        get { return Length; }
-    }
+    public int Size => Length;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

@@ -40,26 +40,17 @@ public sealed class HeaderInfo
     /// <summary>
     /// Gets the checksum of the header information.
     /// </summary>
-    public int Checksum
-    {
-        get { return (int)_header.Checksum; }
-    }
+    public int Checksum => (int)_header.Checksum;
 
     /// <summary>
     /// Gets a unique GUID indicating when the content of a VHDX file has changed.
     /// </summary>
-    public Guid DataWriteGuid
-    {
-        get { return _header.DataWriteGuid; }
-    }
+    public Guid DataWriteGuid => _header.DataWriteGuid;
 
     /// <summary>
     /// Gets a unique GUID indicating when a VHDX file has been substantively modified.
     /// </summary>
-    public Guid FileWriteGuid
-    {
-        get { return _header.FileWriteGuid; }
-    }
+    public Guid FileWriteGuid => _header.FileWriteGuid;
 
     /// <summary>
     /// Gets the GUID indicating which log records are valid.
@@ -67,34 +58,22 @@ public sealed class HeaderInfo
     /// <remarks>
     /// The NULL GUID indicates there are no log records to replay.
     /// </remarks>
-    public Guid LogGuid
-    {
-        get { return _header.LogGuid; }
-    }
+    public Guid LogGuid => _header.LogGuid;
 
     /// <summary>
     /// Gets the length of the VHDX log.
     /// </summary>
-    public long LogLength
-    {
-        get { return _header.LogLength; }
-    }
+    public long LogLength => _header.LogLength;
 
     /// <summary>
     /// Gets the offset of the VHDX log within the file.
     /// </summary>
-    public long LogOffset
-    {
-        get { return (long)_header.LogOffset; }
-    }
+    public long LogOffset => (long)_header.LogOffset;
 
     /// <summary>
     /// Gets the version of the log information, expected to be Zero.
     /// </summary>
-    public int LogVersion
-    {
-        get { return _header.LogVersion; }
-    }
+    public int LogVersion => _header.LogVersion;
 
     /// <summary>
     /// Gets the sequence number of the header information.
@@ -103,10 +82,7 @@ public sealed class HeaderInfo
     /// VHDX files contain two copies of the header, both contain a sequence number, the highest
     /// sequence number represents the current header information.
     /// </remarks>
-    public long SequenceNumber
-    {
-        get { return (long)_header.SequenceNumber; }
-    }
+    public long SequenceNumber => (long)_header.SequenceNumber;
 
     /// <summary>
     /// Gets the signature of the header.
@@ -127,8 +103,5 @@ public sealed class HeaderInfo
     /// <summary>
     /// Gets the VHDX file format version, expected to be One.
     /// </summary>
-    public int Version
-    {
-        get { return _header.Version; }
-    }
+    public int Version => _header.Version;
 }

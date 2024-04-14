@@ -26,168 +26,161 @@ using System.IO;
 using DiscUtils;
 using DiscUtils.Streams;
 
-namespace LibraryTests
+namespace LibraryTests;
+
+/// <summary>
+/// Minimal implementation of DiscFileSystem, sufficient to support unit-testing of disk formats.
+/// </summary>
+class InMemoryFileSystem : DiscFileSystem
 {
-    /// <summary>
-    /// Minimal implementation of DiscFileSystem, sufficient to support unit-testing of disk formats.
-    /// </summary>
-    class InMemoryFileSystem : DiscFileSystem
+    private Dictionary<string, SparseMemoryBuffer> _files;
+
+    public InMemoryFileSystem()
     {
-        private Dictionary<string, SparseMemoryBuffer> _files;
+        _files = new Dictionary<string, SparseMemoryBuffer>();
+    }
 
-        public InMemoryFileSystem()
+    public override string FriendlyName => throw new NotImplementedException();
+
+    public override bool CanWrite => throw new NotImplementedException();
+
+    public override long Size => throw new NotImplementedException();
+
+    public override long UsedSpace => throw new NotImplementedException();
+
+    public override long AvailableSpace => throw new NotImplementedException();
+
+    public override void CopyFile(string sourceFile, string destinationFile, bool overwrite)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void CreateDirectory(string path)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void DeleteDirectory(string path)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void DeleteFile(string path)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override bool DirectoryExists(string path)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override bool FileExists(string path)
+    {
+        return _files.ContainsKey(path);
+    }
+
+    public override IEnumerable<string> GetDirectories(string path, string searchPattern, SearchOption searchOption)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override IEnumerable<string> GetFiles(string path, string searchPattern, SearchOption searchOption)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override IEnumerable<string> GetFileSystemEntries(string path)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override IEnumerable<string> GetFileSystemEntries(string path, string searchPattern)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void MoveDirectory(string sourceDirectoryName, string destinationDirectoryName)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void MoveFile(string sourceName, string destinationName, bool overwrite)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override SparseStream OpenFile(string path, FileMode mode, FileAccess access)
+    {
+        if (_files.TryGetValue(path, out var buffer))
         {
-            _files = new Dictionary<string, SparseMemoryBuffer>();
-        }
-
-        public override string FriendlyName
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        public override bool CanWrite
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        public override long Size => throw new NotImplementedException();
-
-        public override long UsedSpace => throw new NotImplementedException();
-
-        public override long AvailableSpace => throw new NotImplementedException();
-
-        public override void CopyFile(string sourceFile, string destinationFile, bool overwrite)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void CreateDirectory(string path)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void DeleteDirectory(string path)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void DeleteFile(string path)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool DirectoryExists(string path)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool FileExists(string path)
-        {
-            return _files.ContainsKey(path);
-        }
-
-        public override IEnumerable<string> GetDirectories(string path, string searchPattern, SearchOption searchOption)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override IEnumerable<string> GetFiles(string path, string searchPattern, SearchOption searchOption)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override IEnumerable<string> GetFileSystemEntries(string path)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override IEnumerable<string> GetFileSystemEntries(string path, string searchPattern)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void MoveDirectory(string sourceDirectoryName, string destinationDirectoryName)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void MoveFile(string sourceName, string destinationName, bool overwrite)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override SparseStream OpenFile(string path, FileMode mode, FileAccess access)
-        {
-            if (_files.TryGetValue(path, out var buffer))
+            if(mode == FileMode.CreateNew)
             {
-                if(mode == FileMode.CreateNew)
-                {
-                    throw new IOException("File already exists");
-                }
-
-                return new SparseMemoryStream(buffer, access);
+                throw new IOException("File already exists");
             }
-            else if(mode == FileMode.Create || mode == FileMode.CreateNew || mode == FileMode.OpenOrCreate || mode == FileMode.Truncate)
-            {
-                _files[path] = new SparseMemoryBuffer(16 * 1024);
-                return new SparseMemoryStream(_files[path], access);
-            }
-            else
-            {
-                throw new FileNotFoundException();
-            }
-        }
 
-        public override FileAttributes GetAttributes(string path)
-        {
-            throw new NotImplementedException();
+            return new SparseMemoryStream(buffer, access);
         }
-
-        public override void SetAttributes(string path, FileAttributes newValue)
+        else if(mode is FileMode.Create or FileMode.CreateNew or FileMode.OpenOrCreate or FileMode.Truncate)
         {
-            throw new NotImplementedException();
+            _files[path] = new SparseMemoryBuffer(16 * 1024);
+            return new SparseMemoryStream(_files[path], access);
         }
-
-        public override DateTime GetCreationTimeUtc(string path)
+        else
         {
-            throw new NotImplementedException();
+            throw new FileNotFoundException();
         }
+    }
 
-        public override void SetCreationTimeUtc(string path, DateTime newTime)
+    public override FileAttributes GetAttributes(string path)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void SetAttributes(string path, FileAttributes newValue)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override DateTime GetCreationTimeUtc(string path)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void SetCreationTimeUtc(string path, DateTime newTime)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override DateTime GetLastAccessTimeUtc(string path)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void SetLastAccessTimeUtc(string path, DateTime newTime)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override DateTime GetLastWriteTimeUtc(string path)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void SetLastWriteTimeUtc(string path, DateTime newTime)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override long GetFileLength(string path)
+    {
+        if (_files.TryGetValue(path, out var buffer))
         {
-            throw new NotImplementedException();
+            return buffer.Capacity;
         }
-
-        public override DateTime GetLastAccessTimeUtc(string path)
+        else
         {
-            throw new NotImplementedException();
-        }
-
-        public override void SetLastAccessTimeUtc(string path, DateTime newTime)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override DateTime GetLastWriteTimeUtc(string path)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void SetLastWriteTimeUtc(string path, DateTime newTime)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override long GetFileLength(string path)
-        {
-            if (_files.TryGetValue(path, out var buffer))
-            {
-                return buffer.Capacity;
-            }
-            else
-            {
-                throw new FileNotFoundException("No such file", path);
-            }
+            throw new FileNotFoundException("No such file", path);
         }
     }
 }

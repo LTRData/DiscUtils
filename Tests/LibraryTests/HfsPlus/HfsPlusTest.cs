@@ -29,59 +29,58 @@ using System.Collections.Generic;
 using System.IO;
 using Xunit;
 
-namespace LibraryTests.HfsPlus
+namespace LibraryTests.HfsPlus;
+
+public class HfsPlusTest
 {
-    public class HfsPlusTest
+    private const string SystemVersionPath = @"System\Library\CoreServices\SystemVersion.plist";
+    private const string DeviceSupportPath = "/Applications/Xcode.app/Content/Developer/Platforms/iPhoneOS.Platform/DeviceSupport/";
+    static HfsPlusTest()
     {
-        private const string SystemVersionPath = @"System\Library\CoreServices\SystemVersion.plist";
-        private const string DeviceSupportPath = "/Applications/Xcode.app/Content/Developer/Platforms/iPhoneOS.Platform/DeviceSupport/";
-        static HfsPlusTest()
-        {
-            SetupHelper.RegisterAssembly(typeof(HfsPlusFileSystem).Assembly);
-        }
+        SetupHelper.RegisterAssembly(typeof(HfsPlusFileSystem).Assembly);
+    }
 
 #if NETCOREAPP
-        public static IEnumerable<object[]> GetDeveloperDiskImages()
+    public static IEnumerable<object[]> GetDeveloperDiskImages()
+    {
+        if (!Directory.Exists(DeviceSupportPath))
         {
-            if (!Directory.Exists(DeviceSupportPath))
-            {
-                yield break;
-            }
-
-            foreach (var directory in Directory.GetDirectories(DeviceSupportPath))
-            {
-                yield return new object[] { Path.Combine(directory, "DeveloperDiskImage.dmg") };
-            }
+            yield break;
         }
 
-        [MemberData(nameof(GetDeveloperDiskImages))]
-        [MacOSOnlyTheory]
-        public void ReadFilesystemTest(string path)
+        foreach (var directory in Directory.GetDirectories(DeviceSupportPath))
         {
-            using Stream developerDiskImageStream = File.OpenRead(path);
-            using var disk = new Disk(developerDiskImageStream, Ownership.None);
-            // Find the first (and supposedly, only, HFS partition)
-            var volumes = VolumeManager.GetPhysicalVolumes(disk);
-            foreach (var volume in volumes)
-            {
-                var fileSystems = FileSystemManager.DetectFileSystems(volume);
-
-                var fileSystem = Assert.Single(fileSystems);
-                Assert.Equal("HFS+", fileSystem.Name);
-
-                using var hfs = (HfsPlusFileSystem)fileSystem.Open(volume);
-                Assert.True(hfs.FileExists(SystemVersionPath));
-
-                using Stream systemVersionStream = hfs.OpenFile(SystemVersionPath, FileMode.Open, FileAccess.Read);
-                using var copyStream = new MemoryStream();
-                Assert.NotEqual(0, systemVersionStream.Length);
-                systemVersionStream.CopyTo(copyStream);
-                Assert.Equal(systemVersionStream.Length, copyStream.Length);
-
-                copyStream.Seek(0, SeekOrigin.Begin);
-                Plist.Parse(copyStream);
-            }
+            yield return new object[] { Path.Combine(directory, "DeveloperDiskImage.dmg") };
         }
-#endif
     }
+
+    [MemberData(nameof(GetDeveloperDiskImages))]
+    [MacOSOnlyTheory]
+    public void ReadFilesystemTest(string path)
+    {
+        using Stream developerDiskImageStream = File.OpenRead(path);
+        using var disk = new Disk(developerDiskImageStream, Ownership.None);
+        // Find the first (and supposedly, only, HFS partition)
+        var volumes = VolumeManager.GetPhysicalVolumes(disk);
+        foreach (var volume in volumes)
+        {
+            var fileSystems = FileSystemManager.DetectFileSystems(volume);
+
+            var fileSystem = Assert.Single(fileSystems);
+            Assert.Equal("HFS+", fileSystem.Name);
+
+            using var hfs = (HfsPlusFileSystem)fileSystem.Open(volume);
+            Assert.True(hfs.FileExists(SystemVersionPath));
+
+            using Stream systemVersionStream = hfs.OpenFile(SystemVersionPath, FileMode.Open, FileAccess.Read);
+            using var copyStream = new MemoryStream();
+            Assert.NotEqual(0, systemVersionStream.Length);
+            systemVersionStream.CopyTo(copyStream);
+            Assert.Equal(systemVersionStream.Length, copyStream.Length);
+
+            copyStream.Seek(0, SeekOrigin.Begin);
+            Plist.Parse(copyStream);
+        }
+    }
+#endif
 }

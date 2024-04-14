@@ -35,9 +35,6 @@ internal sealed class VolumeStream : UnbufferedNativeStream
         _length = volInfo.TotalClusters * volInfo.BytesPerCluster;
     }
 
-    public override long Length
-    {
-        get { return _length; }
-    }
+    public override long Length => _length;
 
 }

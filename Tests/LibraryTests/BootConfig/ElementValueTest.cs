@@ -29,155 +29,154 @@ using DiscUtils.Registry;
 using DiscUtils.Streams;
 using Xunit;
 
-namespace LibraryTests.BootConfig
+namespace LibraryTests.BootConfig;
+
+public class ElementValueTest
 {
-    public class ElementValueTest
+    [Fact]
+    public void StringValue()
     {
-        [Fact]
-        public void StringValue()
-        {
-            var hive = RegistryHive.Create(new MemoryStream());
-            var s = Store.Initialize(hive.Root);
-            var obj = s.CreateInherit(InheritType.AnyObject);
+        var hive = RegistryHive.Create(new MemoryStream());
+        var s = Store.Initialize(hive.Root);
+        var obj = s.CreateInherit(InheritType.AnyObject);
 
-            var el = obj.AddElement(WellKnownElement.LibraryApplicationPath, ElementValue.ForString(@"a\path\to\nowhere"));
+        var el = obj.AddElement(WellKnownElement.LibraryApplicationPath, ElementValue.ForString(@"a\path\to\nowhere"));
 
-            el = obj.GetElement(WellKnownElement.LibraryApplicationPath);
+        el = obj.GetElement(WellKnownElement.LibraryApplicationPath);
 
-            Assert.Equal(@"a\path\to\nowhere", el.Value.ToString());
-        }
+        Assert.Equal(@"a\path\to\nowhere", el.Value.ToString());
+    }
 
-        [Fact]
-        public void BooleanValue()
-        {
-            var hive = RegistryHive.Create(new MemoryStream());
-            var s = Store.Initialize(hive.Root);
-            var obj = s.CreateInherit(InheritType.AnyObject);
+    [Fact]
+    public void BooleanValue()
+    {
+        var hive = RegistryHive.Create(new MemoryStream());
+        var s = Store.Initialize(hive.Root);
+        var obj = s.CreateInherit(InheritType.AnyObject);
 
-            var el = obj.AddElement(WellKnownElement.LibraryAutoRecoveryEnabled, ElementValue.ForBoolean(true));
+        var el = obj.AddElement(WellKnownElement.LibraryAutoRecoveryEnabled, ElementValue.ForBoolean(true));
 
-            el = obj.GetElement(WellKnownElement.LibraryAutoRecoveryEnabled);
+        el = obj.GetElement(WellKnownElement.LibraryAutoRecoveryEnabled);
 
-            Assert.Equal(true.ToString(), el.Value.ToString());
-        }
+        Assert.Equal(true.ToString(), el.Value.ToString());
+    }
 
-        [Fact]
-        public void DeviceValue_Gpt()
-        {
-            var ms = new SparseMemoryStream();
-            ms.SetLength(80 * 1024 * 1024);
-            var gpt = GuidPartitionTable.Initialize(ms, Geometry.FromCapacity(ms.Length));
-            gpt.Create(WellKnownPartitionType.WindowsNtfs, true);
-            var volMgr = new VolumeManager(ms);
+    [Fact]
+    public void DeviceValue_Gpt()
+    {
+        var ms = new SparseMemoryStream();
+        ms.SetLength(80 * 1024 * 1024);
+        var gpt = GuidPartitionTable.Initialize(ms, Geometry.FromCapacity(ms.Length));
+        gpt.Create(WellKnownPartitionType.WindowsNtfs, true);
+        var volMgr = new VolumeManager(ms);
 
-            var hive = RegistryHive.Create(new MemoryStream());
-            var s = Store.Initialize(hive.Root);
-            var obj = s.CreateInherit(InheritType.AnyObject);
+        var hive = RegistryHive.Create(new MemoryStream());
+        var s = Store.Initialize(hive.Root);
+        var obj = s.CreateInherit(InheritType.AnyObject);
 
-            var el = obj.AddElement(WellKnownElement.LibraryApplicationDevice, ElementValue.ForDevice(Guid.Empty, volMgr.GetPhysicalVolumes()[0]));
+        var el = obj.AddElement(WellKnownElement.LibraryApplicationDevice, ElementValue.ForDevice(Guid.Empty, volMgr.GetPhysicalVolumes()[0]));
 
-            el = obj.GetElement(WellKnownElement.LibraryApplicationDevice);
+        el = obj.GetElement(WellKnownElement.LibraryApplicationDevice);
 
-            Assert.NotNull(el.Value.ToString());
-            Assert.NotEmpty(el.Value.ToString());
-        }
+        Assert.NotNull(el.Value.ToString());
+        Assert.NotEmpty(el.Value.ToString());
+    }
 
-        [Fact]
-        public void DeviceValue_Mbr()
-        {
-            var ms = new SparseMemoryStream();
-            ms.SetLength(80 * 1024 * 1024);
-            var pt = BiosPartitionTable.Initialize(ms, Geometry.FromCapacity(ms.Length));
-            pt.Create(WellKnownPartitionType.WindowsNtfs, true);
-            var volMgr = new VolumeManager(ms);
+    [Fact]
+    public void DeviceValue_Mbr()
+    {
+        var ms = new SparseMemoryStream();
+        ms.SetLength(80 * 1024 * 1024);
+        var pt = BiosPartitionTable.Initialize(ms, Geometry.FromCapacity(ms.Length));
+        pt.Create(WellKnownPartitionType.WindowsNtfs, true);
+        var volMgr = new VolumeManager(ms);
 
-            var hive = RegistryHive.Create(new MemoryStream());
-            var s = Store.Initialize(hive.Root);
-            var obj = s.CreateInherit(InheritType.AnyObject);
+        var hive = RegistryHive.Create(new MemoryStream());
+        var s = Store.Initialize(hive.Root);
+        var obj = s.CreateInherit(InheritType.AnyObject);
 
-            var el = obj.AddElement(WellKnownElement.LibraryApplicationDevice, ElementValue.ForDevice(Guid.Empty, volMgr.GetPhysicalVolumes()[0]));
+        var el = obj.AddElement(WellKnownElement.LibraryApplicationDevice, ElementValue.ForDevice(Guid.Empty, volMgr.GetPhysicalVolumes()[0]));
 
-            el = obj.GetElement(WellKnownElement.LibraryApplicationDevice);
+        el = obj.GetElement(WellKnownElement.LibraryApplicationDevice);
 
-            Assert.NotNull(el.Value.ToString());
-            Assert.NotEmpty(el.Value.ToString());
-        }
+        Assert.NotNull(el.Value.ToString());
+        Assert.NotEmpty(el.Value.ToString());
+    }
 
-        [Fact]
-        public void DeviceValue_BootDevice()
-        {
-            var hive = RegistryHive.Create(new MemoryStream());
-            var s = Store.Initialize(hive.Root);
-            var obj = s.CreateInherit(InheritType.AnyObject);
+    [Fact]
+    public void DeviceValue_BootDevice()
+    {
+        var hive = RegistryHive.Create(new MemoryStream());
+        var s = Store.Initialize(hive.Root);
+        var obj = s.CreateInherit(InheritType.AnyObject);
 
-            var el = obj.AddElement(WellKnownElement.LibraryApplicationDevice, ElementValue.ForBootDevice());
+        var el = obj.AddElement(WellKnownElement.LibraryApplicationDevice, ElementValue.ForBootDevice());
 
-            el = obj.GetElement(WellKnownElement.LibraryApplicationDevice);
+        el = obj.GetElement(WellKnownElement.LibraryApplicationDevice);
 
-            Assert.NotNull(el.Value.ToString());
-            Assert.NotEmpty(el.Value.ToString());
-        }
+        Assert.NotNull(el.Value.ToString());
+        Assert.NotEmpty(el.Value.ToString());
+    }
 
-        [Fact]
-        public void GuidValue()
-        {
-            var testGuid = Guid.NewGuid();
+    [Fact]
+    public void GuidValue()
+    {
+        var testGuid = Guid.NewGuid();
 
-            var hive = RegistryHive.Create(new MemoryStream());
-            var s = Store.Initialize(hive.Root);
-            var obj = s.CreateInherit(InheritType.AnyObject);
+        var hive = RegistryHive.Create(new MemoryStream());
+        var s = Store.Initialize(hive.Root);
+        var obj = s.CreateInherit(InheritType.AnyObject);
 
-            var el = obj.AddElement(WellKnownElement.BootMgrDefaultObject, ElementValue.ForGuid(testGuid));
+        var el = obj.AddElement(WellKnownElement.BootMgrDefaultObject, ElementValue.ForGuid(testGuid));
 
-            el = obj.GetElement(WellKnownElement.BootMgrDefaultObject);
+        el = obj.GetElement(WellKnownElement.BootMgrDefaultObject);
 
-            Assert.Equal(testGuid.ToString("B"), el.Value.ToString());
-        }
+        Assert.Equal(testGuid.ToString("B"), el.Value.ToString());
+    }
 
-        [Fact]
-        public void GuidListValue()
-        {
-            var testGuid1 = Guid.NewGuid();
-            var testGuid2 = Guid.NewGuid();
+    [Fact]
+    public void GuidListValue()
+    {
+        var testGuid1 = Guid.NewGuid();
+        var testGuid2 = Guid.NewGuid();
 
-            var hive = RegistryHive.Create(new MemoryStream());
-            var s = Store.Initialize(hive.Root);
-            var obj = s.CreateInherit(InheritType.AnyObject);
+        var hive = RegistryHive.Create(new MemoryStream());
+        var s = Store.Initialize(hive.Root);
+        var obj = s.CreateInherit(InheritType.AnyObject);
 
-            var el = obj.AddElement(WellKnownElement.BootMgrDisplayOrder, ElementValue.ForGuidList(new Guid[] {testGuid1, testGuid2}));
+        var el = obj.AddElement(WellKnownElement.BootMgrDisplayOrder, ElementValue.ForGuidList(new Guid[] {testGuid1, testGuid2}));
 
-            el = obj.GetElement(WellKnownElement.BootMgrDisplayOrder);
+        el = obj.GetElement(WellKnownElement.BootMgrDisplayOrder);
 
-            Assert.Equal($"{testGuid1:B},{testGuid2:B}", el.Value.ToString());
-        }
+        Assert.Equal($"{testGuid1:B},{testGuid2:B}", el.Value.ToString());
+    }
 
-        [Fact]
-        public void IntegerValue()
-        {
-            var hive = RegistryHive.Create(new MemoryStream());
-            var s = Store.Initialize(hive.Root);
-            var obj = s.CreateInherit(InheritType.AnyObject);
+    [Fact]
+    public void IntegerValue()
+    {
+        var hive = RegistryHive.Create(new MemoryStream());
+        var s = Store.Initialize(hive.Root);
+        var obj = s.CreateInherit(InheritType.AnyObject);
 
-            var el = obj.AddElement(WellKnownElement.LibraryTruncatePhysicalMemory, ElementValue.ForInteger(1234));
+        var el = obj.AddElement(WellKnownElement.LibraryTruncatePhysicalMemory, ElementValue.ForInteger(1234));
 
-            el = obj.GetElement(WellKnownElement.LibraryTruncatePhysicalMemory);
+        el = obj.GetElement(WellKnownElement.LibraryTruncatePhysicalMemory);
 
-            Assert.Equal("1234", el.Value.ToString());
-        }
+        Assert.Equal("1234", el.Value.ToString());
+    }
 
-        [Fact]
-        public void IntegerListValue()
-        {
-            var hive = RegistryHive.Create(new MemoryStream());
-            var s = Store.Initialize(hive.Root);
-            var obj = s.CreateInherit(InheritType.AnyObject);
+    [Fact]
+    public void IntegerListValue()
+    {
+        var hive = RegistryHive.Create(new MemoryStream());
+        var s = Store.Initialize(hive.Root);
+        var obj = s.CreateInherit(InheritType.AnyObject);
 
-            var el = obj.AddElement(WellKnownElement.LibraryBadMemoryList, ElementValue.ForIntegerList(new long[] { 1234, 4132 }));
+        var el = obj.AddElement(WellKnownElement.LibraryBadMemoryList, ElementValue.ForIntegerList(new long[] { 1234, 4132 }));
 
-            el = obj.GetElement(WellKnownElement.LibraryBadMemoryList);
+        el = obj.GetElement(WellKnownElement.LibraryBadMemoryList);
 
-            Assert.NotNull(el.Value.ToString());
-            Assert.NotEmpty(el.Value.ToString());
-        }
+        Assert.NotNull(el.Value.ToString());
+        Assert.NotEmpty(el.Value.ToString());
     }
 }

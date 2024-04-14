@@ -36,10 +36,7 @@ internal class TextBuffer
         _records = new List<KeyValuePair<string, string>>();
     }
 
-    internal int Count
-    {
-        get { return _records.Count; }
-    }
+    internal int Count => _records.Count;
 
     public string this[string key]
     {
@@ -71,10 +68,7 @@ internal class TextBuffer
         }
     }
 
-    public IEnumerable<KeyValuePair<string, string>> Lines
-    {
-        get { return _records; }
-    }
+    public IEnumerable<KeyValuePair<string, string>> Lines => _records;
 
     public int Size
     {

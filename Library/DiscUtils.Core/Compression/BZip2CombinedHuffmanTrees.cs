@@ -65,7 +65,7 @@ internal class BZip2CombinedHuffmanTrees
     private void Initialize(int maxSymbols)
     {
         var numTrees = (int)_bitstream.Read(3);
-        if (numTrees < 2 || numTrees > 6)
+        if (numTrees is < 2 or > 6)
         {
             throw new InvalidDataException("Invalid number of tables");
         }
@@ -91,7 +91,7 @@ internal class BZip2CombinedHuffmanTrees
             var len = _bitstream.Read(5);
             for (var i = 0; i < maxSymbols; ++i)
             {
-                if (len < 1 || len > 20)
+                if (len is < 1 or > 20)
                 {
                     throw new InvalidDataException("Invalid length constructing Huffman tree");
                 }
@@ -100,7 +100,7 @@ internal class BZip2CombinedHuffmanTrees
                 {
                     len = _bitstream.Read(1) == 0 ? len + 1 : len - 1;
 
-                    if (len < 1 || len > 20)
+                    if (len is < 1 or > 20)
                     {
                         throw new InvalidDataException("Invalid length constructing Huffman tree");
                     }

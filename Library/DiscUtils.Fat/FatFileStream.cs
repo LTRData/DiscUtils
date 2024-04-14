@@ -48,33 +48,21 @@ internal class FatFileStream : SparseStream
         _stream.FirstClusterChanged += FirstClusterAllocatedHandler;
     }
 
-    public override bool CanRead
-    {
-        get { return _stream.CanRead; }
-    }
+    public override bool CanRead => _stream.CanRead;
 
-    public override bool CanSeek
-    {
-        get { return _stream.CanSeek; }
-    }
+    public override bool CanSeek => _stream.CanSeek;
 
-    public override bool CanWrite
-    {
-        get { return _stream.CanWrite; }
-    }
+    public override bool CanWrite => _stream.CanWrite;
 
     public override IEnumerable<StreamExtent> Extents
         => SingleValueEnumerable.Get(new StreamExtent(0, Length));
 
-    public override long Length
-    {
-        get { return _stream.Length; }
-    }
+    public override long Length => _stream.Length;
 
     public override long Position
     {
-        get { return _stream.Position; }
-        set { _stream.Position = value; }
+        get => _stream.Position;
+        set => _stream.Position = value;
     }
 
     protected override void Dispose(bool disposing)

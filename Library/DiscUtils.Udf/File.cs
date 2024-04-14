@@ -44,19 +44,13 @@ internal class File : IVfsFile
         _blockSize = blockSize;
     }
 
-    public List<ExtendedAttributeRecord> ExtendedAttributes
-    {
-        get { return _fileEntry.ExtendedAttributes; }
-    }
+    public List<ExtendedAttributeRecord> ExtendedAttributes => _fileEntry.ExtendedAttributes;
 
     public IBuffer FileContent
     {
         get
         {
-            if (_content == null)
-            {
-                _content = new FileContentBuffer(_context, _partition, _fileEntry, _blockSize);
-            }
+            _content ??= new FileContentBuffer(_context, _partition, _fileEntry, _blockSize);
 
             return _content;
         }
@@ -67,14 +61,14 @@ internal class File : IVfsFile
 
     public DateTime LastAccessTimeUtc
     {
-        get { return _fileEntry.AccessTime; }
-        set { throw new NotSupportedException(); }
+        get => _fileEntry.AccessTime;
+        set => throw new NotSupportedException();
     }
 
     public DateTime LastWriteTimeUtc
     {
-        get { return _fileEntry.ModificationTime; }
-        set { throw new NotSupportedException(); }
+        get => _fileEntry.ModificationTime;
+        set => throw new NotSupportedException();
     }
 
     public DateTime CreationTimeUtc
@@ -89,7 +83,7 @@ internal class File : IVfsFile
             return LastWriteTimeUtc;
         }
 
-        set { throw new NotSupportedException(); }
+        set => throw new NotSupportedException();
     }
 
     public FileAttributes FileAttributes
@@ -103,11 +97,11 @@ internal class File : IVfsFile
             {
                 attribs |= FileAttributes.Directory;
             }
-            else if (_fileEntry.InformationControlBlock.FileType == FileType.Fifo
-                     || _fileEntry.InformationControlBlock.FileType == FileType.Socket
-                     || _fileEntry.InformationControlBlock.FileType == FileType.SpecialBlockDevice
-                     || _fileEntry.InformationControlBlock.FileType == FileType.SpecialCharacterDevice
-                     || _fileEntry.InformationControlBlock.FileType == FileType.TerminalEntry)
+            else if (_fileEntry.InformationControlBlock.FileType is FileType.Fifo
+                     or FileType.Socket
+                     or FileType.SpecialBlockDevice
+                     or FileType.SpecialCharacterDevice
+                     or FileType.TerminalEntry)
             {
                 attribs |= FileAttributes.Device;
             }
@@ -130,13 +124,10 @@ internal class File : IVfsFile
             return attribs;
         }
 
-        set { throw new NotSupportedException(); }
+        set => throw new NotSupportedException();
     }
 
-    public long FileLength
-    {
-        get { return (long)_fileEntry.InformationLength; }
-    }
+    public long FileLength => (long)_fileEntry.InformationLength;
 
     public static File FromDescriptor(UdfContext context, LongAllocationDescriptor icb)
     {

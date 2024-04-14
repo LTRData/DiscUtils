@@ -50,42 +50,21 @@ internal class DirEntry : VfsDirEntry
     }
     public Inode Inode { get; private set; }
 
-    public override bool IsDirectory
-    {
-        get { return Inode.FileType == UnixFileType.Directory; }
-    }
+    public override bool IsDirectory => Inode.FileType == UnixFileType.Directory;
 
-    public override bool IsSymlink
-    {
-        get { return Inode.FileType == UnixFileType.Link; }
-    }
+    public override bool IsSymlink => Inode.FileType == UnixFileType.Link;
 
-    public override string FileName { get { return _name; } }
+    public override string FileName => _name;
 
-    public override bool HasVfsTimeInfo
-    {
-        get { return true; }
-    }
+    public override bool HasVfsTimeInfo => true;
 
-    public override DateTime LastAccessTimeUtc
-    {
-        get { return Inode.AccessTime; }
-    }
+    public override DateTime LastAccessTimeUtc => Inode.AccessTime;
 
-    public override DateTime LastWriteTimeUtc
-    {
-        get { return Inode.ModificationTime; }
-    }
+    public override DateTime LastWriteTimeUtc => Inode.ModificationTime;
 
-    public override DateTime CreationTimeUtc
-    {
-        get { return Inode.CreationTime; }
-    }
+    public override DateTime CreationTimeUtc => Inode.CreationTime;
 
-    public override bool HasVfsFileAttributes
-    {
-        get { return true; }
-    }
+    public override bool HasVfsFileAttributes => true;
 
     public override FileAttributes FileAttributes
     {
@@ -96,8 +75,5 @@ internal class DirEntry : VfsDirEntry
         }
     }
 
-    public override long UniqueCacheId
-    {
-        get { return ((long)Inode.AllocationGroup) << 32 | Inode.RelativeInodeNumber; }
-    }
+    public override long UniqueCacheId => ((long)Inode.AllocationGroup) << 32 | Inode.RelativeInodeNumber;
 }

@@ -53,10 +53,7 @@ public sealed class BuildDirectoryInfo : BuildDirectoryMember
     /// <summary>
     /// The parent directory, or <c>null</c> if none.
     /// </summary>
-    public override BuildDirectoryInfo Parent
-    {
-        get { return _parent; }
-    }
+    public override BuildDirectoryInfo Parent => _parent;
 
     /// <summary>
     /// Gets the specified child directory or file.

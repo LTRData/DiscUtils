@@ -310,10 +310,7 @@ public sealed class SquashFileSystemBuilder : StreamBuilder, IFileSystemBuilder
         }
         catch (Exception ex)
         {
-            if (stream != null)
-            {
-                stream.Dispose();
-            }
+            stream?.Dispose();
 
             throw new Exception("SquashFs build failed", ex);
         }
@@ -339,10 +336,7 @@ public sealed class SquashFileSystemBuilder : StreamBuilder, IFileSystemBuilder
         }
         catch (Exception ex)
         {
-            if (stream != null)
-            {
-                stream.Dispose();
-            }
+            stream?.Dispose();
 
             throw new Exception("SquashFs build failed", ex);
         }
@@ -512,13 +506,10 @@ public sealed class SquashFileSystemBuilder : StreamBuilder, IFileSystemBuilder
     /// <returns>The root directory.</returns>
     private BuilderDirectory GetRoot()
     {
-        if (_rootDir == null)
-        {
-            _rootDir = new BuilderDirectory
+        _rootDir ??= new BuilderDirectory
             {
                 Mode = DefaultDirectoryPermissions
             };
-        }
 
         return _rootDir;
     }

@@ -79,10 +79,7 @@ internal abstract class NodeHeader : IByteArraySerializable
     /// </summary>
     public byte Level { get; private set; }
 
-    public virtual int Size
-    {
-        get { return Length; }
-    }
+    public virtual int Size => Length;
 
     public virtual int ReadFrom(ReadOnlySpan<byte> buffer)
     {

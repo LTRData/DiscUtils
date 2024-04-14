@@ -55,15 +55,9 @@ internal struct Inode : IByteArraySerializable
     public ushort UserIdHigh;
     public ushort UserIdLow;
 
-    public UnixFileType FileType
-    {
-        get { return (UnixFileType)((Mode >> 12) & 0xff); }
-    }
+    public UnixFileType FileType => (UnixFileType)((Mode >> 12) & 0xff);
 
-    public int Size
-    {
-        get { throw new NotImplementedException(); }
-    }
+    public int Size => throw new NotImplementedException();
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

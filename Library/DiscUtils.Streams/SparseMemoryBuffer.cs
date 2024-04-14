@@ -67,26 +67,17 @@ public sealed class SparseMemoryBuffer : Buffer
     /// <summary>
     /// Indicates this stream can be read (always <c>true</c>).
     /// </summary>
-    public override bool CanRead
-    {
-        get { return true; }
-    }
+    public override bool CanRead => true;
 
     /// <summary>
     /// Indicates this stream can be written (always <c>true</c>).
     /// </summary>
-    public override bool CanWrite
-    {
-        get { return true; }
-    }
+    public override bool CanWrite => true;
 
     /// <summary>
     /// Gets the current capacity of the sparse buffer (number of logical bytes stored).
     /// </summary>
-    public override long Capacity
-    {
-        get { return _capacity; }
-    }
+    public override long Capacity => _capacity;
 
     /// <summary>
     /// Gets the size of each allocation chunk.

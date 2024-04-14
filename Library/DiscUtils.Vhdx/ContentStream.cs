@@ -454,7 +454,7 @@ public sealed class ContentStream : MappedStream
             var blockBytesRemaining = (int)(_fileParameters.BlockSize - blockOffset);
 
             var blockStatus = chunk.GetBlockStatus(blockIndex);
-            if (blockStatus != PayloadBlockStatus.FullyPresent && blockStatus != PayloadBlockStatus.PartiallyPresent)
+            if (blockStatus is not PayloadBlockStatus.FullyPresent and not PayloadBlockStatus.PartiallyPresent)
             {
                 blockStatus = chunk.AllocateSpaceForBlock(blockIndex);
             }
@@ -504,7 +504,7 @@ public sealed class ContentStream : MappedStream
             var blockBytesRemaining = (int)(_fileParameters.BlockSize - blockOffset);
 
             var blockStatus = chunk.GetBlockStatus(blockIndex);
-            if (blockStatus != PayloadBlockStatus.FullyPresent && blockStatus != PayloadBlockStatus.PartiallyPresent)
+            if (blockStatus is not PayloadBlockStatus.FullyPresent and not PayloadBlockStatus.PartiallyPresent)
             {
                 blockStatus = chunk.AllocateSpaceForBlock(blockIndex);
             }
@@ -554,7 +554,7 @@ public sealed class ContentStream : MappedStream
             var blockBytesRemaining = (int)(_fileParameters.BlockSize - blockOffset);
 
             var blockStatus = chunk.GetBlockStatus(blockIndex);
-            if (blockStatus != PayloadBlockStatus.FullyPresent && blockStatus != PayloadBlockStatus.PartiallyPresent)
+            if (blockStatus is not PayloadBlockStatus.FullyPresent and not PayloadBlockStatus.PartiallyPresent)
             {
                 blockStatus = chunk.AllocateSpaceForBlock(blockIndex);
             }

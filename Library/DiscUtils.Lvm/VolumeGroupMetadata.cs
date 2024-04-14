@@ -42,7 +42,7 @@ internal class VolumeGroupMetadata : IByteArraySerializable
     public Metadata ParsedMetadata;
 
     /// <inheritdoc />
-    public int Size { get { return (int) Length; } }
+    public int Size => (int)Length;
 
     /// <inheritdoc />
     public int ReadFrom(ReadOnlySpan<byte> buffer)

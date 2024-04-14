@@ -24,26 +24,25 @@ using System;
 using System.Runtime.InteropServices;
 using Xunit;
 
-namespace LibraryTests
-{
-    public class WindowsOnlyFactAttribute : FactAttribute
-    {
-        public override string Skip
-        {
-            get
-            {
-#if NETCOREAPP
-                if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                {
-                    return "This test runs on Windows only";
-                }
+namespace LibraryTests;
 
-                return null;
-#else
-                return "This test runs on macOS only";
-#endif
+public class WindowsOnlyFactAttribute : FactAttribute
+{
+    public override string Skip
+    {
+        get
+        {
+#if NETCOREAPP
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return "This test runs on Windows only";
             }
-            set => throw new NotSupportedException();
+
+            return null;
+#else
+            return "This test runs on macOS only";
+#endif
         }
+        set => throw new NotSupportedException();
     }
 }

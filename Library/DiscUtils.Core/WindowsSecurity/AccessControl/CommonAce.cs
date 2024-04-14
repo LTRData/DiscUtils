@@ -68,10 +68,7 @@ public sealed class CommonAce : QualifiedAce
         SecurityIdentifier.GetBinaryForm(binaryForm.Slice(8));
 
         var opaque = GetOpaque();
-        if (opaque != null)
-        {
-            opaque.CopyTo(binaryForm.Slice(8 + SecurityIdentifier.BinaryLength));
-        }
+        opaque?.CopyTo(binaryForm.Slice(8 + SecurityIdentifier.BinaryLength));
     }
 
     public static int MaxOpaqueLength(bool isCallback)

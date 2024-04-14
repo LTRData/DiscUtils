@@ -33,10 +33,7 @@ internal sealed class SecurityDescriptorRecord : IByteArraySerializable
     public long OffsetInFile;
     public byte[] SecurityDescriptor;
 
-    public int Size
-    {
-        get { return SecurityDescriptor.Length + 0x14; }
-    }
+    public int Size => SecurityDescriptor.Length + 0x14;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

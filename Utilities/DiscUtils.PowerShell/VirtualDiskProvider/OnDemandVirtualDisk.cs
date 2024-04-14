@@ -105,15 +105,9 @@ internal sealed class OnDemandVirtualDisk : VirtualDisk
         }
     }
 
-    public override SparseStream Content
-    {
-        get { return new StreamWrapper(_fileSystem, _path, _access); }
-    }
+    public override SparseStream Content => new StreamWrapper(_fileSystem, _path, _access);
 
-    public override IEnumerable<VirtualDiskLayer> Layers
-    {
-        get { throw new NotSupportedException("Access to virtual disk layers is not implemented for on-demand disks"); }
-    }
+    public override IEnumerable<VirtualDiskLayer> Layers => throw new NotSupportedException("Access to virtual disk layers is not implemented for on-demand disks");
 
     public override VirtualDiskTypeInfo DiskTypeInfo
     {
@@ -205,14 +199,8 @@ internal sealed class OnDemandVirtualDisk : VirtualDisk
 
         public override long Position
         {
-            get
-            {
-                return _position;
-            }
-            set
-            {
-                _position = value;
-            }
+            get => _position;
+            set => _position = value;
         }
 
         public override int Read(byte[] buffer, int offset, int count)

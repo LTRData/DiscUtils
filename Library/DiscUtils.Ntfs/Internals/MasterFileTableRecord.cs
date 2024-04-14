@@ -31,36 +31,18 @@ public sealed class MasterFileTableRecord
         _fileRecord = fileRecord;
     }
 
-    public MasterFileTableReference BaseRecordReference
-    {
-        get { return new MasterFileTableReference(_fileRecord.BaseFile); }
-    }
+    public MasterFileTableReference BaseRecordReference => new MasterFileTableReference(_fileRecord.BaseFile);
 
-    public MasterFileTableRecordFlags Flags
-    {
-        get { return (MasterFileTableRecordFlags)_fileRecord.Flags; }
-    }
+    public MasterFileTableRecordFlags Flags => (MasterFileTableRecordFlags)_fileRecord.Flags;
 
-    public int HardLinkCount
-    {
-        get { return _fileRecord.HardLinkCount; }
-    }
+    public int HardLinkCount => _fileRecord.HardLinkCount;
 
     /// <summary>
     /// Changes each time the file is modified by Windows, relates to the NTFS journal.
     /// </summary>
-    public long JournalSequenceNumber
-    {
-        get { return (long)_fileRecord.LogFileSequenceNumber; }
-    }
+    public long JournalSequenceNumber => (long)_fileRecord.LogFileSequenceNumber;
 
-    public int NextAttributeId
-    {
-        get { return _fileRecord.NextAttributeId; }
-    }
+    public int NextAttributeId => _fileRecord.NextAttributeId;
 
-    public int SequenceNumber
-    {
-        get { return _fileRecord.SequenceNumber; }
-    }
+    public int SequenceNumber => _fileRecord.SequenceNumber;
 }

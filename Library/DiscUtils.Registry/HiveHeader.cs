@@ -59,10 +59,7 @@ public class HiveHeader : IByteArraySerializable
         Guid2 = Guid.NewGuid();
     }
 
-    public int Size
-    {
-        get { return HeaderSize; }
-    }
+    public int Size => HeaderSize;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer) => ReadFrom(buffer, throwOnInvalidData: true);
 

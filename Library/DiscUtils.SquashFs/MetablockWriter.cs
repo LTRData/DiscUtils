@@ -44,10 +44,7 @@ internal sealed class MetablockWriter : IDisposable
         _buffer = new MemoryStream();
     }
 
-    public MetadataRef Position
-    {
-        get { return new MetadataRef(_currentBlockNum, _currentOffset); }
-    }
+    public MetadataRef Position => new MetadataRef(_currentBlockNum, _currentOffset);
 
     public void Dispose()
     {

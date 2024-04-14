@@ -25,33 +25,32 @@ using System;
 using System.IO;
 using Xunit;
 
-namespace LibraryTests.Nfs
+namespace LibraryTests.Nfs;
+
+public class Nfs3WeakCacheConsistencyAttrTest
 {
-    public class Nfs3WeakCacheConsistencyAttrTest
+    [Fact]
+    public void RoundTripTest()
     {
-        [Fact]
-        public void RoundTripTest()
+        var attr = new Nfs3WeakCacheConsistencyAttr()
         {
-            var attr = new Nfs3WeakCacheConsistencyAttr()
-            {
-                ChangeTime = new Nfs3FileTime(new DateTime(2017, 1, 1)),
-                ModifyTime = new Nfs3FileTime(new DateTime(2017, 1, 2)),
-                Size = 3
-            };
+            ChangeTime = new Nfs3FileTime(new DateTime(2017, 1, 1)),
+            ModifyTime = new Nfs3FileTime(new DateTime(2017, 1, 2)),
+            Size = 3
+        };
 
-            Nfs3WeakCacheConsistencyAttr clone = null;
+        Nfs3WeakCacheConsistencyAttr clone = null;
 
-            using (var stream = new MemoryStream())
-            {
-                var writer = new XdrDataWriter(stream);
-                attr.Write(writer);
+        using (var stream = new MemoryStream())
+        {
+            var writer = new XdrDataWriter(stream);
+            attr.Write(writer);
 
-                stream.Position = 0;
-                var reader = new XdrDataReader(stream);
-                clone = new Nfs3WeakCacheConsistencyAttr(reader);
-            }
-
-            Assert.Equal(attr, clone);
+            stream.Position = 0;
+            var reader = new XdrDataReader(stream);
+            clone = new Nfs3WeakCacheConsistencyAttr(reader);
         }
+
+        Assert.Equal(attr, clone);
     }
 }

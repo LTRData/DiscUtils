@@ -36,10 +36,7 @@ internal class BTreeExtentNode : BTreeExtentHeader
 
     public Dictionary<ulong, BTreeExtentHeader> Children { get; protected set; }
 
-    public override int Size
-    {
-        get { return base.Size + (NumberOfRecords * 0x8); }
-    }
+    public override int Size => base.Size + (NumberOfRecords * 0x8);
 
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {

@@ -69,18 +69,12 @@ public sealed class MetadataTableInfo : ICollection<MetadataInfo>
     /// <summary>
     /// Gets the number of metadata items present.
     /// </summary>
-    public int Count
-    {
-        get { return _table.EntryCount; }
-    }
+    public int Count => _table.EntryCount;
 
     /// <summary>
     /// Gets a value indicating whether this table is read-only (always true).
     /// </summary>
-    public bool IsReadOnly
-    {
-        get { return true; }
-    }
+    public bool IsReadOnly => true;
 
     /// <summary>
     /// Always throws InvalidOperationException.

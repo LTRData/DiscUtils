@@ -31,10 +31,7 @@ internal class OrphanItem : BaseItem
 {
     public OrphanItem(Key key) : base(key) { }
 
-    public override int Size
-    {
-        get { return 0; }
-    }
+    public override int Size => 0;
 
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {

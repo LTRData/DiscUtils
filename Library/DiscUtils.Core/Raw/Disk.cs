@@ -113,10 +113,7 @@ public sealed class Disk : VirtualDisk
     /// <summary>
     /// Gets the capacity of the disk (in bytes).
     /// </summary>
-    public override long Capacity
-    {
-        get { return _file.Capacity; }
-    }
+    public override long Capacity => _file.Capacity;
 
     /// <summary>
     /// Gets the content of the disk as a stream.
@@ -124,36 +121,24 @@ public sealed class Disk : VirtualDisk
     /// <remarks>Note the returned stream is not guaranteed to be at any particular position.  The actual position
     /// will depend on the last partition table/file system activity, since all access to the disk contents pass
     /// through a single stream instance.  Set the stream position before accessing the stream.</remarks>
-    public override SparseStream Content
-    {
-        get { return _file.Content; }
-    }
+    public override SparseStream Content => _file.Content;
 
     /// <summary>
     /// Gets the type of disk represented by this object.
     /// </summary>
-    public override VirtualDiskClass DiskClass
-    {
-        get { return _file.DiskType; }
-    }
+    public override VirtualDiskClass DiskClass => _file.DiskType;
 
     /// <summary>
     /// Gets information about the type of disk.
     /// </summary>
     /// <remarks>This property provides access to meta-data about the disk format, for example whether the
     /// BIOS geometry is preserved in the disk file.</remarks>
-    public override VirtualDiskTypeInfo DiskTypeInfo
-    {
-        get { return DiskFactory.MakeDiskTypeInfo(); }
-    }
+    public override VirtualDiskTypeInfo DiskTypeInfo => DiskFactory.MakeDiskTypeInfo();
 
     /// <summary>
     /// Gets the geometry of the disk.
     /// </summary>
-    public override Geometry Geometry
-    {
-        get { return _file.Geometry; }
-    }
+    public override Geometry Geometry => _file.Geometry;
 
     /// <summary>
     /// Gets the layers that make up the disk.
@@ -231,10 +216,7 @@ public sealed class Disk : VirtualDisk
         {
             if (disposing)
             {
-                if (_file != null)
-                {
-                    _file.Dispose();
-                }
+                _file?.Dispose();
 
                 _file = null;
             }

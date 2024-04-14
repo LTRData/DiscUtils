@@ -51,10 +51,7 @@ internal class Directory : File
         }
     }
 
-    public bool IsEmpty
-    {
-        get { return Index.Count == 0; }
-    }
+    public bool IsEmpty => Index.Count == 0;
 
     public IEnumerable<DirectoryEntry> GetAllEntries(Func<DirectoryIndexEntry, bool> filter)
     {
@@ -163,12 +160,8 @@ internal class Directory : File
 
     internal void RemoveEntry(DirectoryEntry dirEntry)
     {
-        var file = _context.GetFileByRef(dirEntry.Reference);
-
-        if (file is null)
-        {
-            throw new FileNotFoundException($"Cannot find file '{dirEntry.SearchName}', {dirEntry.Reference}");
-        }
+        var file = _context.GetFileByRef(dirEntry.Reference)
+            ?? throw new FileNotFoundException($"Cannot find file '{dirEntry.SearchName}', {dirEntry.Reference}");
 
         var nameRecord = dirEntry.Details;
 

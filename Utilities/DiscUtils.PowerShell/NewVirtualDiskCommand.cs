@@ -61,7 +61,7 @@ public class NewVirtualDiskCommand : PSCmdlet
     private void CreateNewDisk()
     {
         var typeAndVariant = Type.Split('-');
-        if (typeAndVariant.Length < 1 || typeAndVariant.Length > 2)
+        if (typeAndVariant.Length is < 1 or > 2)
         {
             WriteError(new ErrorRecord(
                 new ArgumentException("Invalid Type of disk"),
@@ -182,10 +182,7 @@ public class NewVirtualDiskCommand : PSCmdlet
         }
         finally
         {
-            if (baseDisk != null)
-            {
-                baseDisk.Dispose();
-            }
+            baseDisk?.Dispose();
         }
     }
 

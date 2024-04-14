@@ -60,20 +60,11 @@ internal class BiosParameterBlock
     public long TotalSectors64;
     public ulong VolumeSerialNumber;
 
-    public int BytesPerCluster
-    {
-        get { return BytesPerSector * SectorsPerCluster; }
-    }
+    public int BytesPerCluster => BytesPerSector * SectorsPerCluster;
 
-    public int IndexBufferSize
-    {
-        get { return CalcRecordSize(RawIndexBufferSize); }
-    }
+    public int IndexBufferSize => CalcRecordSize(RawIndexBufferSize);
 
-    public int MftRecordSize
-    {
-        get { return CalcRecordSize(RawMftRecordSize); }
-    }
+    public int MftRecordSize => CalcRecordSize(RawMftRecordSize);
 
     public void Dump(TextWriter writer, string linePrefix)
     {

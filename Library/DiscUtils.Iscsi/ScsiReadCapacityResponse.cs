@@ -30,17 +30,11 @@ internal class ScsiReadCapacityResponse : ScsiResponse
 
     public uint LogicalBlockSize { get; private set; }
 
-    public override uint NeededDataLength
-    {
-        get { return 8; }
-    }
+    public override uint NeededDataLength => 8;
 
     public uint NumLogicalBlocks { get; private set; }
 
-    public override bool Truncated
-    {
-        get { return _truncated; }
-    }
+    public override bool Truncated => _truncated;
 
     public override void ReadFrom(byte[] buffer, int offset, int count)
     {

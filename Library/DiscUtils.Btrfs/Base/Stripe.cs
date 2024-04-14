@@ -47,18 +47,9 @@ internal class Stripe : IByteArraySerializable
     /// </summary>
     public Guid DeviceUuid { get; private set; }
 
-    public int Size
-    {
-        get { return Length; }
-    }
+    public int Size => Length;
 
-    public Key DevItemKey
-    {
-        get
-        {
-            return new Key(DeviceId,ItemType.DevItem,Offset);
-        }
-    }
+    public Key DevItemKey => new Key(DeviceId, ItemType.DevItem, Offset);
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

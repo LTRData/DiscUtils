@@ -42,10 +42,7 @@ internal class BTreeInodeRecord: IByteArraySerializable
     /// 64 element bit array specifying which entries are free in the chunk
     /// </summary>
     public BitArray Free { get; private set; }
-    public int Size
-    {
-        get { return 0x10; }
-    }
+    public int Size => 0x10;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

@@ -54,20 +54,11 @@ public class WrappingMappedStream<T> : MappedStream
         }
     }
 
-    public override bool CanRead
-    {
-        get { return WrappedStream.CanRead; }
-    }
+    public override bool CanRead => WrappedStream.CanRead;
 
-    public override bool CanSeek
-    {
-        get { return WrappedStream.CanSeek; }
-    }
+    public override bool CanSeek => WrappedStream.CanSeek;
 
-    public override bool CanWrite
-    {
-        get { return WrappedStream.CanWrite; }
-    }
+    public override bool CanWrite => WrappedStream.CanWrite;
 
     public override IEnumerable<StreamExtent> Extents
     {
@@ -87,15 +78,12 @@ public class WrappingMappedStream<T> : MappedStream
         }
     }
 
-    public override long Length
-    {
-        get { return WrappedStream.Length; }
-    }
+    public override long Length => WrappedStream.Length;
 
     public override long Position
     {
-        get { return WrappedStream.Position; }
-        set { WrappedStream.Position = value; }
+        get => WrappedStream.Position;
+        set => WrappedStream.Position = value;
     }
 
     public T WrappedStream { get; private set; }

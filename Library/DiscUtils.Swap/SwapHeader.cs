@@ -46,10 +46,7 @@ public class SwapHeader : IByteArraySerializable
 
     public string Magic { get; private set; }
 
-    public int Size
-    {
-        get { return PageSize; }
-    }
+    public int Size => PageSize;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

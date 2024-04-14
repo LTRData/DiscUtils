@@ -48,20 +48,11 @@ internal class Mode2Buffer : Streams.Buffer
         _iobuffer = new byte[DiscImageFile.Mode2SectorSize];
     }
 
-    public override bool CanRead
-    {
-        get { return true; }
-    }
+    public override bool CanRead => true;
 
-    public override bool CanWrite
-    {
-        get { return false; }
-    }
+    public override bool CanWrite => false;
 
-    public override long Capacity
-    {
-        get { return _wrapped.Capacity / DiscImageFile.Mode2SectorSize * DiscImageFile.Mode1SectorSize; }
-    }
+    public override long Capacity => _wrapped.Capacity / DiscImageFile.Mode2SectorSize * DiscImageFile.Mode1SectorSize;
 
     public override IEnumerable<StreamExtent> Extents
         => SingleValueEnumerable.Get(new StreamExtent(0, Capacity));

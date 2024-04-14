@@ -43,25 +43,13 @@ internal class FileContentBuffer : Streams.Buffer
         LoadExtents();
     }
 
-    public override bool CanRead
-    {
-        get { return true; }
-    }
+    public override bool CanRead => true;
 
-    public override bool CanWrite
-    {
-        get { return false; }
-    }
+    public override bool CanWrite => false;
 
-    public override long Capacity
-    {
-        get { return (long)_fileEntry.InformationLength; }
-    }
+    public override long Capacity => (long)_fileEntry.InformationLength;
 
-    public override IEnumerable<StreamExtent> Extents
-    {
-        get { throw new NotImplementedException(); }
-    }
+    public override IEnumerable<StreamExtent> Extents => throw new NotImplementedException();
 
     public IEnumerable<StreamExtent> EnumerateAllocationExtents()
     {

@@ -63,16 +63,10 @@ public class Nfs3CreateResult : Nfs3CallResult
         if (Status == Nfs3Status.Ok)
         {
             writer.Write(FileHandle != null);
-            if (FileHandle != null)
-            {
-                FileHandle.Write(writer);
-            }
+            FileHandle?.Write(writer);
 
             writer.Write(FileAttributes != null);
-            if (FileAttributes != null)
-            {
-                FileAttributes.Write(writer);
-            }
+            FileAttributes?.Write(writer);
         }
 
         CacheConsistency.Write(writer);

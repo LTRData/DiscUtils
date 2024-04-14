@@ -30,10 +30,7 @@ internal class CharacterSetSpecification : IByteArraySerializable
     public byte[] Information;
     public CharacterSetType Type;
 
-    public int Size
-    {
-        get { return 64; }
-    }
+    public int Size => 64;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

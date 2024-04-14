@@ -45,10 +45,7 @@ internal class ChapAuthenticator : Authenticator
         _state = State.SendAlgorithm;
     }
 
-    public override string Identifier
-    {
-        get { return "CHAP"; }
-    }
+    public override string Identifier => "CHAP";
 
     public override bool GetParameters(TextBuffer textBuffer)
     {

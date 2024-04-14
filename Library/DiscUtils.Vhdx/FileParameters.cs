@@ -34,10 +34,7 @@ internal sealed class FileParameters : IByteArraySerializable
     public uint BlockSize;
     public FileParametersFlags Flags;
 
-    public int Size
-    {
-        get { return 8; }
-    }
+    public int Size => 8;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
