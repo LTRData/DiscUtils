@@ -45,7 +45,7 @@ internal sealed class LzWindowDictionary
         _offsetList = new List<int>[0x100];
         for (var i = 0; i < _offsetList.Length; i++)
         {
-            _offsetList[i] = new List<int>();
+            _offsetList[i] = [];
         }
     }
 

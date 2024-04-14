@@ -33,7 +33,7 @@ internal class TextBuffer
 
     public TextBuffer()
     {
-        _records = new List<KeyValuePair<string, string>>();
+        _records = [];
     }
 
     internal int Count => _records.Count;

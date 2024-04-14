@@ -105,7 +105,7 @@ internal class FileRecord : FixupRecordBase
         HardLinkCount = 0;
         BaseFile = new FileRecordReference(0);
 
-        Attributes = new List<AttributeRecord>();
+        Attributes = [];
         _haveIndex = true;
     }
 
@@ -211,7 +211,7 @@ internal class FileRecord : FixupRecordBase
                 id,
                 flags,
                 0,
-                new List<DataRun>()));
+                []));
         Attributes.Sort();
         return id;
     }
@@ -337,7 +337,7 @@ internal class FileRecord : FixupRecordBase
             _haveIndex = true;
         }
 
-        Attributes = new List<AttributeRecord>();
+        Attributes = [];
         int focus = _firstAttributeOffset;
         while (true)
         {

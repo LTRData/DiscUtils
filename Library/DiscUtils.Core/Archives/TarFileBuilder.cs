@@ -39,7 +39,7 @@ public class TarFileBuilder : StreamBuilder
     /// </summary>
     public TarFileBuilder()
     {
-        _files = new List<UnixBuildFileRecord>();
+        _files = [];
     }
 
     public bool Exists(string name)

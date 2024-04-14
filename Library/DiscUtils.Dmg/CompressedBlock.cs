@@ -52,7 +52,7 @@ internal class CompressedBlock : IByteArraySerializable
 
         CheckSum = EndianUtilities.ToStruct<UdifChecksum>(buffer.Slice(60));
 
-        Runs = new List<CompressedRun>();
+        Runs = [];
         var numRuns = EndianUtilities.ToInt32BigEndian(buffer.Slice(200));
         for (var i = 0; i < numRuns; ++i)
         {

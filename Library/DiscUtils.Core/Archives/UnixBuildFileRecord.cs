@@ -69,13 +69,13 @@ internal sealed class UnixBuildFileRecord
 
     public string Name => _name;
 
-    public UnixFilePermissions FileMode => this._fileMode;
+    public UnixFilePermissions FileMode => _fileMode;
 
-    public int OwnerId => this._ownerId;
+    public int OwnerId => _ownerId;
 
-    public int GroupId => this._groupId;
+    public int GroupId => _groupId;
 
-    public DateTime ModificationTime => this._modificationTime;
+    public DateTime ModificationTime => _modificationTime;
 
     public long Length => _source.Length;
 

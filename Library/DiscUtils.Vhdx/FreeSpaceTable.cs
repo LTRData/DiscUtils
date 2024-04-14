@@ -41,8 +41,7 @@ internal sealed class FreeSpaceTable
         // Which does not mean the file size has to be multiple of 1MiB.
         // (The last extent can be less than 1MiB and still all extent have 1 MiB alignment.)
 
-        _freeExtents = new List<StreamExtent>();
-        _freeExtents.Add(new StreamExtent(0, fileSize));
+        _freeExtents = [new StreamExtent(0, fileSize)];
         _fileSize = fileSize;
     }
 

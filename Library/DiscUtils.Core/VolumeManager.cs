@@ -58,9 +58,9 @@ public sealed class VolumeManager
     /// </summary>
     public VolumeManager()
     {
-        _disks = new List<VirtualDisk>();
-        _physicalVolumes = new Dictionary<string, PhysicalVolumeInfo>();
-        _logicalVolumes = new Dictionary<string, LogicalVolumeInfo>();
+        _disks = [];
+        _physicalVolumes = [];
+        _logicalVolumes = [];
     }
 
     /// <summary>

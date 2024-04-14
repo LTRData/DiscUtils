@@ -213,13 +213,13 @@ public sealed class Provider : NavigationCmdletProvider, IContentCmdletProvider
     {
         var obj = FindItemByPath(Utilities.NormalizePath(path), false, false);
 
-        if (obj is DiscDirectoryInfo)
+        if (obj is DiscDirectoryInfo discDirInfo)
         {
-            ((DiscDirectoryInfo)obj).Delete(true);
+            discDirInfo.Delete(true);
         }
-        else if (obj is DiscFileInfo)
+        else if (obj is DiscFileInfo discFileInfo)
         {
-            ((DiscFileInfo)obj).Delete();
+            discFileInfo.Delete();
         }
         else
         {
@@ -249,9 +249,8 @@ public sealed class Provider : NavigationCmdletProvider, IContentCmdletProvider
 
         var obj = FindItemByPath(Utilities.NormalizePath(parentPath), true, false);
 
-        if (obj is DiscDirectoryInfo)
+        if (obj is DiscDirectoryInfo dirInfo)
         {
-            var dirInfo = (DiscDirectoryInfo)obj;
             if (itemTypeUpper == "FILE")
             {
                 using (dirInfo.FileSystem.OpenFile(Path.Combine(dirInfo.FullName, GetChildName(path)), FileMode.Create))
@@ -426,9 +425,9 @@ public sealed class Provider : NavigationCmdletProvider, IContentCmdletProvider
     public void ClearContent(string path)
     {
         var destObj = FindItemByPath(Utilities.NormalizePath(path), true, false);
-        if (destObj is DiscFileInfo)
+        if (destObj is DiscFileInfo discFileInfo)
         {
-            using var s = ((DiscFileInfo)destObj).Open(FileMode.Open, FileAccess.ReadWrite);
+            using var s = discFileInfo.Open(FileMode.Open, FileAccess.ReadWrite);
             s.SetLength(0);
         }
         else
@@ -449,11 +448,11 @@ public sealed class Provider : NavigationCmdletProvider, IContentCmdletProvider
     public IContentReader GetContentReader(string path)
     {
         var destObj = FindItemByPath(Utilities.NormalizePath(path), true, false);
-        if (destObj is DiscFileInfo)
+        if (destObj is DiscFileInfo discFileInfo)
         {
             return new FileContentReaderWriter(
                 this,
-                ((DiscFileInfo)destObj).Open(FileMode.Open, FileAccess.Read),
+                discFileInfo.Open(FileMode.Open, FileAccess.Read),
                 DynamicParameters as ContentParameters);
         }
         else
@@ -475,11 +474,11 @@ public sealed class Provider : NavigationCmdletProvider, IContentCmdletProvider
     public IContentWriter GetContentWriter(string path)
     {
         var destObj = FindItemByPath(Utilities.NormalizePath(path), true, false);
-        if (destObj is DiscFileInfo)
+        if (destObj is DiscFileInfo discFileInfo)
         {
             return new FileContentReaderWriter(
                 this,
-                ((DiscFileInfo)destObj).Open(FileMode.Open, FileAccess.ReadWrite),
+                discFileInfo.Open(FileMode.Open, FileAccess.ReadWrite),
                 DynamicParameters as ContentParameters);
         }
         else
@@ -634,7 +633,7 @@ public sealed class Provider : NavigationCmdletProvider, IContentCmdletProvider
     private void ShowSlowDiskWarning()
     {
         const string varName = "DiscUtils_HideSlowDiskWarning";
-        var psVar = this.SessionState.PSVariable.Get(varName);
+        var psVar = SessionState.PSVariable.Get(varName);
         if (psVar != null && psVar.Value != null)
         {
 
@@ -646,7 +645,7 @@ public sealed class Provider : NavigationCmdletProvider, IContentCmdletProvider
         }
 
         WriteWarning("Slow disk access.  Mount the disk using New-PSDrive to improve performance.  This message will not show again.");
-        this.SessionState.PSVariable.Set(varName, true.ToString());
+        SessionState.PSVariable.Set(varName, true.ToString());
     }
 
     private DiscFileSystem GetFileSystem(VolumeInfo volInfo, out bool dispose)
@@ -679,15 +678,12 @@ public sealed class Provider : NavigationCmdletProvider, IContentCmdletProvider
 
         var obj = FindItemByPath(path, false, true);
 
-        if (obj is VirtualDisk)
+        if (obj is VirtualDisk vd)
         {
-            var vd = (VirtualDisk)obj;
             EnumerateDisk(vd, path, recurse, namesOnly);
         }
-        else if (obj is LogicalVolumeInfo)
+        else if (obj is LogicalVolumeInfo lvi)
         {
-            var lvi = (LogicalVolumeInfo)obj;
-
             var fs = GetFileSystem(lvi, out var dispose);
             try
             {
@@ -704,9 +700,8 @@ public sealed class Provider : NavigationCmdletProvider, IContentCmdletProvider
                 }
             }
         }
-        else if (obj is DiscDirectoryInfo)
+        else if (obj is DiscDirectoryInfo ddi)
         {
-            var ddi = (DiscDirectoryInfo)obj;
             EnumerateDirectory(ddi, path, recurse, namesOnly);
         }
         else

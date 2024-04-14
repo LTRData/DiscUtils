@@ -37,7 +37,7 @@ internal class ScsiReportLunsResponse : ScsiResponse
 
     public override void ReadFrom(byte[] buffer, int offset, int count)
     {
-        Luns = new List<ulong>();
+        Luns = [];
 
         if (count == 0)
         {

@@ -43,7 +43,11 @@ public static class EndianUtilities
     {
         if (_isLittleEndian)
         {
+#if NET8_0_OR_GREATER
+            MemoryMarshal.Write(buffer, val);
+#else
             MemoryMarshal.Write(buffer, ref val);
+#endif
         }
         else
         {
@@ -59,7 +63,11 @@ public static class EndianUtilities
     {
         if (_isLittleEndian)
         {
+#if NET8_0_OR_GREATER
+            MemoryMarshal.Write(buffer, val);
+#else
             MemoryMarshal.Write(buffer, ref val);
+#endif
         }
         else
         {
@@ -77,7 +85,11 @@ public static class EndianUtilities
     {
         if (_isLittleEndian)
         {
+#if NET8_0_OR_GREATER
+            MemoryMarshal.Write(buffer, val);
+#else
             MemoryMarshal.Write(buffer, ref val);
+#endif
         }
         else
         {
@@ -124,7 +136,11 @@ public static class EndianUtilities
 
     public static void WriteBytesLittleEndian(Guid val, Span<byte> buffer)
     {
+#if NET8_0_OR_GREATER
+        MemoryMarshal.Write(buffer, val);
+#else
         MemoryMarshal.Write(buffer, ref val);
+#endif
 
         if (!_isLittleEndian)
         {
@@ -144,7 +160,11 @@ public static class EndianUtilities
     {
         if (!_isLittleEndian)
         {
+#if NET8_0_OR_GREATER
+            MemoryMarshal.Write(buffer, val);
+#else
             MemoryMarshal.Write(buffer, ref val);
+#endif
         }
         else
         {
@@ -160,7 +180,11 @@ public static class EndianUtilities
     {
         if (!_isLittleEndian)
         {
+#if NET8_0_OR_GREATER
+            MemoryMarshal.Write(buffer, val);
+#else
             MemoryMarshal.Write(buffer, ref val);
+#endif
         }
         else
         {
@@ -178,7 +202,11 @@ public static class EndianUtilities
     {
         if (!_isLittleEndian)
         {
+#if NET8_0_OR_GREATER
+            MemoryMarshal.Write(buffer, val);
+#else
             MemoryMarshal.Write(buffer, ref val);
+#endif
         }
         else
         {
@@ -228,7 +256,11 @@ public static class EndianUtilities
 
     public static void WriteBytesBigEndian(Guid val, Span<byte> buffer)
     {
-        MemoryMarshal.Write(buffer, ref val);
+#if NET8_0_OR_GREATER
+        MemoryMarshal.Write(buffer, val);
+#else
+            MemoryMarshal.Write(buffer, ref val);
+#endif
 
         if (_isLittleEndian)
         {

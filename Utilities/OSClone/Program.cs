@@ -47,7 +47,7 @@ class Program : ProgramBase
     private CommandLineParameter _destFile;
     private CommandLineSwitch _labelSwitch;
 
-    private Dictionary<long, string> _uniqueFiles = new Dictionary<long,string>();
+    private Dictionary<long, string> _uniqueFiles = [];
 
     static void Main(string[] args)
     {

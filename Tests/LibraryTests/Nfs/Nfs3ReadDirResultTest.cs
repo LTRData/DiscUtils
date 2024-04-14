@@ -44,8 +44,8 @@ public class Nfs3ReadDirResultTest
                 ChangeTime = new Nfs3FileTime(new DateTime(2018, 1, 2)),
                 ModifyTime = new Nfs3FileTime(new DateTime(2018, 1, 3)),
             },
-            DirEntries = new List<Nfs3DirectoryEntry>()
-            {
+            DirEntries =
+            [
                 new Nfs3DirectoryEntry()
                 {
                      Cookie = 2u,
@@ -62,7 +62,7 @@ public class Nfs3ReadDirResultTest
                      FileId = 2018,
                      Name = "test.bin"
                 }
-            }
+            ]
         };
 
         Nfs3ReadDirResult clone = null;

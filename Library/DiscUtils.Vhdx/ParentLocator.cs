@@ -37,7 +37,7 @@ internal sealed class ParentLocator : IByteArraySerializable
     public Guid LocatorType = LocatorTypeGuid;
     public ushort Reserved = 0;
 
-    public Dictionary<string, string> Entries { get; private set; } = new Dictionary<string, string>();
+    public Dictionary<string, string> Entries { get; private set; } = [];
 
     public ParentLocator()
     {
@@ -89,7 +89,7 @@ internal sealed class ParentLocator : IByteArraySerializable
             throw new IOException($"Unrecognized Parent Locator type: {LocatorType}");
         }
 
-        Entries = new Dictionary<string, string>();
+        Entries = [];
 
         Count = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(18));
         for (ushort i = 0; i < Count; ++i)

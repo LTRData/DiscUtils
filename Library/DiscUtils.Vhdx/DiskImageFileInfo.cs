@@ -140,7 +140,7 @@ public sealed class DiskImageFileInfo
     /// </summary>
     public IDictionary<string, string> ParentLocatorEntries => _metadata.ParentLocator != null
                 ? _metadata.ParentLocator.Entries
-                : new Dictionary<string, string>();
+                : [];
 
     /// <summary>
     /// Gets the parent locator type, for differencing files.

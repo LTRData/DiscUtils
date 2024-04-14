@@ -30,7 +30,7 @@ public sealed class Nfs3ExportResult : Nfs3CallResult
 {
     internal Nfs3ExportResult(XdrDataReader reader)
     {
-        Exports = new List<Nfs3Export>();
+        Exports = [];
         while (reader.ReadBool())
         {
             Exports.Add(new Nfs3Export(reader));

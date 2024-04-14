@@ -30,7 +30,7 @@ internal sealed class Transaction : IDisposable
 {
     public Transaction()
     {
-        Answers = new List<ResourceRecord>();
+        Answers = [];
         CompleteEvent = new ManualResetEvent(false);
     }
 

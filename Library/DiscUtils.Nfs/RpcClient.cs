@@ -29,7 +29,7 @@ internal sealed class RpcClient : IRpcClient
 {
     private uint _nextTransaction;
     private readonly string _serverAddress;
-    private Dictionary<int, RpcTcpTransport> _transports = new Dictionary<int, RpcTcpTransport>();
+    private Dictionary<int, RpcTcpTransport> _transports = [];
 
     public RpcClient(string address, RpcCredentials credential)
     {

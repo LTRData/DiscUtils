@@ -345,6 +345,6 @@ internal struct Inode : IByteArraySerializable
             builderExtents.Add(new BuilderSparseStreamExtent((long) extent.StartOffset * context.SuperBlock.Blocksize, substream));
         }
 
-        return new StreamBuffer(new ExtentStream((long) this.Length, builderExtents), Ownership.Dispose);
+        return new StreamBuffer(new ExtentStream((long) Length, builderExtents), Ownership.Dispose);
     }
 }

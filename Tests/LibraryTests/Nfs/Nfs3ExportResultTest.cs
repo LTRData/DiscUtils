@@ -34,18 +34,18 @@ public class Nfs3ExportResultTest
     {
         var result = new Nfs3ExportResult()
         {
-            Exports = new List<Nfs3Export>()
-             {
+            Exports =
+             [
                   new Nfs3Export()
                   {
                        DirPath = "export",
-                       Groups = new List<string>()
-                       {
+                       Groups =
+                       [
                             "GroupA",
                             "GroupB"
-                       }
+                       ]
                   }
-             }
+             ]
         };
 
         Nfs3ExportResult clone = null;

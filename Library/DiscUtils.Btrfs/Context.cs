@@ -36,7 +36,7 @@ internal class Context : VfsContext
 {
     public Context(BtrfsFileSystemOptions options)
     {
-        FsTrees = new Dictionary<ulong, NodeHeader>();
+        FsTrees = [];
         Options = options;
     }
 

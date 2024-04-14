@@ -59,7 +59,7 @@ public sealed class TracingStream : CompatibilityStream
     {
         _wrapped = toWrap;
         _ownsWrapped = ownsWrapped;
-        _records = new List<StreamTraceRecord>();
+        _records = [];
     }
 
     /// <summary>

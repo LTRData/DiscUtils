@@ -28,10 +28,10 @@ internal class Message
 {
     public Message()
     {
-        Questions = new List<Question>();
-        Answers = new List<ResourceRecord>();
-        AuthorityRecords = new List<ResourceRecord>();
-        AdditionalRecords = new List<ResourceRecord>();
+        Questions = [];
+        Answers = [];
+        AuthorityRecords = [];
+        AdditionalRecords = [];
     }
 
     public List<ResourceRecord> AdditionalRecords { get; }

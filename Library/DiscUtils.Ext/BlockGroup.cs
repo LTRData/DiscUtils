@@ -38,10 +38,10 @@ internal class BlockGroup64 : BlockGroup
 
     public BlockGroup64(int descriptorSize)
     {
-        this._descriptorSize = descriptorSize;
+        _descriptorSize = descriptorSize;
     }
 
-    public override int Size => this._descriptorSize;
+    public override int Size => _descriptorSize;
 
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {
@@ -54,7 +54,7 @@ internal class BlockGroup64 : BlockGroup
         FreeInodesCountHigh = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(0x2E));
         UsedDirsCountHigh = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(0x30));
 
-        return this._descriptorSize;
+        return _descriptorSize;
     }
 }
 

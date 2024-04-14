@@ -57,7 +57,7 @@ public sealed class Nfs3LookupResult : Nfs3CallResult
 
     public override void Write(XdrDataWriter writer)
     {
-        writer.Write((int)this.Status);
+        writer.Write((int)Status);
 
         if (Status == Nfs3Status.Ok)
         {

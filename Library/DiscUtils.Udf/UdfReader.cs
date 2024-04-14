@@ -216,9 +216,9 @@ public sealed class UdfReader : VfsFileSystemFacade
         {
             Context = new UdfContext
             {
-                PhysicalPartitions = new Dictionary<ushort, PhysicalPartition>(),
+                PhysicalPartitions = [],
                 PhysicalSectorSize = (int)_sectorSize,
-                LogicalPartitions = new List<LogicalPartition>()
+                LogicalPartitions = []
             };
 
             IBuffer dataBuffer = new StreamBuffer(_data, Ownership.None);

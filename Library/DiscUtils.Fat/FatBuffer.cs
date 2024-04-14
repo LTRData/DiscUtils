@@ -68,7 +68,7 @@ internal class FatBuffer
     {
         _type = type;
         _buffer = buffer;
-        _dirtySectors = new Dictionary<uint, uint>();
+        _dirtySectors = [];
     }
 
     internal int NumEntries => _type switch

@@ -37,8 +37,10 @@ public class PassthroughStreamBuilder : StreamBuilder
     protected override List<BuilderExtent> FixExtents(out long totalLength)
     {
         _stream.Position = 0;
-        var result = new List<BuilderExtent>();
-        result.Add(new BuilderStreamExtent(0, _stream));
+        var result = new List<BuilderExtent>
+        {
+            new BuilderStreamExtent(0, _stream)
+        };
         totalLength = _stream.Length;
         return result;
     }

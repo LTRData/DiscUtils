@@ -115,13 +115,15 @@ internal sealed class MetadataTable : IByteArraySerializable
 
     private static Dictionary<Guid, object> InitMetadataTable()
     {
-        var knownMetadata = new Dictionary<Guid, object>();
-        knownMetadata[FileParametersGuid] = null;
-        knownMetadata[VirtualDiskSizeGuid] = null;
-        knownMetadata[Page83DataGuid] = null;
-        knownMetadata[LogicalSectorSizeGuid] = null;
-        knownMetadata[PhysicalSectorSizeGuid] = null;
-        knownMetadata[ParentLocatorGuid] = null;
+        var knownMetadata = new Dictionary<Guid, object>
+        {
+            [FileParametersGuid] = null,
+            [VirtualDiskSizeGuid] = null,
+            [Page83DataGuid] = null,
+            [LogicalSectorSizeGuid] = null,
+            [PhysicalSectorSizeGuid] = null,
+            [ParentLocatorGuid] = null
+        };
         return knownMetadata;
     }
 }

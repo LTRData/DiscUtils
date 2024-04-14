@@ -35,12 +35,12 @@ public class CookedDataRuns
 
     internal CookedDataRuns()
     {
-        _runs = new List<CookedDataRun>();
+        _runs = [];
     }
 
     internal CookedDataRuns(IEnumerable<DataRun> rawRuns, NonResidentAttributeRecord attributeExtent)
     {
-        _runs = new List<CookedDataRun>();
+        _runs = [];
         Append(rawRuns, attributeExtent);
     }
 

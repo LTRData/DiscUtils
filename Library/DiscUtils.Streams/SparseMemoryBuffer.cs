@@ -44,7 +44,7 @@ public sealed class SparseMemoryBuffer : Buffer
     public SparseMemoryBuffer(int chunkSize)
     {
         ChunkSize = chunkSize;
-        _buffers = new Dictionary<int, byte[]>();
+        _buffers = [];
     }
 
     /// <summary>

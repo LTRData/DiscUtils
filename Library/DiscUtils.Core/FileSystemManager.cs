@@ -45,7 +45,7 @@ public static class FileSystemManager
     /// </summary>
     static FileSystemManager()
     {
-        _factories = new List<VfsFileSystemFactory>();
+        _factories = [];
     }
 
     /// <summary>

@@ -35,11 +35,11 @@ public class Nfs3ExportTest
         var export = new Nfs3Export()
         {
             DirPath = "test",
-            Groups = new List<string>()
-              {
+            Groups =
+              [
                   "Group1",
                   "Group2"
-              }
+              ]
         };
 
         Nfs3Export clone = null;

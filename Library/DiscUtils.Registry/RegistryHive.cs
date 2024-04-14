@@ -261,7 +261,7 @@ public class RegistryHive : IDisposable
         }
 
         // Enumerate hbins
-        _bins = new List<BinHeader>();
+        _bins = [];
         var pos = 0;
         while (pos < _header.Length)
         {

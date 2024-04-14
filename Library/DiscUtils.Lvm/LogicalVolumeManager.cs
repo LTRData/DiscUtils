@@ -38,8 +38,8 @@ public class LogicalVolumeManager
     /// <param name="disks">The initial set of disks to manage.</param>
     public LogicalVolumeManager(IEnumerable<VirtualDisk> disks)
     {
-        _devices = new List<PhysicalVolume>();
-        _volumeGroups = new List<MetadataVolumeGroupSection>();
+        _devices = [];
+        _volumeGroups = [];
         foreach (var disk in disks)
         {
             if (disk.IsPartitioned)

@@ -34,7 +34,7 @@ public sealed class TextRecord : ResourceRecord
     internal TextRecord(string name, RecordType type, RecordClass rClass, DateTime expiry, PacketReader reader)
         : base(name, type, rClass, expiry)
     {
-        Values = new Dictionary<string, byte[]>();
+        Values = [];
 
         var dataLen = reader.ReadUShort();
         var pos = reader.Position;

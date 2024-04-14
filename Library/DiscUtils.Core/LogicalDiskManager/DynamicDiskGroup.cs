@@ -37,7 +37,7 @@ internal class DynamicDiskGroup : IDiagnosticTraceable
 
     internal DynamicDiskGroup(VirtualDisk disk)
     {
-        _disks = new Dictionary<Guid, DynamicDisk>();
+        _disks = [];
 
         var dynDisk = new DynamicDisk(disk);
         _database = dynDisk.Database;

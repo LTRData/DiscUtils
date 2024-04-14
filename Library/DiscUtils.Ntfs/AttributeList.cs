@@ -34,7 +34,7 @@ internal class AttributeList : IByteArraySerializable, IDiagnosticTraceable, ICo
 
     public AttributeList()
     {
-        _records = new List<AttributeListRecord>();
+        _records = [];
     }
 
     public int Size

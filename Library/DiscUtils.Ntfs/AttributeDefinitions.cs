@@ -35,7 +35,7 @@ public sealed class AttributeDefinitions
 
     internal AttributeDefinitions()
     {
-        _attrDefs = new Dictionary<AttributeType, AttributeDefinitionRecord>();
+        _attrDefs = [];
 
         Add(AttributeType.StandardInformation, "$STANDARD_INFORMATION", AttributeTypeFlags.MustBeResident, 0x30,
             0x48);
@@ -60,7 +60,7 @@ public sealed class AttributeDefinitions
 
     internal AttributeDefinitions(File file)
     {
-        _attrDefs = new Dictionary<AttributeType, AttributeDefinitionRecord>();
+        _attrDefs = [];
 
         using var s = file.OpenStream(AttributeType.Data, null, FileAccess.Read);
         Span<byte> buffer = stackalloc byte[AttributeDefinitionRecord.Size];

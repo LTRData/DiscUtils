@@ -571,7 +571,7 @@ internal class VfsCDReader : VfsReadOnlyFileSystem<ReaderDirEntry, File, ReaderD
         var extensions = new List<SuspExtension>();
         if (!SuspRecords.DetectSharingProtocol(rootSelfRecord.SystemUseData))
         {
-            context.SuspExtensions = new List<SuspExtension>();
+            context.SuspExtensions = [];
             context.SuspDetected = false;
             return;
         }

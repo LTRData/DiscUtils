@@ -40,7 +40,7 @@ public class CommandLineMultiParameter
         _name = name;
         _description = description;
         _isOptional = isOptional;
-        _values = new List<string>();
+        _values = [];
     }
 
     public bool IsPresent => _isPresent;

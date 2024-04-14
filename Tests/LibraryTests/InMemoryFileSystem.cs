@@ -37,7 +37,7 @@ class InMemoryFileSystem : DiscFileSystem
 
     public InMemoryFileSystem()
     {
-        _files = new Dictionary<string, SparseMemoryBuffer>();
+        _files = [];
     }
 
     public override string FriendlyName => throw new NotImplementedException();

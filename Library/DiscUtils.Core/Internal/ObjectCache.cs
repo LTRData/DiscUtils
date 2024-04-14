@@ -45,14 +45,14 @@ internal class ObjectCache<K, V> where V : class
 
     public ObjectCache()
     {
-        _entries = new Dictionary<K, WeakReference<V>>();
-        _recent = new List<KeyValuePair<K, V>>();
+        _entries = [];
+        _recent = [];
     }
 
     public ObjectCache(IEqualityComparer<K> comparer)
     {
         _entries = new Dictionary<K, WeakReference<V>>(comparer);
-        _recent = new List<KeyValuePair<K, V>>();
+        _recent = [];
     }
 
     public V this[K key]

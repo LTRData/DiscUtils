@@ -56,7 +56,7 @@ internal class Database
 
             stream.ReadExactly(buffer, 0, bufferSize);
 
-            _records = new Dictionary<ulong, DatabaseRecord>();
+            _records = [];
             for (var i = 0; i < _vmdb.NumVBlks; ++i)
             {
                 var rec = DatabaseRecord.ReadFrom(buffer, (int)(i * _vmdb.BlockSize));

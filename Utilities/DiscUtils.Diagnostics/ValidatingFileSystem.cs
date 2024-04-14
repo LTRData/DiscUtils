@@ -530,9 +530,9 @@ public class ValidatingFileSystem<TFileSystem, TChecker> : DiscFileSystem
 
         _checkpointRngSeed = _masterRng.Next();
 
-        _activityContext = new();
+        _activityContext = [];
 
-        _checkpointBuffer = new();
+        _checkpointBuffer = [];
 
         _liveTarget = CreateFileSystem(focusStream);
         _liveTarget.Options.RandomNumberGenerator = new Random(_checkpointRngSeed);

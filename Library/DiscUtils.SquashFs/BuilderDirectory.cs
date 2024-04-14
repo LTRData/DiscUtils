@@ -35,7 +35,7 @@ internal sealed class BuilderDirectory : BuilderNode
 
     public BuilderDirectory()
     {
-        _children = new List<Entry>();
+        _children = [];
         _index = new FastDictionary<Entry>(StringComparer.Ordinal, entry => entry.Name);
     }
 

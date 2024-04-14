@@ -34,11 +34,11 @@ public class Nfs3MountResultTest
     {
         var result = new Nfs3MountResult()
         {
-            AuthFlavours = new List<RpcAuthFlavour>()
-             {
+            AuthFlavours =
+             [
                   RpcAuthFlavour.Des,
                    RpcAuthFlavour.Null
-             },
+             ],
             FileHandle = new Nfs3FileHandle()
             {
                 Value = new byte[] { 0x5 }

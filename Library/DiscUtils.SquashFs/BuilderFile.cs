@@ -107,7 +107,7 @@ internal sealed class BuilderFile : BuilderNode
                 // At least one full block, no fragments used
                 _inode.FragmentKey = 0xFFFFFFFF;
 
-                _lengths = new List<uint>();
+                _lengths = [];
                 _inode.StartBlock = (uint)startPos;
                 _inode.FileSize = bufferedBytes;
                 while (bufferedBytes > 0)

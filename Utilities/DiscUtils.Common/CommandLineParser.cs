@@ -39,8 +39,8 @@ public class CommandLineParser
     public CommandLineParser(string utilityName)
     {
         _utilityName = utilityName;
-        _switches = new List<CommandLineSwitch>();
-        _params = new List<CommandLineParameter>();
+        _switches = [];
+        _params = [];
         _parseFailed = false;
     }
 

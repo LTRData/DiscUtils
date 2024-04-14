@@ -13,7 +13,7 @@ public static class SetupHelper
 
     static SetupHelper()
     {
-        _alreadyLoaded = new HashSet<string>();
+        _alreadyLoaded = [];
 
         // Register the core DiscUtils lib
         RegisterAssembly(typeof(SetupHelper).Assembly);

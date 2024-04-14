@@ -616,7 +616,7 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
             _metaDataStream.Position = id == 0 ? _rootDirPos : id;
             var reader = new LittleEndianDataReader(_metaDataStream);
 
-            dir = new List<DirectoryEntry>();
+            dir = [];
 
             var entry = DirectoryEntry.ReadFrom(reader);
 

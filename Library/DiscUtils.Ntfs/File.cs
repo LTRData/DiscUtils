@@ -50,10 +50,9 @@ internal class File
     {
         _context = context;
         _mft = _context.Mft;
-        _records = new List<FileRecord>();
-        _records.Add(baseRecord);
+        _records = [baseRecord];
         _indexCache = new ObjectCache<string, Index>();
-        _attributes = new List<NtfsAttribute>();
+        _attributes = [];
 
         LoadAttributes();
     }

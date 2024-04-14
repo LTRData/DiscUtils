@@ -41,7 +41,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
     /// <summary>
     /// The Epoch for FAT file systems (1st Jan, 1980).
     /// </summary>
-    public static readonly DateTime Epoch = new DateTime(1980, 1, 1);
+    public static readonly DateTime Epoch = new(1980, 1, 1);
 
     private readonly Dictionary<uint, Directory> _dirCache;
     private readonly Ownership _ownsData;
@@ -87,7 +87,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
     public FatFileSystem(Stream data)
         : base(new FatFileSystemOptions())
     {
-        _dirCache = new Dictionary<uint, Directory>();
+        _dirCache = [];
         _timeConverter = DefaultTimeConverter;
         Initialize(data);
     }
@@ -104,7 +104,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
     public FatFileSystem(Stream data, Ownership ownsData)
         : base(new FatFileSystemOptions())
     {
-        _dirCache = new Dictionary<uint, Directory>();
+        _dirCache = [];
         _timeConverter = DefaultTimeConverter;
         Initialize(data);
         _ownsData = ownsData;
@@ -118,7 +118,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
     public FatFileSystem(Stream data, TimeConverter timeConverter)
         : base(new FatFileSystemOptions())
     {
-        _dirCache = new Dictionary<uint, Directory>();
+        _dirCache = [];
         _timeConverter = timeConverter;
         Initialize(data);
     }
@@ -133,7 +133,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
     public FatFileSystem(Stream data, Ownership ownsData, TimeConverter timeConverter)
         : base(new FatFileSystemOptions())
     {
-        _dirCache = new Dictionary<uint, Directory>();
+        _dirCache = [];
         _timeConverter = timeConverter;
         Initialize(data);
         _ownsData = ownsData;
@@ -149,7 +149,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
     public FatFileSystem(Stream data, Ownership ownsData, FileSystemParameters parameters)
         : base(new FatFileSystemOptions(parameters))
     {
-        _dirCache = new Dictionary<uint, Directory>();
+        _dirCache = [];
 
         if (parameters != null && parameters.TimeConverter != null)
         {

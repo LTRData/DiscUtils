@@ -72,7 +72,7 @@ public sealed class Session : IDisposable
         DataPDUInOrder = true;
         DataSequenceInOrder = true;
 
-        _negotiatedParameters = new Dictionary<string, string>();
+        _negotiatedParameters = [];
 
         if (string.IsNullOrEmpty(userName))
         {

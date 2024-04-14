@@ -48,8 +48,7 @@ internal class IndexNode
         var endEntry = new IndexEntry(_index.IsFileIndex);
         endEntry.Flags |= IndexEntryFlags.End;
 
-        _entries = new List<IndexEntry>();
-        _entries.Add(endEntry);
+        _entries = [endEntry];
 
         Header.OffsetToFirstEntry = (uint)(IndexHeader.Size + storeOverhead);
         Header.TotalSizeOfEntries = (uint)(Header.OffsetToFirstEntry + endEntry.Size);
@@ -64,7 +63,7 @@ internal class IndexNode
         Header = new IndexHeader(buffer);
         TotalSpaceAvailable = Header.AllocatedSizeOfEntries;
 
-        _entries = new List<IndexEntry>();
+        _entries = [];
         var pos = (int)Header.OffsetToFirstEntry;
         while (pos < Header.TotalSizeOfEntries)
         {

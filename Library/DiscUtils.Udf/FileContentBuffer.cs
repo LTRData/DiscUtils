@@ -152,7 +152,7 @@ internal class FileContentBuffer : Streams.Buffer
 
     private void LoadExtents()
     {
-        _extents = new List<CookedExtent>();
+        _extents = [];
         var activeBuffer = _fileEntry.AllocationDescriptors;
 
         var allocType = _fileEntry.InformationControlBlock.AllocationType;

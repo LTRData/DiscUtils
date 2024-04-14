@@ -55,7 +55,7 @@ public sealed class VirtualDiskParameters
     /// <summary>
     /// Gets a dictionary of extended parameters, that varies by disk type.
     /// </summary>
-    public Dictionary<string, string> ExtendedParameters { get; } = new Dictionary<string, string>();
+    public Dictionary<string, string> ExtendedParameters { get; } = [];
 
     /// <summary>
     /// Gets or sets the physical (aka IDE) geometry of the disk.

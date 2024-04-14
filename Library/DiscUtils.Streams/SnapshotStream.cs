@@ -74,7 +74,7 @@ public sealed class SnapshotStream : SparseStream
     {
         _baseStream = baseStream;
         _baseStreamOwnership = owns;
-        _diffExtents = new List<StreamExtent>();
+        _diffExtents = [];
     }
 
     /// <summary>
@@ -166,7 +166,7 @@ public sealed class SnapshotStream : SparseStream
 
         _savedPosition = _position;
 
-        _diffExtents = new List<StreamExtent>();
+        _diffExtents = [];
         _diffStream = new SparseMemoryStream();
         _diffStream.SetLength(_baseStream.Length);
     }

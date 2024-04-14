@@ -54,8 +54,8 @@ public class Nfs3ReadDirPlusResultTest
                 Type = Nfs3FileType.BlockDevice,
                 Uid = 9
             },
-            DirEntries = new List<Nfs3DirectoryEntry>()
-            {
+            DirEntries =
+            [
                 new Nfs3DirectoryEntry()
                 {
                      Cookie = 2,
@@ -83,7 +83,7 @@ public class Nfs3ReadDirPlusResultTest
                      FileId = 99,
                      Name = "test"
                 }
-            },
+            ],
             Eof = false,
             Status = Nfs3Status.Ok
         };

@@ -52,15 +52,7 @@ internal class ClusterStream : CompatibilityStream
         _fat = fileSystem.Fat;
         _length = length;
 
-        _knownClusters = new List<uint>();
-        if (firstCluster != 0)
-        {
-            _knownClusters.Add(firstCluster);
-        }
-        else
-        {
-            _knownClusters.Add(FatBuffer.EndOfChain);
-        }
+        _knownClusters = [firstCluster != 0 ? firstCluster : FatBuffer.EndOfChain];
 
         if (_length == uint.MaxValue)
         {

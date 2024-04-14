@@ -56,7 +56,7 @@ internal class PvHeader : IByteArraySerializable
         }
 
         DiskAreas = areas;
-        areas = new List<DiskArea>();
+        areas = [];
         while (true)
         {
             var area = new DiskArea();

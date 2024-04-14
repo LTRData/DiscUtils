@@ -42,7 +42,7 @@ public class Nfs3ReadDirResult : Nfs3CallResult
             DirAttributes = new Nfs3FileAttributes(reader);
         }
 
-        DirEntries = new List<Nfs3DirectoryEntry>();
+        DirEntries = [];
         if (Status == Nfs3Status.Ok)
         {
             CookieVerifier = reader.ReadUInt64();

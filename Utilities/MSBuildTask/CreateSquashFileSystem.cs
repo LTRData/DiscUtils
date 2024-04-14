@@ -64,9 +64,9 @@ public class CreateSquashFileSystem : Task
 
             foreach (var sourceFile in SourceFiles)
             {
-                if (this.RemoveRoot != null)
+                if (RemoveRoot != null)
                 {
-                    var location = (sourceFile.GetMetadata("FullPath")).Replace(this.RemoveRoot.GetMetadata("FullPath"), string.Empty);
+                    var location = (sourceFile.GetMetadata("FullPath")).Replace(RemoveRoot.GetMetadata("FullPath"), string.Empty);
                     builder.AddFile(location, sourceFile.GetMetadata("FullPath"));
                 }
                 else

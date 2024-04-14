@@ -42,7 +42,7 @@ internal sealed class MonolithicSparseExtentBuilder : StreamBuilder
 
     protected override List<BuilderExtent> FixExtents(out long totalLength)
     {
-        List<BuilderExtent> extents = new List<BuilderExtent>();
+        List<BuilderExtent> extents = [];
 
         MemoryStream descriptorStream = new MemoryStream();
         _descriptor.Write(descriptorStream);

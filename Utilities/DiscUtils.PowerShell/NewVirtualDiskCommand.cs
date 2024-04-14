@@ -87,18 +87,17 @@ public class NewVirtualDiskCommand : PSCmdlet
         var parentObj = ResolveNewDiskPath(out var child);
 
         VirtualDisk disk;
-        if (parentObj.BaseObject is DirectoryInfo)
+        if (parentObj.BaseObject is DirectoryInfo dirInfo)
         {
-            var path = Path.Combine(((DirectoryInfo)parentObj.BaseObject).FullName, child);
+            var path = Path.Combine(dirInfo.FullName, child);
             using (var realDisk = VirtualDisk.CreateDisk(type, variant, path, size, default, null, useAsync: false))
             {
             }
 
             disk = new OnDemandVirtualDisk(path, FileAccess.ReadWrite);
         }
-        else if (parentObj.BaseObject is DiscDirectoryInfo)
+        else if (parentObj.BaseObject is DiscDirectoryInfo ddi)
         {
-            var ddi = (DiscDirectoryInfo)parentObj.BaseObject;
             var path = Path.Combine(ddi.FullName, child);
             using (var realDisk = VirtualDisk.CreateDisk(ddi.FileSystem, type, variant, path, size, default, null))
             {
@@ -129,13 +128,12 @@ public class NewVirtualDiskCommand : PSCmdlet
 
         try
         {
-            if (baseDiskObj.BaseObject is FileInfo)
+            if (baseDiskObj.BaseObject is FileInfo fileInfo)
             {
-                baseDisk = VirtualDisk.OpenDisk(((FileInfo)baseDiskObj.BaseObject).FullName, FileAccess.Read, useAsync: false);
+                baseDisk = VirtualDisk.OpenDisk(fileInfo.FullName, FileAccess.Read, useAsync: false);
             }
-            else if (baseDiskObj.BaseObject is DiscFileInfo)
+            else if (baseDiskObj.BaseObject is DiscFileInfo dfi)
             {
-                var dfi = (DiscFileInfo)baseDiskObj.BaseObject;
                 baseDisk = VirtualDisk.OpenDisk(dfi.FileSystem, dfi.FullName, FileAccess.Read);
             }
             else
@@ -149,18 +147,17 @@ public class NewVirtualDiskCommand : PSCmdlet
             }
 
             VirtualDisk newDisk = null;
-            if (parentObj.BaseObject is DirectoryInfo)
+            if (parentObj.BaseObject is DirectoryInfo dirInfo)
             {
-                var path = Path.Combine(((DirectoryInfo)parentObj.BaseObject).FullName, child);
+                var path = Path.Combine(dirInfo.FullName, child);
                 using (baseDisk.CreateDifferencingDisk(path, useAsync: false))
                 {
                 }
 
                 newDisk = new OnDemandVirtualDisk(path, FileAccess.ReadWrite);
             }
-            else if (parentObj.BaseObject is DiscDirectoryInfo)
+            else if (parentObj.BaseObject is DiscDirectoryInfo ddi)
             {
-                var ddi = (DiscDirectoryInfo)parentObj.BaseObject;
                 var path = Path.Combine(ddi.FullName, child);
                 using (baseDisk.CreateDifferencingDisk(ddi.FileSystem, path))
                 {
@@ -192,7 +189,7 @@ public class NewVirtualDiskCommand : PSCmdlet
 
         child = SessionState.Path.ParseChildName(LiteralPath);
         var parent = SessionState.Path.ParseParent(LiteralPath, null);
-        var parentPath = this.SessionState.Path.GetResolvedPSPathFromPSPath(parent)[0];
+        var parentPath = SessionState.Path.GetResolvedPSPathFromPSPath(parent)[0];
 
         parentObj = SessionState.InvokeProvider.Item.Get(new string[] { parentPath.Path }, false, true)[0];
 

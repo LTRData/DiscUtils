@@ -50,11 +50,11 @@ public sealed class Disk : VirtualDisk
     /// <param name="ownsStream">Indicates if the new instance should control the lifetime of the stream.</param>
     public Disk(Stream stream, Ownership ownsStream)
     {
-        _files = new()
-        {
+        _files =
+        [
             (new DiskImageFile(stream, ownsStream),
             Ownership.Dispose)
-        };
+        ];
 
         if (_files[0].DiakImageFile.NeedsParent)
         {
@@ -79,10 +79,10 @@ public sealed class Disk : VirtualDisk
     public Disk(string path, bool useAsync)
     {
         var file = new DiskImageFile(path, FileAccess.ReadWrite, useAsync);
-        _files = new()
-        {
+        _files =
+        [
             (file, Ownership.Dispose)
-        };
+        ];
         ResolveFileChain();
     }
 
@@ -105,10 +105,10 @@ public sealed class Disk : VirtualDisk
     public Disk(string path, FileAccess access, bool useAsync)
     {
         var file = new DiskImageFile(path, access, useAsync);
-        _files = new()
-        {
+        _files =
+        [
             (file, Ownership.Dispose)
-        };
+        ];
         ResolveFileChain();
     }
 
@@ -122,10 +122,10 @@ public sealed class Disk : VirtualDisk
     {
         FileLocator fileLocator = new DiscFileLocator(fileSystem, Utilities.GetDirectoryFromPath(path));
         var file = new DiskImageFile(fileLocator, Utilities.GetFileFromPath(path), access);
-        _files = new()
-        {
+        _files =
+        [
             (file, Ownership.Dispose)
-        };
+        ];
         ResolveFileChain();
     }
 
@@ -180,10 +180,10 @@ public sealed class Disk : VirtualDisk
     internal Disk(FileLocator locator, string path, FileAccess access)
     {
         var file = new DiskImageFile(locator, path, access);
-        _files = new()
-        {
+        _files =
+        [
             (file, Ownership.Dispose)
-        };
+        ];
 
         ResolveFileChain();
     }
@@ -195,10 +195,10 @@ public sealed class Disk : VirtualDisk
     /// <param name="ownsFile">Indicates if the new instance should control the lifetime of the file.</param>
     private Disk(DiskImageFile file, Ownership ownsFile)
     {
-        _files = new()
-        {
+        _files =
+        [
             (file, ownsFile)
-        };
+        ];
         ResolveFileChain();
     }
 
@@ -211,10 +211,10 @@ public sealed class Disk : VirtualDisk
     /// <param name="parentPath">Path to the parent disk (if required).</param>
     private Disk(DiskImageFile file, Ownership ownsFile, FileLocator parentLocator, string parentPath)
     {
-        _files = new()
-        {
+        _files =
+        [
             (file, ownsFile)
-        };
+        ];
 
         if (file.NeedsParent)
         {
@@ -235,10 +235,10 @@ public sealed class Disk : VirtualDisk
     /// <param name="ownsParent">Indicates if the new instance should control the lifetime of the parentFile.</param>
     private Disk(DiskImageFile file, Ownership ownsFile, DiskImageFile parentFile, Ownership ownsParent)
     {
-        _files = new()
-        {
+        _files =
+        [
             (file, ownsFile)
-        };
+        ];
 
         if (file.NeedsParent)
         {

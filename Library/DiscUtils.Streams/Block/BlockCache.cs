@@ -40,7 +40,7 @@ public class BlockCache<T>
         _blockSize = blockSize;
         _totalBlocks = blockCount;
 
-        _blocks = new Dictionary<long, T>();
+        _blocks = [];
         _lru = new LinkedList<T>();
         _freeBlocks = new List<T>(_totalBlocks);
 

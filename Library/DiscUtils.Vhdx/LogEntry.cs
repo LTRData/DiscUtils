@@ -35,7 +35,7 @@ internal sealed class LogEntry
 {
     public const int LogSectorSize = 4 * Sizes.OneKiB;
 
-    private readonly List<Descriptor> _descriptors = new List<Descriptor>();
+    private readonly List<Descriptor> _descriptors = [];
     private readonly LogEntryHeader _header;
 
     private LogEntry(long position, LogEntryHeader header, List<Descriptor> descriptors)

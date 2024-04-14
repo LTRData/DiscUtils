@@ -39,8 +39,8 @@ internal sealed class SubKeyHashedListCell : ListCell
     {
         _hive = hive;
         _hashType = hashType;
-        _subKeyIndexes = new List<int>();
-        _nameHashes = new List<uint>();
+        _subKeyIndexes = [];
+        _nameHashes = [];
     }
 
     public SubKeyHashedListCell(RegistryHive hive, int index)

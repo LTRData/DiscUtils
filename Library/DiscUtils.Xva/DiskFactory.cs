@@ -55,7 +55,7 @@ internal sealed class DiskFactory : VirtualDiskFactory
 
     public override VirtualDisk OpenDisk(FileLocator locator, string path, FileAccess access)
     {
-        return OpenDisk(locator, path, string.Empty, new Dictionary<string, string>(), access);
+        return OpenDisk(locator, path, string.Empty, [], access);
     }
 
     public override VirtualDisk OpenDisk(FileLocator locator, string path, string extraInfo, Dictionary<string, string> parameters, FileAccess access)

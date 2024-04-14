@@ -51,10 +51,10 @@ public sealed class MulticastDnsClient : DnsClient, IDisposable
     public MulticastDnsClient()
     {
         _nextTransId = (ushort)new Random().Next();
-        _transactions = new Dictionary<ushort, Transaction>();
+        _transactions = [];
         _udpClient = new UdpClient(new IPEndPoint(IPAddress.Any, 0));
         _udpClient.BeginReceive(ReceiveCallback, null);
-        _cache = new Dictionary<string, Dictionary<RecordType, List<ResourceRecord>>>();
+        _cache = [];
     }
 
     /// <summary>
@@ -76,7 +76,7 @@ public sealed class MulticastDnsClient : DnsClient, IDisposable
     {
         lock (_transactions)
         {
-            _cache = new Dictionary<string, Dictionary<RecordType, List<ResourceRecord>>>();
+            _cache = [];
         }
     }
 
@@ -110,13 +110,13 @@ public sealed class MulticastDnsClient : DnsClient, IDisposable
     {
         if (!store.TryGetValue(record.Name.ToUpperInvariant(), out var nameRec))
         {
-            nameRec = new Dictionary<RecordType, List<ResourceRecord>>();
+            nameRec = [];
             store[record.Name.ToUpperInvariant()] = nameRec;
         }
 
         if (!nameRec.TryGetValue(record.RecordType, out var records))
         {
-            records = new List<ResourceRecord>();
+            records = [];
             nameRec.Add(record.RecordType, records);
         }
 

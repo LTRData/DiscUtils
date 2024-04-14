@@ -135,8 +135,8 @@ public class BcdObject
 
     static BcdObject()
     {
-        _nameToGuid = new Dictionary<string, Guid>();
-        _guidToName = new Dictionary<Guid, string>();
+        _nameToGuid = [];
+        _guidToName = [];
 
         AddMapping("{emssettings}", EmsSettingsGroupId);
         AddMapping("{resumeloadersettings}", ResumeLoaderSettingsGroupId);

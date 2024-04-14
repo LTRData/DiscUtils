@@ -43,7 +43,7 @@ internal sealed class FragmentWriter
         _currentBlock = new byte[context.DataBlockSize];
         _currentOffset = 0;
 
-        _fragmentBlocks = new List<FragmentRecord>();
+        _fragmentBlocks = [];
     }
 
     public int FragmentCount { get; private set; }

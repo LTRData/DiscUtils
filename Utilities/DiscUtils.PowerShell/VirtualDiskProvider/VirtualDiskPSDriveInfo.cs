@@ -37,7 +37,7 @@ public sealed class VirtualDiskPSDriveInfo : PSDriveInfo
     {
         _disk = disk;
         _volMgr = new VolumeManager(_disk);
-        _fsCache = new Dictionary<string, DiscFileSystem>();
+        _fsCache = [];
     }
 
     public VirtualDisk Disk => _disk;

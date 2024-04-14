@@ -64,7 +64,7 @@ internal sealed class Connection : IDisposable
         MaxInitiatorTransmitDataSegmentLength = 131072;
         MaxTargetReceiveDataSegmentLength = 8192;
 
-        _negotiatedParameters = new Dictionary<string, string>();
+        _negotiatedParameters = [];
         NegotiateSecurity();
         NegotiateFeatures();
     }
@@ -352,7 +352,7 @@ internal sealed class Connection : IDisposable
                 }
 
                 currentTarget = line.Value;
-                currentAddresses = new List<TargetAddress>();
+                currentAddresses = [];
             }
             else if (line.Key == TargetNameParameter)
             {

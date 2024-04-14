@@ -32,7 +32,7 @@ internal sealed class SuspRecords
 
     public SuspRecords(IsoContext context, ReadOnlySpan<byte> data)
     {
-        _records = new Dictionary<string, Dictionary<string, List<SystemUseEntry>>>();
+        _records = [];
 
         var contEntry = Parse(context, data.Slice(context.SuspSkipBytes));
         while (contEntry != null)
@@ -164,13 +164,13 @@ internal sealed class SuspRecords
 
         if (!_records.TryGetValue(extensionId, out var extensionEntries))
         {
-            extensionEntries = new Dictionary<string, List<SystemUseEntry>>();
+            extensionEntries = [];
             _records.Add(extensionId, extensionEntries);
         }
 
         if (!extensionEntries.TryGetValue(entry.Name, out var entries))
         {
-            entries = new List<SystemUseEntry>();
+            entries = [];
             extensionEntries.Add(entry.Name, entries);
         }
 

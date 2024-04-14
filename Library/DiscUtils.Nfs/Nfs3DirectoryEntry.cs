@@ -97,7 +97,7 @@ public sealed class Nfs3DirectoryEntry
 
     public override string ToString()
     {
-        return this.Name;
+        return Name;
     }
 
     public long GetSize()

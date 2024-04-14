@@ -41,7 +41,7 @@ public sealed class Nfs3ReadDirPlusResult : Nfs3CallResult
         {
             CookieVerifier = reader.ReadUInt64();
 
-            DirEntries = new List<Nfs3DirectoryEntry>();
+            DirEntries = [];
             while (reader.ReadBool())
             {
                 var dirEntry = new Nfs3DirectoryEntry(reader);

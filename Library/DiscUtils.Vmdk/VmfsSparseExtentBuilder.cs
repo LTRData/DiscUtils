@@ -178,8 +178,8 @@ internal sealed class VmfsSparseExtentBuilder : StreamBuilder
 
             var dataSector = (Start + grainTable.Length) / Sizes.Sector;
 
-            _grainMapping = new List<long>();
-            _grainContiguousRangeMapping = new List<long>();
+            _grainMapping = [];
+            _grainContiguousRangeMapping = [];
             foreach (var grainRange in StreamExtent.Blocks(_content.Extents, _header.GrainSize * Sizes.Sector))
             {
                 for (var i = 0; i < grainRange.Count; ++i)

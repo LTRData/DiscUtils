@@ -64,7 +64,7 @@ public sealed class SdiFile : IDisposable
         _stream.Position = _header.PageAlignment * 512;
         var toc = _stream.ReadExactly((int)(_header.PageAlignment * 512));
 
-        _sections = new List<SectionRecord>();
+        _sections = [];
         var pos = 0;
         while (BitConverter.ToUInt64(toc, pos) != 0)
         {

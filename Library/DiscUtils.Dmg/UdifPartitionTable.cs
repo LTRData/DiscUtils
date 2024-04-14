@@ -35,7 +35,7 @@ internal class UdifPartitionTable : PartitionTable
     public UdifPartitionTable(Disk disk, UdifBuffer buffer)
     {
         _buffer = buffer;
-        _partitions = new Collection<PartitionInfo>();
+        _partitions = [];
         _disk = disk;
 
         foreach (var block in _buffer.Blocks)

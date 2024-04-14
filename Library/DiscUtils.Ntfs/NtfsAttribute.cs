@@ -40,8 +40,10 @@ internal class NtfsAttribute : IDiagnosticTraceable
         _file = file;
         _containingFile = containingFile;
         _primaryRecord = record;
-        _extents = new Dictionary<AttributeReference, AttributeRecord>();
-        _extents.Add(new AttributeReference(containingFile, record.AttributeId), _primaryRecord);
+        _extents = new Dictionary<AttributeReference, AttributeRecord>
+        {
+            { new AttributeReference(containingFile, record.AttributeId), _primaryRecord }
+        };
     }
 
     protected string AttributeTypeName => _primaryRecord.AttributeType switch

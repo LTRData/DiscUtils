@@ -48,7 +48,7 @@ internal class UdifBuffer : Buffer
         _resources = resources;
         _sectorCount = sectorCount;
 
-        Blocks = new List<CompressedBlock>();
+        Blocks = [];
 
         foreach (var resource in _resources.GetAllResources("blkx"))
         {

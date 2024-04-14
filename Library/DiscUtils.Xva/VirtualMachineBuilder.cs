@@ -49,7 +49,7 @@ public sealed class VirtualMachineBuilder : StreamBuilder, IDisposable
     /// </summary>
     public VirtualMachineBuilder()
     {
-        _disks = new();
+        _disks = [];
         DisplayName = "VM";
     }
 

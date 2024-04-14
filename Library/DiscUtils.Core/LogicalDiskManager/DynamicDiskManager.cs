@@ -39,7 +39,7 @@ public class DynamicDiskManager : IDiagnosticTraceable
     /// <param name="disks">The initial set of disks to manage.</param>
     public DynamicDiskManager(params VirtualDisk[] disks)
     {
-        _groups = new Dictionary<string, DynamicDiskGroup>();
+        _groups = [];
 
         foreach (var disk in disks)
         {

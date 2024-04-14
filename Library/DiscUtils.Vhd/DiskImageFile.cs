@@ -152,8 +152,10 @@ public sealed class DiskImageFile : VirtualDiskLayer
     {
         get
         {
-            var result = new List<VirtualDiskExtent>();
-            result.Add(new DiskExtent(this));
+            var result = new List<VirtualDiskExtent>
+            {
+                new DiskExtent(this)
+            };
             return result;
         }
     }

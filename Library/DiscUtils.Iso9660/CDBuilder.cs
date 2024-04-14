@@ -61,8 +61,8 @@ public sealed class CDBuilder : StreamBuilder, IFileSystemBuilder
     /// </summary>
     public CDBuilder()
     {
-        _files = new List<BuildFileInfo>();
-        _dirs = new List<BuildDirectoryInfo>();
+        _files = [];
+        _dirs = [];
         _rootDirectory = new BuildDirectoryInfo("\0", null);
         _dirs.Add(_rootDirectory);
 

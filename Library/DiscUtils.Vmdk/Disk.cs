@@ -78,10 +78,10 @@ public sealed class Disk : VirtualDisk
         _path = path;
         FileLocator fileLocator = new DiscFileLocator(fileSystem, Utilities.GetDirectoryFromPath(path));
         
-        _files = new()
-        {
+        _files =
+        [
             (new DiskImageFile(fileLocator, Utilities.GetFileFromPath(path), access), Ownership.Dispose)
-        };
+        ];
 
         ResolveFileChain();
     }
@@ -98,19 +98,19 @@ public sealed class Disk : VirtualDisk
             _path = fileStream.Name;
         }
 
-        _files = new()
-        {
+        _files =
+        [
             (new DiskImageFile(stream, ownsStream),
             Ownership.Dispose)
-        };
+        ];
     }
 
     internal Disk(DiskImageFile file, Ownership ownsStream)
     {
-        _files = new()
-        {
+        _files =
+        [
             (file, ownsStream)
-        };
+        ];
 
         ResolveFileChain();
     }
@@ -118,11 +118,11 @@ public sealed class Disk : VirtualDisk
     internal Disk(FileLocator layerLocator, string path, FileAccess access)
     {
         _path = path;
-        _files = new()
-        {
+        _files =
+        [
             (new DiskImageFile(layerLocator, path, access),
             Ownership.Dispose)
-        };
+        ];
 
         ResolveFileChain();
     }

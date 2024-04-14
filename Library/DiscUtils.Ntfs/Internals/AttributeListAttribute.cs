@@ -44,7 +44,7 @@ public sealed class AttributeListAttribute : GenericAttribute
         : base(context, record)
     {
         var content = Content.ReadAll();
-        _list = new AttributeList();
+        _list = [];
         _list.ReadFrom(content);
     }
 

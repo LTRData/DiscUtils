@@ -58,7 +58,7 @@ public class BiosPartitionedDiskBuilder : StreamBuilder
         _bootSectors.SetLength(capacity);
         PartitionTable = BiosPartitionTable.Initialize(_bootSectors, _biosGeometry);
 
-        _partitionContents = new Dictionary<int, BuilderExtent>();
+        _partitionContents = [];
     }
 
     /// <summary>
@@ -84,7 +84,7 @@ public class BiosPartitionedDiskBuilder : StreamBuilder
         _bootSectors.Write(bootSectors, 0, bootSectors.Length);
         PartitionTable = new BiosPartitionTable(_bootSectors, biosGeometry);
 
-        _partitionContents = new Dictionary<int, BuilderExtent>();
+        _partitionContents = [];
     }
 
     /// <summary>
@@ -132,7 +132,7 @@ public class BiosPartitionedDiskBuilder : StreamBuilder
 
         PartitionTable = new BiosPartitionTable(_bootSectors, _biosGeometry);
 
-        _partitionContents = new Dictionary<int, BuilderExtent>();
+        _partitionContents = [];
     }
 
     /// <summary>

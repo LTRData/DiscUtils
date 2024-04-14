@@ -56,9 +56,9 @@ internal class DescriptorFile
 
     public DescriptorFile()
     {
-        _header = new List<DescriptorFileEntry>();
-        Extents = new List<ExtentDescriptor>();
-        _diskDataBase = new List<DescriptorFileEntry>();
+        _header = [];
+        Extents = [];
+        _diskDataBase = [];
 
         _header.Add(new DescriptorFileEntry(HeaderVersion, "1", DescriptorFileEntryType.Plain));
         _header.Add(new DescriptorFileEntry(HeaderContentId, "ffffffff", DescriptorFileEntryType.Plain));
@@ -68,9 +68,9 @@ internal class DescriptorFile
 
     public DescriptorFile(Stream source)
     {
-        _header = new List<DescriptorFileEntry>();
-        Extents = new List<ExtentDescriptor>();
-        _diskDataBase = new List<DescriptorFileEntry>();
+        _header = [];
+        Extents = [];
+        _diskDataBase = [];
 
         Load(source);
     }
@@ -381,7 +381,7 @@ internal class DescriptorFile
                 throw new IOException("Unable to read data from stream to read DescriptorFile. This is likely not a VMDK file");
             }
 
-            bool isDescriptorFile = false;
+            var isDescriptorFile = false;
 
             foreach (var descriptorLine in Encoding.UTF8.GetString(buffer, 0, dataRead).Split('\r', '\n', '\0'))
             {

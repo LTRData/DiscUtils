@@ -53,8 +53,7 @@ internal sealed class NonResidentAttributeRecord : AttributeRecord
         : base(type, name, id, flags)
     {
         _nonResidentFlag = 1;
-        DataRuns = new List<DataRun>();
-        DataRuns.Add(new DataRun(firstCluster, (long)numClusters, false));
+        DataRuns = [new DataRun(firstCluster, (long)numClusters, false)];
         _lastVCN = numClusters - 1;
         _dataAllocatedSize = bytesPerCluster * numClusters;
         _dataRealSize = bytesPerCluster * numClusters;
@@ -378,7 +377,7 @@ internal sealed class NonResidentAttributeRecord : AttributeRecord
             _compressedSize = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x40));
         }
 
-        DataRuns = new List<DataRun>();
+        DataRuns = [];
         int pos = _dataRunsOffset;
         while (pos < length)
         {

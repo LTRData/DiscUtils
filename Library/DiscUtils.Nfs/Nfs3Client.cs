@@ -49,9 +49,11 @@ internal sealed class Nfs3Client : IDisposable
 
         var fsiResult = _nfsClient.FileSystemInfo(RootHandle);
         FileSystemInfo = fsiResult.FileSystemInfo;
-        _cachedAttributes = new Dictionary<Nfs3FileHandle, Nfs3FileAttributes>();
-        _cachedAttributes[RootHandle] = fsiResult.PostOpAttributes;
-        _cachedStats = new Dictionary<Nfs3FileHandle, Nfs3FileSystemStat>();
+        _cachedAttributes = new Dictionary<Nfs3FileHandle, Nfs3FileAttributes>
+        {
+            [RootHandle] = fsiResult.PostOpAttributes
+        };
+        _cachedStats = [];
     }
 
     public Nfs3FileSystemInfo FileSystemInfo { get; }

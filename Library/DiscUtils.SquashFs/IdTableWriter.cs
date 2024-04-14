@@ -36,7 +36,7 @@ internal sealed class IdTableWriter
     public IdTableWriter(BuilderContext context)
     {
         _context = context;
-        _ids = new List<int>();
+        _ids = [];
     }
 
     public int IdCount => _ids.Count;

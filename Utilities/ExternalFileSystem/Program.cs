@@ -197,8 +197,8 @@ class MyFileSystem : VfsFileSystem<MyDirEntry, MyFile, MyDirectory, MyContext>
     public MyFileSystem()
         : base(new DiscFileSystemOptions())
     {
-        this.Context = new MyContext();
-        this.RootDirectory = new MyDirectory(new MyDirEntry("", true), true);
+        Context = new MyContext();
+        RootDirectory = new MyDirectory(new MyDirEntry("", true), true);
     }
 
     public override bool IsCaseSensitive => false;

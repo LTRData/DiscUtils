@@ -350,8 +350,8 @@ internal class Directory : IDisposable
 
     private void LoadEntries()
     {
-        _entries = new Dictionary<long, DirectoryEntry>();
-        _freeEntries = new List<long>();
+        _entries = [];
+        _freeEntries = [];
 
         _selfEntryLocation = -1;
         _parentEntryLocation = -1;
