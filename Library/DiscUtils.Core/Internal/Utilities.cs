@@ -344,19 +344,25 @@ public static class Utilities
             return false;
         }
 
-        var split = name.Split('.');
+        var i = name.LastIndexOf('.');
 
-        if (split.Length is > 2 or < 1)
+        // Check for more than one dot
+        if (i >= 0 && name.LastIndexOf('.', i - 1) >= 0)
         {
             return false;
         }
 
-        if (split[0].Length > 8)
+        var namePart = i >= 0 ? name.AsSpan(0, i) : name.AsSpan();
+        var extPart = i >= 0 ? name.AsSpan(i + 1) : default;
+
+        if (namePart.Length is 0 or > 8
+            || extPart.Length > 3)
         {
             return false;
         }
 
-        foreach (var ch in split[0])
+        // Check for invalid chars
+        foreach (var ch in namePart)
         {
             if (!Is8Dot3Char(ch))
             {
@@ -364,19 +370,11 @@ public static class Utilities
             }
         }
 
-        if (split.Length > 1)
+        foreach (var ch in extPart)
         {
-            if (split[1].Length > 3)
+            if (!Is8Dot3Char(ch))
             {
                 return false;
-            }
-
-            foreach (var ch in split[1])
-            {
-                if (!Is8Dot3Char(ch))
-                {
-                    return false;
-                }
             }
         }
 

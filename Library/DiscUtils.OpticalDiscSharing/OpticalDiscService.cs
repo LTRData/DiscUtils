@@ -27,6 +27,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using DiscUtils.Net.Dns;
+using LTRData.Extensions.Split;
 
 #pragma warning disable IDE0079 // Remove unnecessary suppression
 #pragma warning disable SYSLIB0014 // Type or member is obsolete
@@ -180,10 +181,12 @@ public sealed class OpticalDiscService
         var wreq = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
         wreq.Method = "POST";
 
-        var req = new Dictionary<string, object>();
-        req["askDevice"] = string.Empty;
-        req["computer"] = computerName;
-        req["user"] = userName;
+        var req = new Dictionary<string, object>
+        {
+            ["askDevice"] = string.Empty,
+            ["computer"] = computerName,
+            ["user"] = userName
+        };
 
         using (var outStream = wreq.GetRequestStream())
         {
@@ -239,12 +242,12 @@ public sealed class OpticalDiscService
         if (_instance.Parameters.TryGetValue(section, out var data))
         {
             var asString = Encoding.ASCII.GetString(data);
-            var nvPairs = asString.Split(',');
+            var nvPairs = asString.AsSpan().Split(',');
 
             foreach (var nvPair in nvPairs)
             {
                 var parts = nvPair.Split('=');
-                result[parts[0]] = parts[1];
+                result[parts.First().ToString()] = parts.ElementAt(1).ToString();
             }
         }
 
