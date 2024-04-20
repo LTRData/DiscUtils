@@ -20,6 +20,7 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
+using DiscUtils.Streams;
 using System;
 
 namespace DiscUtils.Partitions;
@@ -89,7 +90,7 @@ public static class GuidPartitionTypes
     /// </summary>
     /// <param name="wellKnown">The value to convert.</param>
     /// <returns>The GUID value.</returns>
-    internal static Guid Convert(WellKnownPartitionType wellKnown)
+    public static Guid Convert(WellKnownPartitionType wellKnown)
     {
         return wellKnown switch
         {
@@ -99,4 +100,7 @@ public static class GuidPartitionTypes
             _ => throw new ArgumentException("Unknown partition type"),
         };
     }
+
+    public static string ToString(Guid partitionType)
+        => GptEntry.GetFriendlyPartitionType(partitionType);
 }

@@ -82,7 +82,10 @@ internal class GptEntry : IComparable<GptEntry>
         { new Guid("2DB519EC-B10F-11DC-B99B-0019D1879648"), "NetBSD Encrypted" }
     };
 
-    public static string GetFriendlyPartitionType(Guid type) => _friendlyPartitionTypeNames.TryGetValue(type, out var name) ? name : type.ToString().ToUpperInvariant();
+    public static string GetFriendlyPartitionType(Guid type)
+        => _friendlyPartitionTypeNames.TryGetValue(type, out var name)
+        ? name
+        : type.ToString().ToUpperInvariant();
 
     public int CompareTo(GptEntry other)
     {
