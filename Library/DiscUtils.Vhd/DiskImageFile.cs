@@ -184,7 +184,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
     /// <summary>
     /// Gets detailed information about the VHD file.
     /// </summary>
-    public DiskImageFileInfo Information => new DiskImageFileInfo(_footer, _dynamicHeader, _fileStream);
+    public DiskImageFileInfo Information => new(_footer, _dynamicHeader, _fileStream);
 
     /// <summary>
     /// Gets a value indicating if the layer only stores meaningful sectors.

@@ -27,8 +27,8 @@ namespace DiscUtils.Vhdx;
 
 internal sealed class RegionEntry : IByteArraySerializable
 {
-    public static readonly Guid BatGuid = new Guid("2dc27766-f623-4200-9d64-115e9bfd4a08");
-    public static readonly Guid MetadataRegionGuid = new Guid("8b7ca206-4790-4b9a-b8fe-575f050f886e");
+    public static readonly Guid BatGuid = new("2dc27766-f623-4200-9d64-115e9bfd4a08");
+    public static readonly Guid MetadataRegionGuid = new("8b7ca206-4790-4b9a-b8fe-575f050f886e");
     public long FileOffset;
     public RegionFlags Flags;
 

@@ -47,7 +47,7 @@ public sealed class BiosPartitionInfo : PartitionInfo
     /// <summary>
     /// Gets the end (inclusive) of the partition as a CHS address.
     /// </summary>
-    public ChsAddress End => new ChsAddress(_record.EndCylinder, _record.EndHead, _record.EndSector);
+    public ChsAddress End => new(_record.EndCylinder, _record.EndHead, _record.EndSector);
 
     /// <summary>
     /// Gets the first sector of the partion (relative to start of disk) as a Logical Block Address.
@@ -82,7 +82,7 @@ public sealed class BiosPartitionInfo : PartitionInfo
     /// <summary>
     /// Gets the start of the partition as a CHS address.
     /// </summary>
-    public ChsAddress Start => new ChsAddress(_record.StartCylinder, _record.StartHead, _record.StartSector);
+    public ChsAddress Start => new(_record.StartCylinder, _record.StartHead, _record.StartSector);
 
     /// <summary>
     /// Gets the type of the partition as a string.

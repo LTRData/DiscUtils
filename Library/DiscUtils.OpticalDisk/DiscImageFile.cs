@@ -107,7 +107,7 @@ public sealed class DiscImageFile : VirtualDiskLayer
     public override Geometry Geometry
         // Note external sector size is always 2048 - 2352 just has extra header
         // & error-correction info
-        => new Geometry(1, 1, 1, Mode1SectorSize);
+        => new(1, 1, 1, Mode1SectorSize);
 
     /// <summary>
     /// Gets a value indicating if the layer only stores meaningful sectors.

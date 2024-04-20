@@ -50,7 +50,7 @@ internal class UdifPartitionTable : PartitionTable
     /// <summary>
     /// Gets the partitions present on the disk.
     /// </summary>
-    public override ReadOnlyCollection<PartitionInfo> Partitions => new ReadOnlyCollection<PartitionInfo>(_partitions);
+    public override ReadOnlyCollection<PartitionInfo> Partitions => new(_partitions);
 
     public override void Delete(int index)
     {

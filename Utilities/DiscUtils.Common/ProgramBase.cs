@@ -80,13 +80,13 @@ public abstract class ProgramBase
 
     protected long DiskSize => _diskSize;
 
-    protected VirtualDiskParameters DiskParameters => new VirtualDiskParameters()
+    protected VirtualDiskParameters DiskParameters => new()
     {
         AdapterType = AdapterType,
         Capacity = DiskSize,
     };
 
-    protected FileSystemParameters FileSystemParameters => new FileSystemParameters()
+    protected FileSystemParameters FileSystemParameters => new()
     {
         FileNameEncoding = (_filenameEncodingSwitch != null && _filenameEncodingSwitch.IsPresent) ? Encoding.GetEncoding(_filenameEncodingSwitch.Value) : null,
     };

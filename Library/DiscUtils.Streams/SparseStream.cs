@@ -156,15 +156,15 @@ public abstract class SparseStream : CompatibilityStream
 
     public abstract class ReadOnlySparseStream : SparseStream
     {
-        public override sealed bool CanWrite => false;
-        public override sealed void Write(byte[] buffer, int offset, int count) => throw new InvalidOperationException("Attempt to write to read-only stream");
-        public override sealed void Write(ReadOnlySpan<byte> buffer) => throw new InvalidOperationException("Attempt to write to read-only stream");
-        public override sealed Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken) => throw new InvalidOperationException("Attempt to write to read-only stream");
-        public override sealed ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default) => throw new InvalidOperationException("Attempt to write to read-only stream");
-        public override sealed void WriteByte(byte value) => throw new InvalidOperationException("Attempt to write to read-only stream");
-        public override sealed void Flush() { }
-        public override sealed Task FlushAsync(CancellationToken cancellationToken) => Task.CompletedTask;
-        public override sealed void SetLength(long value) => throw new InvalidOperationException("Attempt to change length of read-only stream");
+        public sealed override bool CanWrite => false;
+        public sealed override void Write(byte[] buffer, int offset, int count) => throw new InvalidOperationException("Attempt to write to read-only stream");
+        public sealed override void Write(ReadOnlySpan<byte> buffer) => throw new InvalidOperationException("Attempt to write to read-only stream");
+        public sealed override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken) => throw new InvalidOperationException("Attempt to write to read-only stream");
+        public sealed override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default) => throw new InvalidOperationException("Attempt to write to read-only stream");
+        public sealed override void WriteByte(byte value) => throw new InvalidOperationException("Attempt to write to read-only stream");
+        public sealed override void Flush() { }
+        public sealed override Task FlushAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+        public sealed override void SetLength(long value) => throw new InvalidOperationException("Attempt to change length of read-only stream");
     }
 
     private class SparseReadOnlyWrapperStream : ReadOnlySparseStream

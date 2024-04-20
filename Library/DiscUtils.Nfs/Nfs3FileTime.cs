@@ -30,7 +30,7 @@ public sealed class Nfs3FileTime
     private const long TicksPerSec = 10 * 1000 * 1000; // 10 million ticks per sec
     private const long TicksPerNanoSec = 100; // 1 tick = 100 ns
 
-    private readonly DateTime nfsEpoch = new DateTime(1970, 1, 1);
+    private readonly DateTime nfsEpoch = new(1970, 1, 1);
     private readonly uint _nseconds;
 
     private readonly uint _seconds;
@@ -65,7 +65,7 @@ public sealed class Nfs3FileTime
         writer.Write(_nseconds);
     }
 
-    public static Nfs3FileTime Precision => new Nfs3FileTime(0, 1);
+    public static Nfs3FileTime Precision => new(0, 1);
 
     public override bool Equals(object obj)
     {

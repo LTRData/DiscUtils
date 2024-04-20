@@ -91,11 +91,11 @@ class MyDirEntry : VfsDirEntry
 
     public override bool HasVfsTimeInfo => true;
 
-    public override DateTime LastAccessTimeUtc => new DateTime(1980, 10, 21, 11, 04, 22);
+    public override DateTime LastAccessTimeUtc => new(1980, 10, 21, 11, 04, 22);
 
-    public override DateTime LastWriteTimeUtc => new DateTime(1980, 10, 21, 11, 04, 22);
+    public override DateTime LastWriteTimeUtc => new(1980, 10, 21, 11, 04, 22);
 
-    public override DateTime CreationTimeUtc => new DateTime(1980, 10, 21, 11, 04, 22);
+    public override DateTime CreationTimeUtc => new(1980, 10, 21, 11, 04, 22);
 
     public override bool HasVfsFileAttributes => true;
 

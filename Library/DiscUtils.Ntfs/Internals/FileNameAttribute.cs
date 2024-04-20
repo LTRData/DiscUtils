@@ -103,7 +103,7 @@ public sealed class FileNameAttribute : GenericAttribute
     /// This attribute stores the name of a file within a directory, this field
     /// provides the link back to the directory.
     /// </remarks>
-    public MasterFileTableReference ParentDirectory => new MasterFileTableReference(_fnr.ParentDirectory);
+    public MasterFileTableReference ParentDirectory => new(_fnr.ParentDirectory);
 
     /// <summary>
     /// Gets the amount of data stored in the file.

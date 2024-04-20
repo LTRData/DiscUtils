@@ -114,12 +114,12 @@ public sealed class Geometry : IEquatable<Geometry>
     /// <summary>
     /// Gets the address of the last sector on the disk.
     /// </summary>
-    public ChsAddress LastSector => new ChsAddress(Cylinders - 1, HeadsPerCylinder - 1, SectorsPerTrack);
+    public ChsAddress LastSector => new(Cylinders - 1, HeadsPerCylinder - 1, SectorsPerTrack);
 
     /// <summary>
     /// Gets a null geometry, which has 512-byte sectors but zero sectors, tracks or cylinders.
     /// </summary>
-    public static Geometry Null => new Geometry(0, 0, 0, 512);
+    public static Geometry Null => new(0, 0, 0, 512);
 
     /// <summary>
     /// Gets the number of sectors per track.

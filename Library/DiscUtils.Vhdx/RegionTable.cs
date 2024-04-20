@@ -32,8 +32,8 @@ internal sealed class RegionTable : IByteArraySerializable
 {
     public const uint RegionTableSignature = 0x69676572;
     public const int FixedSize = (int)(64 * Sizes.OneKiB);
-    public static readonly Guid BatGuid = new Guid("2DC27766-F623-4200-9D64-115E9BFD4A08");
-    public static readonly Guid MetadataRegionGuid = new Guid("8B7CA206-4790-4B9A-B8FE-575F050F886E");
+    public static readonly Guid BatGuid = new("2DC27766-F623-4200-9D64-115E9BFD4A08");
+    public static readonly Guid MetadataRegionGuid = new("8B7CA206-4790-4B9A-B8FE-575F050F886E");
 
     private readonly byte[] _data = new byte[FixedSize];
     public uint Checksum;

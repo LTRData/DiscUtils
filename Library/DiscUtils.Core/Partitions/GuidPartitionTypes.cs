@@ -33,57 +33,57 @@ public static class GuidPartitionTypes
     /// <summary>
     /// EFI system partition.
     /// </summary>
-    public static readonly Guid EfiSystem = new Guid("C12A7328-F81F-11D2-BA4B-00A0C93EC93B");
+    public static readonly Guid EfiSystem = new("C12A7328-F81F-11D2-BA4B-00A0C93EC93B");
 
     /// <summary>
     /// BIOS boot partition.
     /// </summary>
-    public static readonly Guid BiosBoot = new Guid("21686148-6449-6E6F-744E-656564454649");
+    public static readonly Guid BiosBoot = new("21686148-6449-6E6F-744E-656564454649");
 
     /// <summary>
     /// Microsoft reserved partition.
     /// </summary>
-    public static readonly Guid MicrosoftReserved = new Guid("E3C9E316-0B5C-4DB8-817D-F92DF00215AE");
+    public static readonly Guid MicrosoftReserved = new("E3C9E316-0B5C-4DB8-817D-F92DF00215AE");
 
     /// <summary>
     /// Windows basic data partition.
     /// </summary>
-    public static readonly Guid WindowsBasicData = new Guid("EBD0A0A2-B9E5-4433-87C0-68B6B72699C7");
+    public static readonly Guid WindowsBasicData = new("EBD0A0A2-B9E5-4433-87C0-68B6B72699C7");
 
     /// <summary>
     /// Linux LVM partition.
     /// </summary>
-    public static readonly Guid LinuxLvm = new Guid("E6D6D379-F507-44C2-A23C-238F2A3DF928");
+    public static readonly Guid LinuxLvm = new("E6D6D379-F507-44C2-A23C-238F2A3DF928");
 
     /// <summary>
     /// Linux swap partition.
     /// </summary>
-    public static readonly Guid LinuxSwap = new Guid("0657FD6D-A4AB-43C4-84E5-0933C84B4F4F");
+    public static readonly Guid LinuxSwap = new("0657FD6D-A4AB-43C4-84E5-0933C84B4F4F");
 
     /// <summary>
     /// Windows Logical Disk Manager metadata.
     /// </summary>
-    public static readonly Guid WindowsLdmMetadata = new Guid("5808C8AA-7E8F-42E0-85D2-E1E90434CFB3");
+    public static readonly Guid WindowsLdmMetadata = new("5808C8AA-7E8F-42E0-85D2-E1E90434CFB3");
 
     /// <summary>
     /// Windows Logical Disk Manager data.
     /// </summary>
-    public static readonly Guid WindowsLdmData = new Guid("AF9B60A0-1431-4F62-BC68-3311714A69AD");
+    public static readonly Guid WindowsLdmData = new("AF9B60A0-1431-4F62-BC68-3311714A69AD");
 
     /// <summary>
     /// Windows Recovery Environment.
     /// </summary>
-    public static readonly Guid WindowsRecovery = new Guid("DE94BBA4-06D1-4D40-A16A-BFD50179D6AC");
+    public static readonly Guid WindowsRecovery = new("DE94BBA4-06D1-4D40-A16A-BFD50179D6AC");
 
     /// <summary>
     /// Windows Storage Spaces pool.
     /// </summary>
-    public static readonly Guid WindowsStorageSpaces = new Guid("E75CAF8F-F680-4CEE-AFA3-B001E56EFC2D");
+    public static readonly Guid WindowsStorageSpaces = new("E75CAF8F-F680-4CEE-AFA3-B001E56EFC2D");
 
     /// <summary>
     /// Windows Storage Spaces replica.
     /// </summary>
-    public static readonly Guid WindowsStorageSpacesReplica = new Guid("558D43C5-A1AC-43C0-AAC8-D1472B2923D1");
+    public static readonly Guid WindowsStorageSpacesReplica = new("558D43C5-A1AC-43C0-AAC8-D1472B2923D1");
 
     /// <summary>
     /// Converts a well known partition type to a Guid.

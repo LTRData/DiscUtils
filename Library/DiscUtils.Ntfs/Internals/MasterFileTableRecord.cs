@@ -31,7 +31,7 @@ public sealed class MasterFileTableRecord
         _fileRecord = fileRecord;
     }
 
-    public MasterFileTableReference BaseRecordReference => new MasterFileTableReference(_fileRecord.BaseFile);
+    public MasterFileTableReference BaseRecordReference => new(_fileRecord.BaseFile);
 
     public MasterFileTableRecordFlags Flags => (MasterFileTableRecordFlags)_fileRecord.Flags;
 

@@ -66,7 +66,7 @@ internal abstract class CommonSparseExtentStream : MappedStream
     /// <summary>
     /// Cache of recently used grain tables.
     /// </summary>
-    private readonly ObjectCache<int, byte[]> _grainTableCache = new ObjectCache<int, byte[]>();
+    private readonly ObjectCache<int, byte[]> _grainTableCache = new();
 
     /// <summary>
     /// The number of bytes controlled by a single grain table.

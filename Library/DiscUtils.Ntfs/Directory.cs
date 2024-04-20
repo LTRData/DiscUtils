@@ -92,7 +92,7 @@ internal class Directory : File
         return base.ToString() + Path.DirectorySeparatorChar;
     }
 
-    internal new static Directory CreateNew(INtfsContext context, NtfsFileAttributes parentDirFlags)
+    internal static new Directory CreateNew(INtfsContext context, NtfsFileAttributes parentDirFlags)
     {
         var dir = (Directory)context.AllocateFile(FileRecordFlags.IsDirectory);
 

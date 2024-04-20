@@ -33,9 +33,9 @@ public class StreamExtentTest
     public void TestIntersect1()
     {
         var s1 = new StreamExtent[] {
-            new StreamExtent(0,4)};
+            new(0,4)};
         var s2 = new StreamExtent[] {
-            new StreamExtent(4,8)};
+            new(4,8)};
         var r = Array.Empty<StreamExtent>();
 
         Compare(r, StreamExtent.Intersect(s1, s2));
@@ -45,11 +45,11 @@ public class StreamExtentTest
     public void TestIntersect2()
     {
         var s1 = new StreamExtent[] {
-            new StreamExtent(0,4)};
+            new(0,4)};
         var s2 = new StreamExtent[] {
-            new StreamExtent(3,8)};
+            new(3,8)};
         var r = new StreamExtent[] {
-            new StreamExtent(3,1)};
+            new(3,1)};
 
         Compare(r, StreamExtent.Intersect(s1, s2));
     }
@@ -58,13 +58,13 @@ public class StreamExtentTest
     public void TestIntersect3()
     {
         var s1 = new StreamExtent[] {
-            new StreamExtent(0,4),
-            new StreamExtent(10, 10)};
+            new(0,4),
+            new(10, 10)};
         var s2 = new StreamExtent[] {
-            new StreamExtent(3,8)};
+            new(3,8)};
         var r = new StreamExtent[] {
-            new StreamExtent(3,1),
-            new StreamExtent(10,1)};
+            new(3,1),
+            new(10,1)};
 
         Compare(r, StreamExtent.Intersect(s1, s2));
     }
@@ -73,11 +73,11 @@ public class StreamExtentTest
     public void TestIntersect4()
     {
         var s1 = new StreamExtent[] {
-            new StreamExtent(0,4)};
+            new(0,4)};
         var s2 = new StreamExtent[] {
-            new StreamExtent(3,8)};
+            new(3,8)};
         var s3 = new StreamExtent[] {
-            new StreamExtent(10,10)};
+            new(10,10)};
         var r = Array.Empty<StreamExtent>();
 
         Compare(r, StreamExtent.Intersect(s1, s2, s3));
@@ -87,11 +87,11 @@ public class StreamExtentTest
     public void TestIntersect5()
     {
         var s1 = new StreamExtent[] {
-            new StreamExtent(0,10)};
+            new(0,10)};
         var s2 = new StreamExtent[] {
-            new StreamExtent(3,5)};
+            new(3,5)};
         var r = new StreamExtent[] {
-            new StreamExtent(3,5)};
+            new(3,5)};
 
         Compare(r, StreamExtent.Intersect(s1, s2));
     }
@@ -100,11 +100,11 @@ public class StreamExtentTest
     public void TestUnion1()
     {
         var s1 = new StreamExtent[] {
-            new StreamExtent(0,4)};
+            new(0,4)};
         var s2 = new StreamExtent[] {
-            new StreamExtent(4,8)};
+            new(4,8)};
         var r = new StreamExtent[] {
-            new StreamExtent(0,12)};
+            new(0,12)};
 
         Compare(r, StreamExtent.Union(s1, s2));
     }
@@ -113,12 +113,12 @@ public class StreamExtentTest
     public void TestUnion2()
     {
         var s1 = new StreamExtent[] {
-            new StreamExtent(0,4)};
+            new(0,4)};
         var s2 = new StreamExtent[] {
-            new StreamExtent(5,8)};
+            new(5,8)};
         var r = new StreamExtent[] {
-            new StreamExtent(0,4),
-            new StreamExtent(5,8)};
+            new(0,4),
+            new(5,8)};
 
         Compare(r, StreamExtent.Union(s1, s2));
     }
@@ -127,11 +127,11 @@ public class StreamExtentTest
     public void TestUnion3()
     {
         var s1 = new StreamExtent[] {
-            new StreamExtent(0,4)};
+            new(0,4)};
         var s2 = new StreamExtent[] {
-            new StreamExtent(2,8)};
+            new(2,8)};
         var r = new StreamExtent[] {
-            new StreamExtent(0,10)};
+            new(0,10)};
 
         Compare(r, StreamExtent.Union(s1, s2));
     }
@@ -140,10 +140,10 @@ public class StreamExtentTest
     public void TestUnion4()
     {
         var s1 = new StreamExtent[] {
-            new StreamExtent(0,4),
-            new StreamExtent(4,4)};
+            new(0,4),
+            new(4,4)};
         var r = new StreamExtent[] {
-            new StreamExtent(0,8)};
+            new(0,8)};
 
         Compare(r, StreamExtent.Union(s1));
     }
@@ -160,23 +160,23 @@ public class StreamExtentTest
     public void TestBlockCount()
     {
         var s = new StreamExtent[] {
-            new StreamExtent(0,8),
-            new StreamExtent(11, 4)
+            new(0,8),
+            new(11, 4)
         };
 
         Assert.Equal(2, StreamExtent.BlockCount(s, 10));
 
         s = new StreamExtent[] {
-            new StreamExtent(0,8),
-            new StreamExtent(9, 8)
+            new(0,8),
+            new(9, 8)
         };
 
         Assert.Equal(2, StreamExtent.BlockCount(s, 10));
 
         s = new StreamExtent[] {
-            new StreamExtent(3, 4),
-            new StreamExtent(19, 4),
-            new StreamExtent(44, 4)
+            new(3, 4),
+            new(19, 4),
+            new(44, 4)
         };
 
         Assert.Equal(4, StreamExtent.BlockCount(s, 10));
@@ -186,8 +186,8 @@ public class StreamExtentTest
     public void TestBlocks()
     {
         var s = new StreamExtent[] {
-            new StreamExtent(0,8),
-            new StreamExtent(11, 4)
+            new(0,8),
+            new(11, 4)
         };
 
         var ranges = new List<Range<long,long>>(StreamExtent.Blocks(s, 10));
@@ -197,8 +197,8 @@ public class StreamExtentTest
         Assert.Equal(2, ranges[0].Count);
 
         s = new StreamExtent[] {
-            new StreamExtent(0,8),
-            new StreamExtent(9, 8)
+            new(0,8),
+            new(9, 8)
         };
 
         ranges = new List<Range<long, long>>(StreamExtent.Blocks(s, 10));
@@ -208,9 +208,9 @@ public class StreamExtentTest
         Assert.Equal(2, ranges[0].Count);
 
         s = new StreamExtent[] {
-            new StreamExtent(3, 4),
-            new StreamExtent(19, 4),
-            new StreamExtent(44, 4)
+            new(3, 4),
+            new(19, 4),
+            new(44, 4)
         };
 
         ranges = new List<Range<long, long>>(StreamExtent.Blocks(s, 10));

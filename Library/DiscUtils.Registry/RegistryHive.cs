@@ -278,7 +278,7 @@ public class RegistryHive : IDisposable
     /// <summary>
     /// Gets the root key in the registry hive.
     /// </summary>
-    public RegistryKey Root => new RegistryKey(this, GetCell<KeyNodeCell>(_header.RootCell));
+    public RegistryKey Root => new(this, GetCell<KeyNodeCell>(_header.RootCell));
 
     /// <summary>
     /// Disposes of this instance, freeing any underlying stream (if any).

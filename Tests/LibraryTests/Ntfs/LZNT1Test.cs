@@ -363,11 +363,11 @@ public class LZNT1Test
     }
 
     [DllImport("ntdll")]
-    private extern static int RtlGetCompressionWorkSpaceSize(ushort formatAndEngine, out uint bufferWorkspaceSize, out uint fragmentWorkspaceSize);
+    private static extern int RtlGetCompressionWorkSpaceSize(ushort formatAndEngine, out uint bufferWorkspaceSize, out uint fragmentWorkspaceSize);
 
     [DllImport("ntdll")]
-    private extern static int RtlCompressBuffer(ushort formatAndEngine, IntPtr uncompressedBuffer, uint uncompressedBufferSize, IntPtr compressedBuffer, uint compressedBufferSize, uint uncompressedChunkSize, out uint finalCompressedSize, IntPtr workspace);
+    private static extern int RtlCompressBuffer(ushort formatAndEngine, IntPtr uncompressedBuffer, uint uncompressedBufferSize, IntPtr compressedBuffer, uint compressedBufferSize, uint uncompressedChunkSize, out uint finalCompressedSize, IntPtr workspace);
 
     [DllImport("ntdll")]
-    private extern static int RtlDecompressBuffer(ushort formatAndEngine, IntPtr uncompressedBuffer, uint uncompressedBufferSize, IntPtr compressedBuffer, uint compressedBufferSize, out uint finalUncompressedSize);
+    private static extern int RtlDecompressBuffer(ushort formatAndEngine, IntPtr uncompressedBuffer, uint uncompressedBufferSize, IntPtr compressedBuffer, uint compressedBufferSize, out uint finalUncompressedSize);
 }

@@ -113,7 +113,7 @@ public sealed class DiskImageFileInfo
     /// <summary>
     /// Gets the first header (by file location) of the VHDX file.
     /// </summary>
-    public HeaderInfo FirstHeader => new HeaderInfo(_vhdxHeader1);
+    public HeaderInfo FirstHeader => new(_vhdxHeader1);
 
     /// <summary>
     /// Gets a value indicating whether the VHDX file has a parent file (i.e. is a differencing file).
@@ -133,7 +133,7 @@ public sealed class DiskImageFileInfo
     /// <summary>
     /// Gets the metadata table of the VHDX file.
     /// </summary>
-    public MetadataTableInfo MetadataTable => new MetadataTableInfo(_metadata.Table);
+    public MetadataTableInfo MetadataTable => new(_metadata.Table);
 
     /// <summary>
     /// Gets the set of parent locators, for differencing files.
@@ -155,12 +155,12 @@ public sealed class DiskImageFileInfo
     /// <summary>
     /// Gets the region table of the VHDX file.
     /// </summary>
-    public RegionTableInfo RegionTable => new RegionTableInfo(_regions);
+    public RegionTableInfo RegionTable => new(_regions);
 
     /// <summary>
     /// Gets the second header (by file location) of the VHDX file.
     /// </summary>
-    public HeaderInfo SecondHeader => new HeaderInfo(_vhdxHeader2);
+    public HeaderInfo SecondHeader => new(_vhdxHeader2);
 
     /// <summary>
     /// Gets the file signature.

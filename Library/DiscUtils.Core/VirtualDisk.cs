@@ -194,7 +194,7 @@ public abstract class VirtualDisk :
     /// Gets the parameters of the disk.
     /// </summary>
     /// <remarks>Most of the parameters are also available individually, such as DiskType and Capacity.</remarks>
-    public virtual VirtualDiskParameters Parameters => new VirtualDiskParameters
+    public virtual VirtualDiskParameters Parameters => new()
     {
         DiskType = DiskClass,
         Capacity = Capacity,

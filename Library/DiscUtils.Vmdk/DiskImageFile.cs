@@ -34,7 +34,7 @@ namespace DiscUtils.Vmdk;
 /// </summary>
 public sealed class DiskImageFile : VirtualDiskLayer
 {
-    private static readonly Random _rng = new Random();
+    private static readonly Random _rng = new();
 
     private readonly FileAccess _access;
     private SparseStream _contentStream;

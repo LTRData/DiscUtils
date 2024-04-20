@@ -44,7 +44,7 @@ internal class Footer
     public const uint HeadsMask = 0x00FF0000;
     public const uint SectorsMask = 0xFF000000;
 
-    public static readonly DateTime EpochUtc = new DateTime(2000, 1, 1, 0, 0, 0, 0);
+    public static readonly DateTime EpochUtc = new(2000, 1, 1, 0, 0, 0, 0);
     public uint Checksum;
 
     public string Cookie;

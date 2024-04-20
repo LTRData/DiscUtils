@@ -31,7 +31,7 @@ namespace DiscUtils.Vhdx;
 
 internal sealed class ParentLocator : IByteArraySerializable
 {
-    private static readonly Guid LocatorTypeGuid = new Guid("B04AEFB7-D19E-4A81-B789-25B8E9445913");
+    private static readonly Guid LocatorTypeGuid = new("B04AEFB7-D19E-4A81-B789-25B8E9445913");
 
     public ushort Count;
     public Guid LocatorType = LocatorTypeGuid;

@@ -127,7 +127,7 @@ public partial class VirtualFileSystem : DiscFileSystem, IWindowsFileSystem, IUn
         return entry.AddLink(destination, GetPathFileName(new_path));
     }
 
-    public override sealed void CreateDirectory(string path) => AddDirectory(path);
+    public sealed override void CreateDirectory(string path) => AddDirectory(path);
 
     public virtual VirtualFileSystemDirectory AddDirectory(string path)
     {

@@ -91,7 +91,7 @@ class Disk : VirtualDisk
 
     public override IEnumerable<VirtualDiskLayer> Layers => throw new NotImplementedException();
 
-    public override VirtualDiskTypeInfo DiskTypeInfo => new VirtualDiskTypeInfo()
+    public override VirtualDiskTypeInfo DiskTypeInfo => new()
     {
         Name = "Physical",
         Variant = "",

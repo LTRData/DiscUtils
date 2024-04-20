@@ -73,5 +73,5 @@ public readonly struct AttributeListEntry : IAttributeLocator
     /// <summary>
     /// Gets the Master File Table entry that contains the attribute.
     /// </summary>
-    public MasterFileTableReference MasterFileTableEntry => new MasterFileTableReference(_record.BaseFileReference);
+    public MasterFileTableReference MasterFileTableEntry => new(_record.BaseFileReference);
 }

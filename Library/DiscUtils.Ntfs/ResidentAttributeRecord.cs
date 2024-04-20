@@ -109,7 +109,7 @@ internal sealed class ResidentAttributeRecord : AttributeRecord
         return _memoryBuffer;
     }
 
-    public override CookedDataRuns GetCookedDataRuns() => new CookedDataRuns();
+    public override CookedDataRuns GetCookedDataRuns() => new();
 
     public override IEnumerable<Range<long, long>> GetClusters()
     {

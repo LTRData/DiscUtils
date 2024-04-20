@@ -35,13 +35,13 @@ internal sealed class FileName : IEquatable<FileName>
     private const byte SpaceByte = 0x20;
 
     public static readonly FileName SelfEntryName =
-        new FileName(".          "u8);
+        new(".          "u8);
 
     public static readonly FileName ParentEntryName =
-        new FileName("..         "u8);
+        new("..         "u8);
 
     public static readonly FileName Null =
-        new FileName("\0\0\0\0\0\0\0\0\0\0\0"u8);
+        new("\0\0\0\0\0\0\0\0\0\0\0"u8);
 
     private static readonly byte[] InvalidBytes = "\"*+,./:;<=>?[\\]|"u8.ToArray();
 

@@ -68,7 +68,7 @@ internal class FileRecord : FixupRecordBase
 
     public uint RealSize { get; private set; }
 
-    public FileRecordReference Reference => new FileRecordReference(MasterFileTableIndex, SequenceNumber);
+    public FileRecordReference Reference => new(MasterFileTableIndex, SequenceNumber);
 
     public ushort SequenceNumber { get; set; }
 

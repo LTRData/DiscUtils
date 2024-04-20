@@ -68,7 +68,7 @@ internal class SizedDeflateStream : DeflateStream
 
     public override int EndRead(IAsyncResult asyncResult) => ((Task<int>)asyncResult).GetAwaiter().GetResult();
 
-    public async override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+    public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
     {
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP
         var read = await base.ReadAsync(buffer.AsMemory(offset, count), cancellationToken).ConfigureAwait(false);
@@ -87,7 +87,7 @@ internal class SizedDeflateStream : DeflateStream
         return read;
     }
 
-    public async override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
+    public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
     {
         var read = await base.ReadAsync(buffer, cancellationToken).ConfigureAwait(false);
         _position += read;

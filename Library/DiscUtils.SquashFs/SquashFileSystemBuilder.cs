@@ -325,7 +325,7 @@ public sealed class SquashFileSystemBuilder : StreamBuilder, IFileSystemBuilder
     /// the <c>Build(Stream)</c> or <c>Build(string)</c> variant is recommended
     /// when the file system will be written to a file.
     /// </remarks>
-    public async override Task<Stream> BuildAsync(CancellationToken cancellationToken)
+    public override async Task<Stream> BuildAsync(CancellationToken cancellationToken)
     {
         Stream stream = new FileStream(Path.GetTempFileName(), FileMode.CreateNew, FileAccess.ReadWrite,
             FileShare.None, bufferSize: 2 * 1024 * 1024, FileOptions.DeleteOnClose | FileOptions.Asynchronous);

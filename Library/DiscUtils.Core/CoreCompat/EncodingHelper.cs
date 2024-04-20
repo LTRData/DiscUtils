@@ -20,7 +20,7 @@ internal static class EncodingHelper
 #endif
     }
 
-    private readonly static char[] _invalidFileNameChars = {'\\', '/', '*', '?', ':'};
+    private static readonly char[] _invalidFileNameChars = {'\\', '/', '*', '?', ':'};
 
     public static string SanitizeFileName(this string fileName)
     {

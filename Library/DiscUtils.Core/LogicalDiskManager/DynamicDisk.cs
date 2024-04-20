@@ -52,7 +52,7 @@ internal class DynamicDisk : IDiagnosticTraceable
 
     public Guid GroupId => string.IsNullOrEmpty(_header.DiskGroupId) ? Guid.Empty : new Guid(_header.DiskGroupId);
 
-    public Guid Id => new Guid(_header.DiskId);
+    public Guid Id => new(_header.DiskId);
 
     public void Dump(TextWriter writer, string linePrefix)
     {

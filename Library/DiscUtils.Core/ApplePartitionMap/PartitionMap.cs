@@ -72,7 +72,7 @@ public sealed class PartitionMap : PartitionTable
     /// <summary>
     /// Gets the partitions present on the disk.
     /// </summary>
-    public override ReadOnlyCollection<PartitionInfo> Partitions => new ReadOnlyCollection<PartitionInfo>(_partitions);
+    public override ReadOnlyCollection<PartitionInfo> Partitions => new(_partitions);
 
     /// <summary>
     /// Creates a new partition that encompasses the entire disk.

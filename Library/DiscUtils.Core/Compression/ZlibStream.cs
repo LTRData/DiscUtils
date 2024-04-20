@@ -185,7 +185,7 @@ public class ZlibStream : CompatibilityStream
     /// <param name="buffer">The buffer to populate.</param>
     /// <param name="cancellationToken"></param>
     /// <returns>The number of bytes read.</returns>
-    public async override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
+    public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
     {
         var numRead = await _deflateStream.ReadAsync(buffer, cancellationToken).ConfigureAwait(false);
         _adler32.Process(buffer.Span.Slice(0, numRead));

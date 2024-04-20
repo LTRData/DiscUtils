@@ -31,12 +31,12 @@ internal sealed class MetadataTable : IByteArraySerializable
     public const int FixedSize = (int)(64 * Sizes.OneKiB);
     public const ulong MetadataTableSignature = 0x617461646174656D;
 
-    public static readonly Guid FileParametersGuid = new Guid("CAA16737-FA36-4D43-B3B6-33F0AA44E76B");
-    public static readonly Guid VirtualDiskSizeGuid = new Guid("2FA54224-CD1B-4876-B211-5DBED83BF4B8");
-    public static readonly Guid Page83DataGuid = new Guid("BECA12AB-B2E6-4523-93EF-C309E000C746");
-    public static readonly Guid LogicalSectorSizeGuid = new Guid("8141Bf1D-A96F-4709-BA47-F233A8FAAb5F");
-    public static readonly Guid PhysicalSectorSizeGuid = new Guid("CDA348C7-445D-4471-9CC9-E9885251C556");
-    public static readonly Guid ParentLocatorGuid = new Guid("A8D35F2D-B30B-454D-ABF7-D3D84834AB0C");
+    public static readonly Guid FileParametersGuid = new("CAA16737-FA36-4D43-B3B6-33F0AA44E76B");
+    public static readonly Guid VirtualDiskSizeGuid = new("2FA54224-CD1B-4876-B211-5DBED83BF4B8");
+    public static readonly Guid Page83DataGuid = new("BECA12AB-B2E6-4523-93EF-C309E000C746");
+    public static readonly Guid LogicalSectorSizeGuid = new("8141Bf1D-A96F-4709-BA47-F233A8FAAb5F");
+    public static readonly Guid PhysicalSectorSizeGuid = new("CDA348C7-445D-4471-9CC9-E9885251C556");
+    public static readonly Guid ParentLocatorGuid = new("A8D35F2D-B30B-454D-ABF7-D3D84834AB0C");
 
     private static readonly Dictionary<Guid, object> KnownMetadata = InitMetadataTable();
 

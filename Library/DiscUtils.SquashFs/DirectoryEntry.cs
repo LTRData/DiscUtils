@@ -55,7 +55,7 @@ internal class DirectoryEntry : VfsDirEntry
 
     public override bool HasVfsTimeInfo => false;
 
-    public MetadataRef InodeReference => new MetadataRef(_header.StartBlock, _record.Offset);
+    public MetadataRef InodeReference => new(_header.StartBlock, _record.Offset);
 
     public override bool IsDirectory => _record.Type is InodeType.Directory or InodeType.ExtendedDirectory;
 

@@ -228,7 +228,7 @@ internal sealed class NonResidentAttributeRecord : AttributeRecord
         return new NonResidentDataBuffer(context, this);
     }
 
-    public override CookedDataRuns GetCookedDataRuns() => new CookedDataRuns(DataRuns, this);
+    public override CookedDataRuns GetCookedDataRuns() => new(DataRuns, this);
 
     public override int Write(Span<byte> buffer)
     {

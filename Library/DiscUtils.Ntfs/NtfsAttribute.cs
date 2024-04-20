@@ -212,7 +212,7 @@ internal class NtfsAttribute : IDiagnosticTraceable
         }
     }
 
-    public AttributeReference Reference => new AttributeReference(_containingFile, _primaryRecord.AttributeId);
+    public AttributeReference Reference => new(_containingFile, _primaryRecord.AttributeId);
 
     public AttributeType Type => _primaryRecord.AttributeType;
 

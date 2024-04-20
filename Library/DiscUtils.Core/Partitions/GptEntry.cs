@@ -46,7 +46,7 @@ internal class GptEntry : IComparable<GptEntry>
 
     public string FriendlyPartitionType => GetFriendlyPartitionType(PartitionType);
 
-    private readonly static Dictionary<Guid, string> _friendlyPartitionTypeNames = new Dictionary<Guid, string>
+    private static readonly Dictionary<Guid, string> _friendlyPartitionTypeNames = new()
     {
         { new Guid("00000000-0000-0000-0000-000000000000"), "Unused" },
         { new Guid("024DEE41-33E7-11D3-9D69-0008C781F39F"), "MBR Partition Scheme" },

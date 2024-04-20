@@ -69,7 +69,7 @@ internal sealed class Disc : VirtualDisk
     /// </summary>
     /// <remarks>This property provides access to meta-data about the disk format, for example whether the
     /// BIOS geometry is preserved in the disk file.</remarks>
-    public override VirtualDiskTypeInfo DiskTypeInfo => new VirtualDiskTypeInfo
+    public override VirtualDiskTypeInfo DiskTypeInfo => new()
     {
         Name = "Optical",
         Variant = string.Empty,

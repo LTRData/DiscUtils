@@ -49,7 +49,7 @@ internal class Stripe : IByteArraySerializable
 
     public int Size => Length;
 
-    public Key DevItemKey => new Key(DeviceId, ItemType.DevItem, Offset);
+    public Key DevItemKey => new(DeviceId, ItemType.DevItem, Offset);
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

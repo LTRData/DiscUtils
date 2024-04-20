@@ -26,17 +26,17 @@ namespace DiscUtils.HfsPlus;
 
 internal readonly struct CatalogNodeId
 {
-    public static readonly CatalogNodeId RootParentId = new CatalogNodeId(1);
-    public static readonly CatalogNodeId RootFolderId = new CatalogNodeId(2);
-    public static readonly CatalogNodeId ExtentsFileId = new CatalogNodeId(3);
-    public static readonly CatalogNodeId CatalogFileId = new CatalogNodeId(4);
-    public static readonly CatalogNodeId BadBlockFileId = new CatalogNodeId(5);
-    public static readonly CatalogNodeId AllocationFileId = new CatalogNodeId(6);
-    public static readonly CatalogNodeId StartupFileId = new CatalogNodeId(7);
-    public static readonly CatalogNodeId AttributesFileId = new CatalogNodeId(8);
-    public static readonly CatalogNodeId RepairCatalogFileId = new CatalogNodeId(14);
-    public static readonly CatalogNodeId BogusExtentFileId = new CatalogNodeId(15);
-    public static readonly CatalogNodeId FirstUserCatalogNodeId = new CatalogNodeId(16);
+    public static readonly CatalogNodeId RootParentId = new(1);
+    public static readonly CatalogNodeId RootFolderId = new(2);
+    public static readonly CatalogNodeId ExtentsFileId = new(3);
+    public static readonly CatalogNodeId CatalogFileId = new(4);
+    public static readonly CatalogNodeId BadBlockFileId = new(5);
+    public static readonly CatalogNodeId AllocationFileId = new(6);
+    public static readonly CatalogNodeId StartupFileId = new(7);
+    public static readonly CatalogNodeId AttributesFileId = new(8);
+    public static readonly CatalogNodeId RepairCatalogFileId = new(14);
+    public static readonly CatalogNodeId BogusExtentFileId = new(15);
+    public static readonly CatalogNodeId FirstUserCatalogNodeId = new(16);
 
     private readonly uint _id;
 

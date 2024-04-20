@@ -47,7 +47,7 @@ public sealed class MasterFileTableEntry
     /// All entries that form part of the same file have the same value for
     /// this property.
     /// </remarks>
-    public MasterFileTableReference BaseRecordReference => new MasterFileTableReference(_fileRecord.BaseFile);
+    public MasterFileTableReference BaseRecordReference => new(_fileRecord.BaseFile);
 
     /// <summary>
     /// Gets the flags indicating the nature of the entry.

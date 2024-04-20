@@ -75,7 +75,7 @@ public abstract class StreamBuilder
     /// </summary>
     /// <param name="output">The stream to write to.</param>
     /// <param name="cancellationToken"></param>
-    public async virtual Task BuildAsync(Stream output, CancellationToken cancellationToken)
+    public virtual async Task BuildAsync(Stream output, CancellationToken cancellationToken)
     {
         using var src = await BuildAsync(cancellationToken).ConfigureAwait(false);
         var buffer = new byte[64 * 1024];
