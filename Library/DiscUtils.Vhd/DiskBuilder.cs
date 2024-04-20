@@ -59,7 +59,7 @@ public sealed class DiskBuilder : DiskImageBuilder
             throw new InvalidOperationException("No content stream specified");
         }
 
-        var geometry = Geometry != default ? Geometry : Geometry.FromCapacity(Content.Length);
+        var geometry = Geometry ?? DiscUtils.Geometry.FromCapacity(Content.Length);
 
         var footer = new Footer(geometry, Content.Length, DiskType);
 

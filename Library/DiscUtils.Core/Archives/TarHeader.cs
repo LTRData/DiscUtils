@@ -220,7 +220,7 @@ public sealed class TarHeader
     {
         long result = 0;
 
-        for (int i = 0; i < value.Length; ++i)
+        for (var i = 0; i < value.Length; ++i)
         {
             result = (result * 8) + (value[i] - '0');
         }

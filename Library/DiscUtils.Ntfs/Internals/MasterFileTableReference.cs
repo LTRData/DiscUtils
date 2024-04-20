@@ -54,10 +54,7 @@ public readonly struct MasterFileTableReference
     /// <param name="a">The first instance to compare.</param>
     /// <param name="b">The second instance to compare.</param>
     /// <returns><code>true</code> if the instances are equivalent, else <code>false</code>.</returns>
-    public static bool operator ==(MasterFileTableReference a, MasterFileTableReference b)
-    {
-        return a._ref == b._ref;
-    }
+    public static bool operator ==(MasterFileTableReference a, MasterFileTableReference b) => a._ref == b._ref;
 
     /// <summary>
     /// Compares to instances for equality.
@@ -65,10 +62,7 @@ public readonly struct MasterFileTableReference
     /// <param name="a">The first instance to compare.</param>
     /// <param name="b">The second instance to compare.</param>
     /// <returns><code>true</code> if the instances are not equivalent, else <code>false</code>.</returns>
-    public static bool operator !=(MasterFileTableReference a, MasterFileTableReference b)
-    {
-        return a._ref != b._ref;
-    }
+    public static bool operator !=(MasterFileTableReference a, MasterFileTableReference b) => a._ref != b._ref;
 
     /// <summary>
     /// Compares another object for equality.

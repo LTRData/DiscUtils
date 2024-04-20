@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using DiscUtils;
 using DiscUtils.Ntfs;
 using DiscUtils.Streams;
+using Xunit;
 
 namespace LibraryTests;
 
@@ -31,25 +32,18 @@ public delegate DiscFileSystem NewFileSystemDelegate();
 
 public static class FileSystemSource
 {
-    public static IEnumerable<object[]> ReadWriteFileSystems
-    {
-        get
-        {
-            yield return new object[] { new NewFileSystemDelegate(FatFileSystem) };
-
+    public static TheoryData<NewFileSystemDelegate> ReadWriteFileSystems
+        => new() {
+            new NewFileSystemDelegate(FatFileSystem),
             // TODO: When format code complete, format a vanilla partition rather than relying on file on disk
-            yield return new object[] { new NewFileSystemDelegate(DiagnosticNtfsFileSystem) };
-        }
-    }
+            new NewFileSystemDelegate(DiagnosticNtfsFileSystem)
+        };
 
-    public static IEnumerable<object[]> QuickReadWriteFileSystems
-    {
-        get
-        {
-            yield return new object[] { new NewFileSystemDelegate(FatFileSystem) };
-            yield return new object[] { new NewFileSystemDelegate(NtfsFileSystem) };
-        }
-    }
+    public static TheoryData<NewFileSystemDelegate> QuickReadWriteFileSystems
+        => new() {
+            new NewFileSystemDelegate(FatFileSystem),
+            new NewFileSystemDelegate(NtfsFileSystem)
+        };
 
     private static DiscUtils.Fat.FatFileSystem FatFileSystem()
     {

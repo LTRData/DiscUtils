@@ -238,7 +238,7 @@ internal class UdifBuffer : Buffer
                         }
                         else
                         {
-                            if (lastRun != default)
+                            if (lastRun != StreamExtent.Empty)
                             {
                                 yield return lastRun;
                             }
@@ -250,7 +250,7 @@ internal class UdifBuffer : Buffer
             }
         }
 
-        if (lastRun != default)
+        if (lastRun != StreamExtent.Empty)
         {
             yield return lastRun;
         }

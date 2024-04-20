@@ -151,7 +151,7 @@ public class LunInfo
 #endif
                 if (lun < 256)
                 {
-                    lun = lun << (6 * 8);
+                    lun <<= (6 * 8);
                 }
             }
         }

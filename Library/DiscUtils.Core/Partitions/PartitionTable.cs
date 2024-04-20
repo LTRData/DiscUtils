@@ -78,10 +78,7 @@ public abstract class PartitionTable
     /// </summary>
     /// <param name="index">The index of the partition.</param>
     /// <returns>Information about the partition.</returns>
-    public PartitionInfo this[int index]
-    {
-        get { return Partitions[index]; }
-    }
+    public PartitionInfo this[int index] => Partitions[index];
 
     /// <summary>
     /// Gets the list of partitions that contain user data (i.e. non-system / empty).

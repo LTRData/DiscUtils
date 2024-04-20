@@ -221,6 +221,6 @@ internal class ExtentData : BaseItem
                 throw new IOException("invalid extent type");
         }
 
-        return default;
+        return StreamExtent.Empty;
     }
 }

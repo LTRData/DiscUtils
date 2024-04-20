@@ -71,7 +71,7 @@ internal class HashStreamCore : CompatibilityStream
             throw new InvalidOperationException("Reads must be contiguous");
         }
 
-        int numRead = _wrapped.Read(buffer, offset, count);
+        var numRead = _wrapped.Read(buffer, offset, count);
 
         _hashAlg.AppendData(buffer, offset, numRead);
         _hashPos += numRead;
@@ -86,7 +86,7 @@ internal class HashStreamCore : CompatibilityStream
             throw new InvalidOperationException("Reads must be contiguous");
         }
 
-        int numRead = await _wrapped.ReadAsync(buffer, cancellationToken).ConfigureAwait(false);
+        var numRead = await _wrapped.ReadAsync(buffer, cancellationToken).ConfigureAwait(false);
 
         _hashAlg.AppendData(buffer.Span.Slice(0, numRead));
         _hashPos += numRead;
@@ -101,7 +101,7 @@ internal class HashStreamCore : CompatibilityStream
             throw new InvalidOperationException("Reads must be contiguous");
         }
 
-        int numRead = _wrapped.Read(buffer);
+        var numRead = _wrapped.Read(buffer);
 
         _hashAlg.AppendData(buffer.Slice(0, numRead));
         _hashPos += numRead;
@@ -199,7 +199,7 @@ internal class HashStreamDotnet : CompatibilityStream
             throw new InvalidOperationException("Reads must be contiguous");
         }
 
-        int numRead = _wrapped.Read(buffer, offset, count);
+        var numRead = _wrapped.Read(buffer, offset, count);
 
         _hashAlg.TransformBlock(buffer, offset, numRead, buffer, offset);
         _hashPos += numRead;
@@ -237,7 +237,7 @@ internal class HashStreamDotnet : CompatibilityStream
             throw new InvalidOperationException("Reads must be contiguous");
         }
 
-        int numRead = await _wrapped.ReadAsync(buffer, offset, count, cancellationToken).ConfigureAwait(false);
+        var numRead = await _wrapped.ReadAsync(buffer, offset, count, cancellationToken).ConfigureAwait(false);
 
         _hashAlg.TransformBlock(buffer, offset, numRead, buffer, offset);
         _hashPos += numRead;

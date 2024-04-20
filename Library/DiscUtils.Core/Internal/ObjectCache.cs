@@ -79,7 +79,7 @@ internal class ObjectCache<K, V> where V : class
                 return val;
             }
 
-            return default(V);
+            return default;
         }
 
         set

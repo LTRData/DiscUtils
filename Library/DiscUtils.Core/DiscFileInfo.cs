@@ -58,11 +58,11 @@ public class DiscFileInfo : DiscFileSystemInfo
         {
             if (value)
             {
-                Attributes = Attributes | FileAttributes.ReadOnly;
+                Attributes |= FileAttributes.ReadOnly;
             }
             else
             {
-                Attributes = Attributes & ~FileAttributes.ReadOnly;
+                Attributes &= ~FileAttributes.ReadOnly;
             }
         }
     }

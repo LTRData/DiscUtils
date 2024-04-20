@@ -38,15 +38,16 @@ internal sealed class DiskFactory : VirtualDiskFactory
 
     public override DiskImageBuilder GetImageBuilder(string variant)
     {
-        var builder = new DiskBuilder();
-
-        builder.DiskType = variant switch
+        var builder = new DiskBuilder
         {
-            "fixed" => FileType.Fixed,
-            "dynamic" => FileType.Dynamic,
-            _ => throw new ArgumentException(
-                                $"Unknown VHD disk variant '{variant}'",
-                                nameof(variant)),
+            DiskType = variant switch
+            {
+                "fixed" => FileType.Fixed,
+                "dynamic" => FileType.Dynamic,
+                _ => throw new ArgumentException(
+                                    $"Unknown VHD disk variant '{variant}'",
+                                    nameof(variant)),
+            }
         };
         return builder;
     }

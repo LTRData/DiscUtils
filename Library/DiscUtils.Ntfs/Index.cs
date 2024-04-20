@@ -213,7 +213,7 @@ internal class Index : IDisposable
             return true;
         }
 
-        value = default(byte[]);
+        value = null;
         return false;
     }
 

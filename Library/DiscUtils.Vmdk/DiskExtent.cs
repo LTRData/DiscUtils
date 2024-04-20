@@ -87,7 +87,10 @@ internal sealed class DiskExtent : VirtualDiskExtent
                 parent.Dispose();
             }
         }
-        else parent ??= new ZeroStream(_descriptor.SizeInSectors * Sizes.Sector);
+        else
+        {
+            parent ??= new ZeroStream(_descriptor.SizeInSectors * Sizes.Sector);
+        }
 
         if (_monolithicStream != null)
         {

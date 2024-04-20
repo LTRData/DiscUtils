@@ -173,12 +173,12 @@ internal class FatBuffer
             ushort maskedOldVal;
             if ((cluster & 1) != 0)
             {
-                next = next << 4;
+                next <<= 4;
                 maskedOldVal = (ushort)(EndianUtilities.ToUInt16LittleEndian(_buffer, (int)offset) & 0x000F);
             }
             else
             {
-                next = next & 0x0FFF;
+                next &= 0x0FFF;
                 maskedOldVal = (ushort)(EndianUtilities.ToUInt16LittleEndian(_buffer, (int)offset) & 0xF000);
             }
 

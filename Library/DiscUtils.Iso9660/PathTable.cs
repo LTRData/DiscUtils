@@ -61,10 +61,12 @@ internal class PathTable : BuilderExtent
         foreach (var di in sortedList)
         {
             dirNumbers[di] = i++;
-            var ptr = new PathTableRecord();
-            ptr.DirectoryIdentifier = di.PickName(null, _enc);
-            ptr.LocationOfExtent = _locations[di];
-            ptr.ParentDirectoryNumber = dirNumbers[di.Parent];
+            var ptr = new PathTableRecord
+            {
+                DirectoryIdentifier = di.PickName(null, _enc),
+                LocationOfExtent = _locations[di],
+                ParentDirectoryNumber = dirNumbers[di.Parent]
+            };
 
             pos += ptr.Write(_byteSwap, _enc, _readCache.AsSpan(pos));
         }

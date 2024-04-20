@@ -33,7 +33,7 @@ internal sealed class FastDictionary<T> : KeyedCollection<string, T>, IReadOnlyD
         }
         else
         {
-            value = default(T);
+            value = default;
             return false;
         }
     }

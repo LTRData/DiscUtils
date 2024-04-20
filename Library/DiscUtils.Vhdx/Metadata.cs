@@ -154,7 +154,7 @@ internal sealed class Metadata
             return _regionStream.ReadStruct<T>((int)entry.Length);
         }
 
-        return default(T);
+        return default;
     }
 
 #if !NETCOREAPP
@@ -171,6 +171,6 @@ internal sealed class Metadata
             return reader(data);
         }
 
-        return default(T);
+        return default;
     }
 }

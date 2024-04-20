@@ -322,7 +322,7 @@ public class DiscFileSystemFileTest
         {
         }
 
-        Assert.Throws<ArgumentException>(() => fi.Attributes = fi.Attributes | FileAttributes.Directory);
+        Assert.Throws<ArgumentException>(() => fi.Attributes |= FileAttributes.Directory);
     }
 
     [Theory]

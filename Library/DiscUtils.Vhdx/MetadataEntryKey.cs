@@ -63,10 +63,7 @@ internal sealed class MetadataEntryKey : IEquatable<MetadataEntryKey>
         return x._itemId == y._itemId && x.IsUser == y.IsUser;
     }
 
-    public static bool operator !=(MetadataEntryKey x, MetadataEntryKey y)
-    {
-        return !(x == y);
-    }
+    public static bool operator !=(MetadataEntryKey x, MetadataEntryKey y) => !(x == y);
 
     public static MetadataEntryKey FromEntry(MetadataEntry entry)
     {

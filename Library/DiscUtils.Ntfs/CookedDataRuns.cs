@@ -48,10 +48,7 @@ public class CookedDataRuns
 
     public int Count => _runs.Count;
 
-    public CookedDataRun this[int index]
-    {
-        get { return _runs[index]; }
-    }
+    public CookedDataRun this[int index] => _runs[index];
 
     public CookedDataRun Last
     {

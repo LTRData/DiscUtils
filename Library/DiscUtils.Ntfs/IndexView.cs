@@ -72,7 +72,7 @@ internal class IndexView<K, D>
             return entry;
         }
 
-        return default(KeyValuePair<K, D>);
+        return default;
     }
 
     public IEnumerable<KeyValuePair<K, D>> FindAll(IComparable<K> query)
@@ -90,7 +90,7 @@ internal class IndexView<K, D>
             return entry;
         }
 
-        return default(KeyValuePair<K, D>);
+        return default;
     }
 
     public bool TryGetValue(K key, out D data)
@@ -101,7 +101,7 @@ internal class IndexView<K, D>
             return true;
         }
 
-        data = default(D);
+        data = default;
         return false;
     }
 

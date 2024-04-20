@@ -118,39 +118,47 @@ public sealed class DiskBuilder : DiskImageBuilder
 
             var fileEnd = Sizes.OneMiB;
 
-            var header1 = new VhdxHeader();
-            header1.SequenceNumber = 0;
-            header1.FileWriteGuid = Guid.NewGuid();
-            header1.DataWriteGuid = Guid.NewGuid();
-            header1.LogGuid = Guid.Empty;
-            header1.LogVersion = 0;
-            header1.Version = 1;
-            header1.LogLength = (uint)Sizes.OneMiB;
-            header1.LogOffset = (ulong)fileEnd;
+            var header1 = new VhdxHeader
+            {
+                SequenceNumber = 0,
+                FileWriteGuid = Guid.NewGuid(),
+                DataWriteGuid = Guid.NewGuid(),
+                LogGuid = Guid.Empty,
+                LogVersion = 0,
+                Version = 1,
+                LogLength = (uint)Sizes.OneMiB,
+                LogOffset = (ulong)fileEnd
+            };
             header1.CalcChecksum();
 
             fileEnd += header1.LogLength;
 
-            var header2 = new VhdxHeader(header1);
-            header2.SequenceNumber = 1;
+            var header2 = new VhdxHeader(header1)
+            {
+                SequenceNumber = 1
+            };
             header2.CalcChecksum();
 
             var regionTable = new RegionTable();
 
-            var metadataRegion = new RegionEntry();
-            metadataRegion.Guid = RegionEntry.MetadataRegionGuid;
-            metadataRegion.FileOffset = fileEnd;
-            metadataRegion.Length = (uint)Sizes.OneMiB;
-            metadataRegion.Flags = RegionFlags.Required;
+            var metadataRegion = new RegionEntry
+            {
+                Guid = RegionEntry.MetadataRegionGuid,
+                FileOffset = fileEnd,
+                Length = (uint)Sizes.OneMiB,
+                Flags = RegionFlags.Required
+            };
             regionTable.Regions.Add(metadataRegion.Guid, metadataRegion);
 
             fileEnd += metadataRegion.Length;
 
-            var batRegion = new RegionEntry();
-            batRegion.Guid = RegionEntry.BatGuid;
-            batRegion.FileOffset = fileEnd;
-            batRegion.Length = (uint)MathUtilities.RoundUp(totalBatEntriesDynamic * 8, Sizes.OneMiB);
-            batRegion.Flags = RegionFlags.Required;
+            var batRegion = new RegionEntry
+            {
+                Guid = RegionEntry.BatGuid,
+                FileOffset = fileEnd,
+                Length = (uint)MathUtilities.RoundUp(totalBatEntriesDynamic * 8, Sizes.OneMiB),
+                Flags = RegionFlags.Required
+            };
             regionTable.Regions.Add(batRegion.Guid, batRegion);
 
             fileEnd += batRegion.Length;

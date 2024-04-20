@@ -83,7 +83,7 @@ public class DataRun
         for (var i = 0; i < buffer.Length; ++i)
         {
             var b = buffer[i];
-            val = val | ((ulong)b << (i * 8));
+            val |= ((ulong)b << (i * 8));
             signExtend = (b & 0x80) != 0;
         }
 
@@ -91,7 +91,7 @@ public class DataRun
         {
             for (var i = buffer.Length; i < 8; ++i)
             {
-                val = val | ((ulong)0xFF << (i * 8));
+                val |= ((ulong)0xFF << (i * 8));
             }
         }
 

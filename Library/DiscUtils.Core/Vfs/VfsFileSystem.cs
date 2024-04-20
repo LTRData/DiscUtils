@@ -738,7 +738,7 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
 
         if (path == null)
         {
-            return default(TFile);
+            return default;
         }
 
         var dirEntry = GetDirectoryEntry(path)

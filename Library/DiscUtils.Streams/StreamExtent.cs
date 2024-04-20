@@ -57,6 +57,8 @@ public readonly struct StreamExtent : IEquatable<StreamExtent>, IComparable<Stre
     /// </summary>
     public long Start { get; }
 
+    public static StreamExtent Empty { get; }
+
     /// <summary>
     /// Compares this stream extent to another.
     /// </summary>
@@ -389,11 +391,13 @@ public readonly struct StreamExtent : IEquatable<StreamExtent>, IComparable<Stre
                 if (rangeStart != null && extentStartBlock > rangeStart + rangeLength)
                 {
                     // This extent is non-contiguous (in terms of blocks), so write out the last range and start new
-                    yield return new Range<long, long>((long)rangeStart, rangeLength);
+                    yield return new(rangeStart.Value, rangeLength);
                     rangeStart = extentStartBlock;
                 }
                 else                     // First extent, so start first range
+                {
                     rangeStart ??= extentStartBlock;
+                }
 
                 // Set the length of the current range, based on the end of this extent
                 rangeLength = extentNextBlock - (long)rangeStart;
@@ -403,7 +407,7 @@ public readonly struct StreamExtent : IEquatable<StreamExtent>, IComparable<Stre
         // Final range (if any ranges at all) hasn't been returned yet, so do that now
         if (rangeStart != null)
         {
-            yield return new Range<long, long>((long)rangeStart, rangeLength);
+            yield return new(rangeStart.Value, rangeLength);
         }
     }
 
@@ -413,10 +417,7 @@ public readonly struct StreamExtent : IEquatable<StreamExtent>, IComparable<Stre
     /// <param name="a">The first extent to compare.</param>
     /// <param name="b">The second extent to compare.</param>
     /// <returns>Whether the two extents are equal.</returns>
-    public static bool operator ==(StreamExtent a, StreamExtent b)
-    {
-        return a.Equals(b);
-    }
+    public static bool operator ==(StreamExtent a, StreamExtent b) => a.Equals(b);
 
     /// <summary>
     /// The inequality operator.
@@ -424,10 +425,7 @@ public readonly struct StreamExtent : IEquatable<StreamExtent>, IComparable<Stre
     /// <param name="a">The first extent to compare.</param>
     /// <param name="b">The second extent to compare.</param>
     /// <returns>Whether the two extents are different.</returns>
-    public static bool operator !=(StreamExtent a, StreamExtent b)
-    {
-        return !(a == b);
-    }
+    public static bool operator !=(StreamExtent a, StreamExtent b) => !(a == b);
 
     /// <summary>
     /// The less-than operator.
@@ -435,10 +433,7 @@ public readonly struct StreamExtent : IEquatable<StreamExtent>, IComparable<Stre
     /// <param name="a">The first extent to compare.</param>
     /// <param name="b">The second extent to compare.</param>
     /// <returns>Whether a is less than b.</returns>
-    public static bool operator <(StreamExtent a, StreamExtent b)
-    {
-        return a.CompareTo(b) < 0;
-    }
+    public static bool operator <(StreamExtent a, StreamExtent b) => a.CompareTo(b) < 0;
 
     /// <summary>
     /// The greater-than operator.
@@ -446,10 +441,7 @@ public readonly struct StreamExtent : IEquatable<StreamExtent>, IComparable<Stre
     /// <param name="a">The first extent to compare.</param>
     /// <param name="b">The second extent to compare.</param>
     /// <returns>Whether a is greater than b.</returns>
-    public static bool operator >(StreamExtent a, StreamExtent b)
-    {
-        return a.CompareTo(b) > 0;
-    }
+    public static bool operator >(StreamExtent a, StreamExtent b) => a.CompareTo(b) > 0;
 
     /// <summary>
     /// Returns a string representation of the extent as [start:+length].

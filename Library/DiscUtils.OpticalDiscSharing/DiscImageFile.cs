@@ -54,7 +54,7 @@ internal sealed class DiscImageFile : VirtualDiskLayer
 
     public override Geometry Geometry
         // Note external sector size is always 2048
-        => new Geometry(1, 1, 1, Mode1SectorSize);
+        => new(1, 1, 1, Mode1SectorSize);
 
     public override bool IsSparse => false;
 

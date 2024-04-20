@@ -44,14 +44,14 @@ internal sealed class MonolithicSparseExtentBuilder : StreamBuilder
     {
         List<BuilderExtent> extents = [];
 
-        MemoryStream descriptorStream = new MemoryStream();
+        var descriptorStream = new MemoryStream();
         _descriptor.Write(descriptorStream);
 
         // Figure out grain size and number of grain tables, and adjust actual extent size to be a multiple
         // of grain size
         const int GtesPerGt = 512;
         long grainSize = 128;
-        int numGrainTables = (int)MathUtilities.Ceil(_content.Length, grainSize * GtesPerGt * Sizes.Sector);
+        var numGrainTables = (int)MathUtilities.Ceil(_content.Length, grainSize * GtesPerGt * Sizes.Sector);
 
         long descriptorLength = 10 * Sizes.OneKiB; // MathUtilities.RoundUp(descriptorStream.Length, Sizes.Sector);
         long descriptorStart = 0;
@@ -60,33 +60,35 @@ internal sealed class MonolithicSparseExtentBuilder : StreamBuilder
             descriptorStart = 1;
         }
 
-        long redundantGrainDirStart = Math.Max(descriptorStart, 1) + MathUtilities.Ceil(descriptorLength, Sizes.Sector);
+        var redundantGrainDirStart = Math.Max(descriptorStart, 1) + MathUtilities.Ceil(descriptorLength, Sizes.Sector);
         long redundantGrainDirLength = numGrainTables * 4;
 
-        long redundantGrainTablesStart = redundantGrainDirStart +
+        var redundantGrainTablesStart = redundantGrainDirStart +
                                          MathUtilities.Ceil(redundantGrainDirLength, Sizes.Sector);
         long redundantGrainTablesLength = numGrainTables * MathUtilities.RoundUp(GtesPerGt * 4, Sizes.Sector);
 
-        long grainDirStart = redundantGrainTablesStart + MathUtilities.Ceil(redundantGrainTablesLength, Sizes.Sector);
+        var grainDirStart = redundantGrainTablesStart + MathUtilities.Ceil(redundantGrainTablesLength, Sizes.Sector);
         long grainDirLength = numGrainTables * 4;
 
-        long grainTablesStart = grainDirStart + MathUtilities.Ceil(grainDirLength, Sizes.Sector);
+        var grainTablesStart = grainDirStart + MathUtilities.Ceil(grainDirLength, Sizes.Sector);
         long grainTablesLength = numGrainTables * MathUtilities.RoundUp(GtesPerGt * 4, Sizes.Sector);
 
-        long dataStart = MathUtilities.RoundUp(grainTablesStart + MathUtilities.Ceil(grainTablesLength, Sizes.Sector),
+        var dataStart = MathUtilities.RoundUp(grainTablesStart + MathUtilities.Ceil(grainTablesLength, Sizes.Sector),
             grainSize);
 
         // Generate the header, and write it
-        HostedSparseExtentHeader header = new HostedSparseExtentHeader();
-        header.Flags = HostedSparseExtentFlags.ValidLineDetectionTest | HostedSparseExtentFlags.RedundantGrainTable;
-        header.Capacity = MathUtilities.RoundUp(_content.Length, grainSize * Sizes.Sector) / Sizes.Sector;
-        header.GrainSize = grainSize;
-        header.DescriptorOffset = descriptorStart;
-        header.DescriptorSize = descriptorLength / Sizes.Sector;
-        header.NumGTEsPerGT = GtesPerGt;
-        header.RgdOffset = redundantGrainDirStart;
-        header.GdOffset = grainDirStart;
-        header.Overhead = dataStart;
+        var header = new HostedSparseExtentHeader
+        {
+            Flags = HostedSparseExtentFlags.ValidLineDetectionTest | HostedSparseExtentFlags.RedundantGrainTable,
+            Capacity = MathUtilities.RoundUp(_content.Length, grainSize * Sizes.Sector) / Sizes.Sector,
+            GrainSize = grainSize,
+            DescriptorOffset = descriptorStart,
+            DescriptorSize = descriptorLength / Sizes.Sector,
+            NumGTEsPerGT = GtesPerGt,
+            RgdOffset = redundantGrainDirStart,
+            GdOffset = grainDirStart,
+            Overhead = dataStart
+        };
 
         extents.Add(new BuilderBytesExtent(0, header.GetBytes()));
 
@@ -103,17 +105,17 @@ internal sealed class MonolithicSparseExtentBuilder : StreamBuilder
 
         // For each graintable span that's present...
         long dataSectorsUsed = 0;
-        long gtSpan = GtesPerGt * grainSize * Sizes.Sector;
-        foreach (Range<long, long> gtRange in StreamExtent.Blocks(_content.Extents, grainSize * GtesPerGt * Sizes.Sector))
+        var gtSpan = GtesPerGt * grainSize * Sizes.Sector;
+        foreach (var gtRange in StreamExtent.Blocks(_content.Extents, grainSize * GtesPerGt * Sizes.Sector))
         {
             for (long i = 0; i < gtRange.Count; ++i)
             {
-                int gt = (int)(gtRange.Offset + i);
+                var gt = (int)(gtRange.Offset + i);
 
-                SubStream gtStream = new SubStream(_content, gt * gtSpan,
+                var gtStream = new SubStream(_content, gt * gtSpan,
                     Math.Min(gtSpan, _content.Length - gt * gtSpan));
 
-                GrainTableDataExtent dataExtent =
+                var dataExtent =
                     new GrainTableDataExtent((dataStart + dataSectorsUsed) * Sizes.Sector, gtStream, grainSize);
                 extents.Add(dataExtent);
 
@@ -152,7 +154,7 @@ internal sealed class MonolithicSparseExtentBuilder : StreamBuilder
         public override void PrepareForRead()
         {
             _data = new byte[Length];
-            for (int i = 0; i < _numGrainTables; ++i)
+            for (var i = 0; i < _numGrainTables; ++i)
             {
                 EndianUtilities.WriteBytesLittleEndian(
                     (uint)(_grainTablesStart + i * MathUtilities.Ceil(_gtesPerGt * 4, Sizes.Sector)), _data, i * 4);
@@ -185,12 +187,12 @@ internal sealed class MonolithicSparseExtentBuilder : StreamBuilder
         {
             _data = new byte[_gtesPerGt * 4];
 
-            long gtSpan = _gtesPerGt * _grainSize * Sizes.Sector;
+            var gtSpan = _gtesPerGt * _grainSize * Sizes.Sector;
             long sectorsAllocated = 0;
 
-            foreach (Range<long, long> block in StreamExtent.Blocks(_content.Extents, _grainSize * Sizes.Sector))
+            foreach (var block in StreamExtent.Blocks(_content.Extents, _grainSize * Sizes.Sector))
             {
-                for (int i = 0; i < block.Count; ++i)
+                for (var i = 0; i < block.Count; ++i)
                 {
                     EndianUtilities.WriteBytesLittleEndian((uint)(_dataStart + sectorsAllocated), _data,
                         (int)((block.Offset + i) * 4));
@@ -243,9 +245,9 @@ internal sealed class MonolithicSparseExtentBuilder : StreamBuilder
 
             _grainMapOffsets = new int[Length / (_grainSize * Sizes.Sector)];
             _grainMapRanges = new Range<long, long>[_grainMapOffsets.Length];
-            foreach (Range<long, long> grainRange in StreamExtent.Blocks(_content.Extents, _grainSize * Sizes.Sector))
+            foreach (var grainRange in StreamExtent.Blocks(_content.Extents, _grainSize * Sizes.Sector))
             {
-                for (int i = 0; i < grainRange.Count; ++i)
+                for (var i = 0; i < grainRange.Count; ++i)
                 {
                     _grainMapOffsets[outputGrain] = i;
                     _grainMapRanges[outputGrain] = grainRange;
@@ -256,17 +258,17 @@ internal sealed class MonolithicSparseExtentBuilder : StreamBuilder
 
         public override int Read(long diskOffset, byte[] block, int offset, int count)
         {
-            long start = diskOffset - Start;
-            long grainSizeBytes = _grainSize * Sizes.Sector;
+            var start = diskOffset - Start;
+            var grainSizeBytes = _grainSize * Sizes.Sector;
 
-            long outputGrain = start / grainSizeBytes;
-            long outputGrainOffset = start % grainSizeBytes;
+            var outputGrain = start / grainSizeBytes;
+            var outputGrainOffset = start % grainSizeBytes;
 
-            long grainStart = (_grainMapRanges[outputGrain].Offset + _grainMapOffsets[outputGrain]) * grainSizeBytes;
-            long maxRead = (_grainMapRanges[outputGrain].Count - _grainMapOffsets[outputGrain]) * grainSizeBytes;
+            var grainStart = (_grainMapRanges[outputGrain].Offset + _grainMapOffsets[outputGrain]) * grainSizeBytes;
+            var maxRead = (_grainMapRanges[outputGrain].Count - _grainMapOffsets[outputGrain]) * grainSizeBytes;
 
-            long readStart = grainStart + outputGrainOffset;
-            int toRead = (int)Math.Min(count, maxRead - outputGrainOffset);
+            var readStart = grainStart + outputGrainOffset;
+            var toRead = (int)Math.Min(count, maxRead - outputGrainOffset);
 
             if (readStart > _content.Length)
             {
@@ -280,17 +282,17 @@ internal sealed class MonolithicSparseExtentBuilder : StreamBuilder
 
         public override ValueTask<int> ReadAsync(long diskOffset, byte[] block, int offset, int count, CancellationToken cancellationToken)
         {
-            long start = diskOffset - Start;
-            long grainSizeBytes = _grainSize * Sizes.Sector;
+            var start = diskOffset - Start;
+            var grainSizeBytes = _grainSize * Sizes.Sector;
 
-            long outputGrain = start / grainSizeBytes;
-            long outputGrainOffset = start % grainSizeBytes;
+            var outputGrain = start / grainSizeBytes;
+            var outputGrainOffset = start % grainSizeBytes;
 
-            long grainStart = (_grainMapRanges[outputGrain].Offset + _grainMapOffsets[outputGrain]) * grainSizeBytes;
-            long maxRead = (_grainMapRanges[outputGrain].Count - _grainMapOffsets[outputGrain]) * grainSizeBytes;
+            var grainStart = (_grainMapRanges[outputGrain].Offset + _grainMapOffsets[outputGrain]) * grainSizeBytes;
+            var maxRead = (_grainMapRanges[outputGrain].Count - _grainMapOffsets[outputGrain]) * grainSizeBytes;
 
-            long readStart = grainStart + outputGrainOffset;
-            int toRead = (int)Math.Min(count, maxRead - outputGrainOffset);
+            var readStart = grainStart + outputGrainOffset;
+            var toRead = (int)Math.Min(count, maxRead - outputGrainOffset);
 
             if (readStart > _content.Length)
             {
@@ -304,17 +306,17 @@ internal sealed class MonolithicSparseExtentBuilder : StreamBuilder
 
         public override ValueTask<int> ReadAsync(long diskOffset, Memory<byte> block, CancellationToken cancellationToken)
         {
-            long start = diskOffset - Start;
-            long grainSizeBytes = _grainSize * Sizes.Sector;
+            var start = diskOffset - Start;
+            var grainSizeBytes = _grainSize * Sizes.Sector;
 
-            long outputGrain = start / grainSizeBytes;
-            long outputGrainOffset = start % grainSizeBytes;
+            var outputGrain = start / grainSizeBytes;
+            var outputGrainOffset = start % grainSizeBytes;
 
-            long grainStart = (_grainMapRanges[outputGrain].Offset + _grainMapOffsets[outputGrain]) * grainSizeBytes;
-            long maxRead = (_grainMapRanges[outputGrain].Count - _grainMapOffsets[outputGrain]) * grainSizeBytes;
+            var grainStart = (_grainMapRanges[outputGrain].Offset + _grainMapOffsets[outputGrain]) * grainSizeBytes;
+            var maxRead = (_grainMapRanges[outputGrain].Count - _grainMapOffsets[outputGrain]) * grainSizeBytes;
 
-            long readStart = grainStart + outputGrainOffset;
-            int toRead = (int)Math.Min(block.Length, maxRead - outputGrainOffset);
+            var readStart = grainStart + outputGrainOffset;
+            var toRead = (int)Math.Min(block.Length, maxRead - outputGrainOffset);
 
             if (readStart > _content.Length)
             {
@@ -328,17 +330,17 @@ internal sealed class MonolithicSparseExtentBuilder : StreamBuilder
 
         public override int Read(long diskOffset, Span<byte> block)
         {
-            long start = diskOffset - Start;
-            long grainSizeBytes = _grainSize * Sizes.Sector;
+            var start = diskOffset - Start;
+            var grainSizeBytes = _grainSize * Sizes.Sector;
 
-            long outputGrain = start / grainSizeBytes;
-            long outputGrainOffset = start % grainSizeBytes;
+            var outputGrain = start / grainSizeBytes;
+            var outputGrainOffset = start % grainSizeBytes;
 
-            long grainStart = (_grainMapRanges[outputGrain].Offset + _grainMapOffsets[outputGrain]) * grainSizeBytes;
-            long maxRead = (_grainMapRanges[outputGrain].Count - _grainMapOffsets[outputGrain]) * grainSizeBytes;
+            var grainStart = (_grainMapRanges[outputGrain].Offset + _grainMapOffsets[outputGrain]) * grainSizeBytes;
+            var maxRead = (_grainMapRanges[outputGrain].Count - _grainMapOffsets[outputGrain]) * grainSizeBytes;
 
-            long readStart = grainStart + outputGrainOffset;
-            int toRead = (int)Math.Min(block.Length, maxRead - outputGrainOffset);
+            var readStart = grainStart + outputGrainOffset;
+            var toRead = (int)Math.Min(block.Length, maxRead - outputGrainOffset);
 
             if (readStart > _content.Length)
             {
@@ -360,7 +362,7 @@ internal sealed class MonolithicSparseExtentBuilder : StreamBuilder
         {
             long total = 0;
 
-            foreach (Range<long, long> grainRange in StreamExtent.Blocks(content.Extents, grainSize * Sizes.Sector))
+            foreach (var grainRange in StreamExtent.Blocks(content.Extents, grainSize * Sizes.Sector))
             {
                 total += grainRange.Count * grainSize;
             }

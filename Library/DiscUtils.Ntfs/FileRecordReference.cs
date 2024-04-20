@@ -48,15 +48,9 @@ internal struct FileRecordReference : IByteArraySerializable, IComparable<FileRe
 
     public bool IsNull => SequenceNumber == 0;
 
-    public static bool operator ==(FileRecordReference a, FileRecordReference b)
-    {
-        return a.Value == b.Value;
-    }
+    public static bool operator ==(FileRecordReference a, FileRecordReference b) => a.Value == b.Value;
 
-    public static bool operator !=(FileRecordReference a, FileRecordReference b)
-    {
-        return a.Value != b.Value;
-    }
+    public static bool operator !=(FileRecordReference a, FileRecordReference b) => a.Value != b.Value;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

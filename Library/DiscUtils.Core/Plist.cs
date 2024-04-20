@@ -33,15 +33,18 @@ internal static class Plist
 {
     internal static Dictionary<string, object> Parse(Stream stream)
     {
-        var xmlDoc = new XmlDocument();
-        xmlDoc.XmlResolver = null;
+        var xmlDoc = new XmlDocument
+        {
+            XmlResolver = null
+        };
 
-        var settings = new XmlReaderSettings();
-
-        // DTD processing is disabled on anything but .NET 2.0, so this must be set to
-        // Ignore.
-        // See https://msdn.microsoft.com/en-us/magazine/ee335713.aspx for additional information.
-        settings.DtdProcessing = DtdProcessing.Ignore;
+        var settings = new XmlReaderSettings
+        {
+            // DTD processing is disabled on anything but .NET 2.0, so this must be set to
+            // Ignore.
+            // See https://msdn.microsoft.com/en-us/magazine/ee335713.aspx for additional information.
+            DtdProcessing = DtdProcessing.Ignore
+        };
 
         using (var reader = XmlReader.Create(stream, settings))
         {
@@ -59,8 +62,10 @@ internal static class Plist
 
     internal static void Write(Stream stream, Dictionary<string, object> plist)
     {
-        var xmlDoc = new XmlDocument();
-        xmlDoc.XmlResolver = null;
+        var xmlDoc = new XmlDocument
+        {
+            XmlResolver = null
+        };
 
         var xmlDecl = xmlDoc.CreateXmlDeclaration("1.0", "UTF-8", null);
         xmlDoc.AppendChild(xmlDecl);

@@ -61,8 +61,8 @@ internal sealed class LZNT1 : BlockCompressor
     public override CompressionResult Compress(ReadOnlySpan<byte> source, Span<byte> compressed,
                                                out int compressedLength)
     {
-        int sourcePointer = 0;
-        int destPointer = 0;
+        var sourcePointer = 0;
+        var destPointer = 0;
         compressedLength = compressed.Length;
 
         // Set up the Lz Compression Dictionary 

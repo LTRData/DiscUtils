@@ -37,7 +37,7 @@ internal static class Numbers<T>
 
     public delegate T NoParamFn();
 
-    public static readonly T Zero = default(T);
+    public static readonly T Zero = default;
     public static readonly T One = GetOne();
     public static readonly DualParamFn Add = GetAdd();
     public static readonly DualParamFn Subtract = GetSubtract();

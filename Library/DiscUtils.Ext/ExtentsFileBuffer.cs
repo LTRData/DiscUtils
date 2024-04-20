@@ -60,14 +60,14 @@ internal class ExtentsFileBuffer : Buffer, IFileBuffer
         var blockSize = (int)_context.SuperBlock.BlockSize;
 
         var count = _inode.FileSize;
-        int totalRead = 0;
-        int totalBlocksRemaining = (int)count;
+        var totalRead = 0;
+        var totalBlocksRemaining = (int)count;
 
-        ExtentBlock extents = _inode.Extents;
+        var extents = _inode.Extents;
 
         while (totalBlocksRemaining > 0)
         {
-            uint logicalBlock = (uint)totalRead;
+            var logicalBlock = (uint)totalRead;
 
             int numRead;
 
@@ -86,8 +86,8 @@ internal class ExtentsFileBuffer : Buffer, IFileBuffer
             }
             else
             {
-                long physicalBlock = logicalBlock - extent.Value.FirstLogicalBlock + (long)extent.Value.FirstPhysicalBlock;
-                int toRead =
+                var physicalBlock = logicalBlock - extent.Value.FirstLogicalBlock + (long)extent.Value.FirstPhysicalBlock;
+                var toRead =
                     (int)
                     Math.Min(totalBlocksRemaining,
                         extent.Value.NumBlocks - (logicalBlock - extent.Value.FirstLogicalBlock));
@@ -121,15 +121,15 @@ internal class ExtentsFileBuffer : Buffer, IFileBuffer
         var blockSize = (int)_context.SuperBlock.BlockSize;
 
         var count = _inode.FileSize;
-        int totalRead = 0;
-        int totalBytesRemaining = (int)Math.Min(count, _inode.FileSize - pos);
+        var totalRead = 0;
+        var totalBytesRemaining = (int)Math.Min(count, _inode.FileSize - pos);
 
-        ExtentBlock extents = _inode.Extents;
+        var extents = _inode.Extents;
 
         while (totalBytesRemaining > 0)
         {
-            uint logicalBlock = (uint)((pos + totalRead) / blockSize);
-            int blockOffset = (int)(pos + totalRead - logicalBlock * blockSize);
+            var logicalBlock = (uint)((pos + totalRead) / blockSize);
+            var blockOffset = (int)(pos + totalRead - logicalBlock * blockSize);
             int numRead;
 
             var extent = FindExtent(extents, logicalBlock);
@@ -147,8 +147,8 @@ internal class ExtentsFileBuffer : Buffer, IFileBuffer
             }
             else
             {
-                long physicalBlock = logicalBlock - extent.Value.FirstLogicalBlock + (long)extent.Value.FirstPhysicalBlock;
-                int toRead =
+                var physicalBlock = logicalBlock - extent.Value.FirstLogicalBlock + (long)extent.Value.FirstPhysicalBlock;
+                var toRead =
                     (int)
                     Math.Min(totalBytesRemaining,
                         (extent.Value.NumBlocks - (logicalBlock - extent.Value.FirstLogicalBlock)) * blockSize - blockOffset);
@@ -179,15 +179,15 @@ internal class ExtentsFileBuffer : Buffer, IFileBuffer
 
         var blockSize = (int)_context.SuperBlock.BlockSize;
 
-        int totalRead = 0;
-        int totalBytesRemaining = (int)Math.Min(count, _inode.FileSize - pos);
+        var totalRead = 0;
+        var totalBytesRemaining = (int)Math.Min(count, _inode.FileSize - pos);
 
-        ExtentBlock extents = _inode.Extents;
+        var extents = _inode.Extents;
 
         while (totalBytesRemaining > 0)
         {
-            uint logicalBlock = (uint)((pos + totalRead) / blockSize);
-            int blockOffset = (int)(pos + totalRead - logicalBlock * blockSize);
+            var logicalBlock = (uint)((pos + totalRead) / blockSize);
+            var blockOffset = (int)(pos + totalRead - logicalBlock * blockSize);
             int numRead;
 
             var extent = FindExtent(extents, logicalBlock);
@@ -209,8 +209,8 @@ internal class ExtentsFileBuffer : Buffer, IFileBuffer
             }
             else
             {
-                long physicalBlock = logicalBlock - extent.Value.FirstLogicalBlock + (long)extent.Value.FirstPhysicalBlock;
-                int toRead =
+                var physicalBlock = logicalBlock - extent.Value.FirstLogicalBlock + (long)extent.Value.FirstPhysicalBlock;
+                var toRead =
                     (int)
                     Math.Min(totalBytesRemaining,
                         (extent.Value.NumBlocks - (logicalBlock - extent.Value.FirstLogicalBlock)) * blockSize - blockOffset);
@@ -243,15 +243,15 @@ internal class ExtentsFileBuffer : Buffer, IFileBuffer
 
         var blockSize = (int)_context.SuperBlock.BlockSize;
 
-        int totalRead = 0;
-        int totalBytesRemaining = (int)Math.Min(buffer.Length, _inode.FileSize - pos);
+        var totalRead = 0;
+        var totalBytesRemaining = (int)Math.Min(buffer.Length, _inode.FileSize - pos);
 
-        ExtentBlock extents = _inode.Extents;
+        var extents = _inode.Extents;
 
         while (totalBytesRemaining > 0)
         {
-            uint logicalBlock = (uint)((pos + totalRead) / blockSize);
-            int blockOffset = (int)(pos + totalRead - logicalBlock * blockSize);
+            var logicalBlock = (uint)((pos + totalRead) / blockSize);
+            var blockOffset = (int)(pos + totalRead - logicalBlock * blockSize);
             int numRead;
 
             var extent = FindExtent(extents, logicalBlock);
@@ -272,8 +272,8 @@ internal class ExtentsFileBuffer : Buffer, IFileBuffer
             }
             else
             {
-                long physicalBlock = logicalBlock - extent.Value.FirstLogicalBlock + (long)extent.Value.FirstPhysicalBlock;
-                int toRead =
+                var physicalBlock = logicalBlock - extent.Value.FirstLogicalBlock + (long)extent.Value.FirstPhysicalBlock;
+                var toRead =
                     (int)
                     Math.Min(totalBytesRemaining,
                         (extent.Value.NumBlocks - (logicalBlock - extent.Value.FirstLogicalBlock)) * blockSize - blockOffset);
@@ -306,15 +306,15 @@ internal class ExtentsFileBuffer : Buffer, IFileBuffer
 
         var blockSize = (int)_context.SuperBlock.BlockSize;
 
-        int totalRead = 0;
-        int totalBytesRemaining = (int)Math.Min(buffer.Length, _inode.FileSize - pos);
+        var totalRead = 0;
+        var totalBytesRemaining = (int)Math.Min(buffer.Length, _inode.FileSize - pos);
 
-        ExtentBlock extents = _inode.Extents;
+        var extents = _inode.Extents;
 
         while (totalBytesRemaining > 0)
         {
-            uint logicalBlock = (uint)((pos + totalRead) / blockSize);
-            int blockOffset = (int)(pos + totalRead - logicalBlock * blockSize);
+            var logicalBlock = (uint)((pos + totalRead) / blockSize);
+            var blockOffset = (int)(pos + totalRead - logicalBlock * blockSize);
             int numRead;
 
             var extent = FindExtent(extents, logicalBlock);
@@ -336,8 +336,8 @@ internal class ExtentsFileBuffer : Buffer, IFileBuffer
             }
             else
             {
-                long physicalBlock = logicalBlock - extent.Value.FirstLogicalBlock + (long)extent.Value.FirstPhysicalBlock;
-                int toRead =
+                var physicalBlock = logicalBlock - extent.Value.FirstLogicalBlock + (long)extent.Value.FirstPhysicalBlock;
+                var toRead =
                     (int)
                     Math.Min(totalBytesRemaining,
                         (extent.Value.NumBlocks - (logicalBlock - extent.Value.FirstLogicalBlock)) * blockSize - blockOffset);
@@ -398,7 +398,7 @@ internal class ExtentsFileBuffer : Buffer, IFileBuffer
             }
             else
             {
-                for (int i = 0; i < node.Index.Length; ++i)
+                for (var i = 0; i < node.Index.Length; ++i)
                 {
                     if (node.Index[i].FirstLogicalBlock > logicalBlock)
                     {
@@ -410,7 +410,7 @@ internal class ExtentsFileBuffer : Buffer, IFileBuffer
 
             idxEntry ??= node.Index[node.Index.Length - 1];
 
-            ExtentBlock subBlock = LoadExtentBlock(idxEntry.Value);
+            var subBlock = LoadExtentBlock(idxEntry.Value);
             return FindExtent(subBlock, logicalBlock);
         }
 
@@ -428,7 +428,7 @@ internal class ExtentsFileBuffer : Buffer, IFileBuffer
                 return node.Extents[0];
             }
 
-            for (int i = 0; i < node.Extents.Length; ++i)
+            for (var i = 0; i < node.Extents.Length; ++i)
             {
                 if (node.Extents[i].FirstLogicalBlock > logicalBlock)
                 {
@@ -447,7 +447,7 @@ internal class ExtentsFileBuffer : Buffer, IFileBuffer
 
     private ExtentBlock LoadExtentBlock(ExtentIndex idxEntry)
     {
-        uint blockSize = _context.SuperBlock.BlockSize;
+        var blockSize = _context.SuperBlock.BlockSize;
 
         _context.RawStream.Position = idxEntry.LeafPhysicalBlock * blockSize;
 

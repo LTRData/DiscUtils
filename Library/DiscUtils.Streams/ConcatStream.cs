@@ -168,13 +168,13 @@ public class ConcatStream : SparseStream
     {
         CheckDisposed();
 
-        int totalRead = 0;
-        int numRead = 0;
+        var totalRead = 0;
+        var numRead = 0;
 
         do
         {
             long activeStreamStartPos;
-            int activeStream = GetActiveStream(out activeStreamStartPos);
+            var activeStream = GetActiveStream(out activeStreamStartPos);
 
             _streams[activeStream].Position = _position - activeStreamStartPos;
 
@@ -191,13 +191,13 @@ public class ConcatStream : SparseStream
     {
         CheckDisposed();
 
-        int totalRead = 0;
-        int numRead = 0;
+        var totalRead = 0;
+        var numRead = 0;
 
         do
         {
             long activeStreamStartPos;
-            int activeStream = GetActiveStream(out activeStreamStartPos);
+            var activeStream = GetActiveStream(out activeStreamStartPos);
 
             _streams[activeStream].Position = _position - activeStreamStartPos;
 
@@ -283,15 +283,15 @@ public class ConcatStream : SparseStream
     {
         CheckDisposed();
 
-        int totalWritten = 0;
+        var totalWritten = 0;
         while (totalWritten != buffer.Length)
         {
             // Offset of the stream = streamOffset
             long streamOffset;
-            int streamIdx = GetActiveStream(out streamOffset);
+            var streamIdx = GetActiveStream(out streamOffset);
 
             // Offset within the stream = streamPos
-            long streamPos = _position - streamOffset;
+            var streamPos = _position - streamOffset;
             _streams[streamIdx].Position = streamPos;
 
             // Write (limited to the stream's length), except for final stream - that may be
@@ -317,15 +317,15 @@ public class ConcatStream : SparseStream
     {
         CheckDisposed();
 
-        int totalWritten = 0;
+        var totalWritten = 0;
         while (totalWritten != buffer.Length)
         {
             // Offset of the stream = streamOffset
             long streamOffset;
-            int streamIdx = GetActiveStream(out streamOffset);
+            var streamIdx = GetActiveStream(out streamOffset);
 
             // Offset within the stream = streamPos
-            long streamPos = _position - streamOffset;
+            var streamPos = _position - streamOffset;
             _streams[streamIdx].Position = streamPos;
 
             // Write (limited to the stream's length), except for final stream - that may be

@@ -129,7 +129,7 @@ public sealed class Disk : VirtualDisk
     /// <summary>
     /// Gets the geometry of the disk.
     /// </summary>
-    public override Geometry Geometry => _diskImage.Geometry;
+    public override Geometry? Geometry => _diskImage.Geometry;
 
     /// <summary>
     /// Gets the layers that make up the disk.

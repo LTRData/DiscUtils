@@ -340,7 +340,7 @@ public sealed class Disk : VirtualDisk
     /// <summary>
     /// Gets the geometry of the disk.
     /// </summary>
-    public override Geometry Geometry => _files[0].DiakImageFile.Geometry;
+    public override Geometry? Geometry => _files[0].DiakImageFile.Geometry;
 
     /// <summary>
     /// Gets the layers that make up the disk.
@@ -365,7 +365,7 @@ public sealed class Disk : VirtualDisk
     /// <returns>An object that accesses the stream as a VHD file.</returns>
     public static Disk InitializeFixed(Stream stream, Ownership ownsStream, long capacity)
     {
-        return InitializeFixed(stream, ownsStream, capacity, default);
+        return InitializeFixed(stream, ownsStream, capacity, null);
     }
 
     /// <summary>
@@ -376,7 +376,7 @@ public sealed class Disk : VirtualDisk
     /// <param name="capacity">The desired capacity of the new disk.</param>
     /// <param name="geometry">The desired geometry of the new disk, or <c>null</c> for default.</param>
     /// <returns>An object that accesses the stream as a VHD file.</returns>
-    public static Disk InitializeFixed(Stream stream, Ownership ownsStream, long capacity, Geometry geometry)
+    public static Disk InitializeFixed(Stream stream, Ownership ownsStream, long capacity, Geometry? geometry)
     {
         return new Disk(DiskImageFile.InitializeFixed(stream, ownsStream, capacity, geometry), Ownership.Dispose);
     }
@@ -390,7 +390,7 @@ public sealed class Disk : VirtualDisk
     /// <returns>An object that accesses the stream as a VHD file.</returns>
     public static Disk InitializeDynamic(Stream stream, Ownership ownsStream, long capacity)
     {
-        return InitializeDynamic(stream, ownsStream, capacity, default(Geometry));
+        return InitializeDynamic(stream, ownsStream, capacity, null);
     }
 
     /// <summary>
@@ -401,7 +401,7 @@ public sealed class Disk : VirtualDisk
     /// <param name="capacity">The desired capacity of the new disk.</param>
     /// <param name="geometry">The desired geometry of the new disk, or <c>null</c> for default.</param>
     /// <returns>An object that accesses the stream as a VHD file.</returns>
-    public static Disk InitializeDynamic(Stream stream, Ownership ownsStream, long capacity, Geometry geometry)
+    public static Disk InitializeDynamic(Stream stream, Ownership ownsStream, long capacity, Geometry? geometry)
     {
         return new Disk(DiskImageFile.InitializeDynamic(stream, ownsStream, capacity, geometry), Ownership.Dispose);
     }
@@ -501,12 +501,12 @@ public sealed class Disk : VirtualDisk
         return new Disk(file, Ownership.Dispose);
     }
 
-    internal static Disk InitializeFixed(FileLocator fileLocator, string path, long capacity, Geometry geometry)
+    internal static Disk InitializeFixed(FileLocator fileLocator, string path, long capacity, Geometry? geometry)
     {
         return new Disk(DiskImageFile.InitializeFixed(fileLocator, path, capacity, geometry), Ownership.Dispose);
     }
 
-    internal static Disk InitializeDynamic(FileLocator fileLocator, string path, long capacity, Geometry geometry,
+    internal static Disk InitializeDynamic(FileLocator fileLocator, string path, long capacity, Geometry? geometry,
                                            long blockSize)
     {
         return new Disk(DiskImageFile.InitializeDynamic(fileLocator, path, capacity, geometry, blockSize),

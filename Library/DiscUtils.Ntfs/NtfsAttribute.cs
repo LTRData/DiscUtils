@@ -235,7 +235,7 @@ internal class NtfsAttribute : IDiagnosticTraceable
                 var numBytes = s.Read(buffer);
                 for (var i = 0; i < numBytes; ++i)
                 {
-                    hex = hex + $" {buffer[i]:X2}";
+                    hex += $" {buffer[i]:X2}";
                 }
 
                 writer.WriteLine($"{indent}    Data: {hex}{(numBytes < s.Length ? "..." : string.Empty)}");
