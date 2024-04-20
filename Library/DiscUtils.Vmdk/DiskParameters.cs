@@ -86,7 +86,7 @@ public sealed class DiskParameters
     /// <summary>
     /// Gets or sets the BIOS Geometry of the virtual disk.
     /// </summary>
-    public Geometry BiosGeometry { get; set; }
+    public Geometry? BiosGeometry { get; set; }
 
     /// <summary>
     /// Gets or sets the capacity of the virtual disk.
@@ -101,5 +101,5 @@ public sealed class DiskParameters
     /// <summary>
     /// Gets or sets the Physical Geometry of the virtual disk.
     /// </summary>
-    public Geometry Geometry { get; set; }
+    public Geometry? Geometry { get; set; }
 }

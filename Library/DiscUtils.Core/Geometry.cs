@@ -30,7 +30,7 @@ namespace DiscUtils;
 /// Struct that represent disk geometries.
 /// </summary>
 /// <remarks>Instances of this struct are immutable.</remarks>
-public sealed class Geometry : IEquatable<Geometry>
+public readonly struct Geometry : IEquatable<Geometry>
 {
     /// <summary>
     /// Initializes a new instance of the Geometry class.  The default 512 bytes per sector is assumed.
@@ -199,19 +199,19 @@ public sealed class Geometry : IEquatable<Geometry>
     /// <param name="capacity">The capacity of the disk.</param>
     /// <returns>The new geometry.</returns>
     /// <remarks>This method returns the LBA-Assisted geometry if the given geometry isn't BIOS-safe.</remarks>
-    public static Geometry MakeBiosSafe(Geometry geometry, long capacity)
+    public static Geometry MakeBiosSafe(Geometry? geometry, long capacity)
     {
         if (geometry == null)
         {
             return LbaAssistedBiosGeometry(capacity, Sizes.Sector);
         }
 
-        if (geometry.IsBiosSafe)
+        if (geometry.Value.IsBiosSafe)
         {
-            return geometry;
+            return geometry.Value;
         }
 
-        return LbaAssistedBiosGeometry(capacity, geometry.BytesPerSector);
+        return LbaAssistedBiosGeometry(capacity, geometry.Value.BytesPerSector);
     }
 
     /// <summary>
@@ -424,16 +424,10 @@ public sealed class Geometry : IEquatable<Geometry>
     /// <param name="other">The object to test against.</param>
     /// <returns><c>true</c> if the <paramref name="other"/> is equivalent, else <c>false</c>.</returns>
     public bool Equals(Geometry other)
-    {
-        return other is not null &&
-            Cylinders == other.Cylinders && HeadsPerCylinder == other.HeadsPerCylinder &&
-            SectorsPerTrack == other.SectorsPerTrack && BytesPerSector == other.BytesPerSector;
-    }
+        => Cylinders == other.Cylinders && HeadsPerCylinder == other.HeadsPerCylinder &&
+        SectorsPerTrack == other.SectorsPerTrack && BytesPerSector == other.BytesPerSector;
 
-    public static bool Equals(Geometry a, Geometry b)
-    {
-        return ReferenceEquals(a, b) || (a is not null && a.Equals(b));
-    }
+    public static bool Equals(Geometry a, Geometry b) => a.Equals(b);
 
     /// <summary>
     /// Determines if this object is equivalent to another.

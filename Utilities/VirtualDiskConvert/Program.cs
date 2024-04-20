@@ -83,7 +83,7 @@ class Program : ProgramBase
 
         if (_translation.IsPresent && _translation.EnumValue != GeometryTranslation.None)
         {
-            diskParams.BiosGeometry = diskParams.Geometry.TranslateToBios(diskParams.Capacity, _translation.EnumValue);
+            diskParams.BiosGeometry = diskParams.Geometry.Value.TranslateToBios(diskParams.Capacity, _translation.EnumValue);
         }
         else if (!inDisk.DiskTypeInfo.PreservesBiosGeometry)
         {

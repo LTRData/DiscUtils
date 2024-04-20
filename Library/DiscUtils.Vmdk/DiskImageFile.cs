@@ -177,7 +177,8 @@ public sealed class DiskImageFile : VirtualDiskLayer
     /// <summary>
     /// Gets the BIOS geometry of this disk.
     /// </summary>
-    internal Geometry BiosGeometry => _descriptor.BiosGeometry;
+    internal Geometry BiosGeometry => _descriptor.BiosGeometry
+        ?? throw new InvalidOperationException("Unknown geometry");
 
     /// <summary>
     /// Gets the capacity of this disk (in bytes).
@@ -247,7 +248,8 @@ public sealed class DiskImageFile : VirtualDiskLayer
     /// <summary>
     /// Gets the Geometry of this disk.
     /// </summary>
-    public override Geometry Geometry => _descriptor.DiskGeometry;
+    public override Geometry Geometry => _descriptor.DiskGeometry
+        ?? throw new InvalidOperationException("Unknown geometry");
 
     /// <summary>
     /// Gets an indication as to whether the disk file is sparse.
@@ -323,7 +325,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
     /// <param name="createType">The type of virtual disk to create.</param>
     /// <param name="useAsync">Underlying files will be opened optimized for async use.</param>
     /// <returns>The newly created disk image.</returns>
-    public static DiskImageFile Initialize(string path, long capacity, Geometry geometry, DiskCreateType createType, bool useAsync = false)
+    public static DiskImageFile Initialize(string path, long capacity, Geometry? geometry, DiskCreateType createType, bool useAsync = false)
     {
         var diskParams = new DiskParameters
         {
@@ -345,7 +347,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
     /// <param name="adapterType">The type of disk adapter used with the disk.</param>
     /// <param name="useAsync">Underlying files will be opened optimized for async use.</param>
     /// <returns>The newly created disk image.</returns>
-    public static DiskImageFile Initialize(string path, long capacity, Geometry geometry, DiskCreateType createType,
+    public static DiskImageFile Initialize(string path, long capacity, Geometry? geometry, DiskCreateType createType,
                                            DiskAdapterType adapterType, bool useAsync = false)
     {
         var diskParams = new DiskParameters
@@ -524,17 +526,10 @@ public sealed class DiskImageFile : VirtualDiskLayer
             throw new ArgumentException("Capacity must be greater than zero", nameof(parameters));
         }
 
-        var geometry = parameters.Geometry != default ? parameters.Geometry : DefaultGeometry(parameters.Capacity);
+        var geometry = parameters.Geometry ?? DefaultGeometry(parameters.Capacity);
 
-        Geometry biosGeometry;
-        if (parameters.BiosGeometry != default)
-        {
-            biosGeometry = parameters.BiosGeometry;
-        }
-        else
-        {
-            biosGeometry = Geometry.MakeBiosSafe(geometry, parameters.Capacity);
-        }
+        var biosGeometry = parameters.BiosGeometry ??
+            Geometry.MakeBiosSafe(geometry, parameters.Capacity);
 
         var adapterType = parameters.AdapterType == DiskAdapterType.None
             ? DiskAdapterType.LsiLogicScsi
@@ -574,7 +569,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
         return new Geometry(cylinders, heads, sectors);
     }
 
-    internal static DescriptorFile CreateSimpleDiskDescriptor(Geometry geometry, Geometry biosGeometery,
+    internal static DescriptorFile CreateSimpleDiskDescriptor(Geometry? geometry, Geometry? biosGeometery,
                                                               DiskCreateType createType, DiskAdapterType adapterType)
     {
         var baseDescriptor = new DescriptorFile

@@ -104,7 +104,8 @@ class Program : ProgramBase
         {
             contentBuilder = new BiosPartitionedDiskBuilder(disk);
             biosGeometry = disk.BiosGeometry;
-            ideGeometry = disk.Geometry;
+            ideGeometry = disk.Geometry
+                ?? throw new NotSupportedException("Unknown disk geometry");
             capacity = disk.Capacity;
         }
 
@@ -126,7 +127,7 @@ class Program : ProgramBase
 
         if (translation != GeometryTranslation.None)
         {
-            contentBuilder.UpdateBiosGeometry(builder.BiosGeometry);
+            contentBuilder.UpdateBiosGeometry(builder.BiosGeometry.Value);
         }
 
         IVssBackupComponents backupCmpnts;
@@ -197,7 +198,7 @@ class Program : ProgramBase
 
                 if (translation != GeometryTranslation.None)
                 {
-                    ntfs.UpdateBiosGeometry(builder.BiosGeometry);
+                    ntfs.UpdateBiosGeometry(builder.BiosGeometry.Value);
                 }
             }
 

@@ -82,7 +82,7 @@ internal sealed class Disc : VirtualDisk
     /// <summary>
     /// Gets the geometry of the disk.
     /// </summary>
-    public override Geometry Geometry => _file.Geometry;
+    public override Geometry? Geometry => _file.Geometry;
 
     /// <summary>
     /// Gets the layers that make up the disc.

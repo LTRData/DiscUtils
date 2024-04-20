@@ -92,7 +92,7 @@ public sealed class Disk : VirtualDisk
     /// </summary>
     /// <remarks>The geometry is not stored with the disk, so this is at best
     /// a guess of the actual geometry.</remarks>
-    public override Geometry Geometry => Geometry.FromCapacity(_capacity);
+    public override Geometry? Geometry => DiscUtils.Geometry.FromCapacity(_capacity);
 
     /// <summary>
     /// Gets the (single) layer of an XVA disk.

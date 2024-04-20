@@ -108,13 +108,13 @@ public class Disk : VirtualDisk
         CanBeHardDisk = true,
         DeterministicGeometry = false,
         PreservesBiosGeometry = false,
-        CalcGeometry = Geometry.FromCapacity
+        CalcGeometry = DiscUtils.Geometry.FromCapacity
     };
 
     /// <summary>
     /// The Geometry of the disk.
     /// </summary>
-    public override Geometry Geometry
+    public override Geometry? Geometry
     {
         get
         {

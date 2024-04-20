@@ -74,7 +74,7 @@ class Disk : VirtualDisk
         }
     }
 
-    public override Geometry Geometry => Geometry.FromCapacity(Capacity);
+    public override Geometry? Geometry => DiscUtils.Geometry.FromCapacity(Capacity);
 
     public override Geometry BiosGeometry
     {
@@ -98,7 +98,7 @@ class Disk : VirtualDisk
         CanBeHardDisk = true,
         DeterministicGeometry = false,
         PreservesBiosGeometry = false,
-        CalcGeometry = Geometry.FromCapacity,
+        CalcGeometry = DiscUtils.Geometry.FromCapacity,
     };
 
     public override VirtualDisk CreateDifferencingDisk(DiscFileSystem fileSystem, string path)

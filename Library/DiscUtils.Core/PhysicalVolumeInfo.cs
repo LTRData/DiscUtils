@@ -148,7 +148,7 @@ public sealed class PhysicalVolumeInfo : VolumeInfo
     /// <summary>
     /// Gets the disk geometry of the underlying storage medium, if any (may be null).
     /// </summary>
-    public override Geometry PhysicalGeometry => _disk.Geometry;
+    public override Geometry? PhysicalGeometry => _disk.Geometry;
 
     /// <summary>
     /// Gets the offset of this volume in the underlying storage medium, if any (may be Zero).

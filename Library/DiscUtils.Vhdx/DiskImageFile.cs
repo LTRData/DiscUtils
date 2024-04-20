@@ -272,7 +272,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
     /// <returns>An object that accesses the stream as a VHDX file.</returns>
     public static DiskImageFile InitializeFixed(Stream stream, Ownership ownsStream, long capacity)
     {
-        return InitializeFixed(stream, ownsStream, capacity, default(Geometry));
+        return InitializeFixed(stream, ownsStream, capacity, null);
     }
 
     /// <summary>
@@ -284,7 +284,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
     /// <param name="geometry">The desired geometry of the new disk, or <c>null</c> for default.</param>
     /// <returns>An object that accesses the stream as a VHDX file.</returns>
     public static DiskImageFile InitializeFixed(Stream stream, Ownership ownsStream, long capacity,
-                                                Geometry geometry)
+                                                Geometry? geometry)
     {
         InitializeFixedInternal(stream, capacity, geometry);
         return new DiskImageFile(stream, ownsStream);
@@ -311,7 +311,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
     /// <param name="capacity">The desired capacity of the new disk.</param>
     /// <param name="geometry"></param>
     /// <returns>An object that accesses the stream as a VHDX file.</returns>
-    public static DiskImageFile InitializeDynamic(Stream stream, Ownership ownsStream, long capacity, Geometry geometry)
+    public static DiskImageFile InitializeDynamic(Stream stream, Ownership ownsStream, long capacity, Geometry? geometry)
     {
         InitializeDynamicInternal(stream, capacity, geometry, FileParameters.DefaultDynamicBlockSize);
         return new DiskImageFile(stream, ownsStream);
@@ -326,7 +326,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
     /// <param name="geometry"></param>
     /// <param name="blockSize">The size of each block (unit of allocation).</param>
     /// <returns>An object that accesses the stream as a VHDX file.</returns>
-    public static DiskImageFile InitializeDynamic(Stream stream, Ownership ownsStream, long capacity, Geometry geometry, long blockSize)
+    public static DiskImageFile InitializeDynamic(Stream stream, Ownership ownsStream, long capacity, Geometry? geometry, long blockSize)
     {
         InitializeDynamicInternal(stream, capacity, geometry, blockSize);
 
@@ -401,7 +401,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
         return GetParentLocations(new LocalFileLocator(basePath, useAsync: false));
     }
 
-    internal static DiskImageFile InitializeFixed(FileLocator locator, string path, long capacity, Geometry geometry)
+    internal static DiskImageFile InitializeFixed(FileLocator locator, string path, long capacity, Geometry? geometry)
     {
         DiskImageFile result = null;
         var stream = locator.Open(path, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
@@ -419,7 +419,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
         return result;
     }
 
-    internal static DiskImageFile InitializeDynamic(FileLocator locator, string path, long capacity, Geometry geometry, long blockSize)
+    internal static DiskImageFile InitializeDynamic(FileLocator locator, string path, long capacity, Geometry? geometry, long blockSize)
     {
         DiskImageFile result = null;
         var stream = locator.Open(path, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
@@ -498,12 +498,12 @@ public sealed class DiskImageFile : VirtualDiskLayer
         }
     }
 
-    private static void InitializeFixedInternal(Stream stream, long capacity, Geometry geometry)
+    private static void InitializeFixedInternal(Stream stream, long capacity, Geometry? geometry)
     {
         throw new NotImplementedException();
     }
 
-    private static void InitializeDynamicInternal(Stream stream, long capacity, Geometry geometry, long blockSize)
+    private static void InitializeDynamicInternal(Stream stream, long capacity, Geometry? geometry, long blockSize)
     {
         if (blockSize < Sizes.OneMiB || blockSize > Sizes.OneMiB * 256 || !Utilities.IsPowerOfTwo(blockSize))
         {
@@ -513,7 +513,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
 
         geometry ??= Geometry.FromCapacity(capacity);
 
-        var logicalSectorSize = geometry.BytesPerSector;
+        var logicalSectorSize = geometry.Value.BytesPerSector;
         var physicalSectorSize = 4096;
         var chunkRatio = 0x800000L * logicalSectorSize / blockSize;
         var dataBlocksCount = MathUtilities.Ceil(capacity, blockSize);
@@ -617,39 +617,47 @@ public sealed class DiskImageFile : VirtualDiskLayer
 
         var fileEnd = Sizes.OneMiB;
 
-        var header1 = new VhdxHeader();
-        header1.SequenceNumber = 0;
-        header1.FileWriteGuid = Guid.NewGuid();
-        header1.DataWriteGuid = Guid.NewGuid();
-        header1.LogGuid = Guid.Empty;
-        header1.LogVersion = 0;
-        header1.Version = 1;
-        header1.LogLength = (uint)Sizes.OneMiB;
-        header1.LogOffset = (ulong)fileEnd;
+        var header1 = new VhdxHeader
+        {
+            SequenceNumber = 0,
+            FileWriteGuid = Guid.NewGuid(),
+            DataWriteGuid = Guid.NewGuid(),
+            LogGuid = Guid.Empty,
+            LogVersion = 0,
+            Version = 1,
+            LogLength = (uint)Sizes.OneMiB,
+            LogOffset = (ulong)fileEnd
+        };
         header1.CalcChecksum();
 
         fileEnd += header1.LogLength;
 
-        var header2 = new VhdxHeader(header1);
-        header2.SequenceNumber = 1;
+        var header2 = new VhdxHeader(header1)
+        {
+            SequenceNumber = 1
+        };
         header2.CalcChecksum();
 
         var regionTable = new RegionTable();
 
-        var metadataRegion = new RegionEntry();
-        metadataRegion.Guid = RegionEntry.MetadataRegionGuid;
-        metadataRegion.FileOffset = fileEnd;
-        metadataRegion.Length = (uint)Sizes.OneMiB;
-        metadataRegion.Flags = RegionFlags.Required;
+        var metadataRegion = new RegionEntry
+        {
+            Guid = RegionEntry.MetadataRegionGuid,
+            FileOffset = fileEnd,
+            Length = (uint)Sizes.OneMiB,
+            Flags = RegionFlags.Required
+        };
         regionTable.Regions.Add(metadataRegion.Guid, metadataRegion);
 
         fileEnd += metadataRegion.Length;
 
-        var batRegion = new RegionEntry();
-        batRegion.Guid = RegionEntry.BatGuid;
-        batRegion.FileOffset = 3 * Sizes.OneMiB;
-        batRegion.Length = (uint)MathUtilities.RoundUp(totalBatEntriesDynamic * 8, Sizes.OneMiB);
-        batRegion.Flags = RegionFlags.Required;
+        var batRegion = new RegionEntry
+        {
+            Guid = RegionEntry.BatGuid,
+            FileOffset = 3 * Sizes.OneMiB,
+            Length = (uint)MathUtilities.RoundUp(totalBatEntriesDynamic * 8, Sizes.OneMiB),
+            Flags = RegionFlags.Required
+        };
         regionTable.Regions.Add(batRegion.Guid, batRegion);
 
         fileEnd += batRegion.Length;
@@ -852,7 +860,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
                 currentTail = currentSequence.Head.Position + LogEntry.LogSectorSize;
             }
 
-            currentTail = currentTail % logStream.Length;
+            currentTail %= logStream.Length;
         } while (currentTail > oldTail);
 
         return candidateActiveSequence;

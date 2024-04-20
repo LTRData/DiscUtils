@@ -23,6 +23,7 @@
 using System.Collections.Generic;
 using System.IO;
 using DiscUtils.Iso9660;
+using DiscUtils.Streams;
 using DiscUtils.Udf;
 using DiscUtils.Vfs;
 
@@ -48,7 +49,7 @@ internal class FileSystemFactory : VfsFileSystemFactory
     {
         if (volumeInfo != null)
         {
-            return new UdfReader(stream, volumeInfo.PhysicalGeometry.BytesPerSector);
+            return new UdfReader(stream, volumeInfo.PhysicalGeometry?.BytesPerSector ?? Sizes.Sector);
         }
 
         return new UdfReader(stream);

@@ -139,15 +139,13 @@ public sealed class Disk : VirtualDisk
     {
         get
         {
-            var result = _files[_files.Count - 1].VirtualDiskLayer is DiskImageFile file
-                ? file.BiosGeometry
-                : default;
+            if (_files[_files.Count - 1].VirtualDiskLayer is DiskImageFile file)
+            {
+                return file.BiosGeometry;
+            }
             
-            result = result != default
-                ? result
-                : Geometry.MakeBiosSafe(_files[_files.Count - 1].VirtualDiskLayer.Geometry, Capacity);
-
-            return result;
+            return
+                 DiscUtils.Geometry.MakeBiosSafe(_files[_files.Count - 1].VirtualDiskLayer.Geometry, Capacity);
         }
     }
 
@@ -196,7 +194,7 @@ public sealed class Disk : VirtualDisk
     /// <summary>
     /// Gets the Geometry of this disk.
     /// </summary>
-    public override Geometry Geometry => _files[_files.Count - 1].VirtualDiskLayer.Geometry;
+    public override Geometry? Geometry => _files[_files.Count - 1].VirtualDiskLayer.Geometry;
 
     /// <summary>
     /// Gets the layers that make up the disk.
@@ -287,7 +285,7 @@ public sealed class Disk : VirtualDisk
     /// <returns>The newly created disk image.</returns>
     public static Disk Initialize(string path, long capacity, DiskCreateType type)
     {
-        return Initialize(path, capacity, default, type);
+        return Initialize(path, capacity, null, type);
     }
 
     /// <summary>
@@ -300,7 +298,7 @@ public sealed class Disk : VirtualDisk
     /// <returns>The newly created disk image.</returns>
     public static Disk Initialize(string path, long capacity, DiskCreateType type, bool useAsync)
     {
-        return Initialize(path, capacity, default, type, useAsync);
+        return Initialize(path, capacity, null, type, useAsync);
     }
 
     /// <summary>
@@ -311,7 +309,7 @@ public sealed class Disk : VirtualDisk
     /// <param name="geometry">The desired geometry of the new disk, or <c>null</c> for default.</param>
     /// <param name="type">The type of virtual disk to create.</param>
     /// <returns>The newly created disk image.</returns>
-    public static Disk Initialize(string path, long capacity, Geometry geometry, DiskCreateType type)
+    public static Disk Initialize(string path, long capacity, Geometry? geometry, DiskCreateType type)
     {
         return new Disk(DiskImageFile.Initialize(path, capacity, geometry, type), Ownership.Dispose);
     }
@@ -325,7 +323,7 @@ public sealed class Disk : VirtualDisk
     /// <param name="type">The type of virtual disk to create.</param>
     /// <param name="useAsync">Underlying files will be opened optimized for async use.</param>
     /// <returns>The newly created disk image.</returns>
-    public static Disk Initialize(string path, long capacity, Geometry geometry, DiskCreateType type, bool useAsync)
+    public static Disk Initialize(string path, long capacity, Geometry? geometry, DiskCreateType type, bool useAsync)
     {
         return new Disk(DiskImageFile.Initialize(path, capacity, geometry, type, useAsync), Ownership.Dispose);
     }
@@ -353,7 +351,7 @@ public sealed class Disk : VirtualDisk
     /// <returns>The newly created disk image.</returns>
     public static Disk Initialize(string path, long capacity, DiskCreateType type, DiskAdapterType adapterType)
     {
-        return Initialize(path, capacity, default, type, adapterType);
+        return Initialize(path, capacity, null, type, adapterType);
     }
 
     /// <summary>
@@ -367,7 +365,7 @@ public sealed class Disk : VirtualDisk
     /// <returns>The newly created disk image.</returns>
     public static Disk Initialize(string path, long capacity, DiskCreateType type, DiskAdapterType adapterType, bool useAsync)
     {
-        return Initialize(path, capacity, default, type, adapterType, useAsync);
+        return Initialize(path, capacity, null, type, adapterType, useAsync);
     }
 
     /// <summary>
@@ -379,7 +377,7 @@ public sealed class Disk : VirtualDisk
     /// <param name="type">The type of virtual disk to create.</param>
     /// <param name="adapterType">The type of virtual disk adapter.</param>
     /// <returns>The newly created disk image.</returns>
-    public static Disk Initialize(string path, long capacity, Geometry geometry, DiskCreateType type,
+    public static Disk Initialize(string path, long capacity, Geometry? geometry, DiskCreateType type,
                                   DiskAdapterType adapterType)
     {
         return new Disk(DiskImageFile.Initialize(path, capacity, geometry, type, adapterType), Ownership.Dispose);
@@ -395,7 +393,7 @@ public sealed class Disk : VirtualDisk
     /// <param name="adapterType">The type of virtual disk adapter.</param>
     /// <param name="useAsync">Underlying files will be opened optimized for async use.</param>
     /// <returns>The newly created disk image.</returns>
-    public static Disk Initialize(string path, long capacity, Geometry geometry, DiskCreateType type,
+    public static Disk Initialize(string path, long capacity, Geometry? geometry, DiskCreateType type,
                                   DiskAdapterType adapterType, bool useAsync)
     {
         return new Disk(DiskImageFile.Initialize(path, capacity, geometry, type, adapterType, useAsync), Ownership.Dispose);

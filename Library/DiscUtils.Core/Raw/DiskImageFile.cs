@@ -48,7 +48,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
     /// <param name="stream">The stream to interpret.</param>
     /// <param name="ownsStream">Indicates if the new instance should control the lifetime of the stream.</param>
     /// <param name="geometry">The emulated geometry of the disk.</param>
-    public DiskImageFile(Stream stream, Ownership ownsStream, Geometry geometry = default)
+    public DiskImageFile(Stream stream, Ownership ownsStream, Geometry? geometry = null)
     {
         Content = stream as SparseStream;
         _ownsContent = ownsStream;
@@ -59,7 +59,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
             _ownsContent = Ownership.Dispose;
         }
 
-        Geometry = geometry != default ? geometry : DetectGeometry(Content);
+        Geometry = geometry ?? DetectGeometry(Content);
     }
 
     public override long Capacity => Content.Length;
@@ -96,7 +96,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
     /// <param name="capacity">The desired capacity of the new disk.</param>
     /// <param name="geometry">The geometry of the new disk.</param>
     /// <returns>An object that accesses the stream as a raw disk image.</returns>
-    public static DiskImageFile Initialize(Stream stream, Ownership ownsStream, long capacity, Geometry geometry = default)
+    public static DiskImageFile Initialize(Stream stream, Ownership ownsStream, long capacity, Geometry? geometry = null)
     {
         stream.SetLength(MathUtilities.RoundUp(capacity, Sizes.Sector));
 

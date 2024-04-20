@@ -103,8 +103,8 @@ public sealed class DiskBuilder : DiskImageBuilder
             throw new NotImplementedException("Only MonolithicSparse, Vmfs and VmfsSparse disks implemented");
         }
 
-        var geometry = Geometry != default ? Geometry : DiskImageFile.DefaultGeometry(Content.Length);
-        var biosGeometry = BiosGeometry != default ? BiosGeometry : Geometry.LbaAssistedBiosGeometry(Content.Length, Sizes.Sector);
+        var geometry = Geometry ?? DiskImageFile.DefaultGeometry(Content.Length);
+        var biosGeometry = BiosGeometry ?? DiscUtils.Geometry.LbaAssistedBiosGeometry(Content.Length, Sizes.Sector);
 
         var baseDescriptor = DiskImageFile.CreateSimpleDiskDescriptor(geometry, biosGeometry, DiskType,
             AdapterType);

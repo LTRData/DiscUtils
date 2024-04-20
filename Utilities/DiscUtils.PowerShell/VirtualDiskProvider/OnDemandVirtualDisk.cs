@@ -69,7 +69,7 @@ internal sealed class OnDemandVirtualDisk : VirtualDisk
         }
     }
 
-    public override Geometry Geometry
+    public override Geometry? Geometry
     {
         get
         {

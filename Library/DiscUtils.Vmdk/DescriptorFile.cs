@@ -81,7 +81,7 @@ internal class DescriptorFile
         set => SetDiskDatabase(DiskDbAdapterType, FormatAdapterType(value));
     }
 
-    public Geometry BiosGeometry
+    public Geometry? BiosGeometry
     {
         get
         {
@@ -97,13 +97,18 @@ internal class DescriptorFile
                     int.Parse(sectorsStr, CultureInfo.InvariantCulture));
             }
 
-            return default;
+            return null;
         }
         set
         {
-            SetDiskDatabase(DiskDbBiosCylinders, value.Cylinders.ToString(CultureInfo.InvariantCulture));
-            SetDiskDatabase(DiskDbBiosHeads, value.HeadsPerCylinder.ToString(CultureInfo.InvariantCulture));
-            SetDiskDatabase(DiskDbBiosSectors, value.SectorsPerTrack.ToString(CultureInfo.InvariantCulture));
+            if (value is null)
+            {
+                throw new InvalidOperationException("A valid geometry is needed");
+            }
+
+            SetDiskDatabase(DiskDbBiosCylinders, value.Value.Cylinders.ToString(CultureInfo.InvariantCulture));
+            SetDiskDatabase(DiskDbBiosHeads, value.Value.HeadsPerCylinder.ToString(CultureInfo.InvariantCulture));
+            SetDiskDatabase(DiskDbBiosSectors, value.Value.SectorsPerTrack.ToString(CultureInfo.InvariantCulture));
         }
     }
 
@@ -120,7 +125,7 @@ internal class DescriptorFile
         set => SetHeader(HeaderCreateType, FormatCreateType(value), DescriptorFileEntryType.Plain);
     }
 
-    public Geometry DiskGeometry
+    public Geometry? DiskGeometry
     {
         get
         {
@@ -136,14 +141,19 @@ internal class DescriptorFile
                     int.Parse(sectorsStr, CultureInfo.InvariantCulture));
             }
 
-            return default;
+            return null;
         }
 
         set
         {
-            SetDiskDatabase(DiskDbCylinders, value.Cylinders.ToString(CultureInfo.InvariantCulture));
-            SetDiskDatabase(DiskDbHeads, value.HeadsPerCylinder.ToString(CultureInfo.InvariantCulture));
-            SetDiskDatabase(DiskDbSectors, value.SectorsPerTrack.ToString(CultureInfo.InvariantCulture));
+            if (value is null)
+            {
+                throw new InvalidOperationException("A valid geometry is needed");
+            }
+
+            SetDiskDatabase(DiskDbCylinders, value.Value.Cylinders.ToString(CultureInfo.InvariantCulture));
+            SetDiskDatabase(DiskDbHeads, value.Value.HeadsPerCylinder.ToString(CultureInfo.InvariantCulture));
+            SetDiskDatabase(DiskDbSectors, value.Value.SectorsPerTrack.ToString(CultureInfo.InvariantCulture));
         }
     }
 

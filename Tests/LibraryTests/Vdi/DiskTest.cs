@@ -38,8 +38,8 @@ public class DiskTest
         using (var disk = Disk.InitializeFixed(ms, Ownership.None, 8 * 1024 * 1024))
         {
             Assert.NotNull(disk);
-            Assert.True(disk.Geometry.Capacity is > (long)(7.5 * 1024 * 1024) and < (8 * 1024 * 1024));
-            Assert.True(disk.Geometry.Capacity <= disk.Content.Length);
+            Assert.True(disk.Geometry.Value.Capacity is > (long)(7.5 * 1024 * 1024) and < (8 * 1024 * 1024));
+            Assert.True(disk.Geometry.Value.Capacity <= disk.Content.Length);
         }
 
         // Check the stream is still valid
@@ -65,16 +65,16 @@ public class DiskTest
         using (var disk = Disk.InitializeDynamic(ms, Ownership.None, 16 * 1024L * 1024 * 1024))
         {
             Assert.NotNull(disk);
-            Assert.True(disk.Geometry.Capacity is > (long)(15.8 * 1024L * 1024 * 1024) and < (16 * 1024L * 1024 * 1024));
-            Assert.True(disk.Geometry.Capacity <= disk.Content.Length);
+            Assert.True(disk.Geometry.Value.Capacity is > (long)(15.8 * 1024L * 1024 * 1024) and < (16 * 1024L * 1024 * 1024));
+            Assert.True(disk.Geometry.Value.Capacity <= disk.Content.Length);
         }
 
         Assert.True(1 * 1024 * 1024 > ms.Length);
 
         using (var disk = new Disk(ms))
         {
-            Assert.True(disk.Geometry.Capacity is > (long)(15.8 * 1024L * 1024 * 1024) and < (16 * 1024L * 1024 * 1024));
-            Assert.True(disk.Geometry.Capacity <= disk.Content.Length);
+            Assert.True(disk.Geometry.Value.Capacity is > (long)(15.8 * 1024L * 1024 * 1024) and < (16 * 1024L * 1024 * 1024));
+            Assert.True(disk.Geometry.Value.Capacity <= disk.Content.Length);
         }
     }
 
@@ -85,7 +85,7 @@ public class DiskTest
         var ms = new MemoryStream();
         using (var disk = Disk.InitializeDynamic(ms, Ownership.None, 16 * 1024L * 1024 * 1024))
         {
-            geometry = disk.Geometry;
+            geometry = disk.Geometry.Value;
         }
 
         using (var disk = new Disk(ms))

@@ -219,7 +219,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
     /// <returns>An object that accesses the stream as a VHD file.</returns>
     public static DiskImageFile InitializeFixed(Stream stream, Ownership ownsStream, long capacity)
     {
-        return InitializeFixed(stream, ownsStream, capacity, default(Geometry));
+        return InitializeFixed(stream, ownsStream, capacity, null);
     }
 
     /// <summary>
@@ -231,7 +231,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
     /// <param name="geometry">The desired geometry of the new disk, or <c>null</c> for default.</param>
     /// <returns>An object that accesses the stream as a VHD file.</returns>
     public static DiskImageFile InitializeFixed(Stream stream, Ownership ownsStream, long capacity,
-                                                Geometry geometry)
+                                                Geometry? geometry)
     {
         InitializeFixedInternal(stream, capacity, geometry);
         return new DiskImageFile(stream, ownsStream);
@@ -246,7 +246,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
     /// <returns>An object that accesses the stream as a VHD file.</returns>
     public static DiskImageFile InitializeDynamic(Stream stream, Ownership ownsStream, long capacity)
     {
-        return InitializeDynamic(stream, ownsStream, capacity, default(Geometry), DynamicHeader.DefaultBlockSize);
+        return InitializeDynamic(stream, ownsStream, capacity, null, DynamicHeader.DefaultBlockSize);
     }
 
     /// <summary>
@@ -258,7 +258,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
     /// <param name="geometry">The desired geometry of the new disk, or <c>null</c> for default.</param>
     /// <returns>An object that accesses the stream as a VHD file.</returns>
     public static DiskImageFile InitializeDynamic(Stream stream, Ownership ownsStream, long capacity,
-                                                  Geometry geometry)
+                                                  Geometry? geometry)
     {
         return InitializeDynamic(stream, ownsStream, capacity, geometry, DynamicHeader.DefaultBlockSize);
     }
@@ -273,7 +273,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
     /// <returns>An object that accesses the stream as a VHD file.</returns>
     public static DiskImageFile InitializeDynamic(Stream stream, Ownership ownsStream, long capacity, long blockSize)
     {
-        return InitializeDynamic(stream, ownsStream, capacity, default(Geometry), blockSize);
+        return InitializeDynamic(stream, ownsStream, capacity, null, blockSize);
     }
 
     /// <summary>
@@ -286,7 +286,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
     /// <param name="blockSize">The size of each block (unit of allocation).</param>
     /// <returns>An object that accesses the stream as a VHD file.</returns>
     public static DiskImageFile InitializeDynamic(Stream stream, Ownership ownsStream, long capacity,
-                                                  Geometry geometry, long blockSize)
+                                                  Geometry? geometry, long blockSize)
     {
         InitializeDynamicInternal(stream, capacity, geometry, blockSize);
 
@@ -348,7 +348,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
         return GetParentLocations(new LocalFileLocator(basePath, useAsync: false)).ToArray();
     }
 
-    internal static DiskImageFile InitializeFixed(FileLocator locator, string path, long capacity, Geometry geometry)
+    internal static DiskImageFile InitializeFixed(FileLocator locator, string path, long capacity, Geometry? geometry)
     {
         DiskImageFile result = null;
         var stream = locator.Open(path, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
@@ -367,7 +367,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
     }
 
     internal static DiskImageFile InitializeDynamic(FileLocator locator, string path, long capacity,
-                                                    Geometry geometry, long blockSize)
+                                                    Geometry? geometry, long blockSize)
     {
         DiskImageFile result = null;
         var stream = locator.Open(path, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
@@ -455,14 +455,11 @@ public sealed class DiskImageFile : VirtualDiskLayer
         }
     }
 
-    private static void InitializeFixedInternal(Stream stream, long capacity, Geometry geometry)
+    private static void InitializeFixedInternal(Stream stream, long capacity, Geometry? geometry)
     {
-        if (geometry == null)
-        {
-            geometry = DiscUtils.Geometry.FromCapacity(capacity);
-        }
+        geometry ??= DiscUtils.Geometry.FromCapacity(capacity);
 
-        var footer = new Footer(geometry, capacity, FileType.Fixed);
+        var footer = new Footer(geometry.Value, capacity, FileType.Fixed);
         footer.UpdateChecksum();
 
         Span<byte> sector = stackalloc byte[Sizes.Sector];
@@ -474,19 +471,16 @@ public sealed class DiskImageFile : VirtualDiskLayer
         stream.Position = 0;
     }
 
-    private static void InitializeDynamicInternal(Stream stream, long capacity, Geometry geometry, long blockSize)
+    private static void InitializeDynamicInternal(Stream stream, long capacity, Geometry? geometry, long blockSize)
     {
         if (blockSize is > uint.MaxValue or < 0)
         {
             throw new ArgumentOutOfRangeException(nameof(blockSize), "Must be in the range 0 to uint.MaxValue");
         }
 
-        if (geometry == null)
-        {
-            geometry = DiscUtils.Geometry.FromCapacity(capacity);
-        }
+        geometry ??= DiscUtils.Geometry.FromCapacity(capacity);
 
-        var footer = new Footer(geometry, capacity, FileType.Dynamic)
+        var footer = new Footer(geometry.Value, capacity, FileType.Dynamic)
         {
             DataOffset = 512 // Offset of Dynamic Header
         };

@@ -90,7 +90,7 @@ public class NewVirtualDiskCommand : PSCmdlet
         if (parentObj.BaseObject is DirectoryInfo dirInfo)
         {
             var path = Path.Combine(dirInfo.FullName, child);
-            using (var realDisk = VirtualDisk.CreateDisk(type, variant, path, size, default, null, useAsync: false))
+            using (var realDisk = VirtualDisk.CreateDisk(type, variant, path, size, null, null, useAsync: false))
             {
             }
 
@@ -99,7 +99,7 @@ public class NewVirtualDiskCommand : PSCmdlet
         else if (parentObj.BaseObject is DiscDirectoryInfo ddi)
         {
             var path = Path.Combine(ddi.FullName, child);
-            using (var realDisk = VirtualDisk.CreateDisk(ddi.FileSystem, type, variant, path, size, default, null))
+            using (var realDisk = VirtualDisk.CreateDisk(ddi.FileSystem, type, variant, path, size, null, null))
             {
             }
 

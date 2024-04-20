@@ -73,7 +73,7 @@ public abstract class VirtualDisk :
     /// <summary>
     /// Gets the geometry of the disk.
     /// </summary>
-    public abstract Geometry Geometry { get; }
+    public abstract Geometry? Geometry { get; }
 
     /// <summary>
     /// Gets the geometry of the disk as it is anticipated a hypervisor BIOS will represent it.
@@ -242,7 +242,7 @@ public abstract class VirtualDisk :
     /// <param name="geometry">The geometry of the new disk (or null).</param>
     /// <param name="parameters">Untyped parameters controlling the creation process (TBD).</param>
     /// <returns>The newly created disk.</returns>
-    public static VirtualDisk CreateDisk(DiscFileSystem fileSystem, string type, string variant, string path, long capacity, Geometry geometry, Dictionary<string, string> parameters)
+    public static VirtualDisk CreateDisk(DiscFileSystem fileSystem, string type, string variant, string path, long capacity, Geometry? geometry, Dictionary<string, string> parameters)
     {
         var factory = VirtualDiskManager.TypeMap[type];
 
@@ -274,7 +274,7 @@ public abstract class VirtualDisk :
     /// <param name="geometry">The geometry of the new disk (or null).</param>
     /// <param name="parameters">Untyped parameters controlling the creation process (TBD).</param>
     /// <returns>The newly created disk.</returns>
-    public static VirtualDisk CreateDisk(string type, string variant, string path, long capacity, Geometry geometry, Dictionary<string, string> parameters)
+    public static VirtualDisk CreateDisk(string type, string variant, string path, long capacity, Geometry? geometry, Dictionary<string, string> parameters)
     {
         return CreateDisk(type, variant, path, capacity, geometry, null, null, parameters);
     }
@@ -290,7 +290,7 @@ public abstract class VirtualDisk :
     /// <param name="parameters">Untyped parameters controlling the creation process (TBD).</param>
     /// <param name="useAsync">Underlying files will be opened optimized for async use.</param>
     /// <returns>The newly created disk.</returns>
-    public static VirtualDisk CreateDisk(string type, string variant, string path, long capacity, Geometry geometry, Dictionary<string, string> parameters, bool useAsync)
+    public static VirtualDisk CreateDisk(string type, string variant, string path, long capacity, Geometry? geometry, Dictionary<string, string> parameters, bool useAsync)
     {
         return CreateDisk(type, variant, path, capacity, geometry, null, null, parameters, useAsync);
     }
@@ -307,7 +307,7 @@ public abstract class VirtualDisk :
     /// <param name="password">The password to use when accessing the <c>path</c> (or null).</param>
     /// <param name="parameters">Untyped parameters controlling the creation process (TBD).</param>
     /// <returns>The newly created disk.</returns>
-    public static VirtualDisk CreateDisk(string type, string variant, string path, long capacity, Geometry geometry, string user, string password, Dictionary<string, string> parameters)
+    public static VirtualDisk CreateDisk(string type, string variant, string path, long capacity, Geometry? geometry, string user, string password, Dictionary<string, string> parameters)
         => CreateDisk(type, variant, path, capacity, geometry, user, password, parameters, useAsync: false);
 
     /// <summary>
@@ -323,7 +323,7 @@ public abstract class VirtualDisk :
     /// <param name="parameters">Untyped parameters controlling the creation process (TBD).</param>
     /// <param name="useAsync">Underlying files will be opened optimized for async use.</param>
     /// <returns>The newly created disk.</returns>
-    public static VirtualDisk CreateDisk(string type, string variant, string path, long capacity, Geometry geometry, string user, string password, Dictionary<string, string> parameters, bool useAsync)
+    public static VirtualDisk CreateDisk(string type, string variant, string path, long capacity, Geometry? geometry, string user, string password, Dictionary<string, string> parameters, bool useAsync)
     {
         var diskParams = new VirtualDiskParameters
         {

@@ -38,7 +38,7 @@ public abstract class DiskImageBuilder
     /// <summary>
     /// Gets or sets the geometry of this disk, as reported by the BIOS, will be implied from the content stream if not set.
     /// </summary>
-    public Geometry BiosGeometry { get; set; }
+    public Geometry? BiosGeometry { get; set; }
 
     /// <summary>
     /// Gets or sets the content for this disk, implying the size of the disk.
@@ -53,7 +53,7 @@ public abstract class DiskImageBuilder
     /// <summary>
     /// Gets or sets the geometry of this disk, will be implied from the content stream if not set.
     /// </summary>
-    public Geometry Geometry { get; set; }
+    public Geometry? Geometry { get; set; }
 
     /// <summary>
     /// Gets a value indicating whether this file format preserves BIOS geometry information.

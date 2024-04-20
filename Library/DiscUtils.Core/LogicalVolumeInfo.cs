@@ -83,7 +83,7 @@ public sealed class LogicalVolumeInfo : VolumeInfo
     /// <summary>
     /// Gets the disk geometry of the underlying storage medium, if any (may be Geometry.Null).
     /// </summary>
-    public override Geometry PhysicalGeometry => _physicalVol == null ? Geometry.Null : _physicalVol.PhysicalGeometry;
+    public override Geometry? PhysicalGeometry => _physicalVol == null ? Geometry.Null : _physicalVol.PhysicalGeometry;
 
     /// <summary>
     /// Gets the offset of this volume in the underlying storage medium, if any (may be Zero).

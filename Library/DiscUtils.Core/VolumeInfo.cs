@@ -55,7 +55,7 @@ public abstract class VolumeInfo
     /// <summary>
     /// Gets the disk geometry of the underlying storage medium, if any (may be null).
     /// </summary>
-    public abstract Geometry PhysicalGeometry { get; }
+    public abstract Geometry? PhysicalGeometry { get; }
 
     /// <summary>
     /// Gets the disk geometry of the underlying storage medium (as used in BIOS calls), may be null.

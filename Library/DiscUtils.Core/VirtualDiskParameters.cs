@@ -60,5 +60,5 @@ public sealed class VirtualDiskParameters
     /// <summary>
     /// Gets or sets the physical (aka IDE) geometry of the disk.
     /// </summary>
-    public Geometry Geometry { get; set; }
+    public Geometry? Geometry { get; set; }
 }

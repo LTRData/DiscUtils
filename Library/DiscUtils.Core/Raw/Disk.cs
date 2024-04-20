@@ -43,7 +43,7 @@ public sealed class Disk : VirtualDisk
     /// <param name="stream">The stream to read.</param>
     /// <param name="ownsStream">Indicates if the new instance should control the lifetime of the stream.</param>
     public Disk(Stream stream, Ownership ownsStream)
-        : this(stream, ownsStream, default) {}
+        : this(stream, ownsStream, null) {}
 
     /// <summary>
     /// Initializes a new instance of the Disk class.
@@ -51,7 +51,7 @@ public sealed class Disk : VirtualDisk
     /// <param name="stream">The stream to read.</param>
     /// <param name="ownsStream">Indicates if the new instance should control the lifetime of the stream.</param>
     /// <param name="geometry">The emulated geometry of the disk.</param>
-    public Disk(Stream stream, Ownership ownsStream, Geometry geometry)
+    public Disk(Stream stream, Ownership ownsStream, Geometry? geometry)
     {
         _file = new DiskImageFile(stream, ownsStream, geometry);
     }
@@ -80,7 +80,7 @@ public sealed class Disk : VirtualDisk
     {
         var share = access == FileAccess.Read ? FileShare.Read : FileShare.None;
         var locator = new LocalFileLocator(string.Empty, useAsync: false);
-        _file = new DiskImageFile(locator.Open(path, FileMode.Open, access, share), Ownership.Dispose, default);
+        _file = new DiskImageFile(locator.Open(path, FileMode.Open, access, share), Ownership.Dispose, null);
     }
 
     /// <summary>
@@ -93,7 +93,7 @@ public sealed class Disk : VirtualDisk
     {
         var share = access == FileAccess.Read ? FileShare.Read : FileShare.None;
         var locator = new LocalFileLocator(string.Empty, useAsync);
-        _file = new DiskImageFile(locator.Open(path, FileMode.Open, access, share), Ownership.Dispose, default);
+        _file = new DiskImageFile(locator.Open(path, FileMode.Open, access, share), Ownership.Dispose, null);
     }
 
     /// <summary>
@@ -138,7 +138,7 @@ public sealed class Disk : VirtualDisk
     /// <summary>
     /// Gets the geometry of the disk.
     /// </summary>
-    public override Geometry Geometry => _file.Geometry;
+    public override Geometry? Geometry => _file.Geometry;
 
     /// <summary>
     /// Gets the layers that make up the disk.
@@ -155,7 +155,7 @@ public sealed class Disk : VirtualDisk
     /// <returns>An object that accesses the stream as a disk.</returns>
     public static Disk Initialize(Stream stream, Ownership ownsStream, long capacity)
     {
-        return Initialize(stream, ownsStream, capacity, default);
+        return Initialize(stream, ownsStream, capacity, null);
     }
 
     /// <summary>
@@ -166,7 +166,7 @@ public sealed class Disk : VirtualDisk
     /// <param name="capacity">The desired capacity of the new disk.</param>
     /// <param name="geometry">The desired geometry of the new disk, or <c>null</c> for default.</param>
     /// <returns>An object that accesses the stream as a disk.</returns>
-    public static Disk Initialize(Stream stream, Ownership ownsStream, long capacity, Geometry geometry)
+    public static Disk Initialize(Stream stream, Ownership ownsStream, long capacity, Geometry? geometry)
     {
         return new Disk(DiskImageFile.Initialize(stream, ownsStream, capacity, geometry));
     }

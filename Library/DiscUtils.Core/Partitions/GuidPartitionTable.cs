@@ -48,7 +48,8 @@ public sealed class GuidPartitionTable : PartitionTable
     /// <param name="disk">The disk containing the partition table.</param>
     public GuidPartitionTable(VirtualDisk disk)
     {
-        Init(disk.Content, disk.Geometry);
+        Init(disk.Content, disk.Geometry
+            ?? throw new InvalidOperationException("Unknown disk geometry"));
     }
 
     /// <summary>
@@ -88,7 +89,8 @@ public sealed class GuidPartitionTable : PartitionTable
     /// <returns>An object to access the newly created partition table.</returns>
     public static GuidPartitionTable Initialize(VirtualDisk disk)
     {
-        return Initialize(disk.Content, disk.Geometry);
+        return Initialize(disk.Content, disk.Geometry
+            ?? throw new InvalidOperationException("Unknown disk geometry"));
     }
 
     /// <summary>
