@@ -56,6 +56,9 @@ internal class GptEntry : IComparable<GptEntry>
         { new Guid("EBD0A0A2-B9E5-4433-87C0-68B6B72699C7"), "Windows Basic Data" },
         { new Guid("5808C8AA-7E8F-42E0-85D2-E1E90434CFB3"), "Windows Logical Disk Manager Metadata" },
         { new Guid("AF9B60A0-1431-4F62-BC68-3311714A69AD"), "Windows Logical Disk Manager Data" },
+        { new Guid("DE94BBA4-06D1-4D40-A16A-BFD50179D6AC"), "Windows Recovery Environment" },
+        { new Guid("E75CAF8F-F680-4CEE-AFA3-B001E56EFC2D"), "Windows Storage Spaces" },
+        { new Guid("558D43C5-A1AC-43C0-AAC8-D1472B2923D1"), "Windows Storage Replica" },
         { new Guid("75894C1E-3AEB-11D3-B7C1-7B03A0000000"), "HP-UX Data" },
         { new Guid("E2A1E728-32E3-11D6-A682-7B03A0000000"), "HP-UX Service" },
         { new Guid("A19D880F-05FC-4D3B-A006-743F0F84911E"), "Linux RAID" },
@@ -79,7 +82,19 @@ internal class GptEntry : IComparable<GptEntry>
         { new Guid("49F48D82-B10E-11DC-B99B-0019D1879648"), "NetBSD Log-Structed File System" },
         { new Guid("49F48DAA-B10E-11DC-B99B-0019D1879648"), "NetBSD RAID" },
         { new Guid("2DB519C4-B10F-11DC-B99B-0019D1879648"), "NetBSD Concatenated" },
-        { new Guid("2DB519EC-B10F-11DC-B99B-0019D1879648"), "NetBSD Encrypted" }
+        { new Guid("2DB519EC-B10F-11DC-B99B-0019D1879648"), "NetBSD Encrypted" },
+        { new Guid("824CC7A0-36A8-11E3-890A-952519AD3F61"), "OpenBSD Data" },
+        { new Guid("19A710A2-B3CA-11E4-B026-10604B889DCF"), "Android Meta" },
+        { new Guid("193D1EA4-B3CA-11E4-B075-10604B889DCF"), "Android EXT" },
+        { new Guid("9D275380-40AD-11DB-BF97-000C2911D1B8"), "VMware vmkcore" },
+        { new Guid("AA31E02A-400F-11DB-9590-000C2911D1B8"), "VMware VMFS" },
+        { new Guid("9198EFFC-31C0-11DB-8F78-000C2911D1B8"), "VMware Reserved" },
+        { new Guid("FE3A2A5D-4F32-41A7-B725-ACCC3285A309"), "ChromeOS kernel" },
+        { new Guid("3CB8E202-3B7E-47DD-8A3C-7FF2A13CFCEC"), "ChromeOS rootfs" },
+        { new Guid("CAB6E88E-ABF3-4102-A07A-D4BB9BE3C1D3"), "ChromeOS firmware" },
+        { new Guid("2E0A753D-9E48-43B0-8337-B15192CB1B5E"), "ChromeOS" },
+        { new Guid("09845860-705F-4BB5-B16C-8A8A099CAF52"), "ChromeOS miniOS" },
+        { new Guid("3F0F8318-F146-4E6B-8222-C28C8F02E0D5"), "ChromeOS hibernate" }
     };
 
     public static string GetFriendlyPartitionType(Guid type)
