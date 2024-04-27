@@ -29,6 +29,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Drawing;
 
 namespace DiscUtils.Ntfs.Internals;
 
@@ -69,6 +70,18 @@ internal class WofStream(long uncompressedSize,
         return (offset, size, chunkSize);
     }
 
+    private Stream GetDecompressStream(int chunkSize, Stream compressedData, long offset, int size)
+    {
+        var compressed = new SubStream(compressedData, Ownership.None, offset, size);
+
+        if (compressionFormat == Wof.CompressionFormat.LZX)
+        {
+            return new LzxStream(compressed, windowBits: 15, chunkSize);
+        }
+
+        return new XpressStream(compressed, chunkSize);
+    }
+
     private int ReadChunk(Span<byte> uncompressedData, int chunkIndex)
     {
         var (offset, size, chunkSize) = PrepareReadChunk(chunkIndex);
@@ -79,9 +92,7 @@ internal class WofStream(long uncompressedSize,
             return compressedData.Read(uncompressedData.Slice(0, chunkSize));
         }
 
-        var compressed = new SubStream(compressedData, offset, size);
-
-        using var decompressStream = GetDecompressStream(chunkSize, compressed);
+        using var decompressStream = GetDecompressStream(chunkSize, compressedData, offset, size);
 
         return decompressStream.Read(uncompressedData.Slice(0, chunkSize));
     }
@@ -96,9 +107,7 @@ internal class WofStream(long uncompressedSize,
             return await compressedData.ReadAsync(uncompressedData.Slice(0, chunkSize), cancellationToken).ConfigureAwait(false);
         }
 
-        var compressed = new SubStream(compressedData, offset, size);
-
-        using var decompressStream = GetDecompressStream(chunkSize, compressed);
+        using var decompressStream = GetDecompressStream(chunkSize, compressedData, offset, size);
 
         return await decompressStream.ReadAsync(uncompressedData.Slice(0, chunkSize), cancellationToken).ConfigureAwait(false);
     }
@@ -113,21 +122,9 @@ internal class WofStream(long uncompressedSize,
             return compressedData.Read(uncompressedData, byteOffset, chunkSize);
         }
 
-        var compressed = new SubStream(compressedData, offset, size);
-
-        using var decompressStream = GetDecompressStream(chunkSize, compressed);
+        using var decompressStream = GetDecompressStream(chunkSize, compressedData, offset, size);
 
         return decompressStream.Read(uncompressedData, byteOffset, chunkSize);
-    }
-
-    private CompatibilityStream GetDecompressStream(int chunkSize, SubStream compressed)
-    {
-        if (compressionFormat == Wof.CompressionFormat.LZX)
-        {
-            return new LzxStream(compressed, windowBits: 15, chunkSize);
-        }
-
-        return new XpressStream(compressed, chunkSize);
     }
 
     public override bool CanRead => true;

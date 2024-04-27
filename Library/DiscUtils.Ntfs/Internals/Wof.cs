@@ -48,6 +48,14 @@ internal static class Wof
 
     public readonly struct WofExternalInfo
     {
+        public WofExternalInfo(ReadOnlySpan<byte> buffer)
+        {
+            version = EndianUtilities.ToInt32LittleEndian(buffer);
+            provider = EndianUtilities.ToInt32LittleEndian(buffer.Slice(4));
+            versionV1 = EndianUtilities.ToInt32LittleEndian(buffer.Slice(8));
+            compressionFormat = (CompressionFormat)EndianUtilities.ToInt32LittleEndian(buffer.Slice(12));
+        }
+
         public readonly int version;
         public readonly int provider;
         public readonly int versionV1;
@@ -67,7 +75,7 @@ internal static class Wof
             return null;
         }
 
-        var metadata = MemoryMarshal.Read<WofExternalInfo>(reparsePoint.Content);
+        var metadata = new WofExternalInfo(reparsePoint.Content);
 
         var uncompressedSize = attr.Length;
 
@@ -88,7 +96,7 @@ internal static class Wof
 
         var chunkTableSize = (numChunks - 1) << chunkTableBitShift;
 
-        long[] chunkTable;
+        var chunkTable = new long[numChunks - 1];
 
         var compressed = compressedStream.Open(FileAccess.Read);
 
@@ -104,16 +112,16 @@ internal static class Wof
 
             if (chunkTableBitShift == 3)
             {
-                chunkTable = MemoryMarshal.Cast<byte, long>(chunkTableBytes).ToArray();
+                for (var i = 0; i < numChunks - 1; i++)
+                {
+                    chunkTable[i] = EndianUtilities.ToInt64LittleEndian(chunkTableBytes.Slice(i * sizeof(long)));
+                }
             }
             else
             {
-                var sourceTable = MemoryMarshal.Cast<byte, uint>(chunkTableBytes);
-                chunkTable = new long[numChunks - 1];
-
                 for (var i = 0; i < numChunks - 1; i++)
                 {
-                    chunkTable[i] = sourceTable[i];
+                    chunkTable[i] = EndianUtilities.ToUInt32LittleEndian(chunkTableBytes.Slice(i * sizeof(uint)));
                 }
             }
         }
