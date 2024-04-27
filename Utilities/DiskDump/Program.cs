@@ -182,7 +182,7 @@ class Program : ProgramBase
                 Console.WriteLine($"    BIOS Type: {vol.BiosType:X2} [{BiosPartitionTypes.ToString(vol.BiosType)}]");
                 Console.WriteLine($"    Size: {vol.Length}");
                 Console.WriteLine($"    Disk Id: {vol.DiskIdentity}");
-                Console.WriteLine($"    Disk Sig: {vol.DiskSignature.ToString("X8")}");
+                Console.WriteLine($"    Disk Sig: {vol.DiskSignature:X8}");
                 Console.WriteLine($"    Partition: {vol.PartitionIdentity}");
                 Console.WriteLine($"    Disk Geometry: {vol.PhysicalGeometry}");
                 Console.WriteLine($"    BIOS Geometry: {vol.BiosGeometry}");

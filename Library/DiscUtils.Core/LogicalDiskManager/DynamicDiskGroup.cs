@@ -77,7 +77,7 @@ internal class DynamicDiskGroup : IDiagnosticTraceable
         {
             writer.WriteLine($"{linePrefix}    VOLUME ({vol.Name})");
             writer.WriteLine($"{linePrefix}      Name: {vol.Name}");
-            writer.WriteLine($"{linePrefix}      BIOS Type: {vol.BiosType.ToString("X2")} [{BiosPartitionTypes.ToString(vol.BiosType)}]");
+            writer.WriteLine($"{linePrefix}      BIOS Type: {vol.BiosType:X2} [{BiosPartitionTypes.ToString(vol.BiosType)}]");
             writer.WriteLine($"{linePrefix}      Flags: 0x{vol.Flags & 0xFFF0:X4}");
             writer.WriteLine($"{linePrefix}      Database Id: {vol.Id}");
             writer.WriteLine($"{linePrefix}      Guid: {vol.VolumeGuid}");
