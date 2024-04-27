@@ -28,7 +28,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace DiscUtils.Ntfs;
+namespace DiscUtils.Compression;
 
 internal sealed class LzWindowDictionary
 {

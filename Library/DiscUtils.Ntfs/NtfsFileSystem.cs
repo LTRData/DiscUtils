@@ -33,6 +33,8 @@ using LTRData.Extensions.Buffers;
 
 using DirectoryIndexEntry =
     System.Collections.Generic.KeyValuePair<DiscUtils.Ntfs.FileNameRecord, DiscUtils.Ntfs.FileRecordReference>;
+using System.Collections.Concurrent;
+using DiscUtils.Ntfs.Internals;
 
 namespace DiscUtils.Ntfs;
 /// <summary>
@@ -403,7 +405,6 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
 
             var file = GetFile(dirEntry.Value.Reference)
                 ?? throw new FileNotFoundException("Invalid directory entry, please check file system integrity", path);
-
 
             if (string.IsNullOrEmpty(attributeName) && attributeType == AttributeType.Data)
             {
@@ -2649,4 +2650,25 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
     public bool IsClusterInUse(long index) => _context.ClusterBitmap.Bitmap.IsPresent(index);
 
     public override uint VolumeId => (uint)_context.BiosParameterBlock.VolumeSerialNumber;
+
+    /// <summary>
+    /// A plugin system for handling reparse points. Handlers for specific tags can register here
+    /// with a delegate that handles such reparse points when they are opened.
+    /// </summary>
+    internal static ConcurrentDictionary<uint, NtfsReparsePluginHandler> ReparsePlugins { get; } = new()
+    {
+        [Wof.ReparsePointTagWofCompressed] = Wof.OpenWofReparsePoint
+    };
+
+    /// <summary>
+    /// A plugin system for handling reparse points. Handlers for specific tags can register in
+    /// the <see cref="ReparsePlugins"/> dictionary. The registered delegate will be called when
+    /// such reparse points are opened.
+    /// </summary>
+    internal delegate SparseStream NtfsReparsePluginHandler(File file,
+                                                            StandardInformation info,
+                                                            NtfsAttribute attr,
+                                                            FileAccess access,
+                                                            NtfsStream ntfsStream,
+                                                            ReparsePointRecord reparsePoint);
 }

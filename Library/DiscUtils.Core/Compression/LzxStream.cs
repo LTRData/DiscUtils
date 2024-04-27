@@ -24,11 +24,10 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using DiscUtils.Compression;
 using DiscUtils.Streams;
 using DiscUtils.Streams.Compatibility;
 
-namespace DiscUtils.Wim;
+namespace DiscUtils.Compression;
 
 /// <summary>
 /// Class to read data compressed using LZX algorithm.

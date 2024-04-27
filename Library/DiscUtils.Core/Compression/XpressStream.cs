@@ -24,10 +24,9 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using DiscUtils.Compression;
 using DiscUtils.Streams.Compatibility;
 
-namespace DiscUtils.Wim;
+namespace DiscUtils.Compression;
 
 /// <summary>
 /// Implements the XPRESS decompression algorithm.

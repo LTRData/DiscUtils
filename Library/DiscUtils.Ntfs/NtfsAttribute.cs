@@ -218,7 +218,7 @@ internal class NtfsAttribute : IDiagnosticTraceable
 
     public virtual void Dump(TextWriter writer, string indent)
     {
-        writer.WriteLine($"{indent}{AttributeTypeName} ATTRIBUTE ({(Name == null ? "No Name" : Name)})");
+        writer.WriteLine($"{indent}{AttributeTypeName} ATTRIBUTE ({Name ?? "No Name"})");
 
         writer.WriteLine($"{indent}  Length: {_primaryRecord.DataLength} bytes");
         if (_primaryRecord.DataLength == 0)

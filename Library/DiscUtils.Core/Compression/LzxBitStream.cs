@@ -22,9 +22,8 @@
 
 using System;
 using System.IO;
-using DiscUtils.Compression;
 
-namespace DiscUtils.Wim;
+namespace DiscUtils.Compression;
 
 /// <summary>
 /// Converts a byte stream into a bit stream.

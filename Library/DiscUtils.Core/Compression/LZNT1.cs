@@ -29,10 +29,9 @@
 //
 
 using System;
-using DiscUtils.Compression;
 using DiscUtils.Streams;
 
-namespace DiscUtils.Ntfs;
+namespace DiscUtils.Compression;
 
 /// <summary>
 /// Implementation of the LZNT1 algorithm used for compressing NTFS files.

@@ -223,7 +223,8 @@ internal class File
         }
     }
 
-    public StandardInformation StandardInformation => GetStream(AttributeType.StandardInformation, null)?.GetContent<StandardInformation>();
+    public StandardInformation StandardInformation
+        => GetStream(AttributeType.StandardInformation, null)?.GetContent<StandardInformation>();
 
     public static File CreateNew(INtfsContext context, NtfsFileAttributes dirFlags)
     {
@@ -1222,34 +1223,17 @@ internal class File
             _file = file;
             _attr = attr;
 
-            // ToDo: Implement decompression of WofCompressedData
-#if false
-            if (!access.HasFlag(FileAccess.Write))
+            // Reparse plugins
+            if (file.StandardInformation is { } info
+                && info.FileAttributes.HasFlag(NtfsFileAttributes.ReparsePoint)
+                && file.GetStream(AttributeType.ReparsePoint, null) is { } reparseStream
+                && reparseStream.GetContent<ReparsePointRecord>() is { } reparsePoint
+                && NtfsFileSystem.ReparsePlugins.TryGetValue(reparsePoint.Tag, out var reparseHandler)
+                && reparseHandler(file, info, attr, access, reparseStream, reparsePoint) is { } reparseResult)
             {
-                var info = file.StandardInformation;
-
-                if (info != null &&
-                    info.FileAttributes.HasFlag(NtfsFileAttributes.SparseFile |
-                    NtfsFileAttributes.ReparsePoint | NtfsFileAttributes.ExtendedAttributes))
-                {
-                    var reparse_stream = file.GetStream(AttributeType.ReparsePoint, null);
-                    var compressed_stream = file.GetStream(AttributeType.Data, "WofCompressedData");
-
-                    if (reparse_stream.HasValue && compressed_stream.HasValue)
-                    {
-                        const uint ReparsePointTagWofCompressed = 0x80000017u;
-                        var reparse_point = reparse_stream.Value.GetContent<ReparsePointRecord>();
-                        if (reparse_point.Tag == ReparsePointTagWofCompressed)
-                        {
-                            var compressed_data = compressed_stream.Value.GetContent();
-                            var uncompressed_size = attr.Length;
-
-                            // ToDo: Implement decompression of WofCompressedData
-                        }
-                    }
-                }
+                _wrapped = reparseResult;
+                return;
             }
-#endif
 
             // Workaround to expose allocated data in VSC meta files that have InitializedDataLength = 0
             if (attr.PrimaryRecord.InitializedDataLength == 0

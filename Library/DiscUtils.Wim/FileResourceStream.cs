@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using DiscUtils.Compression;
 using DiscUtils.Streams;
 using DiscUtils.Streams.Compatibility;
 using LTRData.Extensions.Buffers;
@@ -225,7 +226,7 @@ internal class FileResourceStream : SparseStream.ReadOnlySparseStream
         {
             if (_lzxCompression)
             {
-                return new LzxStream(rawChunkStream, 15, E8DecodeFileSize);
+                return new LzxStream(rawChunkStream, windowBits: 15, E8DecodeFileSize);
             }
 
             return new XpressStream(rawChunkStream, targetUncompressed);
