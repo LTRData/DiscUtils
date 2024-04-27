@@ -22,6 +22,7 @@
 
 using DiscUtils.Streams;
 using System;
+using System.Buffers;
 using System.IO;
 using System.Runtime.InteropServices;
 
@@ -87,15 +88,42 @@ internal static class Wof
 
         var chunkTableSize = (numChunks - 1) << chunkTableBitShift;
 
-        Span<byte> chunkTableBytes = stackalloc byte[chunkTableSize];
+        long[] chunkTable;
 
         var compressed = compressedStream.Open(FileAccess.Read);
 
-        compressed.ReadExactly(chunkTableBytes);
+        byte[] allocated = null;
 
-        var chunkTable = chunkTableBitShift == 3
-            ? MemoryMarshal.Cast<byte, long>(chunkTableBytes).ToArray()
-            : Array.ConvertAll(MemoryMarshal.Cast<byte, uint>(chunkTableBytes).ToArray(), i => (long)i);
+        var chunkTableBytes = chunkTableSize >= 512
+            ? (allocated = ArrayPool<byte>.Shared.Rent(chunkTableSize)).AsSpan(0, chunkTableSize)
+            : stackalloc byte[chunkTableSize];
+
+        try
+        {
+            compressed.ReadExactly(chunkTableBytes);
+
+            if (chunkTableBitShift == 3)
+            {
+                chunkTable = MemoryMarshal.Cast<byte, long>(chunkTableBytes).ToArray();
+            }
+            else
+            {
+                var sourceTable = MemoryMarshal.Cast<byte, uint>(chunkTableBytes);
+                chunkTable = new long[numChunks - 1];
+
+                for (var i = 0; i < numChunks - 1; i++)
+                {
+                    chunkTable[i] = sourceTable[i];
+                }
+            }
+        }
+        finally
+        {
+            if (allocated is not null)
+            {
+                ArrayPool<byte>.Shared.Return(allocated);
+            }
+        }
 
         attr.PrimaryRecord.InitializedDataLength = uncompressedSize;
 

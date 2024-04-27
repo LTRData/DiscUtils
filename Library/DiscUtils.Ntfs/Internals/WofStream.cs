@@ -41,17 +41,16 @@ internal class WofStream(long uncompressedSize,
                          Wof.CompressionFormat compressionFormat,
                          SparseStream compressedData) : SparseStream
 {
-    private int ReadChunk(Span<byte> uncompressedData, int chunkIndex)
+    private (long offset, int size, int chunkSize) PrepareReadChunk(int chunkIndex)
     {
         long offset = chunkTableSize;
-        int size;
         var chunkSize = maxChunkSize;
-
         if (chunkIndex > 0)
         {
             offset += chunkTable[chunkIndex - 1];
         }
 
+        int size;
         if (chunkIndex < numChunks - 1)
         {
             size = (int)(chunkTable[chunkIndex] - offset + chunkTableSize);
@@ -59,8 +58,20 @@ internal class WofStream(long uncompressedSize,
         else
         {
             size = (int)(compressedData.Length - offset);
-            chunkSize = (int)(Length & (chunkSize - 1));
+            var tail = (int)(Length & (chunkSize - 1));
+
+            if (tail > 0)
+            {
+                chunkSize = tail;
+            }
         }
+
+        return (offset, size, chunkSize);
+    }
+
+    private int ReadChunk(Span<byte> uncompressedData, int chunkIndex)
+    {
+        var (offset, size, chunkSize) = PrepareReadChunk(chunkIndex);
 
         if (size == chunkSize)
         {
@@ -77,24 +88,7 @@ internal class WofStream(long uncompressedSize,
 
     private async ValueTask<int> ReadChunkAsync(Memory<byte> uncompressedData, int chunkIndex, CancellationToken cancellationToken)
     {
-        long offset = chunkTableSize;
-        int size;
-        var chunkSize = maxChunkSize;
-
-        if (chunkIndex > 0)
-        {
-            offset += chunkTable[chunkIndex - 1];
-        }
-
-        if (chunkIndex < numChunks - 1)
-        {
-            size = (int)(chunkTable[chunkIndex] - offset + chunkTableSize);
-        }
-        else
-        {
-            size = (int)(compressedData.Length - offset);
-            chunkSize = (int)(Length & (chunkSize - 1));
-        }
+        var (offset, size, chunkSize) = PrepareReadChunk(chunkIndex);
 
         if (size == chunkSize)
         {
@@ -111,24 +105,7 @@ internal class WofStream(long uncompressedSize,
 
     private int ReadChunk(byte[] uncompressedData, int byteOffset, int chunkIndex)
     {
-        long offset = chunkTableSize;
-        int size;
-        var chunkSize = maxChunkSize;
-
-        if (chunkIndex > 0)
-        {
-            offset += chunkTable[chunkIndex - 1];
-        }
-
-        if (chunkIndex < numChunks - 1)
-        {
-            size = (int)(chunkTable[chunkIndex] - offset + chunkTableSize);
-        }
-        else
-        {
-            size = (int)(compressedData.Length - offset);
-            chunkSize = (int)(Length & (chunkSize - 1));
-        }
+        var (offset, size, chunkSize) = PrepareReadChunk(chunkIndex);
 
         if (size == chunkSize)
         {
