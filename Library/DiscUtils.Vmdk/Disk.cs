@@ -139,9 +139,10 @@ public sealed class Disk : VirtualDisk
     {
         get
         {
-            if (_files[_files.Count - 1].VirtualDiskLayer is DiskImageFile file)
+            if (_files[_files.Count - 1].VirtualDiskLayer is DiskImageFile file
+                && file.BiosGeometry.HasValue)
             {
-                return file.BiosGeometry;
+                return file.BiosGeometry.Value;
             }
             
             return

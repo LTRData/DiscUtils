@@ -177,8 +177,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
     /// <summary>
     /// Gets the BIOS geometry of this disk.
     /// </summary>
-    internal Geometry BiosGeometry => _descriptor.BiosGeometry
-        ?? throw new InvalidOperationException("Unknown geometry");
+    internal Geometry? BiosGeometry => _descriptor.BiosGeometry;
 
     /// <summary>
     /// Gets the capacity of this disk (in bytes).
