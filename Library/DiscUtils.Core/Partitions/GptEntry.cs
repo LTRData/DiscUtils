@@ -61,6 +61,7 @@ internal class GptEntry : IComparable<GptEntry>
         { new Guid("558D43C5-A1AC-43C0-AAC8-D1472B2923D1"), "Windows Storage Replica" },
         { new Guid("75894C1E-3AEB-11D3-B7C1-7B03A0000000"), "HP-UX Data" },
         { new Guid("E2A1E728-32E3-11D6-A682-7B03A0000000"), "HP-UX Service" },
+        { new Guid("0FC63DAF-8483-4772-8E79-3D69D8477DE4"), "Linux Data" },
         { new Guid("A19D880F-05FC-4D3B-A006-743F0F84911E"), "Linux RAID" },
         { new Guid("0657FD6D-A4AB-43C4-84E5-0933C84B4F4F"), "Linux Swap" },
         { new Guid("E6D6D379-F507-44C2-A23C-238F2A3DF928"), "Linux Logical Volume Manager" },
