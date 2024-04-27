@@ -229,8 +229,8 @@ internal class BiosParameterBlock
 
     internal bool IsValidOemId()
     {
-        return (!String.IsNullOrEmpty(OemId) && OemId.Length == NTFS_OEM_ID.Length
-                && String.Compare(OemId, 0, NTFS_OEM_ID, 0, NTFS_OEM_ID.Length) == 0);
+        return (!string.IsNullOrEmpty(OemId) && OemId.Length == NTFS_OEM_ID.Length
+                && string.Compare(OemId, 0, NTFS_OEM_ID, 0, NTFS_OEM_ID.Length) == 0);
     }
 
     internal bool IsValid(long volumeSize)

@@ -57,19 +57,10 @@ public class LZNT1Test
         }
     }
 
-    private static object CreateInstance<T>(string name)
-    {
-#if NETCOREAPP1_1
-        return typeof(T).GetTypeInfo().Assembly.CreateInstance(name);
-#else
-        return typeof(T).Assembly.CreateInstance(name);
-#endif
-    }
-
     [WindowsOnlyFact]
     public void Compress()
     {
-        var instance = CreateInstance<NtfsFileSystem>("DiscUtils.Ntfs.LZNT1");
+        var instance = new LZNT1();
         var compressor = (BlockCompressor)instance;
 
         var compressedLength = 16 * 4096;
@@ -90,7 +81,7 @@ public class LZNT1Test
     [WindowsOnlyFact]
     public void CompressMidSourceBuffer()
     {
-        var instance = CreateInstance<NtfsFileSystem>("DiscUtils.Ntfs.LZNT1");
+        var instance = new LZNT1();
         var compressor = (BlockCompressor)instance;
 
         var inData = new byte[128 * 1024];
@@ -112,7 +103,7 @@ public class LZNT1Test
     [WindowsOnlyFact]
     public void CompressMidDestBuffer()
     {
-        var instance = CreateInstance<NtfsFileSystem>("DiscUtils.Ntfs.LZNT1");
+        var instance = new LZNT1();
         var compressor = (BlockCompressor)instance;
 
         // Double-check, make sure native code round-trips
@@ -133,7 +124,7 @@ public class LZNT1Test
     [WindowsOnlyFact]
     public void Compress1KBlockSize()
     {
-        var instance = CreateInstance<NtfsFileSystem>("DiscUtils.Ntfs.LZNT1");
+        var instance = new LZNT1();
         var compressor = (BlockCompressor)instance;
 
         var compressedLength = 16 * 4096;
@@ -161,7 +152,7 @@ public class LZNT1Test
     [WindowsOnlyFact]
     public void Compress1KBlock()
     {
-        var instance = CreateInstance<NtfsFileSystem>("DiscUtils.Ntfs.LZNT1");
+        var instance = new LZNT1();
         var compressor = (BlockCompressor)instance;
 
         var uncompressed1K = new byte[1024];
@@ -183,7 +174,7 @@ public class LZNT1Test
     [Fact]
     public void CompressAllZeros()
     {
-        var instance = CreateInstance<NtfsFileSystem>("DiscUtils.Ntfs.LZNT1");
+        var instance = new LZNT1();
         var compressor = (BlockCompressor)instance;
 
         var compressed = new byte[64 * 1024];
@@ -194,7 +185,7 @@ public class LZNT1Test
     [Fact]
     public void CompressIncompressible()
     {
-        var instance = CreateInstance<NtfsFileSystem>("DiscUtils.Ntfs.LZNT1");
+        var instance = new LZNT1();
         var compressor = (BlockCompressor)instance;
 
         var rng = new Random(6324);
@@ -209,7 +200,7 @@ public class LZNT1Test
     [WindowsOnlyFact]
     public void Decompress()
     {
-        var instance = CreateInstance<NtfsFileSystem>("DiscUtils.Ntfs.LZNT1");
+        var instance = new LZNT1();
         var compressor = (BlockCompressor)instance;
 
         var compressed = NativeCompress(_uncompressedData, 0, _uncompressedData.Length, 4096);
@@ -227,7 +218,7 @@ public class LZNT1Test
     [WindowsOnlyFact]
     public void DecompressMidSourceBuffer()
     {
-        var instance = CreateInstance<NtfsFileSystem>("DiscUtils.Ntfs.LZNT1");
+        var instance = new LZNT1();
         var compressor = (BlockCompressor)instance;
 
         var compressed = NativeCompress(_uncompressedData, 0, _uncompressedData.Length, 4096);
@@ -248,7 +239,7 @@ public class LZNT1Test
     [WindowsOnlyFact]
     public void DecompressMidDestBuffer()
     {
-        var instance = CreateInstance<NtfsFileSystem>("DiscUtils.Ntfs.LZNT1");
+        var instance = new LZNT1();
         var compressor = (BlockCompressor)instance;
 
         var compressed = NativeCompress(_uncompressedData, 0, _uncompressedData.Length, 4096);
@@ -268,7 +259,7 @@ public class LZNT1Test
     [WindowsOnlyFact]
     public void Decompress1KBlockSize()
     {
-        var instance = CreateInstance<NtfsFileSystem>("DiscUtils.Ntfs.LZNT1");
+        var instance = new LZNT1();
         var compressor = (BlockCompressor)instance;
 
         var compressed = NativeCompress(_uncompressedData, 0, _uncompressedData.Length, 1024);
