@@ -69,7 +69,9 @@ internal static class Wof
                                                    NtfsStream ntfsStream,
                                                    ReparsePointRecord reparsePoint)
     {
-        if (!info.FileAttributes.HasFlag(NtfsFileAttributes.SparseFile)
+        if (attr.PrimaryRecord.AttributeType != AttributeType.Data
+            || !string.IsNullOrWhiteSpace(attr.PrimaryRecord.Name)
+            || !info.FileAttributes.HasFlag(NtfsFileAttributes.SparseFile)
             || file.GetStream(AttributeType.Data, "WofCompressedData") is not { } compressedStream)
         {
             return null;
