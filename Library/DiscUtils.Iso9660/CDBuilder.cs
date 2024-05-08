@@ -56,6 +56,17 @@ public sealed class CDBuilder : StreamBuilder, IFileSystemBuilder
     private readonly List<BuildFileInfo> _files;
     private readonly BuildDirectoryInfo _rootDirectory;
 
+     // Define a delegate for progress reporting
+    public delegate void ProgressHandler(int currentProgress, int totalItems);
+    public event ProgressHandler ProgressChanged;
+
+ // Method for updating progress
+ private void UpdateProgress(int currentProgress, int totalItems)
+ {
+     ProgressChanged?.Invoke(currentProgress, totalItems);
+ }
+
+
     /// <summary>
     /// Initializes a new instance of the CDBuilder class.
     /// </summary>
@@ -203,6 +214,7 @@ public sealed class CDBuilder : StreamBuilder, IFileSystemBuilder
         var fi = new BuildFileInfo(nameElements[nameElements.Length - 1].ToString(), dir, content);
         AddFile(fi);
         dir.Add(fi);
+        UpdateProgress(_files.Count, _files.Count + _dirs.Count);
         return fi;
     }
 
@@ -227,6 +239,7 @@ public sealed class CDBuilder : StreamBuilder, IFileSystemBuilder
         var fi = new BuildFileInfo(nameElements[nameElements.Length - 1].ToString(), dir, sourcePath);
         AddFile(fi);
         dir.Add(fi);
+        UpdateProgress(_files.Count, _files.Count + _dirs.Count);
         return fi;
     }
 
@@ -256,6 +269,7 @@ public sealed class CDBuilder : StreamBuilder, IFileSystemBuilder
         var fi = new BuildFileInfo(nameElements[nameElements.Length - 1].ToString(), dir, source);
         AddFile(fi);
         dir.Add(fi);
+        UpdateProgress(_files.Count, _files.Count + _dirs.Count);
         return fi;
     }
 
