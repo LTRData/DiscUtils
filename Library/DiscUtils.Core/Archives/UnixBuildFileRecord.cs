@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2008-2011, Kenneth Bell
+// Copyright (c) 2008-2024, Kenneth Bell, Olof Lagerkvist and contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
@@ -26,7 +26,8 @@ using System;
 using System.IO;
 
 namespace DiscUtils.Archives;
-internal sealed class UnixBuildFileRecord
+
+public sealed class UnixBuildFileRecord
 {
     private string _name;
     private UnixFilePermissions _fileMode;

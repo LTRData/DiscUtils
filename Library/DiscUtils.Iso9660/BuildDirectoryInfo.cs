@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2008-2011, Kenneth Bell
+// Copyright (c) 2008-2024, Kenneth Bell, Olof Lagerkvist and contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
@@ -41,9 +41,9 @@ public sealed class BuildDirectoryInfo : BuildDirectoryMember
     private List<BuildDirectoryMember> _sortedMembers;
 
     internal BuildDirectoryInfo(string name, BuildDirectoryInfo parent)
-        : base(name, MakeShortDirName(name, parent))
+        : base(name, MakeShortDirName(name))
     {
-        _parent = parent == null ? this : parent;
+        _parent = parent ?? this;
         HierarchyDepth = parent == null ? 0 : parent.HierarchyDepth + 1;
         _members = new(StringComparer.OrdinalIgnoreCase, entry => entry.Name);
     }
@@ -147,7 +147,7 @@ public sealed class BuildDirectoryInfo : BuildDirectoryMember
         return dr.WriteTo(buffer, nameEnc);
     }
 
-    private static string MakeShortDirName(string longName, BuildDirectoryInfo dir)
+    private static string MakeShortDirName(string longName)
     {
         if (IsoUtilities.IsValidDirectoryName(longName))
         {

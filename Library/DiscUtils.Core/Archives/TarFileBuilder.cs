@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2008-2011, Kenneth Bell
+// Copyright (c) 2008-2024, Kenneth Bell, Olof Lagerkvist and contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
@@ -24,6 +24,7 @@
 using DiscUtils.Streams;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 
 namespace DiscUtils.Archives;
@@ -74,6 +75,11 @@ public class TarFileBuilder : StreamBuilder
 
     public int FileCount => _files.Count;
 
+    protected virtual void AddFile(UnixBuildFileRecord file)
+    {
+        _files.Add(file);
+    }
+
     /// <summary>
     /// Add a directory to the tar archive.
     /// </summary>
@@ -114,7 +120,7 @@ public class TarFileBuilder : StreamBuilder
     /// <param name="buffer">The file data.</param>
     public void AddFile(string name, byte[] buffer)
     {
-        _files.Add(new UnixBuildFileRecord(name, buffer));
+        AddFile(new UnixBuildFileRecord(name, buffer));
     }
 
     /// <summary>
@@ -124,7 +130,7 @@ public class TarFileBuilder : StreamBuilder
     /// <param name="sourcefile">The file to add.</param>
     public void AddFile(string name, string sourcefile)
     {
-        _files.Add(new UnixBuildFileRecord(name, File.ReadAllBytes(sourcefile)));
+        AddFile(new UnixBuildFileRecord(name, File.ReadAllBytes(sourcefile)));
     }
 
     /// <summary>
@@ -139,7 +145,7 @@ public class TarFileBuilder : StreamBuilder
     public void AddFile(
         string name, byte[] buffer, int ownerId, int groupId, UnixFilePermissions fileMode, DateTime modificationTime)
     {
-        _files.Add(new UnixBuildFileRecord(name, buffer, fileMode, ownerId, groupId, modificationTime));
+        AddFile(new UnixBuildFileRecord(name, buffer, fileMode, ownerId, groupId, modificationTime));
     }
 
     /// <summary>
@@ -154,7 +160,7 @@ public class TarFileBuilder : StreamBuilder
     public void AddFile(
         string name, string sourcefile, int ownerId, int groupId, UnixFilePermissions fileMode, DateTime modificationTime)
     {
-        _files.Add(new UnixBuildFileRecord(name, File.ReadAllBytes(sourcefile), fileMode, ownerId, groupId, modificationTime));
+        AddFile(new UnixBuildFileRecord(name, File.ReadAllBytes(sourcefile), fileMode, ownerId, groupId, modificationTime));
     }
 
     /// <summary>
@@ -164,7 +170,7 @@ public class TarFileBuilder : StreamBuilder
     /// <param name="stream">The file data.</param>
     public void AddFile(string name, Stream stream)
     {
-        _files.Add(new UnixBuildFileRecord(name, stream));
+        AddFile(new UnixBuildFileRecord(name, stream));
     }
 
     /// <summary>
@@ -179,7 +185,7 @@ public class TarFileBuilder : StreamBuilder
     public void AddFile(
         string name, Stream stream, int ownerId, int groupId, UnixFilePermissions fileMode, DateTime modificationTime)
     {
-        _files.Add(new UnixBuildFileRecord(name, stream, fileMode, ownerId, groupId, modificationTime));
+        AddFile(new UnixBuildFileRecord(name, stream, fileMode, ownerId, groupId, modificationTime));
     }
 
     protected override List<BuilderExtent> FixExtents(out long totalLength)
