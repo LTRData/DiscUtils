@@ -1,5 +1,5 @@
 ﻿//
-// Copyright (c) 2008-2011, Kenneth Bell
+// Copyright (c) 2008-2024, Kenneth Bell, Olof Lagerkvist and contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
@@ -43,7 +43,7 @@ internal sealed class BuilderDirectory : BuilderNode
 
     public void AddChild(string name, BuilderNode node)
     {
-        if (name.Contains(@"\\"))
+        if (name.IndexOfAny(Utilities.PathSeparators) >= 0)
         {
             throw new ArgumentException("Single level of path must be provided", nameof(name));
         }

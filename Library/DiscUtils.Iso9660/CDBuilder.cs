@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2008-2011, Kenneth Bell
+// Copyright (c) 2008-2024, Kenneth Bell, Olof Lagerkvist and contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
@@ -56,16 +56,22 @@ public sealed class CDBuilder : StreamBuilder, IFileSystemBuilder
     private readonly List<BuildFileInfo> _files;
     private readonly BuildDirectoryInfo _rootDirectory;
 
-     // Define a delegate for progress reporting
-    public delegate void ProgressHandler(int currentProgress, int totalItems);
-    public event ProgressHandler ProgressChanged;
+    // Progress reporting event
+    public event EventHandler<ProgressEventArgs> ProgressChanged;
 
- // Method for updating progress
- private void UpdateProgress(int currentProgress, int totalItems)
- {
-     ProgressChanged?.Invoke(currentProgress, totalItems);
- }
+    private ProgressEventArgs progressEventArgs;
 
+    // Method for updating progress
+    private void UpdateProgress()
+    {
+        if (ProgressChanged is not null)
+        {
+            progressEventArgs ??= new();
+            progressEventArgs.TotalFiles = _files.Count;
+            progressEventArgs.TotalItems = _files.Count + _dirs.Count;
+            ProgressChanged(this, progressEventArgs);
+        }
+    }
 
     /// <summary>
     /// Initializes a new instance of the CDBuilder class.
@@ -191,6 +197,8 @@ public sealed class CDBuilder : StreamBuilder, IFileSystemBuilder
     private void AddFile(BuildFileInfo fi)
     {
         _files.Add(fi);
+
+        UpdateProgress();
     }
 
     /// <summary>
@@ -214,7 +222,6 @@ public sealed class CDBuilder : StreamBuilder, IFileSystemBuilder
         var fi = new BuildFileInfo(nameElements[nameElements.Length - 1].ToString(), dir, content);
         AddFile(fi);
         dir.Add(fi);
-        UpdateProgress(_files.Count, _files.Count + _dirs.Count);
         return fi;
     }
 
@@ -239,7 +246,6 @@ public sealed class CDBuilder : StreamBuilder, IFileSystemBuilder
         var fi = new BuildFileInfo(nameElements[nameElements.Length - 1].ToString(), dir, sourcePath);
         AddFile(fi);
         dir.Add(fi);
-        UpdateProgress(_files.Count, _files.Count + _dirs.Count);
         return fi;
     }
 
@@ -269,7 +275,6 @@ public sealed class CDBuilder : StreamBuilder, IFileSystemBuilder
         var fi = new BuildFileInfo(nameElements[nameElements.Length - 1].ToString(), dir, source);
         AddFile(fi);
         dir.Add(fi);
-        UpdateProgress(_files.Count, _files.Count + _dirs.Count);
         return fi;
     }
 
@@ -325,7 +330,7 @@ public sealed class CDBuilder : StreamBuilder, IFileSystemBuilder
 
             _bootEntry.WriteTo(bootCatalog, 0x20);
             fixedRegions.Add(new BuilderBufferExtent(bootCatalogPos, bootCatalog));
-            
+
             // Don't add to focus, we already skipped the length of the bootCatalog
         }
 
@@ -642,7 +647,7 @@ public sealed class CDBuilder : StreamBuilder, IFileSystemBuilder
 
     void IFileSystemBuilder.AddFile(string name, Stream source, DateTime creationTime, DateTime writtenTime, DateTime accessedTime, FileAttributes attributes) =>
         AddFile(name, source).CreationTime = writtenTime;
-    
+
     void IFileSystemBuilder.AddFile(string name, string sourcePath, DateTime creationTime, DateTime writtenTime, DateTime accessedTime, FileAttributes attributes) =>
         AddFile(name, sourcePath).CreationTime = writtenTime;
 

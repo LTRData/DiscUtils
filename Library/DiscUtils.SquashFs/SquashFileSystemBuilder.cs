@@ -1,5 +1,5 @@
 ﻿//
-// Copyright (c) 2008-2024, Kenneth Bell, Olof Lagerkvist
+// Copyright (c) 2008-2024, Kenneth Bell, Olof Lagerkvist and contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
@@ -44,6 +44,23 @@ public sealed class SquashFileSystemBuilder : StreamBuilder, IFileSystemBuilder
     private uint _nextInode;
 
     private BuilderDirectory _rootDir;
+
+    // Progress reporting event
+    public event EventHandler<ProgressEventArgs> ProgressChanged;
+
+    private ProgressEventArgs progressEventArgs;
+
+    // Method for updating progress
+    private void AddProgress(int newFiles, int newItems)
+    {
+        if (ProgressChanged is not null)
+        {
+            progressEventArgs ??= new();
+            progressEventArgs.TotalFiles += newFiles;
+            progressEventArgs.TotalItems += newItems;
+            ProgressChanged(this, progressEventArgs);
+        }
+    }
 
     /// <summary>
     /// Initializes a new instance of the SquashFileSystemBuilder class.
@@ -155,7 +172,10 @@ public sealed class SquashFileSystemBuilder : StreamBuilder, IFileSystemBuilder
             user,
             group,
             DefaultDirectoryPermissions);
+
         dirNode.AddChild(Utilities.GetFileFromPath(path), file);
+
+        AddProgress(newFiles: 1, newItems: 1);
     }
 
     /// <summary>
@@ -187,7 +207,10 @@ public sealed class SquashFileSystemBuilder : StreamBuilder, IFileSystemBuilder
             user,
             group,
             DefaultDirectoryPermissions);
+
         dirNode.AddChild(Utilities.GetFileFromPath(path), file);
+
+        AddProgress(newFiles: 1, newItems: 1);
     }
 
     /// <summary>
@@ -219,7 +242,10 @@ public sealed class SquashFileSystemBuilder : StreamBuilder, IFileSystemBuilder
             user,
             group,
             DefaultDirectoryPermissions);
+
         dirNode.AddChild(Utilities.GetFileFromPath(path), file);
+
+        AddProgress(newFiles: 1, newItems: 1);
     }
 
     /// <summary>
@@ -266,6 +292,7 @@ public sealed class SquashFileSystemBuilder : StreamBuilder, IFileSystemBuilder
             user,
             group,
             permissions);
+
         parentDir.AddChild(Utilities.GetFileFromPath(path), dir);
     }
 
@@ -535,6 +562,8 @@ public sealed class SquashFileSystemBuilder : StreamBuilder, IFileSystemBuilder
                 };
 
                 currentDir.AddChild(elems[i], nextDir);
+
+                AddProgress(newFiles: 0, newItems: 1);
             }
             else if (nextDir == null)
             {

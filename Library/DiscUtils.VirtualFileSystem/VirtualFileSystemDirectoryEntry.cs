@@ -43,8 +43,11 @@ public abstract class VirtualFileSystemDirectoryEntry
 
     internal VirtualFileSystemDirectoryEntry(VirtualFileSystemDirectory parent, string name)
     {
-        Parent = parent ?? throw new ArgumentNullException(nameof(parent));
-        FileSystem = parent.FileSystem ?? throw new ArgumentException("FileSystem property is null", nameof(parent));
+        Parent = parent
+            ?? throw new ArgumentNullException(nameof(parent));
+
+        FileSystem = parent.FileSystem
+            ?? throw new ArgumentException("FileSystem property is null", nameof(parent));
 
         if (string.IsNullOrEmpty(name))
         {
@@ -52,6 +55,8 @@ public abstract class VirtualFileSystemDirectoryEntry
         }
 
         parent.AddEntry(name, this);
+
+        FileSystem.AddProgress(newFiles: (this is VirtualFileSystemFile) ? 1 : 0, newItems: 1);
     }
 
     public WindowsFileInformation GetStandardInformation() => new()

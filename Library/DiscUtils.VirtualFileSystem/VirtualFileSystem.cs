@@ -12,6 +12,23 @@ public partial class VirtualFileSystem : DiscFileSystem, IWindowsFileSystem, IUn
 {
     public delegate Stream FileOpenDelegate(FileMode mode, FileAccess access);
 
+    // Progress reporting event
+    public event EventHandler<ProgressEventArgs> ProgressChanged;
+
+    private ProgressEventArgs progressEventArgs;
+
+    // Method for updating progress
+    internal void AddProgress(int newFiles, int newItems)
+    {
+        if (ProgressChanged is not null)
+        {
+            progressEventArgs ??= new();
+            progressEventArgs.TotalFiles += newFiles;
+            progressEventArgs.TotalItems += newItems;
+            ProgressChanged(this, progressEventArgs);
+        }
+    }
+
     public static string GetPathDirectoryName(string path)
     {
         if (string.IsNullOrEmpty(path))
