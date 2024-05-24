@@ -52,30 +52,36 @@ public class DynamicStream : MappedStream
     internal DynamicStream(Stream fileStream, DynamicHeader dynamicHeader, long length, SparseStream parentStream,
                          Ownership ownsParentStream)
     {
-        if (fileStream == null)
-        {
-            throw new ArgumentNullException(nameof(fileStream));
-        }
+#if NET6_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(fileStream);
+        ArgumentNullException.ThrowIfNull(dynamicHeader);
+        ArgumentNullException.ThrowIfNull(parentStream);
 
-        if (dynamicHeader == null)
-        {
-            throw new ArgumentNullException(nameof(dynamicHeader));
-        }
+        _fileStream = fileStream;
+        _dynamicHeader = dynamicHeader;
+        _parentStream = parentStream;
+#else
+        _fileStream = fileStream
+            ?? throw new ArgumentNullException(nameof(fileStream));
 
-        if (parentStream == null)
-        {
-            throw new ArgumentNullException(nameof(parentStream));
-        }
+        _dynamicHeader = dynamicHeader
+            ?? throw new ArgumentNullException(nameof(dynamicHeader));
 
+        _parentStream = parentStream
+            ?? throw new ArgumentNullException(nameof(parentStream));
+
+#endif
+
+#if NET8_0_OR_GREATER
+        ArgumentOutOfRangeException.ThrowIfNegative(length);
+#else
         if (length < 0)
         {
             throw new ArgumentOutOfRangeException(nameof(length), length, "Negative lengths not allowed");
         }
+#endif
 
-        _fileStream = fileStream;
-        _dynamicHeader = dynamicHeader;
         _length = length;
-        _parentStream = parentStream;
         _ownsParentStream = ownsParentStream;
 
         _blockBitmaps = new byte[_dynamicHeader.MaxTableEntries][];

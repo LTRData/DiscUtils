@@ -128,10 +128,14 @@ public sealed class BZip2DecoderStream : ReadOnlyCompatibilityStream
     /// <returns>The number of bytes read.</returns>
     public override int Read(byte[] buffer, int offset, int count)
     {
+#if NET6_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(buffer);
+#else
         if (buffer == null)
         {
             throw new ArgumentNullException(nameof(buffer));
         }
+#endif
 
         return Read(buffer.AsSpan(offset, count));
     }

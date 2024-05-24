@@ -39,7 +39,13 @@ public static class StreamUtilities
     /// <param name="count">The number of bytes to read / write.</param>
     public static void AssertBufferParameters(byte[] buffer, int offset, int count)
     {
-        if (buffer is null)
+#if NET8_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(buffer);
+        ArgumentOutOfRangeException.ThrowIfNegative(offset);
+        ArgumentOutOfRangeException.ThrowIfNegative(count);
+        ArgumentOutOfRangeException.ThrowIfLessThan(buffer.Length, offset + count);
+#else
+        if (buffer == null)
         {
             throw new ArgumentNullException(nameof(buffer));
         }
@@ -58,6 +64,7 @@ public static class StreamUtilities
         {
             throw new ArgumentException("buffer is too small", nameof(buffer));
         }
+#endif
     }
 
     #region Stream Manipulation

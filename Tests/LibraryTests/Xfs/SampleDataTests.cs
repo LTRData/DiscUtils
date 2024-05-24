@@ -10,6 +10,7 @@ using DiscUtils.Vhdx;
 using LibraryTests.Utilities;
 using Xunit;
 using File=System.IO.File;
+using static LibraryTests.Helpers.Helpers;
 
 namespace LibraryTests.Xfs;
 
@@ -72,28 +73,22 @@ public class SampleDataTests
     private static void ValidateContent(DiscFileSystem xfs)
     {
         Assert.True(xfs.DirectoryExists(""));
-        Assert.True(xfs.FileExists("folder\\nested\\file"));
+        Assert.True(xfs.FileExists(Path.Combine("folder", "nested", "file")));
         Assert.Empty(xfs.GetFileSystemEntries("empty"));
         for (var i = 1; i <= 1000; i++)
         {
-            Assert.True(xfs.FileExists($"folder\\file.{i}"), $"File file.{i} not found");
+            Assert.True(xfs.FileExists(Path.Combine("folder", $"file.{i}")), $"File file.{i} not found");
         }
 
-        using (var file = xfs.OpenFile("folder\\file.100", FileMode.Open))
-        {
-            var md5 = MD5.Create().ComputeHash(file);
-            Assert.Equal("620f0b67a91f7f74151bc5be745b7110", BitConverter.ToString(md5).ToLowerInvariant().Replace("-", string.Empty));
-        }
+        var md5 = GetFileChecksum(Path.Combine("folder", "file.100"), xfs);
+        Assert.Equal("620f0b67a91f7f74151bc5be745b7110", md5);
 
-        using (var file = xfs.OpenFile("folder\\file.random", FileMode.Open))
-        {
-            var md5 = MD5.Create().ComputeHash(file);
-            Assert.Equal("9a202a11d6e87688591eb97714ed56f1", BitConverter.ToString(md5).ToLowerInvariant().Replace("-", string.Empty));
-        }
+        md5 = GetFileChecksum(Path.Combine("folder", "file.random"), xfs);
+        Assert.Equal("9a202a11d6e87688591eb97714ed56f1", md5);
 
         for (var i = 1; i <= 999; i++)
         {
-            Assert.True(xfs.FileExists($"huge\\{i}"), $"File huge/{i} not found");
+            Assert.True(xfs.FileExists(Path.Combine("huge", $"{i}")), $"File huge/{i} not found");
         }
     }
 }

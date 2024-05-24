@@ -376,10 +376,14 @@ public sealed class SquashFileSystemBuilder : StreamBuilder, IFileSystemBuilder
     /// <remarks>The <c>output</c> stream must support seeking and writing.</remarks>
     public override void Build(Stream output)
     {
+#if NET6_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(output);
+#else
         if (output == null)
         {
             throw new ArgumentNullException(nameof(output));
         }
+#endif
 
         if (!output.CanWrite)
         {

@@ -92,10 +92,14 @@ internal sealed class FileName : IEquatable<FileName>
 
     public FileName(string name, Encoding encoding)
     {
+#if NET6_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(name);
+#else
         if (name is null)
         {
             throw new ArgumentNullException(nameof(name));
         }
+#endif
 
         if (name.Length > 255)
         {

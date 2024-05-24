@@ -21,10 +21,14 @@ public class RawSecurityDescriptor : GenericSecurityDescriptor
     
     public RawSecurityDescriptor(string sddlForm)
     {
+#if NET6_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(sddlForm);
+#else
         if (sddlForm == null)
         {
             throw new ArgumentNullException(nameof(sddlForm));
         }
+#endif
 
         SetSddlForm(sddlForm.Replace(" ", ""));
 

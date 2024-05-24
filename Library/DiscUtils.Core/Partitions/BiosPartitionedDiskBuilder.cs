@@ -71,10 +71,14 @@ public class BiosPartitionedDiskBuilder : StreamBuilder
      )]
     public BiosPartitionedDiskBuilder(long capacity, byte[] bootSectors, Geometry biosGeometry)
     {
+#if NET6_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(bootSectors);
+#else
         if (bootSectors == null)
         {
             throw new ArgumentNullException(nameof(bootSectors));
         }
+#endif
 
         _capacity = capacity;
         _biosGeometry = biosGeometry;
@@ -94,10 +98,14 @@ public class BiosPartitionedDiskBuilder : StreamBuilder
     /// <param name="sourceDisk">The disk to clone.</param>
     public BiosPartitionedDiskBuilder(VirtualDisk sourceDisk)
     {
+#if NET6_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(sourceDisk);
+#else
         if (sourceDisk == null)
         {
             throw new ArgumentNullException(nameof(sourceDisk));
         }
+#endif
 
         _capacity = sourceDisk.Capacity;
         _biosGeometry = sourceDisk.BiosGeometry;

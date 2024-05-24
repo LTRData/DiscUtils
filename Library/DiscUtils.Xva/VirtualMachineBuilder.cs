@@ -30,6 +30,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DiscUtils.Archives;
 using DiscUtils.Streams;
+using LTRData.Extensions.Formatting;
 
 namespace DiscUtils.Xva;
 
@@ -137,25 +138,14 @@ public sealed class VirtualMachineBuilder : StreamBuilder, IDisposable
                         }
 
                         Stream chunkHashStream;
-#if NETSTANDARD || NETCOREAPP || NET461_OR_GREATER
                         var hashAlgCore = IncrementalHash.CreateHash(HashAlgorithmName.SHA1);
                         chunkHashStream = new HashStreamCore(chunkStream, Ownership.Dispose, hashAlgCore);
-#else
-                        HashAlgorithm hashAlgDotnet = new SHA1Managed();
-                        chunkHashStream = new HashStreamDotnet(chunkStream, Ownership.Dispose, hashAlgDotnet);
-#endif
 
                         tarBuilder.AddFile(string.Format(CultureInfo.InvariantCulture, "Ref:{0}/{1:D8}", diskIds[diskIdx], i), chunkHashStream);
 
-                        byte[] hash;
-#if NETSTANDARD || NETCOREAPP || NET461_OR_GREATER
-                        hash = hashAlgCore.GetHashAndReset();
-#else
-                        hashAlgDotnet.TransformFinalBlock(new byte[0], 0, 0);
-                        hash = hashAlgDotnet.Hash;
-#endif
+                        var hash = hashAlgCore.GetHashAndReset();
 
-                        var hashString = BitConverter.ToString(hash).Replace("-", "").ToLower();
+                        var hashString = hash.ToHexString();
                         var hashStringAscii = Encoding.ASCII.GetBytes(hashString);
                         tarBuilder.AddFile(string.Format(CultureInfo.InvariantCulture, "Ref:{0}/{1:D8}.checksum", diskIds[diskIdx], i), hashStringAscii);
 
@@ -171,25 +161,14 @@ public sealed class VirtualMachineBuilder : StreamBuilder, IDisposable
                 Stream chunkStream = new ZeroStream(Sizes.OneMiB);
 
                 Stream chunkHashStream;
-#if NETSTANDARD || NETCOREAPP || NET461_OR_GREATER
                 var hashAlgCore = IncrementalHash.CreateHash(HashAlgorithmName.SHA1);
                 chunkHashStream = new HashStreamCore(chunkStream, Ownership.Dispose, hashAlgCore);
-#else
-                HashAlgorithm hashAlgDotnet = new SHA1Managed();
-                chunkHashStream = new HashStreamDotnet(chunkStream, Ownership.Dispose, hashAlgDotnet);
-#endif
 
                 tarBuilder.AddFile(string.Format(CultureInfo.InvariantCulture, "Ref:{0}/{1:D8}", diskIds[diskIdx], lastActualChunk), chunkHashStream);
 
-                byte[] hash;
-#if NETSTANDARD || NETCOREAPP || NET461_OR_GREATER
-                hash = hashAlgCore.GetHashAndReset();
-#else
-                hashAlgDotnet.TransformFinalBlock(new byte[0], 0, 0);
-                hash = hashAlgDotnet.Hash;
-#endif
+                var hash = hashAlgCore.GetHashAndReset();
 
-                var hashString = BitConverter.ToString(hash).Replace("-", "").ToLower();
+                var hashString = hash.ToHexString();
                 var hashStringAscii = Encoding.ASCII.GetBytes(hashString);
                 tarBuilder.AddFile(string.Format(CultureInfo.InvariantCulture, "Ref:{0}/{1:D8}.checksum", diskIds[diskIdx], lastActualChunk), hashStringAscii);
             }
@@ -242,26 +221,14 @@ public sealed class VirtualMachineBuilder : StreamBuilder, IDisposable
                             chunkStream = new SubStream(diskStream, i * Sizes.OneMiB, Sizes.OneMiB);
                         }
 
-                        Stream chunkHashStream;
-#if NETSTANDARD || NETCOREAPP || NET461_OR_GREATER
                         var hashAlgCore = IncrementalHash.CreateHash(HashAlgorithmName.SHA1);
-                        chunkHashStream = new HashStreamCore(chunkStream, Ownership.Dispose, hashAlgCore);
-#else
-                        HashAlgorithm hashAlgDotnet = new SHA1Managed();
-                        chunkHashStream = new HashStreamDotnet(chunkStream, Ownership.Dispose, hashAlgDotnet);
-#endif
+                        var chunkHashStream = new HashStreamCore(chunkStream, Ownership.Dispose, hashAlgCore);
 
                         tarBuilder.AddFile(string.Format(CultureInfo.InvariantCulture, "Ref:{0}/{1:D8}", diskIds[diskIdx], i), chunkHashStream);
 
-                        byte[] hash;
-#if NETSTANDARD || NETCOREAPP || NET461_OR_GREATER
-                        hash = hashAlgCore.GetHashAndReset();
-#else
-                        hashAlgDotnet.TransformFinalBlock(new byte[0], 0, 0);
-                        hash = hashAlgDotnet.Hash;
-#endif
+                        var hash = hashAlgCore.GetHashAndReset();
 
-                        var hashString = BitConverter.ToString(hash).Replace("-", "").ToLower();
+                        var hashString = hash.ToHexString();
                         var hashStringAscii = Encoding.ASCII.GetBytes(hashString);
                         tarBuilder.AddFile(string.Format(CultureInfo.InvariantCulture, "Ref:{0}/{1:D8}.checksum", diskIds[diskIdx], i), hashStringAscii);
 
@@ -276,26 +243,14 @@ public sealed class VirtualMachineBuilder : StreamBuilder, IDisposable
             {
                 Stream chunkStream = new ZeroStream(Sizes.OneMiB);
 
-                Stream chunkHashStream;
-#if NETSTANDARD || NETCOREAPP || NET461_OR_GREATER
                 var hashAlgCore = IncrementalHash.CreateHash(HashAlgorithmName.SHA1);
-                chunkHashStream = new HashStreamCore(chunkStream, Ownership.Dispose, hashAlgCore);
-#else
-                HashAlgorithm hashAlgDotnet = new SHA1Managed();
-                chunkHashStream = new HashStreamDotnet(chunkStream, Ownership.Dispose, hashAlgDotnet);
-#endif
+                var chunkHashStream = new HashStreamCore(chunkStream, Ownership.Dispose, hashAlgCore);
 
                 tarBuilder.AddFile(string.Format(CultureInfo.InvariantCulture, "Ref:{0}/{1:D8}", diskIds[diskIdx], lastActualChunk), chunkHashStream);
 
-                byte[] hash;
-#if NETSTANDARD || NETCOREAPP || NET461_OR_GREATER
-                hash = hashAlgCore.GetHashAndReset();
-#else
-                hashAlgDotnet.TransformFinalBlock(new byte[0], 0, 0);
-                hash = hashAlgDotnet.Hash;
-#endif
+                var hash = hashAlgCore.GetHashAndReset();
 
-                var hashString = BitConverter.ToString(hash).Replace("-", "").ToLower();
+                var hashString = hash.ToHexString();
                 var hashStringAscii = Encoding.ASCII.GetBytes(hashString);
                 tarBuilder.AddFile(string.Format(CultureInfo.InvariantCulture, "Ref:{0}/{1:D8}.checksum", diskIds[diskIdx], lastActualChunk), hashStringAscii);
             }

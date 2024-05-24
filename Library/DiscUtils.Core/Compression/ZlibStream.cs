@@ -281,10 +281,14 @@ public class ZlibStream : CompatibilityStream
 
     private static void CheckParams(byte[] buffer, int offset, int count)
     {
+#if NET6_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(buffer);
+#else
         if (buffer == null)
         {
             throw new ArgumentNullException(nameof(buffer));
         }
+#endif
 
         if (offset < 0 || offset > buffer.Length)
         {

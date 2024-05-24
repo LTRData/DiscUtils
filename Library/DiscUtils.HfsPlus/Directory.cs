@@ -79,6 +79,9 @@ internal sealed class Directory : File, IVfsDirectory<DirEntry, File>
 
     public DirEntry GetEntryByName(string name)
     {
+#if NET8_0_OR_GREATER
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+#else
         if (name == null)
         {
             throw new ArgumentNullException(nameof(name));
@@ -88,6 +91,7 @@ internal sealed class Directory : File, IVfsDirectory<DirEntry, File>
         {
             throw new ArgumentException("Attempt to lookup empty file name", nameof(name));
         }
+#endif
 
         var dirEntryData = Context.Catalog.Find(new CatalogKey(NodeId, name));
         if (dirEntryData == null)

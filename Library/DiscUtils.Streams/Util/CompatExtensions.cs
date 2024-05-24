@@ -15,20 +15,28 @@ public abstract class CompatibilityStream : Stream
 {
     public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
     {
+#if NET6_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(buffer);
+#else
         if (buffer == null)
         {
             throw new ArgumentNullException(nameof(buffer));
         }
+#endif
 
         return ReadAsync(buffer.AsMemory(offset, count), cancellationToken).AsTask();
     }
 
     public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
     {
+#if NET6_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(buffer);
+#else
         if (buffer == null)
         {
             throw new ArgumentNullException(nameof(buffer));
         }
+#endif
 
         return WriteAsync(buffer.AsMemory(offset, count), cancellationToken).AsTask();
     }
@@ -229,6 +237,9 @@ public static class CompatExtensions
             ArrayPool<byte>.Shared.Return(bytes);
         }
     }
+
+    public static Task CopyToAsync(this Stream source, Stream target, CancellationToken cancellationToken)
+        => source.CopyToAsync(target, bufferSize: 80 * 1024, cancellationToken);
 #endif
 }
 

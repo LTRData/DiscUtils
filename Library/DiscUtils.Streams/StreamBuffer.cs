@@ -43,10 +43,14 @@ public sealed class StreamBuffer : Buffer
     /// <param name="ownership">Whether to dispose stream, when this object is disposed.</param>
     public StreamBuffer(Stream stream, Ownership ownership)
     {
+#if NET6_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(stream);
+#else
         if (stream == null)
         {
             throw new ArgumentNullException(nameof(stream));
         }
+#endif
 
         _stream = stream as SparseStream;
         if (_stream == null)

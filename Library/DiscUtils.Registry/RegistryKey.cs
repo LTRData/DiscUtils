@@ -48,8 +48,15 @@ public sealed class RegistryKey
 
     internal RegistryKey(RegistryHive hive, KeyNodeCell cell)
     {
+#if NET6_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(hive);
+        ArgumentNullException.ThrowIfNull(cell);
+        _hive = hive;
+        _cell = cell;
+#else
         _hive = hive ?? throw new ArgumentNullException(nameof(hive));
         _cell = cell ?? throw new ArgumentNullException(nameof(cell));
+#endif
     }
 
     /// <summary>

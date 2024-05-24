@@ -61,13 +61,7 @@ public abstract class StreamBuilder
     public virtual void Build(Stream output)
     {
         using var src = Build();
-        var buffer = new byte[64 * 1024];
-        var numRead = src.Read(buffer, 0, buffer.Length);
-        while (numRead != 0)
-        {
-            output.Write(buffer, 0, numRead);
-            numRead = src.Read(buffer, 0, buffer.Length);
-        }
+        src.CopyTo(output);
     }
 
     /// <summary>
@@ -78,13 +72,7 @@ public abstract class StreamBuilder
     public virtual async Task BuildAsync(Stream output, CancellationToken cancellationToken)
     {
         using var src = await BuildAsync(cancellationToken).ConfigureAwait(false);
-        var buffer = new byte[64 * 1024];
-        var numRead = await src.ReadAsync(buffer, cancellationToken).ConfigureAwait(false);
-        while (numRead != 0)
-        {
-            await output.WriteAsync(buffer.AsMemory(0, numRead), cancellationToken).ConfigureAwait(false);
-            numRead = await src.ReadAsync(buffer, cancellationToken).ConfigureAwait(false);
-        }
+        await src.CopyToAsync(output, cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>

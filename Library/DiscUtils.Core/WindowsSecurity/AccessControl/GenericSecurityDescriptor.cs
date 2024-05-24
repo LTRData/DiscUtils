@@ -51,10 +51,14 @@ public abstract class GenericSecurityDescriptor
 
     public void GetBinaryForm(byte[] binaryForm, int offset)
     {
+#if NET6_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(binaryForm);
+#else
         if (null == binaryForm)
         {
             throw new ArgumentNullException(nameof(binaryForm));
         }
+#endif
 
         var binaryLength = BinaryLength;
         if (offset < 0 || offset > binaryForm.Length - binaryLength)

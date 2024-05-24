@@ -34,10 +34,14 @@ public class DiscFileSystemInfo
 {
     internal DiscFileSystemInfo(DiscFileSystem fileSystem, string path)
     {
+#if NET6_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(path);
+#else
         if (path == null)
         {
             throw new ArgumentNullException(nameof(path));
         }
+#endif
 
         var wrongPathSep = System.IO.Path.DirectorySeparatorChar == '\\' ? '/' : '\\';
 

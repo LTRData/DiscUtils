@@ -47,10 +47,14 @@ internal sealed class ExtentKey : BTreeKey, IComparable<ExtentKey>
 
     public int CompareTo(ExtentKey other)
     {
+#if NET6_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(other);
+#else
         if (other == null)
         {
             throw new ArgumentNullException(nameof(other));
         }
+#endif
 
         // Sort by file id, fork type, then starting block
         if (NodeId != other.NodeId)

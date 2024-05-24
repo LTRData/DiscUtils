@@ -8,6 +8,9 @@ public sealed class NTAccount : IdentityReference
 
     public NTAccount(string name)
     {
+#if NET8_0_OR_GREATER
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+#else
         if (name == null)
         {
             throw new ArgumentNullException(nameof(name));
@@ -17,12 +20,16 @@ public sealed class NTAccount : IdentityReference
         {
             throw new ArgumentException("empty", nameof(name));
         }
+#endif
 
         Value = name;
     }
 
     public NTAccount(string domainName, string accountName)
     {
+#if NET8_0_OR_GREATER
+        ArgumentException.ThrowIfNullOrWhiteSpace(accountName);
+#else
         if (accountName == null)
         {
             throw new ArgumentNullException(nameof(accountName));
@@ -32,6 +39,7 @@ public sealed class NTAccount : IdentityReference
         {
             throw new ArgumentException("empty", nameof(accountName));
         }
+#endif
 
         if (domainName == null)
         {

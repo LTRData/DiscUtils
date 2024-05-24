@@ -45,10 +45,14 @@ internal sealed class CatalogKey : BTreeKey, IComparable<CatalogKey>
 
     public int CompareTo(CatalogKey other)
     {
+#if NET6_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(other);
+#else
         if (other == null)
         {
             throw new ArgumentNullException(nameof(other));
         }
+#endif
 
         if (NodeId != other.NodeId)
         {

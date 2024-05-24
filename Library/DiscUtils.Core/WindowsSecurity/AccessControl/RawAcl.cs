@@ -27,7 +27,7 @@ public sealed class RawAcl : GenericAcl
 
     public RawAcl(ReadOnlySpan<byte> binaryForm)
     {
-        if (binaryForm == null)
+        if (binaryForm.IsEmpty)
         {
             throw new ArgumentNullException(nameof(binaryForm));
         }
@@ -147,10 +147,14 @@ public sealed class RawAcl : GenericAcl
 
     public void InsertAce(int index, GenericAce ace)
     {
+#if NET6_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(ace);
+#else
         if (ace == null)
         {
             throw new ArgumentNullException(nameof(ace));
         }
+#endif
 
         _list.Insert(index, ace);
     }

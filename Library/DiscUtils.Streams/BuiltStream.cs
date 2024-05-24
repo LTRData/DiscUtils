@@ -31,7 +31,7 @@ namespace DiscUtils.Streams;
 
 public class BuiltStream : SparseStream
 {
-    private Stream _baseStream;
+    private ZeroStream _baseStream;
 
     private BuilderExtent _currentExtent;
     private readonly List<BuilderExtent> _extents;
@@ -417,6 +417,10 @@ public class BuiltStream : SparseStream
     {
         public int Compare(BuilderExtent x, BuilderExtent y)
         {
+#if NET6_0_OR_GREATER
+            ArgumentNullException.ThrowIfNull(x);
+            ArgumentNullException.ThrowIfNull(y);
+#else
             if (x == null)
             {
                 throw new ArgumentNullException(nameof(x));
@@ -426,6 +430,7 @@ public class BuiltStream : SparseStream
             {
                 throw new ArgumentNullException(nameof(y));
             }
+#endif
 
             if (x.Start + x.Length <= y.Start)
             {
@@ -448,6 +453,10 @@ public class BuiltStream : SparseStream
     {
         public int Compare(BuilderExtent x, BuilderExtent y)
         {
+#if NET6_0_OR_GREATER
+            ArgumentNullException.ThrowIfNull(x);
+            ArgumentNullException.ThrowIfNull(y);
+#else
             if (x == null)
             {
                 throw new ArgumentNullException(nameof(x));
@@ -457,6 +466,7 @@ public class BuiltStream : SparseStream
             {
                 throw new ArgumentNullException(nameof(y));
             }
+#endif
 
             var val = x.Start - y.Start;
             if (val < 0)

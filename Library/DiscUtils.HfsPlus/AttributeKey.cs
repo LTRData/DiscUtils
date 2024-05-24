@@ -68,10 +68,14 @@ internal class AttributeKey : BTreeKey
 
     public int CompareTo(AttributeKey other)
     {
+#if NET6_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(other);
+#else
         if (other == null)
         {
             throw new ArgumentNullException(nameof(other));
         }
+#endif
 
         if (FileId != other.FileId)
         {

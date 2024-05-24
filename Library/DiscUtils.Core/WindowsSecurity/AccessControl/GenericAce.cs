@@ -3,6 +3,7 @@ using LTRData.Extensions.Buffers;
 using LTRData.Extensions.Split;
 using System;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -117,7 +118,7 @@ public abstract class GenericAce
 
     public static GenericAce CreateFromBinaryForm(ReadOnlySpan<byte> binaryForm)
     {
-        if (binaryForm == null)
+        if (binaryForm.IsEmpty)
         {
             throw new ArgumentNullException(nameof(binaryForm));
         }
@@ -142,7 +143,7 @@ public abstract class GenericAce
     {
         genericAce = null;
 
-        if (binaryForm == null || 1 > binaryForm.Length)
+        if (binaryForm.IsEmpty || 1 > binaryForm.Length)
         {
             return false;
         }

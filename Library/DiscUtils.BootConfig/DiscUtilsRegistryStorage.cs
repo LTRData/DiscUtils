@@ -29,11 +29,6 @@ namespace DiscUtils.BootConfig;
 
 internal class DiscUtilsRegistryStorage : BaseStorage
 {
-    private const string ElementsPathTemplate = @"Objects\{0}\Elements";
-    private const string ElementPathTemplate = @"Objects\{0}\Elements\{1:X8}";
-    private const string ObjectTypePathTemplate = @"Objects\{0}\Description";
-    //private const string ObjectsPath = @"Objects";
-
     private readonly RegistryKey _rootKey;
 
     public DiscUtilsRegistryStorage(RegistryKey key)
@@ -82,7 +77,7 @@ internal class DiscUtilsRegistryStorage : BaseStorage
 
     public override IEnumerable<int> EnumerateElements(Guid obj)
     {
-        var path = string.Format(CultureInfo.InvariantCulture, ElementsPathTemplate, obj.ToString("B"));
+        var path = $@"Objects\{obj:B}\Elements";
         var parentKey = _rootKey.OpenSubKey(path);
         foreach (var key in parentKey.GetSubKeyNames())
         {
@@ -92,7 +87,7 @@ internal class DiscUtilsRegistryStorage : BaseStorage
 
     public override int GetObjectType(Guid obj)
     {
-        var path = string.Format(CultureInfo.InvariantCulture, ObjectTypePathTemplate, obj.ToString("B"));
+        var path = $@"Objects\{obj:B}\Description";
 
         var descKey = _rootKey.OpenSubKey(path);
 
@@ -102,13 +97,13 @@ internal class DiscUtilsRegistryStorage : BaseStorage
 
     public override bool HasValue(Guid obj, int element)
     {
-        var path = string.Format(CultureInfo.InvariantCulture, ElementPathTemplate, obj.ToString("B"), element);
+        var path = $@"Objects\{obj:B}\Elements\{element:X8}";
         return _rootKey.OpenSubKey(path) != null;
     }
 
     public override bool ObjectExists(Guid obj)
     {
-        var path = string.Format(CultureInfo.InvariantCulture, ObjectTypePathTemplate, obj.ToString("B"));
+        var path = $@"Objects\{obj:B}\Description";
 
         return _rootKey.OpenSubKey(path) != null;
     }
@@ -116,7 +111,7 @@ internal class DiscUtilsRegistryStorage : BaseStorage
     public override Guid CreateObject(Guid obj, int type)
     {
         var realObj = obj == Guid.Empty ? Guid.NewGuid() : obj;
-        var path = string.Format(CultureInfo.InvariantCulture, ObjectTypePathTemplate, realObj.ToString("B"));
+        var path = $@"Objects\{realObj:B}\Description";
 
         var key = _rootKey.CreateSubKey(path);
         key.SetValue("Type", type, RegistryValueType.Dword);
@@ -126,35 +121,35 @@ internal class DiscUtilsRegistryStorage : BaseStorage
 
     public override void CreateElement(Guid obj, int element)
     {
-        var path = string.Format(CultureInfo.InvariantCulture, ElementPathTemplate, obj.ToString("B"), element);
+        var path = $@"Objects\{obj:B}\Elements\{element:X8}";
 
         _rootKey.CreateSubKey(path);
     }
 
     public override void DeleteObject(Guid obj)
     {
-        var path = string.Format(CultureInfo.InvariantCulture, ObjectTypePathTemplate, obj.ToString("B"));
+        var path = $@"Objects\{obj:B}\Description";
 
         _rootKey.DeleteSubKeyTree(path);
     }
 
     public override void DeleteElement(Guid obj, int element)
     {
-        var path = string.Format(CultureInfo.InvariantCulture, ElementPathTemplate, obj.ToString("B"), element);
+        var path = $@"Objects\{obj:B}\Elements\{element:X8}";
 
         _rootKey.DeleteSubKeyTree(path);
     }
 
     private object GetValue(Guid obj, int element)
     {
-        var path = string.Format(CultureInfo.InvariantCulture, ElementPathTemplate, obj.ToString("B"), element);
+        var path = $@"Objects\{obj:B}\Elements\{element:X8}";
         var key = _rootKey.OpenSubKey(path);
         return key.GetValue("Element");
     }
 
     private void SetValue(Guid obj, int element, object value)
     {
-        var path = string.Format(CultureInfo.InvariantCulture, ElementPathTemplate, obj.ToString("B"), element);
+        var path = $@"Objects\{obj:B}\Elements\{element:X8}";
         var key = _rootKey.OpenSubKey(path);
         key.SetValue("Element", value);
     }

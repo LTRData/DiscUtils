@@ -1176,6 +1176,9 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
     /// <param name="destinationDirectoryName">The target directory name.</param>
     public override void MoveDirectory(string sourceDirectoryName, string destinationDirectoryName)
     {
+#if NET8_0_OR_GREATER
+        ArgumentException.ThrowIfNullOrWhiteSpace(nameof(destinationDirectoryName));
+#else
         if (string.IsNullOrEmpty(destinationDirectoryName))
         {
             if (destinationDirectoryName == null)
@@ -1185,6 +1188,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
 
             throw new ArgumentException("Invalid destination name (empty string)");
         }
+#endif
 
         var destId = GetDirectoryEntry(destinationDirectoryName, out var destParent);
         if (destParent == null)

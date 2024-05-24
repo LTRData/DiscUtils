@@ -38,21 +38,38 @@ public abstract class VirtualFileSystemDirectoryEntry
 
     internal VirtualFileSystemDirectoryEntry(VirtualFileSystem fileSystem)
     {
+#if NET6_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(fileSystem);
+        FileSystem = fileSystem;
+#else
         FileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
+#endif
     }
 
     internal VirtualFileSystemDirectoryEntry(VirtualFileSystemDirectory parent, string name)
     {
+#if NET6_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(parent);
+        ArgumentNullException.ThrowIfNull(parent.FileSystem);
+
+        Parent = parent;
+        FileSystem = parent.FileSystem;
+#else
         Parent = parent
             ?? throw new ArgumentNullException(nameof(parent));
 
         FileSystem = parent.FileSystem
             ?? throw new ArgumentException("FileSystem property is null", nameof(parent));
+#endif
 
-        if (string.IsNullOrEmpty(name))
+#if NET8_0_OR_GREATER
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+#else
+        if (string.IsNullOrWhiteSpace(name))
         {
             throw new ArgumentException("File names cannot be null or empty", nameof(name));
         }
+#endif
 
         parent.AddEntry(name, this);
 

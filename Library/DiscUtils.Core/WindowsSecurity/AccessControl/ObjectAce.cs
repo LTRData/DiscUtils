@@ -195,14 +195,7 @@ public sealed class ObjectAce : QualifiedAce
             inhObjType = _inheritedObjectType.ToString("D");
         }
 
-        return string.Format(CultureInfo.InvariantCulture,
-            "({0};{1};{2};{3};{4};{5})",
-            GetSddlAceType(AceType),
-            GetSddlAceFlags(AceFlags),
-            GetSddlAccessRights(AccessMask),
-            objType,
-            inhObjType,
-            SecurityIdentifier.GetSddlForm());
+        return $"({GetSddlAceType(AceType)};{GetSddlAceFlags(AceFlags)};{GetSddlAccessRights(AccessMask)};{objType};{inhObjType};{SecurityIdentifier.GetSddlForm()})";
     }
 
     private static AceType ConvertType(AceQualifier qualifier, bool isCallback)
