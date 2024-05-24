@@ -132,9 +132,21 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
         if (VolumeInfo.Version >= VolumeInformation.VersionW2k)
         {
             _context.SecurityDescriptors = new SecurityDescriptors(GetFile(MasterFileTable.SecureIndex));
-            _context.ObjectIds = new ObjectIds(GetFile(GetDirectoryEntry(@"$Extend\$ObjId").Value.Reference));
-            _context.ReparsePoints = new ReparsePoints(GetFile(GetDirectoryEntry(@"$Extend\$Reparse").Value.Reference));
-            _context.Quotas = new Quotas(GetFile(GetDirectoryEntry(@"$Extend\$Quota").Value.Reference));
+            
+            if (GetDirectoryEntry(@"$Extend\$ObjId") is { } objIdFile)
+            {
+                _context.ObjectIds = new ObjectIds(GetFile(objIdFile.Reference));
+            }
+
+            if (GetDirectoryEntry(@"$Extend\$Reparse") is { } reparse)
+            {
+                _context.ReparsePoints = new ReparsePoints(GetFile(reparse.Reference));
+            }
+
+            if (GetDirectoryEntry(@"$Extend\$Quota") is { } quota)
+            {
+                _context.Quotas = new Quotas(GetFile(quota.Reference));
+            }
         }
 
 #if false

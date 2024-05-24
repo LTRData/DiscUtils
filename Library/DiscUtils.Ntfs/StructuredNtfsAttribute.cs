@@ -24,6 +24,7 @@ using System;
 using System.Buffers;
 using System.IO;
 using DiscUtils.Streams;
+using LTRData.Extensions.Formatting;
 
 namespace DiscUtils.Ntfs;
 
@@ -96,11 +97,18 @@ internal class StructuredNtfsAttribute<T> : NtfsAttribute
 
     public override void Dump(TextWriter writer, string indent)
     {
-        Initialize();
-        writer.WriteLine($"{indent}{AttributeTypeName} ATTRIBUTE ({(Name == null ? "No Name" : Name)})");
-        _structure.Dump(writer, $"{indent}  ");
+        try
+        {
+            Initialize();
+            writer.WriteLine($"{indent}{AttributeTypeName} ATTRIBUTE ({Name ?? "No Name"})");
+            _structure.Dump(writer, $"{indent}  ");
 
-        _primaryRecord.Dump(writer, $"{indent}  ");
+            _primaryRecord.Dump(writer, $"{indent}  ");
+        }
+        catch (Exception ex)
+        {
+            writer.WriteLine($"{indent}{AttributeTypeName} ATTRIBUTE: {ex.JoinMessages()}");
+        }
     }
 
     private void Initialize()
