@@ -145,6 +145,11 @@ public sealed class DiskImageFile : VirtualDiskLayer
             fileStream = fileLocator.Open(file, FileMode.Open, fileAccess, fileShare);
             LoadDescriptor(fileStream);
 
+            if (_descriptor is null)
+            {
+                throw new InvalidOperationException($"This VMDK image file does not contain an embedded descriptor");
+            }
+
             // For monolithic disks, keep hold of the stream - we won't try to use the file name
             // from the embedded descriptor because the file may have been renamed, making the 
             // descriptor out of date.
