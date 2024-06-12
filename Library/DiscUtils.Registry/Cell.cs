@@ -21,6 +21,8 @@
 //
 
 using System;
+using System.Linq;
+using System.Text;
 using DiscUtils.Streams;
 
 namespace DiscUtils.Registry;
@@ -45,20 +47,37 @@ internal abstract class Cell : IByteArraySerializable
 
     internal static Cell Parse(RegistryHive hive, int index, ReadOnlySpan<byte> buffer)
     {
-        var type = EncodingUtilities
-            .GetLatin1Encoding()
-            .GetString(buffer.Slice(0, 2));
+        var type = buffer.Slice(0, 2);
 
-        Cell result = type switch
+        Cell result;
+
+        if (type.SequenceEqual("nk"u8))
         {
-            "nk" => new KeyNodeCell(index),
-            "sk" => new SecurityCell(index),
-            "vk" => new ValueCell(index),
-            "lh" or "lf" => new SubKeyHashedListCell(hive, index),
-            "li" or "ri" => new SubKeyIndirectListCell(hive, index),
-            _ => throw new RegistryCorruptException($"Unknown cell type '{type}'"),
-        };
+            result = new KeyNodeCell(index);
+        }
+        else if (type.SequenceEqual("sk"u8))
+        {
+            result = new SecurityCell(index);
+        }
+        else if (type.SequenceEqual("vk"u8))
+        {
+            result = new ValueCell(index);
+        }
+        else if (type.SequenceEqual("lh"u8) || type.SequenceEqual("lf"u8))
+        {
+            result = new SubKeyHashedListCell(hive, index);
+        }
+        else if (type.SequenceEqual("li"u8) || type.SequenceEqual("ri"u8))
+        {
+            result = new SubKeyIndirectListCell(hive, index);
+        }
+        else
+        {
+            throw new RegistryCorruptException($"Unknown cell type '{Encoding.ASCII.GetString(type)}'");
+        }
+
         result.ReadFrom(buffer);
+
         return result;
     }
 }

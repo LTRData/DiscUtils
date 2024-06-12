@@ -87,18 +87,24 @@ internal class LogFile : IEnumerable<LogEntry>
     private static long CalculateLogEntryHash(ReadOnlySpan<byte> buffer) =>
         Marvin.ComputeHash(buffer, 0x82EF4D887A4E55C5);
 
-    public int UpdateHive(Stream hive)
+    public (int SequenceNumber, int MaxPosition) UpdateHive(Stream hive)
     {
         var sequenceNumber = 0;
+        var maxPosition = 0;
 
         foreach (var entry in this)
         {
             hive.Position = 0x1000 + entry.PageOffset;
             hive.Write(buffer, entry.BufferOffset, entry.PageSize);
             sequenceNumber = entry.SequenceNumber;
+
+            if (hive.Position - RegistryHive.BinStart > maxPosition)
+            {
+                maxPosition = (int)(hive.Position - RegistryHive.BinStart);
+            }
         }
 
-        return sequenceNumber;
+        return (sequenceNumber, maxPosition);
     }
 }
 

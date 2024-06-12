@@ -36,7 +36,7 @@ namespace DiscUtils.Registry;
 /// </summary>
 public class RegistryHive : IDisposable
 {
-    private const long BinStart = 4 * Sizes.OneKiB;
+    internal const int BinStart = 4 * Sizes.OneKiB;
     private readonly List<BinHeader> _bins;
 
     private Stream _fileStream;
@@ -150,7 +150,9 @@ public class RegistryHive : IDisposable
         // If header validation failed or dirty state, look for transaction logs
         if (headerSize == 0 || _header.Sequence1 != _header.Sequence2)
         {
-            var logs = logstreams?.Where(log => log.Length > 0x1000).ToArray();
+            var logs = logstreams?
+                .Where(log => log.Length > 0x1000)
+                .ToArray();
 
             if (logs is not null && logs.Length > 0)
             {
@@ -184,26 +186,32 @@ public class RegistryHive : IDisposable
                 if (logfiles.Length > 1 &&
                     logfiles[0].HiveHeader.Sequence1 >= logfiles[1].HiveHeader.Sequence1)
                 {
-                    logfiles = new[] { logfiles[1], logfiles[0] };
-                    logs = new[] { logs[1], logs[0] };
+                    (logfiles[0], logfiles[1]) = (logfiles[1], logfiles[0]);
+                    (logs[0], logs[1]) = (logs[1], logs[0]);
                 }
 
                 // If hive header failed validation, recover from latest log
                 if (headerSize == 0)
                 {
                     var lastvalid = logfiles.LastOrDefault(logfile => logfile.HeaderValid)
-                        ?? throw new IOException("Registry transaction logs are corrupt");
+                        ?? throw new RegistryCorruptException("Registry transaction logs are corrupt");
 
                     _header = lastvalid.HiveHeader;
                 }
 
                 int lastSequenceNumber;
+                int maxPosition;
 
                 // First log
                 if (logfiles.Length > 0 &&
                     logfiles[0].HiveHeader.Sequence1 >= _header.Sequence2)
                 {
-                    lastSequenceNumber = logfiles[0].UpdateHive(_fileStream);
+                    (lastSequenceNumber, maxPosition) = logfiles[0].UpdateHive(_fileStream);
+
+                    if (maxPosition > _header.Length)
+                    {
+                        _header.Length = maxPosition;
+                    }
 
                     // Also a secondary log
                     if (logfiles.Length > 1 &&
@@ -212,7 +220,12 @@ public class RegistryHive : IDisposable
                         // If secondary log continues right after last record in first log
                         if (logfiles[1].HiveHeader.Sequence1 == lastSequenceNumber + 1)
                         {
-                            lastSequenceNumber = logfiles[1].UpdateHive(_fileStream);
+                            (lastSequenceNumber, maxPosition) = logfiles[1].UpdateHive(_fileStream);
+
+                            if (maxPosition > _header.Length)
+                            {
+                                _header.Length = maxPosition;
+                            }
                         }
                         else
                         {
@@ -231,16 +244,22 @@ public class RegistryHive : IDisposable
                 else if (logfiles.Length > 1 &&
                     logfiles[1].HiveHeader.Sequence1 >= _header.Sequence2)
                 {
-                    lastSequenceNumber = logfiles[1].UpdateHive(_fileStream);
+                    (lastSequenceNumber, maxPosition) = logfiles[1].UpdateHive(_fileStream);
+
+                    if (maxPosition > _header.Length)
+                    {
+                        _header.Length = maxPosition;
+                    }
                 }
                 else
                 {
-                    throw new IOException("Registry transaction logs are corrupt");
+                    throw new RegistryCorruptException("Registry transaction logs are corrupt");
                 }
 
                 // Store latest recovered sequence number in the hive header
                 // and write this modified header to the hive file
                 _header.Sequence1 = _header.Sequence2 = lastSequenceNumber + 1;
+                _header.Timestamp = DateTime.UtcNow;
                 _header.WriteTo(buffer);
                 _fileStream.Position = 0;
                 _fileStream.Write(buffer);
@@ -248,7 +267,7 @@ public class RegistryHive : IDisposable
             }
             else if (_fileStream.CanWrite)
             {
-                throw new IOException("Registry hive needs transaction logs to recover pending changes");
+                throw new RegistryCorruptException("Registry hive needs transaction logs to recover pending changes");
             }
         }
 

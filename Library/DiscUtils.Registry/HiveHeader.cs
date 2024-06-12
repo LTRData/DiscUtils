@@ -70,7 +70,7 @@ public class HiveHeader : IByteArraySerializable
         {
             if (throwOnInvalidData)
             {
-                throw new IOException("Invalid signature for registry hive");
+                throw new RegistryCorruptException("Invalid signature for registry hive");
             }
             else
             {
@@ -102,7 +102,7 @@ public class HiveHeader : IByteArraySerializable
         {
             if (throwOnInvalidData)
             {
-                throw new IOException("Invalid checksum on registry file");
+                throw new RegistryCorruptException("Invalid checksum on registry file");
             }
             else
             {

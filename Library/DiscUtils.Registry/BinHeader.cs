@@ -45,7 +45,7 @@ internal struct BinHeader : IByteArraySerializable
         var sig = EndianUtilities.ToUInt32LittleEndian(buffer);
         if (sig != Signature)
         {
-            throw new IOException("Invalid signature for registry bin");
+            throw new RegistryCorruptException("Invalid signature for registry bin");
         }
 
         FileOffset = EndianUtilities.ToInt32LittleEndian(buffer.Slice(0x04));
