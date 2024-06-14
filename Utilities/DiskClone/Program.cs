@@ -295,7 +295,7 @@ class Program : ProgramBase
                 ++cluster;
             }
 
-            yield return new StreamExtent((long)(startCluster * (long)bytesPerCluster), (long)((cluster - startCluster) * (long)bytesPerCluster));
+            yield return new StreamExtent(startCluster * bytesPerCluster, (cluster - startCluster) * bytesPerCluster);
 
             while (cluster < numClusters && !IsSet(bitmap, cluster))
             {

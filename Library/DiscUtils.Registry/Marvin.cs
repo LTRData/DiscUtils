@@ -62,7 +62,7 @@ internal static class Marvin
                 break;
 
             case 3:
-                p0 += 0x80000000u | (((uint)data[2]) << 16) | (uint)(MemoryMarshal.Cast<byte, ushort>(data)[0]);
+                p0 += 0x80000000u | (((uint)data[2]) << 16) | MemoryMarshal.Cast<byte, ushort>(data)[0];
                 break;
 
             default:

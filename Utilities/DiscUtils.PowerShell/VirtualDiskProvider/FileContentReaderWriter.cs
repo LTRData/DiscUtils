@@ -162,7 +162,7 @@ internal sealed class FileContentReaderWriter : IContentWriter, IContentReader
                     var toInspect = Math.Min(20, initialContent.Length);
                     for (var i = 0; i < toInspect; ++i)
                     {
-                        if (((ushort)initialContent[i]) > 127)
+                        if (initialContent[i] > 127)
                         {
                             foundExtended = true;
                         }

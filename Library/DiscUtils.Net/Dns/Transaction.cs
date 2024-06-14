@@ -42,7 +42,7 @@ internal sealed class Transaction : IDisposable
     {
         if (CompleteEvent != null)
         {
-            ((IDisposable)CompleteEvent).Dispose();
+            CompleteEvent.Dispose();
             CompleteEvent = null;
         }
     }

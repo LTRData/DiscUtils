@@ -31,7 +31,7 @@ namespace DiscUtils.Vhdx;
 internal sealed class RegionTable : IByteArraySerializable
 {
     public const uint RegionTableSignature = 0x69676572;
-    public const int FixedSize = (int)(64 * Sizes.OneKiB);
+    public const int FixedSize = 64 * Sizes.OneKiB;
     public static readonly Guid BatGuid = new("2DC27766-F623-4200-9D64-115E9BFD4A08");
     public static readonly Guid MetadataRegionGuid = new("8B7CA206-4790-4B9A-B8FE-575F050F886E");
 

@@ -727,7 +727,7 @@ public sealed class Provider : NavigationCmdletProvider, IContentCmdletProvider
         {
             var name = $"Volume{i}";
             var volPath = MakePath(path, name);// new PathInfo(PathInfo.Parse(path, true).MountParts, "" + i).ToString();
-            WriteItemObject(namesOnly ? name : (object)volumes[i], volPath, true);
+            WriteItemObject(namesOnly ? name : volumes[i], volPath, true);
             if (recurse)
             {
                 GetChildren(volPath, recurse, namesOnly);
@@ -739,7 +739,7 @@ public sealed class Provider : NavigationCmdletProvider, IContentCmdletProvider
     {
         foreach (var dir in parent.GetDirectories())
         {
-            WriteItemObject(namesOnly ? dir.Name : (object)dir, MakePath(basePath, dir.Name), true);
+            WriteItemObject(namesOnly ? dir.Name : dir, MakePath(basePath, dir.Name), true);
             if (recurse)
             {
                 EnumerateDirectory(dir, MakePath(basePath, dir.Name), recurse, namesOnly);
@@ -748,7 +748,7 @@ public sealed class Provider : NavigationCmdletProvider, IContentCmdletProvider
 
         foreach (var file in parent.GetFiles())
         {
-            WriteItemObject(namesOnly ? file.Name : (object)file, MakePath(basePath, file.Name), false);
+            WriteItemObject(namesOnly ? file.Name : file, MakePath(basePath, file.Name), false);
         }
     }
 

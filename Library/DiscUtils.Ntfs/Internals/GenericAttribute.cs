@@ -66,7 +66,7 @@ public abstract class GenericAttribute : IAttributeLocator
     /// <summary>
     /// Gets the flags indicating how the content of the attribute is stored.
     /// </summary>
-    public AttributeFlags Flags => (AttributeFlags)_record.Flags;
+    public AttributeFlags Flags => _record.Flags;
 
     /// <summary>
     /// Gets the unique id of the attribute.

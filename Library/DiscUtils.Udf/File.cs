@@ -116,7 +116,7 @@ internal class File : IVfsFile
                 attribs |= FileAttributes.System | FileAttributes.Hidden;
             }
 
-            if ((int)attribs == 0)
+            if (attribs == 0)
             {
                 attribs = FileAttributes.Normal;
             }

@@ -41,7 +41,7 @@ public sealed class StreamPump
     public StreamPump()
     {
         SparseChunkSize = 512;
-        BufferSize = (int)(512 * Sizes.OneKiB);
+        BufferSize = 512 * Sizes.OneKiB;
         SparseCopy = true;
     }
 
@@ -56,7 +56,7 @@ public sealed class StreamPump
         InputStream = inStream;
         OutputStream = outStream;
         SparseChunkSize = sparseChunkSize;
-        BufferSize = (int)(512 * Sizes.OneKiB);
+        BufferSize = 512 * Sizes.OneKiB;
         SparseCopy = true;
     }
 

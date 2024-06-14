@@ -345,7 +345,7 @@ public class RegistryHive : IDisposable
         var binHeader = new BinHeader
         {
             FileOffset = 0,
-            BinSize = (int)(4 * Sizes.OneKiB)
+            BinSize = 4 * Sizes.OneKiB
         };
 
         var hiveHeader = new HiveHeader
@@ -555,7 +555,7 @@ public class RegistryHive : IDisposable
         {
             FileOffset = lastBin.FileOffset + lastBin.BinSize
         };
-        newBinHeader.BinSize = MathUtilities.RoundUp(minSize + newBinHeader.Size, 4 * (int)Sizes.OneKiB);
+        newBinHeader.BinSize = MathUtilities.RoundUp(minSize + newBinHeader.Size, 4 * Sizes.OneKiB);
 
         var buffer = ArrayPool<byte>.Shared.Rent(newBinHeader.Size);
         try

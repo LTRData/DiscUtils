@@ -77,8 +77,8 @@ public static class HexDump
 
         foreach(var block in StreamExtent.Blocks(stream.Extents, buffer.Length))
         {
-            var startPos = block.Offset * (long)buffer.Length;
-            var endPos = Math.Min((block.Offset + block.Count) * (long)buffer.Length, stream.Length);
+            var startPos = block.Offset * buffer.Length;
+            var endPos = Math.Min((block.Offset + block.Count) * buffer.Length, stream.Length);
             stream.Position = startPos;
 
             while (stream.Position < endPos)

@@ -69,7 +69,7 @@ public sealed class FileNameAttribute : GenericAttribute
     /// <summary>
     /// Gets the attributes of the file, as stored by NTFS.
     /// </summary>
-    public NtfsFileAttributes FileAttributes => (NtfsFileAttributes)_fnr.Flags;
+    public NtfsFileAttributes FileAttributes => _fnr.Flags;
 
     /// <summary>
     /// Gets the name of the file within the parent directory.

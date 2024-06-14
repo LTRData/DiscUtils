@@ -104,7 +104,7 @@ internal sealed class LZNT1 : BlockCompressor
 
                     var lzSearchMatch = lzDictionary.Search(source.Slice(subBlock),
                         sourcePointer - subBlock, decompressedSize);
-                    if (lzSearchMatch[1] > 0)
+                    if (lzSearchMatch.size > 0)
                     {
                         // There is a compression match
                         if (destPointer + 2 >= compressedLength)
@@ -114,8 +114,8 @@ internal sealed class LZNT1 : BlockCompressor
 
                         bitFlag |= (byte)(1 << i);
 
-                        var rawOffset = lzSearchMatch[0];
-                        var rawLength = lzSearchMatch[1];
+                        var rawOffset = lzSearchMatch.offset;
+                        var rawLength = lzSearchMatch.size;
 
                         var convertedOffset = (rawOffset - 1) << lengthBits;
                         var convertedSize = (rawLength - 3) & ((1 << lengthMask) - 1);
@@ -123,9 +123,9 @@ internal sealed class LZNT1 : BlockCompressor
                         var convertedData = (ushort)(convertedOffset | convertedSize);
                         EndianUtilities.WriteBytesLittleEndian(convertedData, compressed.Slice(destPointer));
 
-                        lzDictionary.AddEntryRange(source.Slice(subBlock), (int)(sourcePointer - subBlock),
-                            lzSearchMatch[1]);
-                        sourcePointer += lzSearchMatch[1];
+                        lzDictionary.AddEntryRange(source.Slice(subBlock), sourcePointer - subBlock,
+                            lzSearchMatch.size);
+                        sourcePointer += lzSearchMatch.size;
                         destPointer += 2;
                         compressedSize += 2;
                     }
@@ -170,7 +170,7 @@ internal sealed class LZNT1 : BlockCompressor
                 EndianUtilities.WriteBytesLittleEndian((ushort)(0x3000 | (BlockSize - 1)), compressed.Slice(
                     headerPosition));
 
-                source.Slice((int)sourceCurrentBlock, BlockSize).CopyTo(compressed.Slice(headerPosition + 2));
+                source.Slice(sourceCurrentBlock, BlockSize).CopyTo(compressed.Slice(headerPosition + 2));
                 destPointer = headerPosition + 2 + BlockSize;
 
                 // Make sure decompression stops by setting the next two bytes to null, prevents us from having to 
@@ -196,7 +196,7 @@ internal sealed class LZNT1 : BlockCompressor
 
         if (nonZeroDataFound)
         {
-            compressedLength = (int)destPointer;
+            compressedLength = destPointer;
             return CompressionResult.Compressed;
         }
 

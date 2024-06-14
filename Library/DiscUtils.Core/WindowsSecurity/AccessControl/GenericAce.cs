@@ -479,30 +479,30 @@ public abstract class GenericAce
 
     internal static ushort ReadUShort(byte[] buffer, int offset)
     {
-        return (ushort)((((int)buffer[offset + 0]) << 0)
-                        | (((int)buffer[offset + 1]) << 8));
+        return (ushort)((buffer[offset + 0] << 0)
+                        | (buffer[offset + 1] << 8));
     }
 
     internal static int ReadInt(byte[] buffer, int offset)
     {
-        return (((int)buffer[offset + 0]) << 0)
-               | (((int)buffer[offset + 1]) << 8)
-               | (((int)buffer[offset + 2]) << 16)
-               | (((int)buffer[offset + 3]) << 24);
+        return (buffer[offset + 0] << 0)
+               | (buffer[offset + 1] << 8)
+               | (buffer[offset + 2] << 16)
+               | (buffer[offset + 3] << 24);
     }
 
     internal static ushort ReadUShort(ReadOnlySpan<byte> buffer)
     {
-        return (ushort)((((int)buffer[0]) << 0)
-                        | (((int)buffer[1]) << 8));
+        return (ushort)((buffer[0] << 0)
+                        | (buffer[1] << 8));
     }
 
     internal static int ReadInt(ReadOnlySpan<byte> buffer)
     {
-        return (((int)buffer[0]) << 0)
-               | (((int)buffer[1]) << 8)
-               | (((int)buffer[2]) << 16)
-               | (((int)buffer[3]) << 24);
+        return (buffer[0] << 0)
+               | (buffer[1] << 8)
+               | (buffer[2] << 16)
+               | (buffer[3] << 24);
     }
 
     internal static void WriteInt(int val, byte[] buffer, int offset)

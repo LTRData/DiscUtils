@@ -96,9 +96,9 @@ internal class BiosExtendedPartitionTable
         {
             while (partPos != 0)
             {
-                yield return new StreamExtent((long)partPos * _diskGeometry.BytesPerSector, _diskGeometry.BytesPerSector);
+                yield return new StreamExtent(partPos * _diskGeometry.BytesPerSector, _diskGeometry.BytesPerSector);
 
-                _disk.Position = (long)partPos * _diskGeometry.BytesPerSector;
+                _disk.Position = partPos * _diskGeometry.BytesPerSector;
                 _disk.ReadExactly(sector.AsSpan(0, _diskGeometry.BytesPerSector));
                 if (sector[510] != 0x55 || sector[511] != 0xAA)
                 {

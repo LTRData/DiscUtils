@@ -58,7 +58,7 @@ public sealed class StandardInformationAttribute : GenericAttribute
     /// <summary>
     /// Gets the attributes of the file, as stored by NTFS.
     /// </summary>
-    public NtfsFileAttributes FileAttributes => (NtfsFileAttributes)_si.FileAttributes;
+    public NtfsFileAttributes FileAttributes => _si.FileAttributes;
 
     /// <summary>
     /// Gets the last update sequence number of the file (relates to the user-readable journal).

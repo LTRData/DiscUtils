@@ -305,7 +305,7 @@ public sealed class RawAcl : GenericAcl
 
     private static ushort ReadUShort(ReadOnlySpan<byte> buffer)
     {
-        return (ushort)((((int)buffer[0]) << 0)
-                        | (((int)buffer[1]) << 8));
+        return (ushort)((buffer[0] << 0)
+                        | (buffer[1] << 8));
     }
 }

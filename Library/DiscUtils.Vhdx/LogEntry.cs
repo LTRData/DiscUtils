@@ -218,7 +218,7 @@ internal sealed class LogEntry
         public override void WriteData(Stream target)
         {
             target.Seek((long)FileOffset, SeekOrigin.Begin);
-            const int size = (int)(4 * Sizes.OneKiB);
+            const int size = 4 * Sizes.OneKiB;
             var zeroBuffer = ArrayPool<byte>.Shared.Rent(size);
             try
             {

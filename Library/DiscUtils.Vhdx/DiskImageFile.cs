@@ -684,14 +684,14 @@ public sealed class DiskImageFile : VirtualDiskLayer
         // Metadata
         var fileParams = new FileParameters
         {
-            BlockSize = (uint)blockSize,
+            BlockSize = blockSize,
             Flags = FileParametersFlags.HasParent
         };
         var parentLocator = new ParentLocator(parent._header.DataWriteGuid.ToString("b"), parentRelativePath, parentAbsolutePath);
 
         var metadataStream = new SubStream(stream, metadataRegion.FileOffset, metadataRegion.Length);
-        _ = Metadata.Initialize(metadataStream, fileParams, (ulong)capacity,
-            (uint)logicalSectorSize, (uint)physicalSectorSize, parentLocator);
+        _ = Metadata.Initialize(metadataStream, fileParams, capacity,
+            logicalSectorSize, physicalSectorSize, parentLocator);
     }
 
     private void Initialize()

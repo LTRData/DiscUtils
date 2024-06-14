@@ -28,7 +28,7 @@ namespace DiscUtils.Vhdx;
 
 internal sealed class MetadataTable : IByteArraySerializable
 {
-    public const int FixedSize = (int)(64 * Sizes.OneKiB);
+    public const int FixedSize = 64 * Sizes.OneKiB;
     public const ulong MetadataTableSignature = 0x617461646174656D;
 
     public static readonly Guid FileParametersGuid = new("CAA16737-FA36-4D43-B3B6-33F0AA44E76B");

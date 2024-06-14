@@ -36,7 +36,7 @@ internal sealed class FileHeader : IByteArraySerializable
 
     public bool IsValid => Signature == VhdxSignature;
 
-    public int Size => (int)(64 * Sizes.OneKiB);
+    public int Size => 64 * Sizes.OneKiB;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

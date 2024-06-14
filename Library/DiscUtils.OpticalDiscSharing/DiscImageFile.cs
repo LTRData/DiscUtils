@@ -36,8 +36,8 @@ internal sealed class DiscImageFile : VirtualDiskLayer
 
         var cacheSettings = new BlockCacheSettings
         {
-            BlockSize = (int)(32 * Sizes.OneKiB),
-            OptimumReadSize = (int)(128 * Sizes.OneKiB)
+            BlockSize = 32 * Sizes.OneKiB,
+            OptimumReadSize = 128 * Sizes.OneKiB
         };
 
         Content = new BlockCacheStream(Content, Ownership.Dispose);

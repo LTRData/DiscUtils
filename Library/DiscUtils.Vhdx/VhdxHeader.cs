@@ -76,7 +76,7 @@ internal sealed class VhdxHeader : IByteArraySerializable
         }
     }
 
-    public int Size => (int)(4 * Sizes.OneKiB);
+    public int Size => 4 * Sizes.OneKiB;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
@@ -100,7 +100,7 @@ internal sealed class VhdxHeader : IByteArraySerializable
     public void WriteTo(Span<byte> buffer)
     {
         RefreshData();
-        _data.AsSpan(0, (int)(4 * Sizes.OneKiB)).CopyTo(buffer);
+        _data.AsSpan(0, 4 * Sizes.OneKiB).CopyTo(buffer);
     }
 
     public void CalcChecksum()

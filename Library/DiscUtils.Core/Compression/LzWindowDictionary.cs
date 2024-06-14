@@ -65,11 +65,11 @@ internal sealed class LzWindowDictionary
         }
     }
 
-    public int[] Search(ReadOnlySpan<byte> decompressedData, int index, uint length)
+    public (int offset, int size) Search(ReadOnlySpan<byte> decompressedData, int index, uint length)
     {
         RemoveOldEntries(decompressedData[index]); // Remove old entries for this index 
 
-        int[] match = { 0, 0 };
+        (int offset, int size) match = (0, 0);
 
         if (index < 1 || length - index < MinMatchAmount)
         {
@@ -96,10 +96,10 @@ internal sealed class LzWindowDictionary
                 matchSize++;
             }
 
-            if (matchSize >= MinMatchAmount && matchSize > match[1])
+            if (matchSize >= MinMatchAmount && matchSize > match.size)
             {
                 // This is a good match 
-                match = new[] { (int)(index - matchStart), matchSize };
+                match = (index - matchStart, matchSize);
 
                 if (matchSize == MaxMatchAmount)
                 {

@@ -76,7 +76,7 @@ internal class NtfsFormatter
 
             // Allocate a minimum of 8KB for the boot loader, but allow for more
             var numBootClusters =
-                MathUtilities.Ceil(Math.Max((int)(8 * Sizes.OneKiB), BootCode == null ? 0 : BootCode.Length),
+                MathUtilities.Ceil(Math.Max(8 * Sizes.OneKiB, BootCode == null ? 0 : BootCode.Length),
                     _clusterSize);
 
             // Place MFT mirror in the middle of the volume

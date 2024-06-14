@@ -300,7 +300,7 @@ public abstract class ProgramBase
         var now = DateTime.Now;
         var timeSoFar = now - startTime;
 
-        var remaining = TimeSpan.FromMilliseconds((timeSoFar.TotalMilliseconds / (double)e.BytesRead) * (totalBytes - e.BytesRead));
+        var remaining = TimeSpan.FromMilliseconds((timeSoFar.TotalMilliseconds / e.BytesRead) * (totalBytes - e.BytesRead));
 
         Console.Write($"\r{label} ({(e.BytesRead * 100) / totalBytes,3}%)  |{progressBar}| {remaining:hh\\:mm\\:ss\\.f}");
     }

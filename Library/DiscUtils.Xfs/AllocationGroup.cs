@@ -85,6 +85,6 @@ internal class AllocationGroup
     {
         var offset = Offset + ((long)inode.AgBlock*Context.SuperBlock.Blocksize) + ((long)inode.BlockOffset * Context.SuperBlock.InodeSize);
         Context.RawStream.Position = offset;
-        inode.ReadFrom(Context.RawStream, (int)Context.SuperBlock.InodeSize);
+        inode.ReadFrom(Context.RawStream, Context.SuperBlock.InodeSize);
     }
 }

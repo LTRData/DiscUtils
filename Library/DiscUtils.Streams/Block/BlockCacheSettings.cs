@@ -32,10 +32,10 @@ public sealed class BlockCacheSettings
     /// </summary>
     public BlockCacheSettings()
     {
-        BlockSize = (int)(4 * Sizes.OneKiB);
+        BlockSize = 4 * Sizes.OneKiB;
         ReadCacheSize = 4 * Sizes.OneMiB;
         LargeReadSize = 64 * Sizes.OneKiB;
-        OptimumReadSize = (int)(64 * Sizes.OneKiB);
+        OptimumReadSize = 64 * Sizes.OneKiB;
     }
 
     /// <summary>
