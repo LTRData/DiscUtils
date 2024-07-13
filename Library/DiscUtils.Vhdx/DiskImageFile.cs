@@ -500,7 +500,96 @@ public sealed class DiskImageFile : VirtualDiskLayer
 
     private static void InitializeFixedInternal(Stream stream, long capacity, Geometry? geometry)
     {
-        throw new NotImplementedException();
+        geometry ??= Geometry.FromCapacity(capacity);
+
+        var logicalSectorSize = geometry.Value.BytesPerSector;
+        var physicalSectorSize = 4096;
+        const uint blockSize = FileParameters.DefaultFixedBlockSize;
+        var chunkRatio = 0x800000L * logicalSectorSize / blockSize;
+        var dataBlocksCount = MathUtilities.Ceil(capacity, blockSize);
+        var sectorBitmapBlocksCount = MathUtilities.Ceil(dataBlocksCount, chunkRatio);
+        var totalBatEntriesFixed = dataBlocksCount + sectorBitmapBlocksCount;
+
+        var fileHeader = new FileHeader { Creator = ".NET DiscUtils" };
+
+        var fileEnd = Sizes.OneMiB;
+
+        var header1 = new VhdxHeader
+        {
+            SequenceNumber = 0,
+            FileWriteGuid = Guid.NewGuid(),
+            DataWriteGuid = Guid.NewGuid(),
+            LogGuid = Guid.Empty,
+            LogVersion = 0,
+            Version = 1,
+            LogLength = (uint)Sizes.OneMiB,
+            LogOffset = (ulong)fileEnd
+        };
+        header1.CalcChecksum();
+
+        fileEnd += header1.LogLength;
+
+        var header2 = new VhdxHeader(header1)
+        {
+            SequenceNumber = 1
+        };
+        header2.CalcChecksum();
+
+        var regionTable = new RegionTable();
+
+        var metadataRegion = new RegionEntry
+        {
+            Guid = RegionEntry.MetadataRegionGuid,
+            FileOffset = fileEnd,
+            Length = (uint)Sizes.OneMiB,
+            Flags = RegionFlags.Required
+        };
+        regionTable.Regions.Add(metadataRegion.Guid, metadataRegion);
+
+        fileEnd += metadataRegion.Length;
+
+        var batRegion = new RegionEntry
+        {
+            Guid = RegionEntry.BatGuid,
+            FileOffset = 3 * Sizes.OneMiB,
+            Length = (uint)MathUtilities.RoundUp(totalBatEntriesFixed * 8, Sizes.OneMiB),
+            Flags = RegionFlags.Required
+        };
+        regionTable.Regions.Add(batRegion.Guid, batRegion);
+
+        fileEnd += batRegion.Length;
+
+        stream.Position = 0;
+        stream.WriteStruct(fileHeader);
+
+        stream.Position = 64 * Sizes.OneKiB;
+        stream.WriteStruct(header1);
+
+        stream.Position = 128 * Sizes.OneKiB;
+        stream.WriteStruct(header2);
+
+        stream.Position = 192 * Sizes.OneKiB;
+        stream.WriteStruct(regionTable);
+
+        stream.Position = 256 * Sizes.OneKiB;
+
+        // Set stream to min size
+
+        stream.Position = fileEnd - 1;
+
+        stream.WriteByte(0);
+
+        // Metadata
+        var fileParams = new FileParameters
+        {
+            BlockSize = FileParameters.DefaultFixedBlockSize,
+            Flags = FileParametersFlags.Fixed,
+        };
+
+        var metadataStream = new SubStream(stream, metadataRegion.FileOffset, metadataRegion.Length);
+        _ = Metadata.Initialize(metadataStream, fileParams, (ulong)capacity,
+            (uint)logicalSectorSize, (uint)physicalSectorSize, null);
+
     }
 
     private static void InitializeDynamicInternal(Stream stream, long capacity, Geometry? geometry, long blockSize)
@@ -592,7 +681,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
         var fileParams = new FileParameters
         {
             BlockSize = (uint)blockSize,
-            Flags = FileParametersFlags.None
+            Flags = FileParametersFlags.None,
         };
 
         var metadataStream = new SubStream(stream, metadataRegion.FileOffset, metadataRegion.Length);
@@ -605,7 +694,8 @@ public sealed class DiskImageFile : VirtualDiskLayer
     {
         var logicalSectorSize = parent._metadata.LogicalSectorSize;
         var physicalSectorSize = parent._metadata.PhysicalSectorSize;
-        var blockSize = parent._metadata.FileParameters.BlockSize;
+
+        uint blockSize = parent._metadata.FileParameters.BlockSize;
         var capacity = parent._metadata.DiskSize;
 
         var chunkRatio = 0x800000L * logicalSectorSize / blockSize;
@@ -685,7 +775,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
         var fileParams = new FileParameters
         {
             BlockSize = blockSize,
-            Flags = FileParametersFlags.HasParent
+            Flags = FileParametersFlags.HasParent,
         };
         var parentLocator = new ParentLocator(parent._header.DataWriteGuid.ToString("b"), parentRelativePath, parentAbsolutePath);
 
@@ -714,6 +804,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
         ReadMetadata();
 
         _batStream = OpenRegion(RegionTable.BatGuid);
+
         _freeSpace.Reserve(BatControlledFileExtents());
 
         // Indicate the file is open for modification
@@ -728,10 +819,9 @@ public sealed class DiskImageFile : VirtualDiskLayer
     {
         _batStream.Position = 0;
         var batData = _batStream.ReadExactly((int)_batStream.Length);
-
-        var blockSize = _metadata.FileParameters.BlockSize;
-        var chunkSize = (1L << 23) * _metadata.LogicalSectorSize;
-        var chunkRatio = (int)(chunkSize / _metadata.FileParameters.BlockSize);
+        uint blockSize = _metadata.FileParameters.BlockSize;
+        long chunkSize = (1L << 23) * _metadata.LogicalSectorSize;
+        int chunkRatio = (int)(chunkSize / blockSize);
 
         var extents = new List<StreamExtent>();
         for (var i = 0; i < batData.Length; i += 8)

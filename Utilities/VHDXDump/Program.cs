@@ -66,7 +66,7 @@ class Program : ProgramBase
         Console.WriteLine("           Signature: {0:x8}", info.Signature);
         Console.WriteLine("             Creator: {0:x8}", info.Creator);
         Console.WriteLine("          Block Size: {0} (0x{0:X8})", info.BlockSize);
-        Console.WriteLine("Leave Blocks Alloced: {0}", info.LeaveBlocksAllocated);
+        Console.WriteLine("               Fixed: {0}", info.IsFixedDisk);
         Console.WriteLine("          Has Parent: {0}", info.HasParent);
         Console.WriteLine("           Disk Size: {0} ({1} (0x{1:X8}))", Utilities.ApproximateDiskSize(info.DiskSize), info.DiskSize);
         Console.WriteLine(" Logical Sector Size: {0} (0x{0:X8})", info.LogicalSectorSize);

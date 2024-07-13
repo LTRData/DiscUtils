@@ -27,7 +27,7 @@ namespace DiscUtils.Vhdx;
 [Flags]
 internal enum FileParametersFlags : uint
 {
-    None = 0x00,
-    LeaveBlocksAllocated = 0x01,
-    HasParent = 0x02
+    None = 0,
+    Fixed = 1, //if bit 0 is set, the file is a fixed VHD, otherwise it is a dynamic/differencing VHDX.
+    HasParent = 2,
 }

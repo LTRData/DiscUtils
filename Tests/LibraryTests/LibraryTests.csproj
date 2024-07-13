@@ -1,13 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net8.0;net48;net46</TargetFrameworks>
+    <TargetFrameworks>net8.0;net481;net462;net9.0</TargetFrameworks>
     <DebugType>portable</DebugType>
     <AssemblyName>LibraryTests</AssemblyName>
     <PackageId>LibraryTests</PackageId>
     <SignAssembly>false</SignAssembly>
     <LangVersion>Latest</LangVersion>
     <AssemblyOriginatorKeyFile>../../SigningKey.snk</AssemblyOriginatorKeyFile>
+	<SkipDefaultAdapters>true</SkipDefaultAdapters>
+	<DisableSharedTestHost>true</DisableSharedTestHost>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="_Data\*" />
@@ -19,15 +21,16 @@
     <ProjectReference Include="..\..\Library\DiscUtils\DiscUtils.csproj" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework.CompareTo(`net462`))' &lt; 0 Or '$(TargetFramework)' == 'netcoreapp3.1'">
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.*" />
-    <PackageReference Include="System.IO.Compression" Version="4.3.*" />
-    <PackageReference Include="xunit.extensibility.core" Version="2.6.*" />
-    <PackageReference Include="xunit" Version="2.6.*" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.*" />
+    <PackageReference Include="System.IO.Compression" Version="*" />
+	  <PackageReference Include="xunit" Version="2.9.*" />
+	  <PackageReference Include="xunit.extensibility.core" Version="2.8.*" />
+	  <PackageReference Include="xunit.runner.visualstudio" Version="2.8.*">
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		  <PrivateAssets>all</PrivateAssets>
+	  </PackageReference>
   </ItemGroup>
+	
   <ItemGroup Condition=" '$(TargetFramework.CompareTo(`net462`))' &gt;= 0 And '$(TargetFramework)' != 'netcoreapp3.1'">
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="*" />
     <PackageReference Include="System.IO.Compression" Version="*" />

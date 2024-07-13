@@ -100,11 +100,6 @@ public sealed class DiskBuilder : DiskImageBuilder
 
         protected override List<BuilderExtent> FixExtents(out long totalLength)
         {
-            if (_diskType != DiskType.Dynamic)
-            {
-                throw new NotSupportedException("Creation of Vhdx currently only supports dynamically expanding format");
-            }
-
             var extents = new List<BuilderExtent>();
 
             var logicalSectorSize = 512;
@@ -169,12 +164,37 @@ public sealed class DiskBuilder : DiskImageBuilder
             extents.Add(ExtentForStruct(regionTable, 192 * Sizes.OneKiB));
             extents.Add(ExtentForStruct(regionTable, 256 * Sizes.OneKiB));
 
-            // Metadata
-            var fileParams = new FileParameters
+            FileParameters fileParams;
+            if (_diskType == DiskType.Fixed)
             {
-                BlockSize = (uint)_blockSize,
-                Flags = FileParametersFlags.None
-            };
+                // Metadata
+                fileParams = new FileParameters
+                {
+                    BlockSize = (uint)_blockSize,
+                    Flags = FileParametersFlags.Fixed
+                };
+            }
+            else if(_diskType == DiskType.Differencing)
+            {
+                fileParams = new FileParameters
+                {
+                    BlockSize = (uint)_blockSize,
+                    Flags = FileParametersFlags.HasParent
+                };
+            }
+            else if(_diskType == DiskType.Dynamic)
+            {
+                // Metadata
+                fileParams = new FileParameters
+                {
+                    BlockSize = (uint)_blockSize,
+                    Flags = FileParametersFlags.None
+                };
+            }
+            else
+            {
+                throw new InvalidOperationException("Unknown disk type");
+            }
 
             var metadataBuffer = new byte[metadataRegion.Length];
             var metadataStream = new MemoryStream(metadataBuffer);
