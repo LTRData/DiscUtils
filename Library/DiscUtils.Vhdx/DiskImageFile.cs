@@ -583,7 +583,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
         var fileParams = new FileParameters
         {
             BlockSize = FileParameters.DefaultFixedBlockSize,
-            Flags = FileParametersFlags.Fixed,
+            Flags = FileParametersFlags.LeaveBlocksAllocated,
         };
 
         var metadataStream = new SubStream(stream, metadataRegion.FileOffset, metadataRegion.Length);

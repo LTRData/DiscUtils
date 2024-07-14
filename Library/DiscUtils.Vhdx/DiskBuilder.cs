@@ -171,7 +171,7 @@ public sealed class DiskBuilder : DiskImageBuilder
                 fileParams = new FileParameters
                 {
                     BlockSize = (uint)_blockSize,
-                    Flags = FileParametersFlags.Fixed
+                    Flags = FileParametersFlags.LeaveBlocksAllocated
                 };
             }
             else if(_diskType == DiskType.Differencing)

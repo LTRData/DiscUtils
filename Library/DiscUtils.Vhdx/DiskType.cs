@@ -33,7 +33,7 @@ public enum DiskType
     None = 0,
 
     /// <summary>
-    /// Fixed-size disk, with space allocated up-front.
+    /// LeaveBlocksAllocated-size disk, with space allocated up-front.
     /// </summary>
     Fixed = 2,
 

@@ -27,7 +27,16 @@ namespace DiscUtils.Vhdx;
 [Flags]
 internal enum FileParametersFlags : uint
 {
+    /// <summary>
+    /// If no bits are set, the disk will be considered Dynamic.
+    /// </summary>
     None = 0,
-    Fixed = 1, //if bit 0 is set, the file is a fixed VHD, otherwise it is a dynamic/differencing VHDX.
+    /// <summary>
+    /// If set tells system to leave blocks allocated(fixed disk), otherwise it is a dynamic/differencing disk.
+    /// </summary>
+    LeaveBlocksAllocated = 1, //if bit 0 is set, the file is a fixed VHD, otherwise it is a dynamic/differencing VHDX.
+    /// <summary>
+    /// If this bit is set the file has a parent file, so it's most likely a differencing disk.
+    /// </summary>
     HasParent = 2,
 }

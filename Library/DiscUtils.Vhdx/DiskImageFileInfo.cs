@@ -123,12 +123,12 @@ public sealed class DiskImageFileInfo
     /// <summary>
     /// Gets a value indicaticating if (the VHDX file is a fixed disk.
     /// </summary>
-    public bool IsFixedDisk => (_metadata.FileParameters.Flags & FileParametersFlags.Fixed) != 0;
+    public bool IsFixedDisk => (_metadata.FileParameters.Flags & FileParametersFlags.LeaveBlocksAllocated) != 0;
 
     /// <summary>
     /// Gets a value indicaticating if the VHDX file is a dynamic disk.
     /// </summary>
-    public bool IsDynamicDisk => (_metadata.FileParameters.Flags & FileParametersFlags.Fixed) == 0;
+    public bool IsDynamicDisk => (_metadata.FileParameters.Flags & FileParametersFlags.LeaveBlocksAllocated) == 0;
 
 
     /// <summary>
