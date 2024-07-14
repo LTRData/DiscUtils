@@ -498,6 +498,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
         }
     }
 
+    public static byte[] oneMiB = new byte[1024 * 1024];
     private static void InitializeFixedInternal(Stream stream, long capacity, Geometry? geometry)
     {
         geometry ??= Geometry.FromCapacity(capacity);
@@ -509,10 +510,9 @@ public sealed class DiskImageFile : VirtualDiskLayer
         var dataBlocksCount = MathUtilities.Ceil(capacity, blockSize);
         var sectorBitmapBlocksCount = MathUtilities.Ceil(dataBlocksCount, chunkRatio);
         var totalBatEntriesFixed = dataBlocksCount + sectorBitmapBlocksCount;
-
         var fileHeader = new FileHeader { Creator = ".NET DiscUtils" };
 
-        var fileEnd = Sizes.OneMiB;
+        long fileEnd = capacity;
 
         var header1 = new VhdxHeader
         {
@@ -572,11 +572,10 @@ public sealed class DiskImageFile : VirtualDiskLayer
         stream.WriteStruct(regionTable);
 
         stream.Position = 256 * Sizes.OneKiB;
+        stream.WriteStruct(regionTable);
 
         // Set stream to min size
-
         stream.Position = fileEnd - 1;
-
         stream.WriteByte(0);
 
         // Metadata
@@ -589,7 +588,6 @@ public sealed class DiskImageFile : VirtualDiskLayer
         var metadataStream = new SubStream(stream, metadataRegion.FileOffset, metadataRegion.Length);
         _ = Metadata.Initialize(metadataStream, fileParams, (ulong)capacity,
             (uint)logicalSectorSize, (uint)physicalSectorSize, null);
-
     }
 
     private static void InitializeDynamicInternal(Stream stream, long capacity, Geometry? geometry, long blockSize)
