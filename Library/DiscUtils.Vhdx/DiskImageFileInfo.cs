@@ -121,9 +121,15 @@ public sealed class DiskImageFileInfo
     public bool HasParent => (_metadata.FileParameters.Flags & FileParametersFlags.HasParent) != 0;
 
     /// <summary>
-    /// Gets a value indicating whether blocks should be left allocated within the file.
+    /// Gets a value indicaticating if (the VHDX file is a fixed disk.
     /// </summary>
-    public bool LeaveBlocksAllocated => (_metadata.FileParameters.Flags & FileParametersFlags.LeaveBlocksAllocated) != 0;
+    public bool IsFixedDisk => (_metadata.FileParameters.Flags & FileParametersFlags.LeaveBlocksAllocated) != 0;
+
+    /// <summary>
+    /// Gets a value indicaticating if the VHDX file is a dynamic disk.
+    /// </summary>
+    public bool IsDynamicDisk => (_metadata.FileParameters.Flags & FileParametersFlags.LeaveBlocksAllocated) == 0;
+
 
     /// <summary>
     /// Gets the logical sector size of the disk represented by the VHDX file.

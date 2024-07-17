@@ -32,31 +32,49 @@ namespace LibraryTests.Vhdx;
 
 public class DiskBuilderTest
 {
-    private SparseStream diskContent;
+    private SparseStream dynamicDiskContent;
+    private SparseStream fixedDiskContent;
 
     public DiskBuilderTest()
     {
-        var sourceStream = new SparseMemoryStream();
-        sourceStream.SetLength(160 * 1024L * 1024);
-        for (var i = 0; i < 8; ++i)
         {
-            sourceStream.Position = i * 1024L * 1024;
-            sourceStream.WriteByte((byte)i);
+            var sourceStream = new SparseMemoryStream();
+            sourceStream.SetLength(160 * 1024L * 1024);
+            for (var i = 0; i < 8; ++i)
+            {
+                sourceStream.Position = i * 1024L * 1024;
+                sourceStream.WriteByte((byte)i);
+            }
+
+            sourceStream.Position = 150 * 1024 * 1024;
+            sourceStream.WriteByte(0xFF);
+
+            dynamicDiskContent = sourceStream;
         }
 
-        sourceStream.Position = 150 * 1024 * 1024;
-        sourceStream.WriteByte(0xFF);
+        {
+            var sourceStream = new SparseMemoryStream();
+            sourceStream.SetLength(160 * 1024L * 1024);
+            for (var i = 0; i < 8; ++i)
+            {
+                sourceStream.Position = i * 1024L * 1024;
+                sourceStream.WriteByte((byte)i);
+            }
 
-        diskContent = sourceStream;
+            sourceStream.Position = 150 * 1024 * 1024;
+            sourceStream.WriteByte(0xFF);
+
+            fixedDiskContent = sourceStream;
+        }
     }
 
-    [Fact(Skip = "Fixed size Vhdx not implemeted")]
+    [Fact()]
     public void BuildFixed()
     {
         var builder = new DiskBuilder
         {
             DiskType = DiskType.Fixed,
-            Content = diskContent
+            Content = fixedDiskContent
         };
 
         var fileSpecs = builder.Build("foo").ToArray();
@@ -72,6 +90,23 @@ public class DiskBuilderTest
 
         disk.Content.Position = 150 * 1024 * 1024;
         Assert.Equal(0xFF, disk.Content.ReadByte());
+    }
+
+    [Fact()]
+    public void BuildEmptyFixed()
+    {
+        var builder = new DiskBuilder
+        {
+            DiskType = DiskType.Fixed,
+            Content = new SparseMemoryStream()
+        };
+
+        var fileSpecs = builder.Build("foo").ToArray();
+        Assert.Single(fileSpecs);
+        Assert.Equal("foo.vhdx", fileSpecs[0].Name);
+
+        using var disk = new Disk(fileSpecs[0].OpenStream(), Ownership.Dispose);
+        Assert.Equal(0, disk.Content.Length);
     }
 
     [Fact]
@@ -170,7 +205,7 @@ public class DiskBuilderTest
         var builder = new DiskBuilder
         {
             DiskType = DiskType.Dynamic,
-            Content = diskContent
+            Content = dynamicDiskContent
         };
 
         var fileSpecs = builder.Build("foo").ToArray();

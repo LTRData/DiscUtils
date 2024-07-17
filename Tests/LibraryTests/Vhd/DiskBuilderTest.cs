@@ -30,22 +30,39 @@ namespace LibraryTests.Vhd;
 
 public class DiskBuilderTest
 {
-    private SparseStream diskContent;
+    private SparseStream dynamic_diskContent;
+    private SparseStream fixed_diskContent;
 
     public DiskBuilderTest()
     {
-        var fileStream = new MemoryStream();
-        var baseFile = Disk.InitializeDynamic(fileStream, Ownership.Dispose, 16 * 1024L * 1024);
-        for (var i = 0; i < 8; i += 1024 * 1024)
         {
-            baseFile.Content.Position = i;
-            baseFile.Content.WriteByte((byte)i);
+            var fileStream = new MemoryStream();
+            var baseFile = Disk.InitializeDynamic(fileStream, Ownership.Dispose, 16 * 1024L * 1024);
+            for (var i = 0; i < 8; i += 1024 * 1024)
+            {
+                baseFile.Content.Position = i;
+                baseFile.Content.WriteByte((byte)i);
+            }
+
+            baseFile.Content.Position = 15 * 1024 * 1024;
+            baseFile.Content.WriteByte(0xFF);
+
+            dynamic_diskContent = baseFile.Content;
         }
+        {
+            var fileStream = new MemoryStream();
+            var baseFile = Disk.InitializeFixed(fileStream, Ownership.Dispose, 16 * 1024L * 1024);
+            for (var i = 0; i < 8; i += 1024 * 1024)
+            {
+                baseFile.Content.Position = i;
+                baseFile.Content.WriteByte((byte)i);
+            }
 
-        baseFile.Content.Position = 15 * 1024 * 1024;
-        baseFile.Content.WriteByte(0xFF);
+            baseFile.Content.Position = 15 * 1024 * 1024;
+            baseFile.Content.WriteByte(0xFF);
 
-        diskContent = baseFile.Content;
+            fixed_diskContent = baseFile.Content;
+        }
     }
 
     [Fact]
@@ -54,7 +71,7 @@ public class DiskBuilderTest
         var builder = new DiskBuilder
         {
             DiskType = FileType.Fixed,
-            Content = diskContent
+            Content = fixed_diskContent
         };
 
         var fileSpecs = builder.Build("foo").ToArray();
@@ -78,7 +95,7 @@ public class DiskBuilderTest
         var builder = new DiskBuilder
         {
             DiskType = FileType.Dynamic,
-            Content = diskContent
+            Content = dynamic_diskContent
         };
 
         var fileSpecs = builder.Build("foo").ToArray();

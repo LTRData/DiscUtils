@@ -116,7 +116,7 @@ class Program : ProgramBase
                 return;
             }
 
-            // Create Fixed disk
+            // Create LeaveBlocksAllocated disk
             using var fs = new FileStream(_destFile.Value, FileMode.Create, FileAccess.ReadWrite, FileShare.Delete, bufferSize: 2 << 20);
             Disk.InitializeFixed(fs, Ownership.None, DiskSize);
         }

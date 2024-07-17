@@ -36,10 +36,10 @@ public class DiskTest
     public void InitializeFixed()
     {
         var ms = new MemoryStream();
-        using (var disk = Disk.InitializeDynamic(ms, Ownership.None, 8 * 1024 * 1024))
+        using (var disk = Disk.InitializeDynamic(ms, Ownership.None, 8 * Sizes.OneMiB))
         {
             Assert.NotNull(disk);
-            Assert.True(disk.Geometry.Value.Capacity is > (long)(7.5 * 1024 * 1024) and <= (8 * 1024 * 1024));
+            Assert.True(disk.Geometry.Value.Capacity is > (long)(7.5 * Sizes.OneMiB) and <= (8 * Sizes.OneMiB));
         }
 
         // Check the stream is still valid
@@ -48,10 +48,22 @@ public class DiskTest
     }
 
     [Fact]
+    public void InitializeFixedOwnStream()
+    {
+        var ms = new MemoryStream();
+        using (var disk = Disk.InitializeFixed(ms, Ownership.Dispose, 8 * Sizes.OneMiB))
+        {
+        }
+
+        Assert.Throws<ObjectDisposedException>(() => ms.ReadByte());
+    }
+
+
+    [Fact]
     public void InitializeDynamicOwnStream()
     {
         var ms = new MemoryStream();
-        using (var disk = Disk.InitializeDynamic(ms, Ownership.Dispose, 8 * 1024 * 1024))
+        using (var disk = Disk.InitializeDynamic(ms, Ownership.Dispose, 8 * Sizes.OneMiB))
         {
         }
 
@@ -62,17 +74,17 @@ public class DiskTest
     public void InitializeDynamic()
     {
         var ms = new MemoryStream();
-        using (var disk = Disk.InitializeDynamic(ms, Ownership.None, 16 * 1024L * 1024 * 1024))
+        using (var disk = Disk.InitializeDynamic(ms, Ownership.None, 16 * Sizes.OneGiB))
         {
             Assert.NotNull(disk);
-            Assert.True(disk.Geometry.Value.Capacity is > (long)(15.8 * 1024L * 1024 * 1024) and <= (16 * 1024L * 1024 * 1024));
+            Assert.True(disk.Geometry.Value.Capacity is > (long)(15.8 * Sizes.OneGiB) and <= (16 * Sizes.OneGiB));
         }
 
-        Assert.True(8 * 1024 * 1024 > ms.Length);
+        Assert.True(8 * Sizes.OneMiB > ms.Length);
 
         using (var disk = new Disk(ms, Ownership.Dispose))
         {
-            Assert.True(disk.Geometry.Value.Capacity is > (long)(15.8 * 1024L * 1024 * 1024) and <= (16 * 1024L * 1024 * 1024));
+            Assert.True(disk.Geometry.Value.Capacity is > (long)(15.8 * Sizes.OneGiB) and <= (16 * Sizes.OneGiB));
         }
     }
 
@@ -81,16 +93,16 @@ public class DiskTest
     {
         var baseStream = new MemoryStream();
         var diffStream = new MemoryStream();
-        var baseFile = DiskImageFile.InitializeDynamic(baseStream, Ownership.Dispose, 16 * 1024L * 1024 * 1024);
+        var baseFile = DiskImageFile.InitializeDynamic(baseStream, Ownership.Dispose, 16 * Sizes.OneGiB);
         using (var disk = Disk.InitializeDifferencing(diffStream, Ownership.None, baseFile, Ownership.Dispose, @"C:\TEMP\Base.vhd", @".\Base.vhd", DateTime.UtcNow))
         {
             Assert.NotNull(disk);
-            Assert.True(disk.Geometry.Value.Capacity is > (long)(15.8 * 1024L * 1024 * 1024) and <= (16 * 1024L * 1024 * 1024));
+            Assert.True(disk.Geometry.Value.Capacity is > (long)(15.8 * Sizes.OneGiB) and <= (16 * Sizes.OneGiB));
             Assert.True(disk.Geometry.Value.Capacity == baseFile.Geometry.Capacity);
             Assert.Equal(2, new List<VirtualDiskLayer>(disk.Layers).Count);
         }
 
-        Assert.True(8 * 1024 * 1024 > diffStream.Length);
+        Assert.True(8 * Sizes.OneMiB > diffStream.Length);
         diffStream.Dispose();
     }
 
@@ -99,7 +111,7 @@ public class DiskTest
     {
         Geometry geometry;
         var ms = new MemoryStream();
-        using (var disk = Disk.InitializeDynamic(ms, Ownership.None, 16 * 1024L * 1024 * 1024))
+        using (var disk = Disk.InitializeDynamic(ms, Ownership.None, 16 * Sizes.OneGiB))
         {
             geometry = disk.Geometry.Value;
         }
@@ -118,10 +130,33 @@ public class DiskTest
     }
 
     [Fact]
-    public void ConstructorFromFiles()
+    public void ConstructorFixed()
+    {
+        Geometry geometry;
+        var ms = new MemoryStream();
+        using (var disk = Disk.InitializeFixed(ms, Ownership.None, 16 * Sizes.OneMiB))
+        {
+            geometry = disk.Geometry.Value;
+        }
+
+        using (var disk = new Disk(ms, Ownership.None))
+        {
+            Assert.Equal(geometry, disk.Geometry);
+            Assert.NotNull(disk.Content);
+        }
+
+        using (var disk = new Disk(ms, Ownership.Dispose))
+        {
+            Assert.Equal(geometry, disk.Geometry);
+            Assert.NotNull(disk.Content);
+        }
+    }
+
+    [Fact]
+    public void ConstructorFromFilesDynamic()
     {
         var baseStream = new MemoryStream();
-        var baseFile = DiskImageFile.InitializeDynamic(baseStream, Ownership.Dispose, 16 * 1024L * 1024 * 1024);
+        var baseFile = DiskImageFile.InitializeDynamic(baseStream, Ownership.Dispose, 16 * Sizes.OneGiB);
 
         var childStream = new MemoryStream();
         var childFile = DiskImageFile.InitializeDifferencing(childStream, Ownership.Dispose, baseFile, @"C:\temp\foo.vhd", @".\foo.vhd", DateTime.Now);
@@ -132,5 +167,22 @@ public class DiskTest
         using var disk = new Disk(new DiskImageFile[] { grandChildFile, childFile, baseFile }, Ownership.Dispose);
         Assert.NotNull(disk.Content);
     }
+
+    [Fact]
+    public void ConstructorFromFilesFixed()
+    {
+        var baseStream = new MemoryStream();
+        var baseFile = DiskImageFile.InitializeFixed(baseStream, Ownership.Dispose, 16 * Sizes.OneMiB);
+
+        var childStream = new MemoryStream();
+        var childFile = DiskImageFile.InitializeDifferencing(childStream, Ownership.Dispose, baseFile, @"C:\temp\foo.vhd", @".\foo.vhd", DateTime.Now);
+
+        var grandChildStream = new MemoryStream();
+        var grandChildFile = DiskImageFile.InitializeDifferencing(grandChildStream, Ownership.Dispose, childFile, @"C:\temp\child1.vhd", @".\child1.vhd", DateTime.Now);
+
+        using var disk = new Disk(new DiskImageFile[] { grandChildFile, childFile, baseFile }, Ownership.Dispose);
+        Assert.NotNull(disk.Content);
+    }
+
 
 }
