@@ -20,6 +20,8 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
+#if NETFRAMEWORK
+
 using System.ComponentModel;
 using System.Management.Automation;
 
@@ -34,3 +36,5 @@ public class SnapIn : PSSnapIn
 
     public override string Vendor => "Kenneth Bell";
 }
+
+#endif
