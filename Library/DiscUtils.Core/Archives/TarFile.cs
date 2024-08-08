@@ -20,12 +20,14 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-using LTRData.Extensions.Buffers;
 using DiscUtils.Streams;
+using LTRData.Extensions.Buffers;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace DiscUtils.Archives;
 
@@ -291,6 +293,108 @@ public class TarFile : IDisposable
             }
         }
     }
+
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP
+    public static async IAsyncEnumerable<TarFileData> EnumerateFilesAsync(Stream archive, [EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+        var hdrBuf = new byte[512];
+
+        string long_path = null;
+
+        for (; ; )
+        {
+            if (await archive.ReadMaximumAsync(hdrBuf.AsMemory(0, 512), cancellationToken).ConfigureAwait(false) < 512)
+            {
+                break;
+            }
+
+            var hdr = new TarHeader(hdrBuf);
+
+            if (long_path is not null)
+            {
+                hdr.FileName = long_path;
+                long_path = null;
+            }
+
+            if (hdr.FileLength == 0 && string.IsNullOrEmpty(hdr.FileName))
+            {
+                break;
+            }
+
+            if (hdr.FileLength == 0)
+            {
+                yield return new(hdr, source: null);
+            }
+            else if (hdr.FileType == UnixFileType.TarEntryLongLink &&
+                hdr.FileName == "././@LongLink")
+            {
+                var data = ArrayPool<byte>.Shared.Rent(checked((int)hdr.FileLength));
+                try
+                {
+                    await archive.ReadExactlyAsync(data.AsMemory(0, (int)hdr.FileLength), cancellationToken).ConfigureAwait(false);
+
+                    long_path = EncodingUtilities
+                        .GetLatin1Encoding()
+                        .GetString(TarHeader.ReadNullTerminatedString(data.AsSpan(0, (int)hdr.FileLength)));
+                }
+                finally
+                {
+                    ArrayPool<byte>.Shared.Return(data);
+                }
+
+                var moveForward = (int)(-(hdr.FileLength & 511) & 511);
+
+                if (await archive.ReadMaximumAsync(hdrBuf.AsMemory(0, moveForward), cancellationToken).ConfigureAwait(false) < moveForward)
+                {
+                    break;
+                }
+            }
+            else if (archive.CanSeek)
+            {
+                var location = archive.Position;
+
+                var datastream = new SubStream(archive, location, hdr.FileLength);
+
+                yield return new(hdr, datastream);
+
+                archive.Position = location + hdr.FileLength + ((-datastream.Length) & 511);
+            }
+            else
+            {
+                Stream datastream;
+
+                if (hdr.FileLength >= FileDatabufferChunkSize)
+                {
+                    var data = new SparseMemoryBuffer(FileDatabufferChunkSize);
+
+                    if (await data.WriteFromStreamAsync(0, archive, hdr.FileLength, cancellationToken).ConfigureAwait(false) < hdr.FileLength)
+                    {
+                        throw new EndOfStreamException("Unexpected end of tar stream");
+                    }
+
+                    datastream = new SparseMemoryStream(data, FileAccess.Read);
+                }
+                else
+                {
+                    var data = new byte[hdr.FileLength];
+
+                    await archive.ReadExactlyAsync(data, cancellationToken).ConfigureAwait(false);
+
+                    datastream = new MemoryStream(data, writable: false);
+                }
+
+                var moveForward = (int)((-datastream.Length) & 511);
+
+                yield return new(hdr, datastream);
+
+                if (await archive.ReadMaximumAsync(hdrBuf.AsMemory(0, moveForward), cancellationToken).ConfigureAwait(false) < moveForward)
+                {
+                    break;
+                }
+            }
+        }
+    }
+#endif
 
     protected virtual void Dispose(bool disposing)
     {

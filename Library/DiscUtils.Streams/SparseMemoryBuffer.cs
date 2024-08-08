@@ -23,6 +23,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace DiscUtils.Streams;
 
@@ -320,7 +322,51 @@ public sealed class SparseMemoryBuffer : Buffer
                 _buffers[chunk] = chunkBuffer;
             }
 
-            var numRead = source.Read(chunkBuffer, chunkOffset, numToWrite);
+            var numRead = source.ReadMaximum(chunkBuffer, chunkOffset, numToWrite);
+
+            if (numRead <= 0)
+            {
+                break;
+            }
+
+            totalWritten += numRead;
+            pos += numRead;
+
+            if (numRead < numToWrite)
+            {
+                break;
+            }
+        }
+
+        _capacity = Math.Max(_capacity, pos);
+
+        return totalWritten;
+    }
+
+    /// <summary>
+    /// Writes from a stream into the sparse buffer.
+    /// </summary>
+    /// <param name="pos">The start offset within the sparse buffer.</param>
+    /// <param name="source">The stream to get data from.</param>
+    /// <param name="count">The number of bytes to write.</param>
+    /// <param name="cancellationToken"></param>
+    public async ValueTask<long> WriteFromStreamAsync(long pos, Stream source, long count, CancellationToken cancellationToken)
+    {
+        long totalWritten = 0;
+
+        while (totalWritten < count)
+        {
+            var chunk = (int)(pos / ChunkSize);
+            var chunkOffset = (int)(pos % ChunkSize);
+            var numToWrite = (int)Math.Min(ChunkSize - chunkOffset, count - totalWritten);
+
+            if (!_buffers.TryGetValue(chunk, out var chunkBuffer))
+            {
+                chunkBuffer = new byte[ChunkSize];
+                _buffers[chunk] = chunkBuffer;
+            }
+
+            var numRead = await source.ReadMaximumAsync(chunkBuffer.AsMemory(chunkOffset, numToWrite), cancellationToken).ConfigureAwait(false);
 
             if (numRead <= 0)
             {
