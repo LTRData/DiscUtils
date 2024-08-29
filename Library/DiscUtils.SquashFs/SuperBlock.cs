@@ -27,16 +27,7 @@ namespace DiscUtils.SquashFs;
 
 internal class SuperBlock : IByteArraySerializable
 {
-    public enum CompressionType : ushort
-    {
-        Unknown,
-        ZLib,
-        LZMA,
-        Lzo,
-        Xz,
-        Lz4,
-        ZStd
-    }
+
 
     [Flags]
     public enum SuperBlockFlags : ushort
@@ -58,7 +49,7 @@ internal class SuperBlock : IByteArraySerializable
     public uint BlockSize;
     public ushort BlockSizeLog2;
     public long BytesUsed;
-    public CompressionType Compression;
+    public SquashFileSystemCompression Compression;
     public DateTime CreationTime;
     public long DirectoryTableStart;
     public long ExtendedAttrsTableStart;
@@ -90,7 +81,7 @@ internal class SuperBlock : IByteArraySerializable
         CreationTime = DateTimeOffset.FromUnixTimeSeconds(EndianUtilities.ToUInt32LittleEndian(buffer.Slice(8))).DateTime;
         BlockSize = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(12));
         FragmentsCount = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(16));
-        Compression = (CompressionType)EndianUtilities.ToUInt16LittleEndian(buffer.Slice(20));
+        Compression = (SquashFileSystemCompression)EndianUtilities.ToUInt16LittleEndian(buffer.Slice(20));
         BlockSizeLog2 = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(22));
         Flags = (SuperBlockFlags)EndianUtilities.ToUInt16LittleEndian(buffer.Slice(24));
         UidGidCount = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(26));

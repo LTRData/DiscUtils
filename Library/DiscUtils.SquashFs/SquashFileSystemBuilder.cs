@@ -44,6 +44,7 @@ public sealed class SquashFileSystemBuilder : StreamBuilder, IFileSystemBuilder
     private uint _nextInode;
 
     private BuilderDirectory _rootDir;
+    private readonly Func<Stream, Stream> _compressor;
 
     // Progress reporting event
     public event EventHandler<ProgressEventArgs> ProgressChanged;
@@ -65,7 +66,15 @@ public sealed class SquashFileSystemBuilder : StreamBuilder, IFileSystemBuilder
     /// <summary>
     /// Initializes a new instance of the SquashFileSystemBuilder class.
     /// </summary>
-    public SquashFileSystemBuilder()
+    public SquashFileSystemBuilder() : this(null)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the SquashFileSystemBuilder class.
+    /// </summary>
+    /// <param name="options">The options for this builder.</param>
+    public SquashFileSystemBuilder(SquashFileSystemBuilderOptions options)
     {
         DefaultFilePermissions = UnixFilePermissions.OwnerRead | UnixFilePermissions.OwnerWrite |
                                  UnixFilePermissions.GroupRead | UnixFilePermissions.GroupWrite;
@@ -74,7 +83,15 @@ public sealed class SquashFileSystemBuilder : StreamBuilder, IFileSystemBuilder
                                       UnixFilePermissions.OthersExecute;
         DefaultUser = 0;
         DefaultGroup = 0;
+
+        Options = options ?? SquashFileSystemBuilderOptions.Default;
+        _compressor = Options.ResolveCompressor();
     }
+
+    /// <summary>
+    /// Gets the options for this builder.
+    /// </summary>
+    public SquashFileSystemBuilderOptions Options { get; }
 
     /// <summary>
     /// Gets or sets the default permissions used for new directories.
@@ -402,8 +419,8 @@ public sealed class SquashFileSystemBuilder : StreamBuilder, IFileSystemBuilder
             IoBuffer = new byte[DefaultBlockSize]
         };
 
-        var inodeWriter = new MetablockWriter();
-        var dirWriter = new MetablockWriter();
+        var inodeWriter = new MetablockWriter(_compressor);
+        var dirWriter = new MetablockWriter(_compressor);
         var fragWriter = new FragmentWriter(_context);
         var idWriter = new IdTableWriter(_context);
 
@@ -413,6 +430,7 @@ public sealed class SquashFileSystemBuilder : StreamBuilder, IFileSystemBuilder
         _context.WriteFragment = fragWriter.WriteFragment;
         _context.InodeWriter = inodeWriter;
         _context.DirectoryWriter = dirWriter;
+        _context.Compressor = _compressor;
 
         _nextInode = 1;
 
@@ -421,7 +439,7 @@ public sealed class SquashFileSystemBuilder : StreamBuilder, IFileSystemBuilder
             Magic = SuperBlock.SquashFsMagic,
             CreationTime = DateTime.Now,
             BlockSize = (uint)_context.DataBlockSize,
-            Compression = SuperBlock.CompressionType.ZLib
+            Compression = Options.Compression
         };
         superBlock.BlockSizeLog2 = (ushort)MathUtilities.Log2(superBlock.BlockSize);
         superBlock.MajorVersion = 4;
@@ -504,7 +522,7 @@ public sealed class SquashFileSystemBuilder : StreamBuilder, IFileSystemBuilder
         const int SQUASHFS_COMPRESSED_BIT = 1 << 24;
 
         var compressed = new MemoryStream();
-        using (var compStream = new ZlibStream(compressed, CompressionMode.Compress, true))
+        using (var compStream = _compressor(compressed))
         {
             compStream.Write(buffer);
         }
@@ -515,7 +533,11 @@ public sealed class SquashFileSystemBuilder : StreamBuilder, IFileSystemBuilder
         if (compressed.Length < buffer.Length)
         {
             var compressedData = compressed.AsSpan();
-            compressedData[1] = 0xda;
+
+            if (Options.Compression == SquashFileSystemCompression.ZLib)
+            {
+                compressedData[1] = 0xda; // Set Best compression level for zlib header
+            }
             writeData = compressedData;
             returnValue = writeData.Length;
         }

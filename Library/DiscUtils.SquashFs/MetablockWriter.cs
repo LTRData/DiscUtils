@@ -33,13 +33,15 @@ namespace DiscUtils.SquashFs;
 internal sealed class MetablockWriter : IDisposable
 {
     private MemoryStream _buffer;
+    private readonly Func<Stream, Stream> _compressor;
 
     private readonly byte[] _currentBlock;
     private int _currentBlockNum;
     private int _currentOffset;
 
-    public MetablockWriter()
+    public MetablockWriter(Func<Stream, Stream> compressor)
     {
+        _compressor = compressor;
         _currentBlock = new byte[8 * 1024];
         _buffer = new MemoryStream();
     }
@@ -101,7 +103,7 @@ internal sealed class MetablockWriter : IDisposable
         const int SQUASHFS_COMPRESSED_BIT = 1 << 15;
 
         var compressed = new MemoryStream();
-        using (var compStream = new ZlibStream(compressed, CompressionMode.Compress, true))
+        using (var compStream = _compressor(compressed))
         {
             compStream.Write(_currentBlock, 0, _currentOffset);
         }

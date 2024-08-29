@@ -20,10 +20,12 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
+using System;
 using System.IO;
 using System.Linq;
 using DiscUtils;
 using DiscUtils.SquashFs;
+using K4os.Compression.LZ4.Streams;
 using LibraryTests.Helpers;
 using Xunit;
 
@@ -167,6 +169,44 @@ public sealed class SquashFileSystemBuilderTest
         builder.Build(fsImage);
 
         var reader = new SquashFileSystemReader(fsImage);
+
+        using Stream fs = reader.OpenFile("file", FileMode.Open);
+        var buffer = new byte[(512 * 1024) + 1024];
+        var numRead = fs.Read(buffer, 0, buffer.Length);
+
+        Assert.Equal(testData.Length, numRead);
+        for (var i = 0; i < testData.Length; ++i)
+        {
+            Assert.Equal(testData[i], buffer[i] /*, "Data differs at index " + i*/);
+        }
+    }
+
+    [Fact]
+    public void BlockDataLz4()
+    {
+        var testData = new byte[(512 * 1024) + 21];
+        for (var i = 0; i < testData.Length; ++i)
+        {
+            testData[i] = (byte)(i % 33);
+        }
+
+        var fsImage = new MemoryStream();
+
+        var builder = new SquashFileSystemBuilder(new SquashFileSystemBuilderOptions()
+        {
+            Compression = SquashFileSystemCompression.Lz4,
+            GetCompressor = compression => compression == SquashFileSystemCompression.Lz4 ? stream => LZ4Stream.Encode(stream, leaveOpen: true) : (Func<Stream, Stream>)null
+        });
+
+        builder.AddFile(@"file", new MemoryStream(testData));
+        builder.Build(fsImage);
+
+        fsImage.Position = 0;
+
+        var reader = new SquashFileSystemReader(fsImage, new SquashFileSystemReaderOptions()
+        {
+            GetDecompressor = compression => compression == SquashFileSystemCompression.Lz4 ? stream => LZ4Stream.Decode(stream, leaveOpen: true) : (Func<Stream, Stream>)null
+        });
 
         using Stream fs = reader.OpenFile("file", FileMode.Open);
         var buffer = new byte[(512 * 1024) + 1024];

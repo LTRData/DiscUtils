@@ -20,6 +20,7 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
+using System;
 using System.IO;
 using DiscUtils.Streams;
 using DiscUtils.Vfs;
@@ -41,6 +42,14 @@ public class SquashFileSystemReader : VfsFileSystemFacade, IUnixFileSystem
     /// <param name="data">The stream to read the file system image from.</param>
     public SquashFileSystemReader(Stream data)
         : base(new VfsSquashFileSystemReader(data)) {}
+
+    /// <summary>
+    /// Initializes a new instance of the SquashFileSystemReader class.
+    /// </summary>
+    /// <param name="data">The stream to read the file system image from.</param>
+    /// <param name="options">The options for this reader.</param>
+    public SquashFileSystemReader(Stream data, SquashFileSystemReaderOptions options)
+        : base(new VfsSquashFileSystemReader(data, options)) { }
 
     /// <summary>
     /// Gets Unix file information about a file or directory.

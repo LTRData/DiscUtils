@@ -1,5 +1,5 @@
-﻿//
-// Copyright (c) 2008-2011, Kenneth Bell
+//
+// Copyright (c) 2024, Olof Lagerkvist and contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
@@ -18,31 +18,45 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
-//
-
-using System;
-using System.IO;
-
 namespace DiscUtils.SquashFs;
 
-internal sealed class BuilderContext
+/// <summary>
+/// The compression algorithm used in the SquashFs file system.
+/// </summary>
+public enum SquashFileSystemCompression : ushort
 {
-    public AllocateId AllocateId { get; set; }
+    /// <summary>
+    /// The compression algorithm is unknown.
+    /// </summary>
+    Unknown,
 
-    public AllocateInode AllocateInode { get; set; }
+    /// <summary>
+    /// The compression algorithm is ZLib.
+    /// </summary>
+    ZLib,
 
-    public int DataBlockSize { get; set; }
+    /// <summary>
+    /// The compression algorithm is Lzma.
+    /// </summary>
+    Lzma,
 
-    public MetablockWriter DirectoryWriter { get; set; }
+    /// <summary>
+    /// The compression algorithm is Lzo.
+    /// </summary>
+    Lzo,
 
-    public MetablockWriter InodeWriter { get; set; }
+    /// <summary>
+    /// The compression algorithm is Xz.
+    /// </summary>
+    Xz,
 
-    public byte[] IoBuffer { get; set; }
-    public Stream RawStream { get; set; }
+    /// <summary>
+    /// The compression algorithm is Lz4.
+    /// </summary>
+    Lz4,
 
-    public WriteDataBlock WriteDataBlock { get; set; }
-
-    public WriteFragment WriteFragment { get; set; }
-
-    public Func<Stream, Stream> Compressor { get; set; }
+    /// <summary>
+    /// The compression algorithm is ZStd.
+    /// </summary>
+    ZStd
 }

@@ -79,7 +79,7 @@ internal sealed class IdTableWriter
 
         // Persist the actual Id's
         var blockPos = _context.RawStream.Position;
-        var writer = new MetablockWriter();
+        var writer = new MetablockWriter(_context.Compressor);
         writer.Write(_context.IoBuffer, 0, _ids.Count * 4);
         writer.Persist(_context.RawStream);
 

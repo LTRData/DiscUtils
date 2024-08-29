@@ -1,5 +1,5 @@
-﻿//
-// Copyright (c) 2008-2011, Kenneth Bell
+//
+// Copyright (c) 2024, Olof Lagerkvist and contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
@@ -18,31 +18,18 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
-//
-
 using System;
 using System.IO;
 
 namespace DiscUtils.SquashFs;
 
-internal sealed class BuilderContext
+/// <summary>
+/// Options for the SquashFs file system reader.
+/// </summary>
+public sealed class SquashFileSystemReaderOptions
 {
-    public AllocateId AllocateId { get; set; }
-
-    public AllocateInode AllocateInode { get; set; }
-
-    public int DataBlockSize { get; set; }
-
-    public MetablockWriter DirectoryWriter { get; set; }
-
-    public MetablockWriter InodeWriter { get; set; }
-
-    public byte[] IoBuffer { get; set; }
-    public Stream RawStream { get; set; }
-
-    public WriteDataBlock WriteDataBlock { get; set; }
-
-    public WriteFragment WriteFragment { get; set; }
-
-    public Func<Stream, Stream> Compressor { get; set; }
+    /// <summary>
+    /// Gets or sets the decompressor resolver for the file system.
+    /// </summary>
+    public Func<SquashFileSystemCompression, Func<Stream, Stream>> GetDecompressor { get; init; }
 }
