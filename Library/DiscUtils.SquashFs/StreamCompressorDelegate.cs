@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2008-2011, Kenneth Bell
+// Copyright (c) 2024, Olof Lagerkvist and contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
@@ -18,19 +18,13 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
-//
-
-using DiscUtils.Streams;
+using System.IO;
 
 namespace DiscUtils.SquashFs;
 
-internal sealed class Metablock : Block
-{
-    public const int SQUASHFS_COMPRESSED_BIT = 1 << 15;
-
-    public const int SQUASHFS_COMPRESSED_BIT_SIZE_MASK = ~SQUASHFS_COMPRESSED_BIT;
-    
-    public const int SQUASHFS_METADATA_SIZE = 8192;
-
-    public long NextBlockStart { get; set; }
-}
+/// <summary>
+/// Delegate for decompressing/compressing a stream.
+/// </summary>
+/// <param name="stream">The stream to compress or decompress</param>
+/// <returns>The stream wrapped</returns>
+public delegate Stream StreamCompressorDelegate(MemoryStream stream);

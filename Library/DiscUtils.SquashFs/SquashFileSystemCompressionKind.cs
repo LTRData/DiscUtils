@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2008-2011, Kenneth Bell
+// Copyright (c) 2024, Olof Lagerkvist and contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
@@ -18,19 +18,45 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
-//
-
-using DiscUtils.Streams;
-
 namespace DiscUtils.SquashFs;
 
-internal sealed class Metablock : Block
+/// <summary>
+/// The compression algorithm used in the SquashFs file system.
+/// </summary>
+public enum SquashFileSystemCompressionKind : ushort
 {
-    public const int SQUASHFS_COMPRESSED_BIT = 1 << 15;
+    /// <summary>
+    /// The compression algorithm is unknown.
+    /// </summary>
+    Unknown,
 
-    public const int SQUASHFS_COMPRESSED_BIT_SIZE_MASK = ~SQUASHFS_COMPRESSED_BIT;
-    
-    public const int SQUASHFS_METADATA_SIZE = 8192;
+    /// <summary>
+    /// The compression algorithm is ZLib.
+    /// </summary>
+    ZLib,
 
-    public long NextBlockStart { get; set; }
+    /// <summary>
+    /// The compression algorithm is Lzma.
+    /// </summary>
+    Lzma,
+
+    /// <summary>
+    /// The compression algorithm is Lzo.
+    /// </summary>
+    Lzo,
+
+    /// <summary>
+    /// The compression algorithm is Xz.
+    /// </summary>
+    Xz,
+
+    /// <summary>
+    /// The compression algorithm is Lz4.
+    /// </summary>
+    Lz4,
+
+    /// <summary>
+    /// The compression algorithm is ZStd.
+    /// </summary>
+    ZStd
 }

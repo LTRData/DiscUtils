@@ -39,12 +39,13 @@ namespace DiscUtils.SquashFs;
 /// </summary>
 public sealed class SquashFileSystemBuilder : StreamBuilder, IFileSystemBuilder
 {
-    private const int DefaultBlockSize = 131072;
+    internal const int DefaultBlockSize = 131072;
+
     private BuilderContext _context;
     private uint _nextInode;
 
     private BuilderDirectory _rootDir;
-    private readonly Func<Stream, Stream> _compressor;
+    private readonly StreamCompressorDelegate _compressor;
 
     // Progress reporting event
     public event EventHandler<ProgressEventArgs> ProgressChanged;
@@ -416,11 +417,13 @@ public sealed class SquashFileSystemBuilder : StreamBuilder, IFileSystemBuilder
         {
             RawStream = output,
             DataBlockSize = DefaultBlockSize,
-            IoBuffer = new byte[DefaultBlockSize]
+            IoBuffer = new byte[DefaultBlockSize],
+            SharedMemoryStream = MemoryStreamHelper.CreateWithFixedCapacity(DefaultBlockSize),
+            Compressor = _compressor
         };
 
-        var inodeWriter = new MetablockWriter(_compressor);
-        var dirWriter = new MetablockWriter(_compressor);
+        var inodeWriter = new MetablockWriter(_context);
+        var dirWriter = new MetablockWriter(_context);
         var fragWriter = new FragmentWriter(_context);
         var idWriter = new IdTableWriter(_context);
 
@@ -430,7 +433,6 @@ public sealed class SquashFileSystemBuilder : StreamBuilder, IFileSystemBuilder
         _context.WriteFragment = fragWriter.WriteFragment;
         _context.InodeWriter = inodeWriter;
         _context.DirectoryWriter = dirWriter;
-        _context.Compressor = _compressor;
 
         _nextInode = 1;
 
@@ -439,13 +441,16 @@ public sealed class SquashFileSystemBuilder : StreamBuilder, IFileSystemBuilder
             Magic = SuperBlock.SquashFsMagic,
             CreationTime = DateTime.Now,
             BlockSize = (uint)_context.DataBlockSize,
-            Compression = Options.Compression
+            Compression = Options.CompressionKind
         };
         superBlock.BlockSizeLog2 = (ushort)MathUtilities.Log2(superBlock.BlockSize);
         superBlock.MajorVersion = 4;
         superBlock.MinorVersion = 0;
 
-        output.Position = superBlock.Size;
+        // Set flags before has it might be changed by CompressionOptions
+        superBlock.Flags = SuperBlock.SuperBlockFlags.NoXAttrs | SuperBlock.SuperBlockFlags.FragmentsAlwaysGenerated;
+        var compressionOptionsSize = CompressionOptions.ConfigureCompressionAndGetTotalSize(superBlock, Options.CompressionOptions);
+        output.Position = superBlock.Size + compressionOptionsSize;
 
         GetRoot().Reset();
         GetRoot().Write(_context);
@@ -454,7 +459,6 @@ public sealed class SquashFileSystemBuilder : StreamBuilder, IFileSystemBuilder
         superBlock.InodesCount = _nextInode - 1;
         superBlock.FragmentsCount = (uint)fragWriter.FragmentBlocksCount;
         superBlock.UidGidCount = (ushort)idWriter.IdCount;
-        superBlock.Flags = SuperBlock.SuperBlockFlags.NoXAttrs | SuperBlock.SuperBlockFlags.FragmentsAlwaysGenerated;
 
         superBlock.InodeTableStart = output.Position;
         inodeWriter.Persist(output);
@@ -483,6 +487,10 @@ public sealed class SquashFileSystemBuilder : StreamBuilder, IFileSystemBuilder
         Span<byte> buffer = stackalloc byte[superBlock.Size];
         superBlock.WriteTo(buffer);
         output.Write(buffer);
+
+        // Add optional compression options
+        CompressionOptions.WriteTo(output, superBlock, Options.CompressionOptions);
+        
         output.Position = end;
     }
 
@@ -519,9 +527,9 @@ public sealed class SquashFileSystemBuilder : StreamBuilder, IFileSystemBuilder
 
     private uint WriteDataBlock(ReadOnlySpan<byte> buffer)
     {
-        const int SQUASHFS_COMPRESSED_BIT = 1 << 24;
+        const int SQUASHFS_COMPRESSED_BIT_BLOCK = 1 << 24;
 
-        var compressed = new MemoryStream();
+        var compressed = MemoryStreamHelper.Initialize(_context.SharedMemoryStream);
         using (var compStream = _compressor(compressed))
         {
             compStream.Write(buffer);
@@ -534,7 +542,7 @@ public sealed class SquashFileSystemBuilder : StreamBuilder, IFileSystemBuilder
         {
             var compressedData = compressed.AsSpan();
 
-            if (Options.Compression == SquashFileSystemCompression.ZLib)
+            if (Options.CompressionKind == SquashFileSystemCompressionKind.ZLib)
             {
                 compressedData[1] = 0xda; // Set Best compression level for zlib header
             }
@@ -544,7 +552,7 @@ public sealed class SquashFileSystemBuilder : StreamBuilder, IFileSystemBuilder
         else
         {
             writeData = buffer;
-            returnValue = writeData.Length | SQUASHFS_COMPRESSED_BIT; // Flag to indicate uncompressed buffer
+            returnValue = writeData.Length | SQUASHFS_COMPRESSED_BIT_BLOCK; // Flag to indicate uncompressed buffer
         }
 
         _context.RawStream.Write(writeData);

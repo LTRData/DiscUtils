@@ -98,7 +98,7 @@ internal sealed class FragmentWriter
                 _fragmentBlocks[i].WriteTo(buffer, i * recordSize);
             }
 
-            var writer = new MetablockWriter(_context.Compressor);
+            var writer = new MetablockWriter(_context);
             writer.Write(buffer, 0, _fragmentBlocks.Count * recordSize);
             writer.Persist(_context.RawStream);
         }

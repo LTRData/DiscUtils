@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) 2024, Olof Lagerkvist and contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -18,45 +18,27 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
+using System;
+using System.IO;
+
 namespace DiscUtils.SquashFs;
 
-/// <summary>
-/// The compression algorithm used in the SquashFs file system.
-/// </summary>
-public enum SquashFileSystemCompression : ushort
+internal static class MemoryStreamHelper
 {
-    /// <summary>
-    /// The compression algorithm is unknown.
-    /// </summary>
-    Unknown,
+    public static MemoryStream CreateWithFixedCapacity(int capacity)
+    {
+#if NET6_0_OR_GREATER
+        var array = GC.AllocateUninitializedArray<byte>(capacity);
+#else
 
-    /// <summary>
-    /// The compression algorithm is ZLib.
-    /// </summary>
-    ZLib,
+        var array = new byte[capacity];
+#endif
+        return new MemoryStream(array, 0, capacity, true, true);
+    }
 
-    /// <summary>
-    /// The compression algorithm is Lzma.
-    /// </summary>
-    Lzma,
-
-    /// <summary>
-    /// The compression algorithm is Lzo.
-    /// </summary>
-    Lzo,
-
-    /// <summary>
-    /// The compression algorithm is Xz.
-    /// </summary>
-    Xz,
-
-    /// <summary>
-    /// The compression algorithm is Lz4.
-    /// </summary>
-    Lz4,
-
-    /// <summary>
-    /// The compression algorithm is ZStd.
-    /// </summary>
-    ZStd
+    public static MemoryStream Initialize(MemoryStream stream)
+    {
+        stream.SetLength(0);
+        return stream;
+    }
 }

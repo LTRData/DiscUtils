@@ -33,15 +33,18 @@ namespace DiscUtils.SquashFs;
 internal sealed class MetablockWriter : IDisposable
 {
     private MemoryStream _buffer;
-    private readonly Func<Stream, Stream> _compressor;
+    private readonly StreamCompressorDelegate _compressor;
+    private readonly MemoryStream _sharedMemoryStream;
 
     private readonly byte[] _currentBlock;
     private int _currentBlockNum;
     private int _currentOffset;
 
-    public MetablockWriter(Func<Stream, Stream> compressor)
+    public MetablockWriter(BuilderContext context)
     {
-        _compressor = compressor;
+        _compressor = context.Compressor;
+        _sharedMemoryStream = context.SharedMemoryStream;
+
         _currentBlock = new byte[8 * 1024];
         _buffer = new MemoryStream();
     }
@@ -100,9 +103,7 @@ internal sealed class MetablockWriter : IDisposable
 
     private void NextBlock()
     {
-        const int SQUASHFS_COMPRESSED_BIT = 1 << 15;
-
-        var compressed = new MemoryStream();
+        var compressed = MemoryStreamHelper.Initialize(_sharedMemoryStream);
         using (var compStream = _compressor(compressed))
         {
             compStream.Write(_currentBlock, 0, _currentOffset);
@@ -120,13 +121,13 @@ internal sealed class MetablockWriter : IDisposable
         else
         {
             writeData = _currentBlock;
-            writeLen = (ushort)(_currentOffset | SQUASHFS_COMPRESSED_BIT);
+            writeLen = (ushort)(_currentOffset | Metablock.SQUASHFS_COMPRESSED_BIT);
         }
 
         Span<byte> header = stackalloc byte[2];
         EndianUtilities.WriteBytesLittleEndian(writeLen, header);
         _buffer.Write(header);
-        _buffer.Write(writeData.Slice(0, writeLen & 0x7FFF));
+        _buffer.Write(writeData.Slice(0, writeLen & Metablock.SQUASHFS_COMPRESSED_BIT_SIZE_MASK));
 
         ++_currentBlockNum;
     }

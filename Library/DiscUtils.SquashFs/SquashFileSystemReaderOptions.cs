@@ -31,5 +31,13 @@ public sealed class SquashFileSystemReaderOptions
     /// <summary>
     /// Gets or sets the decompressor resolver for the file system.
     /// </summary>
-    public Func<SquashFileSystemCompression, Func<Stream, Stream>> GetDecompressor { get; init; }
+    public GetDecompressorDelegate GetDecompressor { get; init; }
 }
+
+/// <summary>
+/// Delegate to get a decompressor for a specific compression kind.
+/// </summary>
+/// <param name="compressionKind">The kind of compression</param>
+/// <param name="compressionOptions">Optional option. Can be null.</param>
+/// <returns>A function to decode a stream of the specified compression. Returns null if not supported.</returns>
+public delegate StreamCompressorDelegate GetDecompressorDelegate(SquashFileSystemCompressionKind compressionKind, CompressionOptions compressionOptions);

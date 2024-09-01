@@ -44,5 +44,7 @@ internal sealed class BuilderContext
 
     public WriteFragment WriteFragment { get; set; }
 
-    public Func<Stream, Stream> Compressor { get; set; }
+    public StreamCompressorDelegate Compressor { get; set; }
+
+    public MemoryStream SharedMemoryStream { get; set; }
 }
