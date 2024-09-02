@@ -39,11 +39,13 @@ namespace DiscUtils.SquashFs;
 /// </summary>
 public sealed class SquashFileSystemBuilder : StreamBuilder, IFileSystemBuilder
 {
-    private const int DefaultBlockSize = 131072;
+    internal const int DefaultBlockSize = 131072;
+
     private BuilderContext _context;
     private uint _nextInode;
 
     private BuilderDirectory _rootDir;
+    private readonly StreamCompressorDelegate _compressor;
 
     // Progress reporting event
     public event EventHandler<ProgressEventArgs> ProgressChanged;
@@ -65,7 +67,15 @@ public sealed class SquashFileSystemBuilder : StreamBuilder, IFileSystemBuilder
     /// <summary>
     /// Initializes a new instance of the SquashFileSystemBuilder class.
     /// </summary>
-    public SquashFileSystemBuilder()
+    public SquashFileSystemBuilder() : this(null)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the SquashFileSystemBuilder class.
+    /// </summary>
+    /// <param name="options">The options for this builder.</param>
+    public SquashFileSystemBuilder(SquashFileSystemBuilderOptions options)
     {
         DefaultFilePermissions = UnixFilePermissions.OwnerRead | UnixFilePermissions.OwnerWrite |
                                  UnixFilePermissions.GroupRead | UnixFilePermissions.GroupWrite;
@@ -74,7 +84,15 @@ public sealed class SquashFileSystemBuilder : StreamBuilder, IFileSystemBuilder
                                       UnixFilePermissions.OthersExecute;
         DefaultUser = 0;
         DefaultGroup = 0;
+
+        Options = options ?? SquashFileSystemBuilderOptions.Default;
+        _compressor = Options.ResolveCompressor();
     }
+
+    /// <summary>
+    /// Gets the options for this builder.
+    /// </summary>
+    public SquashFileSystemBuilderOptions Options { get; }
 
     /// <summary>
     /// Gets or sets the default permissions used for new directories.
@@ -399,11 +417,13 @@ public sealed class SquashFileSystemBuilder : StreamBuilder, IFileSystemBuilder
         {
             RawStream = output,
             DataBlockSize = DefaultBlockSize,
-            IoBuffer = new byte[DefaultBlockSize]
+            IoBuffer = new byte[DefaultBlockSize],
+            SharedMemoryStream = MemoryStreamHelper.CreateWithFixedCapacity(DefaultBlockSize),
+            Compressor = _compressor
         };
 
-        var inodeWriter = new MetablockWriter();
-        var dirWriter = new MetablockWriter();
+        var inodeWriter = new MetablockWriter(_context);
+        var dirWriter = new MetablockWriter(_context);
         var fragWriter = new FragmentWriter(_context);
         var idWriter = new IdTableWriter(_context);
 
@@ -421,13 +441,16 @@ public sealed class SquashFileSystemBuilder : StreamBuilder, IFileSystemBuilder
             Magic = SuperBlock.SquashFsMagic,
             CreationTime = DateTime.Now,
             BlockSize = (uint)_context.DataBlockSize,
-            Compression = SuperBlock.CompressionType.ZLib
+            Compression = Options.CompressionKind
         };
         superBlock.BlockSizeLog2 = (ushort)MathUtilities.Log2(superBlock.BlockSize);
         superBlock.MajorVersion = 4;
         superBlock.MinorVersion = 0;
 
-        output.Position = superBlock.Size;
+        // Set flags before has it might be changed by CompressionOptions
+        superBlock.Flags = SuperBlock.SuperBlockFlags.NoXAttrs | SuperBlock.SuperBlockFlags.FragmentsAlwaysGenerated;
+        var compressionOptionsSize = CompressionOptions.ConfigureCompressionAndGetTotalSize(superBlock, Options.CompressionOptions);
+        output.Position = superBlock.Size + compressionOptionsSize;
 
         GetRoot().Reset();
         GetRoot().Write(_context);
@@ -436,7 +459,6 @@ public sealed class SquashFileSystemBuilder : StreamBuilder, IFileSystemBuilder
         superBlock.InodesCount = _nextInode - 1;
         superBlock.FragmentsCount = (uint)fragWriter.FragmentBlocksCount;
         superBlock.UidGidCount = (ushort)idWriter.IdCount;
-        superBlock.Flags = SuperBlock.SuperBlockFlags.NoXAttrs | SuperBlock.SuperBlockFlags.FragmentsAlwaysGenerated;
 
         superBlock.InodeTableStart = output.Position;
         inodeWriter.Persist(output);
@@ -465,6 +487,10 @@ public sealed class SquashFileSystemBuilder : StreamBuilder, IFileSystemBuilder
         Span<byte> buffer = stackalloc byte[superBlock.Size];
         superBlock.WriteTo(buffer);
         output.Write(buffer);
+
+        // Add optional compression options
+        CompressionOptions.WriteTo(output, superBlock, Options.CompressionOptions);
+        
         output.Position = end;
     }
 
@@ -501,10 +527,10 @@ public sealed class SquashFileSystemBuilder : StreamBuilder, IFileSystemBuilder
 
     private uint WriteDataBlock(ReadOnlySpan<byte> buffer)
     {
-        const int SQUASHFS_COMPRESSED_BIT = 1 << 24;
+        const int SQUASHFS_COMPRESSED_BIT_BLOCK = 1 << 24;
 
-        var compressed = new MemoryStream();
-        using (var compStream = new ZlibStream(compressed, CompressionMode.Compress, true))
+        var compressed = MemoryStreamHelper.Initialize(_context.SharedMemoryStream);
+        using (var compStream = _compressor(compressed))
         {
             compStream.Write(buffer);
         }
@@ -515,14 +541,18 @@ public sealed class SquashFileSystemBuilder : StreamBuilder, IFileSystemBuilder
         if (compressed.Length < buffer.Length)
         {
             var compressedData = compressed.AsSpan();
-            compressedData[1] = 0xda;
+
+            if (Options.CompressionKind == SquashFileSystemCompressionKind.ZLib)
+            {
+                compressedData[1] = 0xda; // Set Best compression level for zlib header
+            }
             writeData = compressedData;
             returnValue = writeData.Length;
         }
         else
         {
             writeData = buffer;
-            returnValue = writeData.Length | SQUASHFS_COMPRESSED_BIT; // Flag to indicate uncompressed buffer
+            returnValue = writeData.Length | SQUASHFS_COMPRESSED_BIT_BLOCK; // Flag to indicate uncompressed buffer
         }
 
         _context.RawStream.Write(writeData);

@@ -41,7 +41,13 @@ internal class VfsSquashFileSystemReader : VfsReadOnlyFileSystem<DirectoryEntry,
     private byte[] _ioBuffer;
     private readonly BlockCache<Metablock> _metablockCache;
 
-    public VfsSquashFileSystemReader(Stream stream)
+    private readonly StreamCompressorDelegate _decompressor;
+
+    public VfsSquashFileSystemReader(Stream stream) : this(stream, null)
+    {
+    }
+
+    public VfsSquashFileSystemReader(Stream stream, SquashFileSystemReaderOptions options)
         : base(new DiscFileSystemOptions())
     {
         _context = new Context
@@ -54,14 +60,28 @@ internal class VfsSquashFileSystemReader : VfsReadOnlyFileSystem<DirectoryEntry,
         stream.Position = 0;
         _context.SuperBlock.ReadFrom(stream, _context.SuperBlock.Size);
 
+        var compressionOptions = CompressionOptions.ReadFrom(stream, _context.SuperBlock);
+
         if (_context.SuperBlock.Magic != SuperBlock.SquashFsMagic)
         {
             throw new IOException("Invalid SquashFS filesystem - magic mismatch");
         }
 
-        if (_context.SuperBlock.Compression != SuperBlock.CompressionType.ZLib)
+        if (_context.SuperBlock.Compression == SquashFileSystemCompressionKind.ZLib)
         {
-            throw new IOException("Unsupported compression used");
+            _decompressor = static stream => new ZlibStream(stream, CompressionMode.Decompress, true);
+        }
+
+        // Let's override the decompressor if the user has provided one
+        var decompressor = options?.GetDecompressor?.Invoke(_context.SuperBlock.Compression, compressionOptions);
+        if (decompressor != null)
+        {
+            _decompressor = decompressor;
+        }
+
+        if (_decompressor is null)
+        {
+            throw new IOException($"Unsupported compression {_context.SuperBlock.Compression} used");
         }
 
         if (_context.SuperBlock.ExtendedAttrsTableStart != -1)
@@ -229,8 +249,7 @@ internal class VfsSquashFileSystemReader : VfsReadOnlyFileSystem<DirectoryEntry,
 
             stream.ReadExactly(_ioBuffer, 0, readLen);
 
-            using var zlibStream = new ZlibStream(new MemoryStream(_ioBuffer, 0, readLen, false),
-                    CompressionMode.Decompress, true);
+            using var zlibStream = _decompressor(new MemoryStream(_ioBuffer, 0, readLen, false, true));
             block.Available = zlibStream.ReadMaximum(block.Data, 0, (int)_context.SuperBlock.BlockSize);
         }
         else
@@ -257,11 +276,11 @@ internal class VfsSquashFileSystemReader : VfsReadOnlyFileSystem<DirectoryEntry,
         stream.ReadExactly(buffer);
 
         int readLen = EndianUtilities.ToUInt16LittleEndian(buffer);
-        var isCompressed = (readLen & 0x8000) == 0;
-        readLen &= 0x7FFF;
+        var isCompressed = (readLen & Metablock.SQUASHFS_COMPRESSED_BIT) == 0;
+        readLen &= Metablock.SQUASHFS_COMPRESSED_BIT_SIZE_MASK;
         if (readLen == 0)
         {
-            readLen = 0x8000;
+            readLen = Metablock.SQUASHFS_COMPRESSED_BIT;
         }
 
         block.NextBlockStart = pos + readLen + 2;
@@ -275,8 +294,7 @@ internal class VfsSquashFileSystemReader : VfsReadOnlyFileSystem<DirectoryEntry,
 
             stream.ReadExactly(_ioBuffer, 0, readLen);
 
-            using var zlibStream = new ZlibStream(new MemoryStream(_ioBuffer, 0, readLen, false),
-                    CompressionMode.Decompress, true);
+            using var zlibStream = _decompressor(new MemoryStream(_ioBuffer, 0, readLen, false, true));
             block.Available = zlibStream.ReadMaximum(block.Data, 0, MetadataBufferSize);
         }
         else

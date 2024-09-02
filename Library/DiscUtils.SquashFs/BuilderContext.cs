@@ -20,6 +20,7 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
+using System;
 using System.IO;
 
 namespace DiscUtils.SquashFs;
@@ -42,4 +43,8 @@ internal sealed class BuilderContext
     public WriteDataBlock WriteDataBlock { get; set; }
 
     public WriteFragment WriteFragment { get; set; }
+
+    public StreamCompressorDelegate Compressor { get; set; }
+
+    public MemoryStream SharedMemoryStream { get; set; }
 }
