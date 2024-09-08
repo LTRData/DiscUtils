@@ -1,5 +1,5 @@
-//
-// Copyright (c) 2008-2011, Kenneth Bell
+﻿//
+// Copyright (c) 2024, Olof Lagerkvist and contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
@@ -18,19 +18,27 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
-//
-
-using DiscUtils.Streams;
+using System;
+using System.IO;
 
 namespace DiscUtils.SquashFs;
 
-internal sealed class Metablock : Block
+internal static class MemoryStreamHelper
 {
-    public const int SQUASHFS_COMPRESSED_BIT = 1 << 15;
+    public static MemoryStream CreateWithFixedCapacity(int capacity)
+    {
+#if NET6_0_OR_GREATER
+        var array = GC.AllocateUninitializedArray<byte>(capacity);
+#else
 
-    public const int SQUASHFS_COMPRESSED_BIT_SIZE_MASK = ~SQUASHFS_COMPRESSED_BIT;
-    
-    public const int SQUASHFS_METADATA_SIZE = 8192;
+        var array = new byte[capacity];
+#endif
+        return new MemoryStream(array, 0, capacity, true, true);
+    }
 
-    public long NextBlockStart { get; set; }
+    public static MemoryStream Initialize(MemoryStream stream)
+    {
+        stream.SetLength(0);
+        return stream;
+    }
 }
