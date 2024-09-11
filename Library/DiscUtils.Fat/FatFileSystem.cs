@@ -326,7 +326,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
                 return _bsVolLab;
             }
 
-            return _rootDir.GetEntry(volId).Name.GetRawName(FatOptions.FileNameEncoding);
+            return _rootDir.GetEntry(volId).Name.ShortName;
         }
     }
 
@@ -396,7 +396,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
 
         if (entryId < 0)
         {
-            return parent.OpenFile(FileName.FromPath(path, FatOptions.FileNameEncoding), mode, access);
+            return parent.OpenFile(FatFileName.FromName(Utilities.GetFileFromPath(path), FatOptions.FileNameEncodingTable, text => false), mode, access);
         }
 
         var dirEntry = parent.GetEntry(entryId);
@@ -558,7 +558,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
             return null;
         }
 
-        return GetDirectoryEntry(path).Name.GetShortName(FatOptions.FileNameEncoding);
+        return GetDirectoryEntry(path).Name.ShortName.ToUpperInvariant();
     }
 
     public void SetShortName(string path, string name)
@@ -568,7 +568,10 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
             throw new InvalidOperationException("Cannot set short name on root directory");
         }
 
-        GetDirectoryEntry(path).Name.SetShortName(name, FatOptions.FileNameEncoding);
+        // TODO: Handle SetShortName and collision
+        throw new NotImplementedException();
+
+        // GetDirectoryEntry(path)._name.SetShortName(name, FatOptions.FileNameEncodingTable);
     }
 
     /// <summary>
@@ -879,13 +882,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
         {
             throw new IOException("The source file is a directory");
         }
-
-        var newEntry = new DirectoryEntry(sourceEntry)
-        {
-            Name = FileName.FromPath(destinationFile, FatOptions.FileNameEncoding),
-            FirstCluster = 0
-        };
-
+        
         var destEntryId = GetDirectoryEntry(destinationFile, out var destDir);
 
         if (destDir == null)
@@ -893,19 +890,20 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
             throw new DirectoryNotFoundException($"The destination directory for '{destinationFile}' was not found");
         }
 
+        var resolvedDestinationFile = destinationFile;
+
         // If the destination is a directory, use the old file name to construct a full path.
         if (destEntryId >= 0)
         {
             var destEntry = destDir.GetEntry(destEntryId);
             if ((destEntry.Attributes & FatAttributes.Directory) != 0)
             {
-                newEntry.Name = FileName.FromPath(sourceFile, FatOptions.FileNameEncoding);
+                resolvedDestinationFile = sourceFile;
                 destinationFile = Utilities.CombinePaths(destinationFile, Utilities.GetFileFromPath(sourceFile));
-
                 destEntryId = GetDirectoryEntry(destinationFile, out destDir);
             }
         }
-
+        
         // If there's an existing entry...
         if (destEntryId >= 0)
         {
@@ -924,6 +922,12 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
             // Remove the old file
             destDir.DeleteEntry(destEntryId, true);
         }
+
+        var sourceFileName = FatFileName.NewPath(destDir, resolvedDestinationFile, FatOptions.FileNameEncodingTable);
+        var newEntry = new DirectoryEntry(sourceEntry, sourceFileName)
+        {
+            FirstCluster = 0
+        };
 
         // Add the new file's entry
         destEntryId = destDir.AddEntry(newEntry);
@@ -946,10 +950,10 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
 
         foreach (var pathElement in pathElements)
         {
-            FileName name;
+            FatFileName name;
             try
             {
-                name = new FileName(pathElement.ToString(), FatOptions.FileNameEncoding);
+                name = FatFileName.FromName(pathElement.ToString(), FatOptions.FileNameEncodingTable, text => false);
             }
             catch (ArgumentException ae)
             {
@@ -1078,7 +1082,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
 
         foreach (var dirEntry in entries)
         {
-            yield return Utilities.CombinePaths(path, dirEntry.Name.GetDisplayName(FatOptions.FileNameEncoding));
+            yield return Utilities.CombinePaths(path, dirEntry.Name);
         }
     }
 
@@ -1110,7 +1114,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
 
         foreach (var dirEntry in entries)
         {
-            yield return Utilities.CombinePaths(path, dirEntry.Name.GetDisplayName(FatOptions.FileNameEncoding));
+            yield return Utilities.CombinePaths(path, dirEntry.Name);
         }
     }
 
@@ -1142,7 +1146,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
 
         foreach (var dirEntry in entries)
         {
-            yield return Utilities.CombinePaths(path, dirEntry.Name.GetDisplayName(FatOptions.FileNameEncoding));
+            yield return Utilities.CombinePaths(path, dirEntry.Name);
         }
     }
 
@@ -1162,9 +1166,9 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
 
         foreach (var dirEntry in entries)
         {
-            if (re is null || dirEntry.Name.IsMatch(re, FatOptions.FileNameEncoding))
+            if (re is null || dirEntry.Name.IsMatch(re))
             {
-                yield return Utilities.CombinePaths(path, dirEntry.Name.GetDisplayName(FatOptions.FileNameEncoding));
+                yield return Utilities.CombinePaths(path, dirEntry.Name);
             }
         }
     }
@@ -1207,7 +1211,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
             throw new IOException("Source directory doesn't exist");
         }
 
-        destParent.AttachChildDirectory(FileName.FromPath(destinationDirectoryName, FatOptions.FileNameEncoding),
+        destParent.AttachChildDirectory(FatFileName.NewPath(destParent, destinationDirectoryName, FatOptions.FileNameEncodingTable),
             GetDirectory(sourceDirectoryName));
 
         sourceParent.DeleteEntry(sourceId, false);
@@ -1235,11 +1239,6 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
             throw new IOException("The source file is a directory");
         }
 
-        var newEntry = new DirectoryEntry(sourceEntry)
-        {
-            Name = FileName.FromPath(destinationName, FatOptions.FileNameEncoding)
-        };
-
         var destEntryId = GetDirectoryEntry(destinationName, out var destDir);
 
         if (destDir == null)
@@ -1247,15 +1246,16 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
             throw new DirectoryNotFoundException($"The destination directory for '{destinationName}' was not found");
         }
 
+        var resolvedDestinationName = destinationName;
+
         // If the destination is a directory, use the old file name to construct a full path.
         if (destEntryId >= 0)
         {
             var destEntry = destDir.GetEntry(destEntryId);
             if ((destEntry.Attributes & FatAttributes.Directory) != 0)
             {
-                newEntry.Name = FileName.FromPath(sourceName, FatOptions.FileNameEncoding);
+                resolvedDestinationName = sourceName;
                 destinationName = Utilities.CombinePaths(destinationName, Utilities.GetFileFromPath(sourceName));
-
                 destEntryId = GetDirectoryEntry(destinationName, out destDir);
             }
         }
@@ -1278,6 +1278,9 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
             // Remove the old file
             destDir.DeleteEntry(destEntryId, true);
         }
+
+        var sourceFileName = FatFileName.NewPath(destDir, resolvedDestinationName, FatOptions.FileNameEncodingTable);
+        var newEntry = new DirectoryEntry(sourceEntry, sourceFileName);
 
         // Add the new file's entry and remove the old link to the file's contents
         destDir.AddEntry(newEntry);
@@ -1725,7 +1728,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
             return 0;
         }
 
-        entryId = dir.FindEntry(new FileName(pathEntries[pathOffset].ToString(), FatOptions.FileNameEncoding));
+        entryId = dir.FindEntry(FatFileName.FromName(pathEntries[pathOffset].ToString(), FatOptions.FileNameEncodingTable, text => false));
         if (entryId >= 0)
         {
             if (pathOffset == pathEntries.Length - 1)
@@ -1760,15 +1763,15 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
 
             if ((isDir && dirs) || (!isDir && files))
             {
-                if (filter is null || de.Name.IsMatch(filter, FatOptions.FileNameEncoding))
+                if (filter is null || de.Name.IsMatch(filter))
                 {
-                    yield return Utilities.CombinePaths(path, de.Name.GetDisplayName(FatOptions.FileNameEncoding));
+                    yield return Utilities.CombinePaths(path, de.Name);
                 }
             }
 
             if (subFolders && isDir)
             {
-                foreach (var subdirentry in DoSearch(Utilities.CombinePaths(path, de.Name.GetDisplayName(FatOptions.FileNameEncoding)),
+                foreach (var subdirentry in DoSearch(Utilities.CombinePaths(path, de.Name),
                     filter, subFolders, dirs, files))
                 {
                     yield return subdirentry;

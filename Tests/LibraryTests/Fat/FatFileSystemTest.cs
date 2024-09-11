@@ -41,7 +41,7 @@ public class FatFileSystemTest
         var fs = FatFileSystem.FormatFloppy(ms, FloppyDiskType.HighDensity, "KBFLOPPY   ");
     }
 
-    [Fact(Skip = "Saving LFN not yet implemented")]
+    [Fact]
     public void Cyrillic()
     {
         SetupHelper.RegisterAssembly(typeof(FatFileSystem).Assembly);

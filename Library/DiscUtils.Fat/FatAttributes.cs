@@ -32,5 +32,7 @@ internal enum FatAttributes : byte
     System = 0x04,
     VolumeId = 0x08,
     Directory = 0x10,
-    Archive = 0x20
+    Archive = 0x20,
+    LongFileName = 0x0F,
+    LongFileNameMask = 0x3F,
 }
