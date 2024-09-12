@@ -284,11 +284,6 @@ internal class Directory : IDisposable
 
     internal FatFileStream OpenFile(string name, FileMode mode, FileAccess fileAccess)
     {
-        if (mode is FileMode.Append or FileMode.Truncate)
-        {
-            throw new NotImplementedException();
-        }
-
         var fileId = FindEntry(name);
         var exists = fileId != -1;
 
@@ -297,17 +292,21 @@ internal class Directory : IDisposable
             throw new IOException("File already exists");
         }
 
-        if (mode == FileMode.Open && !exists)
+        if ((mode == FileMode.Open || mode == FileMode.Truncate || mode == FileMode.Append) && !exists)
         {
             throw new FileNotFoundException("File not found", name);
         }
 
-        if ((mode == FileMode.Open || mode == FileMode.OpenOrCreate || mode == FileMode.Create) && exists)
+        if ((mode == FileMode.Open || mode == FileMode.OpenOrCreate || mode == FileMode.Create || mode == FileMode.Truncate || mode == FileMode.Append) && exists)
         {
             var stream = new FatFileStream(FileSystem, this, fileId, fileAccess);
-            if (mode == FileMode.Create)
+            if (mode == FileMode.Create || mode == FileMode.Truncate)
             {
                 stream.SetLength(0);
+            }
+            else if (mode == FileMode.Append)
+            {
+                stream.Seek(0, SeekOrigin.End);
             }
 
             HandleAccessed(false);
