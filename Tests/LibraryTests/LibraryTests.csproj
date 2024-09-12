@@ -26,6 +26,7 @@
 
   <ItemGroup Condition="'$(TargetFramework.CompareTo(`net462`))' &lt; 0">
     <PackageReference Include="K4os.Compression.LZ4" Version="1.2.*" />
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="5.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.*" />
     <PackageReference Include="System.IO.Compression" Version="*" />
     <PackageReference Include="xunit" Version="2.9.*" />
@@ -38,6 +39,7 @@
 
   <ItemGroup Condition="'$(TargetFramework.CompareTo(`net462`))' &gt;= 0 And '$(TargetFramework.CompareTo(`net5`))' &lt; 0">
     <PackageReference Include="K4os.Compression.LZ4" Version="1.3.*" />
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.*" />
     <PackageReference Include="System.IO.Compression" Version="*" />
     <PackageReference Include="xunit" Version="2.9.*" />

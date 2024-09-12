@@ -299,7 +299,16 @@ internal class Directory : IDisposable
 
         if ((mode == FileMode.OpenOrCreate || mode == FileMode.CreateNew || mode == FileMode.Create) && !exists)
         {
-            var fatFileName = FatFileName.FromName(name, FileSystem.FatOptions.FileNameEncodingTable, CheckIfShortNameExists);
+            FatFileName fatFileName;
+
+            try
+            {
+                fatFileName = FatFileName.FromName(name, FileSystem.FatOptions.FileNameEncodingTable, CheckIfShortNameExists);
+            }
+            catch (ArgumentException ex)
+            {
+                throw new IOException("Invalid file name", ex);
+            }
 
             // Create new file
             var newEntry = new DirectoryEntry(FileSystem.FatOptions, fatFileName, FatAttributes.Archive,

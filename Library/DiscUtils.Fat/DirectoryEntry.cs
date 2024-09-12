@@ -181,7 +181,14 @@ internal class DirectoryEntry
 
     public void ReplaceShortName(string name, FastEncodingTable encodingTable)
     {
-        _name = _name.ReplaceShortName(name, encodingTable);
+        try
+        {
+            _name = _name.ReplaceShortName(name, encodingTable);
+        }
+        catch (ArgumentException ex)
+        {
+            throw new IOException("Failed to replace short name", ex);
+        }
     }
     
     internal void WriteTo(Stream stream, FastEncodingTable encodingTable)

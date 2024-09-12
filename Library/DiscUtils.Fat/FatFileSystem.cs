@@ -954,8 +954,15 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
         foreach (var pathElement in pathElements)
         {
             var pathName = pathElement.ToString();
-            var child = focusDir.GetChildDirectory(pathName) ?? focusDir.CreateChildDirectory(pathName);
-            focusDir = child;
+            try
+            {
+                var child = focusDir.GetChildDirectory(pathName) ?? focusDir.CreateChildDirectory(pathName);
+                focusDir = child;
+            }
+            catch (ArgumentException ex)
+            {
+                throw new IOException($"Failed to create directory '{pathName}'", ex);
+            }
         }
     }
 
