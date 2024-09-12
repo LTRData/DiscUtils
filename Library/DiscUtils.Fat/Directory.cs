@@ -131,7 +131,7 @@ internal class Directory : IDisposable
         return id < 0 ? null : _entries[id];
     }
 
-    public Directory GetChildDirectory(FatFileName name)
+    public Directory GetChildDirectory(string name)
     {
         var id = FindEntry(name);
         if (id < 0)
@@ -147,7 +147,7 @@ internal class Directory : IDisposable
         return FileSystem.GetDirectory(this, id);
     }
 
-    internal Directory CreateChildDirectory(FatFileName name)
+    internal Directory CreateChildDirectory(string name)
     {
         var id = FindEntry(name);
         if (id >= 0)
@@ -169,7 +169,8 @@ internal class Directory : IDisposable
 
             FileSystem.Fat.SetEndOfChain(firstCluster);
 
-            var newEntry = new DirectoryEntry(FileSystem.FatOptions, name, FatAttributes.Directory,
+            var fatFileName = FatFileName.FromName(name, FileSystem.FatOptions.FileNameEncodingTable, CheckIfShortNameExists);
+            var newEntry = new DirectoryEntry(FileSystem.FatOptions, fatFileName, FatAttributes.Directory,
                 FileSystem.FatVariant)
             {
                 FirstCluster = firstCluster,
@@ -191,7 +192,7 @@ internal class Directory : IDisposable
         }
     }
 
-    internal void AttachChildDirectory(in FatFileName name, Directory newChild)
+    internal void AttachChildDirectory(string name, Directory newChild)
     {
         var id = FindEntry(name);
         if (id >= 0)
@@ -199,7 +200,8 @@ internal class Directory : IDisposable
             throw new IOException("Directory entry already exists");
         }
 
-        var newEntry = new DirectoryEntry(newChild.ParentsChildEntry, name);
+        var fatFileName = FatFileName.FromName(name, FileSystem.FatOptions.FileNameEncodingTable, CheckIfShortNameExists);
+        var newEntry = new DirectoryEntry(newChild.ParentsChildEntry, fatFileName);
         AddEntry(newEntry);
 
         var newParentEntry = new DirectoryEntry(SelfEntry, FatFileName.ParentEntryName);
@@ -220,12 +222,12 @@ internal class Directory : IDisposable
         return -1;
     }
 
-    internal long FindEntry(in FatFileName name)
+    internal long FindEntry(string name)
     {
 #if NET6_0_OR_GREATER
-        return _fullFileNameToEntry.GetValueOrDefault(name.FullName, -1);
+        return _fullFileNameToEntry.GetValueOrDefault(name, -1);
 #else
-        if (_fullFileNameToEntry.TryGetValue(name.FullName, out var id))
+        if (_fullFileNameToEntry.TryGetValue(name, out var id))
         {
             return id;
         }
@@ -234,9 +236,35 @@ internal class Directory : IDisposable
 #endif
     }
 
+    public void ReplaceShortName(long id, string name)
+    {
+        var entry = _entries[id];
+
+        if (entry.Name.ShortName.Equals(name, StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        if (_shortFileNameToEntry.ContainsKey(name))
+        {
+            throw new IOException("Short name already exists in directory");
+        }
+
+        // Save the current name so we can update the lookup tables if the rename is successful
+        var previousName = entry.Name;
+
+        // This might fail so we can only update the dictionary lookup tables if it succeeds
+        entry.ReplaceShortName(name, FileSystem.FatOptions.FileNameEncodingTable);
+
+        _shortFileNameToEntry.Remove(previousName.ShortName);
+        _fullFileNameToEntry.Remove(previousName.FullName);
+        _shortFileNameToEntry.Add(entry.Name.ShortName, id);
+        _fullFileNameToEntry.Add(entry.Name.FullName, id);
+    }
+    
     private bool CheckIfShortNameExistsImpl(string shortName) => _shortFileNameToEntry.ContainsKey(shortName);
 
-    internal FatFileStream OpenFile(FatFileName name, FileMode mode, FileAccess fileAccess)
+    internal FatFileStream OpenFile(string name, FileMode mode, FileAccess fileAccess)
     {
         if (mode is FileMode.Append or FileMode.Truncate)
         {
@@ -271,8 +299,10 @@ internal class Directory : IDisposable
 
         if ((mode == FileMode.OpenOrCreate || mode == FileMode.CreateNew || mode == FileMode.Create) && !exists)
         {
+            var fatFileName = FatFileName.FromName(name, FileSystem.FatOptions.FileNameEncodingTable, CheckIfShortNameExists);
+
             // Create new file
-            var newEntry = new DirectoryEntry(FileSystem.FatOptions, name, FatAttributes.Archive,
+            var newEntry = new DirectoryEntry(FileSystem.FatOptions, fatFileName, FatAttributes.Archive,
                 FileSystem.FatVariant)
             {
                 FirstCluster = 0, // i.e. Zero-length
@@ -327,7 +357,7 @@ internal class Directory : IDisposable
             var entryCount = entry.EntryCount;
 
             _dirStream.Position = id;
-            DirectoryEntry.WriteDeletedEntry(_dirStream, entry.EntryCount);
+            DirectoryEntry.WriteDeletedEntry(_dirStream, entryCount);
 
             if (releaseContents)
             {

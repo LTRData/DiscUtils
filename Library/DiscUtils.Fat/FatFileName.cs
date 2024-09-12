@@ -104,59 +104,62 @@ internal struct FatFileName : IEquatable<FatFileName>
         return false;
     }
 
-    public void SetShortName(string name, Encoding encoding)
+    public readonly FatFileName ReplaceShortName(string name, FastEncodingTable encodingTable)
     {
-        ValidateCharsFromLongName(name);
-
-        var bytes = encoding.GetBytes(name.ToUpperInvariant());
-
-        var nameIdx = 0;
-        var rawIdx = 0;
-
-
-        Span<byte> raw = default;
-
-        while (nameIdx < bytes.Length && bytes[nameIdx] != '.' && rawIdx < raw.Length)
+        if (name is null)
         {
-            var b = bytes[nameIdx++];
-            raw[rawIdx++] = b;
+            throw new ArgumentNullException(nameof(name));
         }
 
-        if (rawIdx > 8)
+        var idx = 0;
+        var indexOfDot = -1;
+
+        for (var i = 0; i < name.Length; i++)
         {
-            throw new ArgumentException($"File name too long '{name}'", nameof(name));
+            if (idx >= 11)
+            {
+                throw new ArgumentException($"File name too long '{name}'", nameof(name));
+            }
+
+            var c = name[i];
+
+            if (c < 0x20)
+            {
+                throw new ArgumentException($"Invalid control character at index {i} in short name '{name}'", nameof(name));
+            }
+
+            if (c == '.')
+            {
+                if (indexOfDot >= 0)
+                {
+                    throw new ArgumentException($"Multiple dots at index {i} in short name '{name}'", nameof(name));
+                }
+
+                indexOfDot = idx;
+            }
+            else if (c == ' ')
+            {
+                throw new ArgumentException($"Invalid space character at index {i} in short name '{name}'", nameof(name));
+            }
+            else if (InvalidCharsForShortName.IndexOf(c) >= 0 || !encodingTable.TryGetCharToByteUpperCase(c, out _))
+            {
+                throw new ArgumentException($"Invalid character `{c}` at index {i} in short name '{name}'", nameof(name));
+            }
+
+            idx++;
         }
 
-        if (rawIdx == 0)
+        if (idx == 0)
         {
-            throw new ArgumentException($"File name too short '{name}'", nameof(name));
+            throw new ArgumentException("Empty file name", nameof(name));
         }
 
-        while (rawIdx < 8)
+        if (indexOfDot > 0 && idx - indexOfDot > 4)
         {
-            raw[rawIdx++] = SpaceByte;
+            throw new ArgumentException($"Extension too long in short name '{name}'", nameof(name));
         }
 
-        if (nameIdx < bytes.Length && bytes[nameIdx] == '.')
-        {
-            ++nameIdx;
-        }
-
-        while (nameIdx < bytes.Length && rawIdx < raw.Length)
-        {
-            var b = bytes[nameIdx++];
-            raw[rawIdx++] = b;
-        }
-
-        while (rawIdx < 11)
-        {
-            raw[rawIdx++] = SpaceByte;
-        }
-
-        if (nameIdx != bytes.Length)
-        {
-            throw new ArgumentException($"File extension too long '{name}'", nameof(name));
-        }
+        return new(name, _longName);
     }
 
     public readonly bool IsMatch(Func<string, bool> filter)
@@ -174,8 +177,6 @@ internal struct FatFileName : IEquatable<FatFileName>
 
         return filter(searchName);
     }
-
-    public readonly FatFileName Deleted() => new(null, _longName);
 
     public readonly bool IsDeleted() => _shortName is null;
 
@@ -780,8 +781,6 @@ internal struct FatFileName : IEquatable<FatFileName>
     public static bool operator ==(FatFileName a, FatFileName b) => Equals(a, b);
 
     public static bool operator !=(FatFileName a, FatFileName b) => !Equals(a, b);
-
-    public static implicit operator string(FatFileName name) => name.FullName;
 
     private static bool Contains(byte[] array, byte val) => Array.IndexOf(array, val) >= 0;
 

@@ -179,12 +179,17 @@ internal class DirectoryEntry
 
     public ref readonly FatFileName Name => ref _name;
 
+    public void ReplaceShortName(string name, FastEncodingTable encodingTable)
+    {
+        _name = _name.ReplaceShortName(name, encodingTable);
+    }
+    
     internal void WriteTo(Stream stream, FastEncodingTable encodingTable)
     {
         Span<byte> buffer = stackalloc byte[EntryCount * SizeOf];
 
         Name.ToDirectoryEntryBytes(buffer, encodingTable);
-        int offset = Name.LfnDirectoryEntryCount * SizeOf;
+        int offset = buffer.Length - SizeOf;
         buffer[offset + 11] = (byte)_attr;
         buffer[offset + 13] = _creationTimeTenth;
         EndianUtilities.WriteBytesLittleEndian(_creationTime, buffer.Slice(offset + 14));
