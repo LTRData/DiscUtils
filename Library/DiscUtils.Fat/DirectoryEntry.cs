@@ -271,10 +271,9 @@ internal class DirectoryEntry
         var offset = bytesProcessed - SizeOf;
         _attr = (FatAttributes)data[offset + 11];
 
-        if ((_attr & FatAttributes.LongFileNameMask) == FatAttributes.LongFileName)
+        if (((_attr & FatAttributes.LongFileNameMask) == FatAttributes.LongFileName) || _name.IsDeleted())
         {
-            // This is an orphaned LFN entry, so we don't care about the other fields
-            // As it will appear as a deleted entry
+            // This is a deleted entry or an orphaned LFN entry, so we don't care about the other fields
         }
         else
         {

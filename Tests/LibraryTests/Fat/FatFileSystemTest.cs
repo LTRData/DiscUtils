@@ -240,4 +240,48 @@ public class FatFileSystemTest
         stream.Position = 0;
         Assert.Throws<InvalidFileSystemException>(() => new FatFileSystem(stream));
     }
+
+
+    [Fact]
+    public void TestDeletedEntries()
+    {
+        var diskStream = new SparseMemoryStream();
+        {
+            using var fs = FatFileSystem.FormatFloppy(diskStream, FloppyDiskType.HighDensity, "FLOPPY_IMG ");
+
+            fs.CreateDirectory(@"FOO1");
+            fs.CreateDirectory(@"FOO2");
+            fs.CreateDirectory(@"FOO3");
+            fs.CreateDirectory(@"FOO4");
+            fs.CreateDirectory(@"BAR");
+            fs.CreateDirectory(@"BAR1");
+            fs.CreateDirectory(@"BAR2");
+            fs.CreateDirectory(@"BAR3");
+
+            fs.DeleteDirectory(@"FOO1");
+            fs.DeleteDirectory(@"FOO2");
+            fs.DeleteDirectory(@"FOO3");
+            fs.DeleteDirectory(@"FOO4");
+            fs.DeleteDirectory(@"BAR1");
+            fs.DeleteDirectory(@"BAR2");
+            fs.DeleteDirectory(@"BAR3");
+            fs.CreateDirectory(@"01234567890123456789.txt");
+        }
+
+        {
+            var fs = new FatFileSystem(diskStream);
+            var entries = fs.GetFileSystemEntries("\\").OrderBy(x => x).ToList();
+            Assert.Equal(2, entries.Count);
+            Assert.Equal("\\01234567890123456789.txt", entries[0]);
+            Assert.Equal("\\BAR", entries[1]);
+
+            fs.CreateDirectory("abcdefghijklmnop.txt");
+
+            entries = fs.GetFileSystemEntries("\\").OrderBy(x => x).ToList();
+            Assert.Equal(3, entries.Count);
+            Assert.Equal("\\01234567890123456789.txt", entries[0]);
+            Assert.Equal("\\abcdefghijklmnop.txt", entries[1]);
+            Assert.Equal("\\BAR", entries[2]);
+        }
+    }
 }

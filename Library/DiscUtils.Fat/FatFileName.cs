@@ -653,6 +653,13 @@ internal struct FatFileName : IEquatable<FatFileName>
                 }
             }
         }
+
+        // Deleted entry
+        if (data[offset] == 0xe5)
+        {
+            offset += DirectoryEntry.SizeOf;
+            return new(null, null);
+        }
         
         // Process the name part in the short name 8.3
         var tmpBuffer = stackalloc byte[12]; // 8.3 + including `.`
