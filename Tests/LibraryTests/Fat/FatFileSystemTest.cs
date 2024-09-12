@@ -404,4 +404,58 @@ public class FatFileSystemTest
             Assert.True(fs.FileExists("ANOTHER"));
         }
     }
+
+    [Fact]
+    public void TestShortName()
+    {
+        var diskStream = new SparseMemoryStream();
+        {
+            using var fs = FatFileSystem.FormatFloppy(diskStream, FloppyDiskType.HighDensity, "FLOPPY_IMG ");
+
+            fs.CreateDirectory("A");
+            fs.CreateDirectory("A.B");
+            fs.CreateDirectory("a");
+            fs.CreateDirectory("a.b");
+            fs.CreateDirectory("a.B");
+            fs.CreateDirectory("A1234567");
+            fs.CreateDirectory("A1234567.ext");
+            fs.CreateDirectory("this_is_a_long_name");
+            fs.CreateDirectory("V1Abcd_this_is_to_long.TXT");
+            fs.CreateDirectory("V2Abcd_this_is_to_long.TXT");
+            fs.CreateDirectory("✨.txt");
+            fs.CreateDirectory("abcdef🙂.txt");
+            fs.CreateDirectory("abc🙂.txt");
+            fs.CreateDirectory("ab🙂.txt");
+            fs.CreateDirectory("c d.txt");
+            fs.CreateDirectory("...txt");
+            fs.CreateDirectory("..a.txt");
+            fs.CreateDirectory("txt...");
+            fs.CreateDirectory("a+b=c");
+            fs.CreateDirectory("ab    .txt");
+            fs.CreateDirectory("✨TAT");
+            fs.CreateDirectory("a.b..c.d");
+            fs.CreateDirectory("Mixed.Cas");
+            fs.CreateDirectory("Mixed.txt");
+            fs.CreateDirectory("mixed.Txt");
+
+            Assert.Equal("A", fs.GetShortName("A"));
+            Assert.Equal("A.B", fs.GetShortName("A.B"));
+            Assert.Equal("A1234567", fs.GetShortName("A1234567"));
+            Assert.Equal("A1234567.EXT", fs.GetShortName("A1234567.ext"));
+            Assert.Equal("THIS_I~1", fs.GetShortName("this_is_a_long_name"));
+            Assert.Equal("V1ABCD~1.TXT", fs.GetShortName("V1Abcd_this_is_to_long.TXT"));
+            Assert.Equal("V2ABCD~1.TXT", fs.GetShortName("V2Abcd_this_is_to_long.TXT"));
+            Assert.Equal("6393~1.TXT", fs.GetShortName("✨.txt"));
+            Assert.Equal("ABCDEF~1.TXT", fs.GetShortName("abcdef🙂.txt"));
+            Assert.Equal("ABC~1.TXT", fs.GetShortName("abc🙂.txt"));
+            Assert.Equal("AB1F60~1.TXT", fs.GetShortName("ab🙂.txt"));
+
+            // Force changing the short name
+            fs.SetShortName("abcdef🙂.txt", "HELLO.TXT");
+            Assert.Equal("HELLO.TXT", fs.GetShortName("abcdef🙂.txt"));
+
+            // This should not be possible because the entry HELLO.TXT already exists
+            Assert.Throws<IOException>(() => fs.SetShortName("abc🙂.txt", "HELLO.TXT"));
+        }
+    }
 }
