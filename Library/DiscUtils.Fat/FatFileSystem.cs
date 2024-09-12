@@ -926,7 +926,16 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
             destDir.DeleteEntry(destEntryId, true);
         }
 
-        var sourceFileName = FatFileName.NewPath(destDir, resolvedDestinationFile, FatOptions.FileNameEncodingTable);
+        FatFileName sourceFileName;
+        try
+        {
+            sourceFileName = FatFileName.NewPath(destDir, resolvedDestinationFile, FatOptions.FileNameEncodingTable);
+        }
+        catch (ArgumentException ex)
+        {
+            throw new IOException($"Failed to create file name '{resolvedDestinationFile}'", ex);
+        }
+
         var newEntry = new DirectoryEntry(sourceEntry, sourceFileName)
         {
             FirstCluster = 0
@@ -1278,8 +1287,17 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
             // Remove the old file
             destDir.DeleteEntry(destEntryId, true);
         }
+        
+        FatFileName sourceFileName;
+        try
+        {
+            sourceFileName = FatFileName.NewPath(destDir, resolvedDestinationName, FatOptions.FileNameEncodingTable);
+        }
+        catch (ArgumentException ex)
+        {
+            throw new IOException($"Failed to create file name '{resolvedDestinationName}'", ex);
+        }
 
-        var sourceFileName = FatFileName.NewPath(destDir, resolvedDestinationName, FatOptions.FileNameEncodingTable);
         var newEntry = new DirectoryEntry(sourceEntry, sourceFileName);
 
         // Add the new file's entry and remove the old link to the file's contents

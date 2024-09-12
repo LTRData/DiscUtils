@@ -169,7 +169,16 @@ internal class Directory : IDisposable
 
             FileSystem.Fat.SetEndOfChain(firstCluster);
 
-            var fatFileName = FatFileName.FromName(name, FileSystem.FatOptions.FileNameEncodingTable, CheckIfShortNameExists);
+            FatFileName fatFileName;
+            try
+            {
+                fatFileName = FatFileName.FromName(name, FileSystem.FatOptions.FileNameEncodingTable, CheckIfShortNameExists);
+            }
+            catch (ArgumentException ex)
+            {
+                throw new IOException($"Invalid directory name {name}", ex);
+            }
+
             var newEntry = new DirectoryEntry(FileSystem.FatOptions, fatFileName, FatAttributes.Directory,
                 FileSystem.FatVariant)
             {
@@ -200,7 +209,16 @@ internal class Directory : IDisposable
             throw new IOException("Directory entry already exists");
         }
 
-        var fatFileName = FatFileName.FromName(name, FileSystem.FatOptions.FileNameEncodingTable, CheckIfShortNameExists);
+        FatFileName fatFileName;
+        try
+        {
+            fatFileName = FatFileName.FromName(name, FileSystem.FatOptions.FileNameEncodingTable, CheckIfShortNameExists);
+        }
+        catch (ArgumentException ex)
+        {
+            throw new IOException($"Invalid directory name {name}", ex);
+        }
+
         var newEntry = new DirectoryEntry(newChild.ParentsChildEntry, fatFileName);
         AddEntry(newEntry);
 
@@ -300,7 +318,6 @@ internal class Directory : IDisposable
         if ((mode == FileMode.OpenOrCreate || mode == FileMode.CreateNew || mode == FileMode.Create) && !exists)
         {
             FatFileName fatFileName;
-
             try
             {
                 fatFileName = FatFileName.FromName(name, FileSystem.FatOptions.FileNameEncodingTable, CheckIfShortNameExists);

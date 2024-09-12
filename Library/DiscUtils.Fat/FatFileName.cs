@@ -198,7 +198,7 @@ internal struct FatFileName : IEquatable<FatFileName>
     /// </summary>
     /// <param name="buffer">The buffer to receive the directory entries initialized with the long file name and the short file name.</param>
     /// <param name="encodingTable">Encoding table</param>
-    public readonly unsafe void ToDirectoryEntryBytes(Span<byte> buffer, FastEncodingTable encodingTable)
+    public readonly void ToDirectoryEntryBytes(Span<byte> buffer, FastEncodingTable encodingTable)
     {
         if (_shortName is null) throw new InvalidOperationException("Cannot write a deleted file name");
 
