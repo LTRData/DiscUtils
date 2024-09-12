@@ -33,9 +33,9 @@ namespace DiscUtils.Fat;
 /// </remarks>
 internal struct FreeDirectoryEntryTable
 {
-    private const int MaxBucketCount = 20 + 1; // 20 = (255 + 12) / 13 for LFN entries + 1 directory entry for SFN
+    private const int MaxBucketCount = 32;
 
-    private int _bucketMask;
+    private uint _bucketMask;
     private readonly SortedSet<long>[] _buckets;
     private readonly Stack<SortedSet<long>> _freeList;
 
@@ -44,7 +44,7 @@ internal struct FreeDirectoryEntryTable
     /// </summary>
     public FreeDirectoryEntryTable()
     {
-        _buckets = new SortedSet<long>[MaxBucketCount + 1];
+        _buckets = new SortedSet<long>[MaxBucketCount];
         _freeList = new();
     }
 
@@ -55,11 +55,17 @@ internal struct FreeDirectoryEntryTable
     /// <param name="count">The number of directory entries free after the position.</param>
     public void AddFreeRange(long position, int count)
     {
+        if (count <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(count), "The number of directory entries to add must be greater than zero.");
+        }
+
         while (count > 0)
         {
             var bucket = Math.Min(count, MaxBucketCount);
             AddInternal(position, bucket);
             count -= bucket;
+            position += bucket * DirectoryEntry.SizeOf;
         }
     }
 
@@ -70,9 +76,16 @@ internal struct FreeDirectoryEntryTable
     /// <returns>The position of the first directory entry allocated or -1 if no free directory entries are available.</returns>
     public long Allocate(int originalCount)
     {
-        Debug.Assert(originalCount > 0);
-        Debug.Assert(originalCount <= MaxBucketCount);
-        var bucketIndex = originalCount;
+        if (originalCount <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(originalCount), "The number of directory entries to allocate must be greater than zero.");
+        }
+
+        if (originalCount > MaxBucketCount)
+        {
+            throw new ArgumentOutOfRangeException(nameof(originalCount), "The number of directory entries to allocate is too large.");
+        }
+        var bucketIndex = originalCount - 1;
         var bucketMask = _bucketMask >>> bucketIndex;
         // If there are no buckets or the requested count is larger than the largest bucket, return -1
         if (bucketMask == 0)
@@ -97,13 +110,13 @@ internal struct FreeDirectoryEntryTable
         if (offset > 0)
         {
             // offset becomes the number of remaining entries that were not used by the allocation
-            AddFreeRange(pos + offset * DirectoryEntry.SizeOf, offset);
+            AddFreeRange(pos + originalCount * DirectoryEntry.SizeOf, offset);
         }
 
         // If the bucket is empty, remove it
         if (bucket.Count == 0)
         {
-            _bucketMask &= ~(1 << resolvedBucketIndex);
+            _bucketMask &= ~(1U << resolvedBucketIndex);
             _freeList.Push(bucket);
             bucket = null;
         }
@@ -113,13 +126,15 @@ internal struct FreeDirectoryEntryTable
 
     private void AddInternal(long position, int bucketIndex)
     {
+        Debug.Assert(bucketIndex > 0);
+        bucketIndex--;
         ref var bucket = ref _buckets[bucketIndex];
         bucket ??= _freeList.Count > 0 ? _freeList.Pop() : new();
         bucket.Add(position);
-        _bucketMask |= 1 << bucketIndex;
+        _bucketMask |= 1U << bucketIndex;
     }
     
-    private static int TrailingZeroCount(int value)
+    private static int TrailingZeroCount(uint value)
     {
 #if NET6_0_OR_GREATER
         return BitOperations.TrailingZeroCount(value);
