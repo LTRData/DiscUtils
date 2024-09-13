@@ -23,6 +23,7 @@
 using System;
 using System.Buffers;
 using System.IO;
+using System.Text;
 using DiscUtils.Streams;
 using DiscUtils.Streams.Compatibility;
 
@@ -30,9 +31,15 @@ namespace DiscUtils.Fat;
 
 internal class DirectoryEntry
 {
+    /// <summary>
+    /// Size of a directory entry in bytes.
+    /// </summary>
+    public const int SizeOf = 32;
+
     private readonly FatType _fatVariant;
     private readonly FatFileSystemOptions _options;
-    private byte _attr;
+    private FatFileName _name;
+    private FatAttributes _attr;
     private ushort _creationDate;
     private ushort _creationTime;
     private byte _creationTimeTenth;
@@ -48,33 +55,39 @@ internal class DirectoryEntry
         _options = options;
         _fatVariant = fatVariant;
 
-        var bufferLength = 32;
+        var bufferLength = SizeOf;
 
         var buffer = ArrayPool<byte>.Shared.Rent(bufferLength);
 
         try
         {
+            var initialPosition = stream.Position;
             stream.ReadExactly(buffer, 0, bufferLength);
 
             // LFN entry
-            if ((buffer[0] & 0xc0) == 0x40 && buffer[11] == 0x0f)
+            if (FatFileName.TryGetLfnDirectoryEntryCount(buffer, out var lfnDirectoryEntryCount))
             {
-                var lfn_entries = buffer[0] & 0x3F;
-
-                bufferLength += 32 * lfn_entries;
+                bufferLength += SizeOf * lfnDirectoryEntryCount;
 
                 if (buffer.Length < bufferLength)
                 {
                     var new_buffer = ArrayPool<byte>.Shared.Rent(bufferLength);
-                    System.Buffer.BlockCopy(buffer, 0, new_buffer, 0, 32);
+                    System.Buffer.BlockCopy(buffer, 0, new_buffer, 0, SizeOf);
                     ArrayPool<byte>.Shared.Return(buffer);
                     buffer = new_buffer;
                 }
 
-                stream.ReadExactly(buffer, 32, 32 * lfn_entries);
+                stream.ReadExactly(buffer, SizeOf, SizeOf * lfnDirectoryEntryCount);
             }
 
-            Load(buffer, 0, bufferLength);
+            Load(buffer, bufferLength, options.FileNameEncodingTable, out var bytesProcessed);
+
+            // If we have processed less than expected (because LFN entries were orphaned)
+            // seek to the actual position of what has been processed instead of what was prefetched above
+            if (bytesProcessed != bufferLength)
+            {
+                stream.Position = initialPosition + bytesProcessed;
+            }
         }
         finally
         {
@@ -85,19 +98,19 @@ internal class DirectoryEntry
         }
     }
 
-    internal DirectoryEntry(FatFileSystemOptions options, FileName name, FatAttributes attrs, FatType fatVariant)
+    internal DirectoryEntry(FatFileSystemOptions options, in FatFileName name, FatAttributes attrs, FatType fatVariant)
     {
-        _options = options;
         _fatVariant = fatVariant;
-        Name = name;
-        _attr = (byte)attrs;
+        _options = options;
+        _name = name;
+        _attr = attrs;
     }
 
-    internal DirectoryEntry(DirectoryEntry toCopy)
+    internal DirectoryEntry(DirectoryEntry toCopy, in FatFileName name)
     {
-        _options = toCopy._options;
         _fatVariant = toCopy._fatVariant;
-        Name = toCopy.Name;
+        _options = toCopy._options;
+        _name = name;
         _attr = toCopy._attr;
         _creationTimeTenth = toCopy._creationTimeTenth;
         _creationTime = toCopy._creationTime;
@@ -109,10 +122,12 @@ internal class DirectoryEntry
         _fileSize = toCopy._fileSize;
     }
 
+    public int EntryCount => 1 + Name.LfnDirectoryEntryCount;
+
     public FatAttributes Attributes
     {
-        get => (FatAttributes)_attr;
-        set => _attr = (byte)value;
+        get => _attr;
+        set => _attr = value;
     }
 
     public DateTime CreationTime
@@ -162,25 +177,48 @@ internal class DirectoryEntry
         set => DateTimeToFileTime(value, out _lastWriteDate, out _lastWriteTime);
     }
 
-    public FileName Name { get; set; }
+    public ref readonly FatFileName Name => ref _name;
 
-    internal void WriteTo(Stream stream)
+    public void ReplaceShortName(string name, FastEncodingTable encodingTable)
     {
-        Span<byte> buffer = stackalloc byte[32];
+        try
+        {
+            _name = _name.ReplaceShortName(name, encodingTable);
+        }
+        catch (ArgumentException ex)
+        {
+            throw new IOException("Failed to replace short name", ex);
+        }
+    }
+    
+    internal void WriteTo(Stream stream, FastEncodingTable encodingTable)
+    {
+        Span<byte> buffer = stackalloc byte[EntryCount * SizeOf];
 
-        Name.GetBytes(buffer);
-        buffer[11] = _attr;
-        buffer[13] = _creationTimeTenth;
-        EndianUtilities.WriteBytesLittleEndian(_creationTime, buffer.Slice(14));
-        EndianUtilities.WriteBytesLittleEndian(_creationDate, buffer.Slice(16));
-        EndianUtilities.WriteBytesLittleEndian(_lastAccessDate, buffer.Slice(18));
-        EndianUtilities.WriteBytesLittleEndian(_firstClusterHi, buffer.Slice(20));
-        EndianUtilities.WriteBytesLittleEndian(_lastWriteTime, buffer.Slice(22));
-        EndianUtilities.WriteBytesLittleEndian(_lastWriteDate, buffer.Slice(24));
-        EndianUtilities.WriteBytesLittleEndian(_firstClusterLo, buffer.Slice(26));
-        EndianUtilities.WriteBytesLittleEndian(_fileSize, buffer.Slice(28));
+        Name.ToDirectoryEntryBytes(buffer, encodingTable);
+        int offset = buffer.Length - SizeOf;
+        buffer[offset + 11] = (byte)_attr;
+        buffer[offset + 13] = _creationTimeTenth;
+        EndianUtilities.WriteBytesLittleEndian(_creationTime, buffer.Slice(offset + 14));
+        EndianUtilities.WriteBytesLittleEndian(_creationDate, buffer.Slice(offset + 16));
+        EndianUtilities.WriteBytesLittleEndian(_lastAccessDate, buffer.Slice(offset + 18));
+        EndianUtilities.WriteBytesLittleEndian(_firstClusterHi, buffer.Slice(offset + 20));
+        EndianUtilities.WriteBytesLittleEndian(_lastWriteTime, buffer.Slice(offset + 22));
+        EndianUtilities.WriteBytesLittleEndian(_lastWriteDate, buffer.Slice(offset + 24));
+        EndianUtilities.WriteBytesLittleEndian(_firstClusterLo, buffer.Slice(offset + 26));
+        EndianUtilities.WriteBytesLittleEndian(_fileSize, buffer.Slice(offset + 28));
 
         stream.Write(buffer);
+    }
+
+    public static void WriteDeletedEntry(Stream stream, int count)
+    {
+        var deletedBuffer = DeleteBuffer();
+        for (int i = 0; i < count; i++)
+        {
+            stream.Write(deletedBuffer);
+        }
+        static ReadOnlySpan<byte> DeleteBuffer() => [0xE5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
     }
 
     private static DateTime FileTimeToDateTime(ushort date, ushort time, byte tenths)
@@ -226,21 +264,28 @@ internal class DirectoryEntry
         tenths = (byte)(value.Second % 2 * 100 + value.Millisecond / 10);
     }
 
-    private void Load(byte[] data, int offset, int count)
+    private void Load(byte[] data, int count, FastEncodingTable fileNameEncoding, out int bytesProcessed)
     {
-        Name = new FileName(data.AsSpan(offset));
+        _name = FatFileName.FromDirectoryEntryBytes(data.AsSpan(0, count), fileNameEncoding, out bytesProcessed);
 
-        offset += count - 32;
+        var offset = bytesProcessed - SizeOf;
+        _attr = (FatAttributes)data[offset + 11];
 
-        _attr = data[offset + 11];
-        _creationTimeTenth = data[offset + 13];
-        _creationTime = EndianUtilities.ToUInt16LittleEndian(data, offset + 14);
-        _creationDate = EndianUtilities.ToUInt16LittleEndian(data, offset + 16);
-        _lastAccessDate = EndianUtilities.ToUInt16LittleEndian(data, offset + 18);
-        _firstClusterHi = EndianUtilities.ToUInt16LittleEndian(data, offset + 20);
-        _lastWriteTime = EndianUtilities.ToUInt16LittleEndian(data, offset + 22);
-        _lastWriteDate = EndianUtilities.ToUInt16LittleEndian(data, offset + 24);
-        _firstClusterLo = EndianUtilities.ToUInt16LittleEndian(data, offset + 26);
-        _fileSize = EndianUtilities.ToUInt32LittleEndian(data, offset + 28);
+        if (((_attr & FatAttributes.LongFileNameMask) == FatAttributes.LongFileName) || _name.IsDeleted())
+        {
+            // This is a deleted entry or an orphaned LFN entry, so we don't care about the other fields
+        }
+        else
+        {
+            _creationTimeTenth = data[offset + 13];
+            _creationTime = EndianUtilities.ToUInt16LittleEndian(data, offset + 14);
+            _creationDate = EndianUtilities.ToUInt16LittleEndian(data, offset + 16);
+            _lastAccessDate = EndianUtilities.ToUInt16LittleEndian(data, offset + 18);
+            _firstClusterHi = EndianUtilities.ToUInt16LittleEndian(data, offset + 20);
+            _lastWriteTime = EndianUtilities.ToUInt16LittleEndian(data, offset + 22);
+            _lastWriteDate = EndianUtilities.ToUInt16LittleEndian(data, offset + 24);
+            _firstClusterLo = EndianUtilities.ToUInt16LittleEndian(data, offset + 26);
+            _fileSize = EndianUtilities.ToUInt32LittleEndian(data, offset + 28);
+        }
     }
 }

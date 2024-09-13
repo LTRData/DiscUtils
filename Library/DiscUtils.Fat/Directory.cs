@@ -35,13 +35,22 @@ internal class Directory : IDisposable
     private readonly long _parentId;
     private long _endOfEntries;
 
-    private Dictionary<long, DirectoryEntry> _entries;
-    private List<long> _freeEntries;
+    private readonly Dictionary<long, DirectoryEntry> _entries;
+    private readonly Dictionary<string, long> _shortFileNameToEntry;
+    private readonly Dictionary<string, long> _fullFileNameToEntry;
+
+    private FreeDirectoryEntryTable _freeDirectoryEntryTable;
+
     private DirectoryEntry _parentEntry;
     private long _parentEntryLocation;
 
     private DirectoryEntry _selfEntry;
     private long _selfEntryLocation;
+
+    /// <summary>
+    /// Delegate to check if a short name exists in the directory used by <see cref="FatFileName.FromName"/>
+    /// </summary>
+    internal readonly Func<string, bool> CheckIfShortNameExists;
 
     /// <summary>
     /// Initializes a new instance of the Directory class.  Use this constructor to represent non-root directories.
@@ -51,8 +60,13 @@ internal class Directory : IDisposable
     internal Directory(Directory parent, long parentId)
     {
         FileSystem = parent.FileSystem;
+        _entries = new();
+        _freeDirectoryEntryTable = new();
+        _shortFileNameToEntry = new(StringComparer.OrdinalIgnoreCase);
+        _fullFileNameToEntry = new(StringComparer.OrdinalIgnoreCase);
         _parent = parent;
         _parentId = parentId;
+        CheckIfShortNameExists = CheckIfShortNameExistsImpl;
 
         var dirEntry = ParentsChildEntry;
         _dirStream = new ClusterStream(FileSystem, FileAccess.ReadWrite, dirEntry.FirstCluster, uint.MaxValue);
@@ -68,7 +82,12 @@ internal class Directory : IDisposable
     internal Directory(FatFileSystem fileSystem, Stream dirStream)
     {
         FileSystem = fileSystem;
+        _entries = new();
+        _freeDirectoryEntryTable = new();
+        _shortFileNameToEntry = new(StringComparer.OrdinalIgnoreCase);
+        _fullFileNameToEntry = new(StringComparer.OrdinalIgnoreCase);
         _dirStream = dirStream;
+        CheckIfShortNameExists = CheckIfShortNameExistsImpl;
 
         LoadEntries();
     }
@@ -112,7 +131,7 @@ internal class Directory : IDisposable
         return id < 0 ? null : _entries[id];
     }
 
-    public Directory GetChildDirectory(FileName name)
+    public Directory GetChildDirectory(string name)
     {
         var id = FindEntry(name);
         if (id < 0)
@@ -128,7 +147,7 @@ internal class Directory : IDisposable
         return FileSystem.GetDirectory(this, id);
     }
 
-    internal Directory CreateChildDirectory(FileName name)
+    internal Directory CreateChildDirectory(string name)
     {
         var id = FindEntry(name);
         if (id >= 0)
@@ -150,7 +169,17 @@ internal class Directory : IDisposable
 
             FileSystem.Fat.SetEndOfChain(firstCluster);
 
-            var newEntry = new DirectoryEntry(FileSystem.FatOptions, name, FatAttributes.Directory,
+            FatFileName fatFileName;
+            try
+            {
+                fatFileName = FatFileName.FromName(name, FileSystem.FatOptions.FileNameEncodingTable, CheckIfShortNameExists);
+            }
+            catch (ArgumentException ex)
+            {
+                throw new IOException($"Invalid directory name {name}", ex);
+            }
+
+            var newEntry = new DirectoryEntry(FileSystem.FatOptions, fatFileName, FatAttributes.Directory,
                 FileSystem.FatVariant)
             {
                 FirstCluster = firstCluster,
@@ -172,7 +201,7 @@ internal class Directory : IDisposable
         }
     }
 
-    internal void AttachChildDirectory(FileName name, Directory newChild)
+    internal void AttachChildDirectory(string name, Directory newChild)
     {
         var id = FindEntry(name);
         if (id >= 0)
@@ -180,16 +209,20 @@ internal class Directory : IDisposable
             throw new IOException("Directory entry already exists");
         }
 
-        var newEntry = new DirectoryEntry(newChild.ParentsChildEntry)
+        FatFileName fatFileName;
+        try
         {
-            Name = name
-        };
+            fatFileName = FatFileName.FromName(name, FileSystem.FatOptions.FileNameEncodingTable, CheckIfShortNameExists);
+        }
+        catch (ArgumentException ex)
+        {
+            throw new IOException($"Invalid directory name {name}", ex);
+        }
+
+        var newEntry = new DirectoryEntry(newChild.ParentsChildEntry, fatFileName);
         AddEntry(newEntry);
 
-        var newParentEntry = new DirectoryEntry(SelfEntry)
-        {
-            Name = FileName.ParentEntryName
-        };
+        var newParentEntry = new DirectoryEntry(SelfEntry, FatFileName.ParentEntryName);
         newChild.ParentEntry = newParentEntry;
     }
 
@@ -207,27 +240,50 @@ internal class Directory : IDisposable
         return -1;
     }
 
-    internal long FindEntry(FileName name)
+    internal long FindEntry(string name)
     {
-        foreach (var id in _entries.Keys)
+#if NET6_0_OR_GREATER
+        return _fullFileNameToEntry.GetValueOrDefault(name, -1);
+#else
+        if (_fullFileNameToEntry.TryGetValue(name, out var id))
         {
-            var focus = _entries[id];
-            if (focus.Name == name && (focus.Attributes & FatAttributes.VolumeId) == 0)
-            {
-                return id;
-            }
+            return id;
         }
 
         return -1;
+#endif
     }
 
-    internal FatFileStream OpenFile(FileName name, FileMode mode, FileAccess fileAccess)
+    public void ReplaceShortName(long id, string name)
     {
-        if (mode is FileMode.Append or FileMode.Truncate)
+        var entry = _entries[id];
+
+        if (entry.Name.ShortName.Equals(name, StringComparison.OrdinalIgnoreCase))
         {
-            throw new NotImplementedException();
+            return;
         }
 
+        if (_shortFileNameToEntry.ContainsKey(name))
+        {
+            throw new IOException("Short name already exists in directory");
+        }
+
+        // Save the current name so we can update the lookup tables if the rename is successful
+        var previousName = entry.Name;
+
+        // This might fail so we can only update the dictionary lookup tables if it succeeds
+        entry.ReplaceShortName(name, FileSystem.FatOptions.FileNameEncodingTable);
+
+        _shortFileNameToEntry.Remove(previousName.ShortName);
+        _fullFileNameToEntry.Remove(previousName.FullName);
+        _shortFileNameToEntry.Add(entry.Name.ShortName, id);
+        _fullFileNameToEntry.Add(entry.Name.FullName, id);
+    }
+    
+    private bool CheckIfShortNameExistsImpl(string shortName) => _shortFileNameToEntry.ContainsKey(shortName);
+
+    internal FatFileStream OpenFile(string name, FileMode mode, FileAccess fileAccess)
+    {
         var fileId = FindEntry(name);
         var exists = fileId != -1;
 
@@ -236,18 +292,21 @@ internal class Directory : IDisposable
             throw new IOException("File already exists");
         }
 
-        if (mode == FileMode.Open && !exists)
+        if ((mode == FileMode.Open || mode == FileMode.Truncate || mode == FileMode.Append) && !exists)
         {
-            throw new FileNotFoundException("File not found",
-                name.GetDisplayName(FileSystem.FatOptions.FileNameEncoding));
+            throw new FileNotFoundException("File not found", name);
         }
 
-        if ((mode == FileMode.Open || mode == FileMode.OpenOrCreate || mode == FileMode.Create) && exists)
+        if ((mode == FileMode.Open || mode == FileMode.OpenOrCreate || mode == FileMode.Create || mode == FileMode.Truncate || mode == FileMode.Append) && exists)
         {
             var stream = new FatFileStream(FileSystem, this, fileId, fileAccess);
-            if (mode == FileMode.Create)
+            if (mode == FileMode.Create || mode == FileMode.Truncate)
             {
                 stream.SetLength(0);
+            }
+            else if (mode == FileMode.Append)
+            {
+                stream.Seek(0, SeekOrigin.End);
             }
 
             HandleAccessed(false);
@@ -257,8 +316,18 @@ internal class Directory : IDisposable
 
         if ((mode == FileMode.OpenOrCreate || mode == FileMode.CreateNew || mode == FileMode.Create) && !exists)
         {
+            FatFileName fatFileName;
+            try
+            {
+                fatFileName = FatFileName.FromName(name, FileSystem.FatOptions.FileNameEncodingTable, CheckIfShortNameExists);
+            }
+            catch (ArgumentException ex)
+            {
+                throw new IOException("Invalid file name", ex);
+            }
+
             // Create new file
-            var newEntry = new DirectoryEntry(FileSystem.FatOptions, name, FatAttributes.Archive,
+            var newEntry = new DirectoryEntry(FileSystem.FatOptions, fatFileName, FatAttributes.Archive,
                 FileSystem.FatVariant)
             {
                 FirstCluster = 0, // i.e. Zero-length
@@ -278,25 +347,22 @@ internal class Directory : IDisposable
     internal long AddEntry(DirectoryEntry newEntry)
     {
         // Unlink an entry from the free list (or add to the end of the existing directory)
-        long pos;
-        if (_freeEntries.Count > 0)
-        {
-            pos = _freeEntries[0];
-            _freeEntries.RemoveAt(0);
-        }
-        else
+        var entryCount = newEntry.EntryCount;
+        var pos = _freeDirectoryEntryTable.Allocate(newEntry.EntryCount);
+
+        if (pos < 0)
         {
             pos = _endOfEntries;
-            _endOfEntries += 32;
+            _endOfEntries += entryCount * DirectoryEntry.SizeOf;
         }
 
         // Put the new entry into it's slot
         _dirStream.Position = pos;
-        newEntry.WriteTo(_dirStream);
+        newEntry.WriteTo(_dirStream, FileSystem.FatOptions.FileNameEncodingTable);
 
         // Update internal structures to reflect new entry (as if read from disk)
-        _entries.Add(pos, newEntry);
-
+        AddEntryRaw(pos, newEntry);
+        
         HandleAccessed(forWrite: true);
 
         return pos;
@@ -313,12 +379,10 @@ internal class Directory : IDisposable
         {
             var entry = _entries[id];
 
-            var copy = new DirectoryEntry(entry)
-            {
-                Name = entry.Name.Deleted()
-            };
+            var entryCount = entry.EntryCount;
+
             _dirStream.Position = id;
-            copy.WriteTo(_dirStream);
+            DirectoryEntry.WriteDeletedEntry(_dirStream, entryCount);
 
             if (releaseContents)
             {
@@ -326,8 +390,13 @@ internal class Directory : IDisposable
             }
 
             _entries.Remove(id);
-            _freeEntries.Add(id);
 
+            _freeDirectoryEntryTable.AddFreeRange(id, entryCount);
+
+            // Remove from the short and full name lookup tables
+            _shortFileNameToEntry.Remove(entry.Name.ShortName);
+            _fullFileNameToEntry.Remove(entry.Name.FullName);
+            
             HandleAccessed(true);
         }
         finally
@@ -344,39 +413,47 @@ internal class Directory : IDisposable
         }
 
         _dirStream.Position = id;
-        entry.WriteTo(_dirStream);
+        entry.WriteTo(_dirStream, FileSystem.FatOptions.FileNameEncodingTable);
         _entries[id] = entry;
+    }
+
+    private void AddEntryRaw(long pos, DirectoryEntry entry)
+    {
+        _entries.Add(pos, entry);
+        // Update the short and full name lookup tables
+        _shortFileNameToEntry.Add(entry.Name.ShortName, pos);
+        _fullFileNameToEntry.Add(entry.Name.FullName, pos);
     }
 
     private void LoadEntries()
     {
-        _entries = [];
-        _freeEntries = [];
-
         _selfEntryLocation = -1;
         _parentEntryLocation = -1;
+        long beginFreePosition = -1;
+        long endFreePosition = -1;
 
         while (_dirStream.Position < _dirStream.Length)
         {
+            var streamPos = _dirStream.Position;
             var entry = new DirectoryEntry(FileSystem.FatOptions, _dirStream, FileSystem.FatVariant);
-            var streamPos = _dirStream.Position - 32;
-
-            if (entry.Attributes ==
-                (FatAttributes.ReadOnly | FatAttributes.Hidden | FatAttributes.System | FatAttributes.VolumeId))
+            
+            if ((entry.Attributes & FatAttributes.LongFileNameMask) ==  FatAttributes.LongFileName)
             {
-                // Long File Name entry
+                // Orphaned Long File Name entry
+                AddFreeEntry(streamPos);
             }
             else if (entry.Name.IsDeleted())
             {
                 // E5 = Free Entry
-                _freeEntries.Add(streamPos);
+                // LFN Orphane entries (that are not part of a valid entry) are also marked as free 
+                AddFreeEntry(streamPos);
             }
-            else if (entry.Name == FileName.SelfEntryName)
+            else if (entry.Name == FatFileName.SelfEntryName)
             {
                 _selfEntry = entry;
                 _selfEntryLocation = streamPos;
             }
-            else if (entry.Name == FileName.ParentEntryName)
+            else if (entry.Name == FatFileName.ParentEntryName)
             {
                 _parentEntry = entry;
                 _parentEntryLocation = streamPos;
@@ -389,10 +466,35 @@ internal class Directory : IDisposable
             }
             else
             {
-                _entries.Add(streamPos, entry);
+                AddEntryRaw(streamPos, entry);
             }
         }
+
+        // Record any pending free entry
+        AddFreeEntry(-1);
+
+        void AddFreeEntry(long pos)
+        {
+            if (beginFreePosition >= 0)
+            {
+                // If a free entry comes after the previous one, and is contiguous, extend the count
+                if (endFreePosition + DirectoryEntry.SizeOf == pos)
+                {
+                    endFreePosition = pos;
+                    return;
+                }
+
+                // Record any pending range
+                AddFreeRange(beginFreePosition, (int)((endFreePosition - beginFreePosition) / DirectoryEntry.SizeOf));
+            }
+
+            beginFreePosition = pos;
+            endFreePosition = pos + DirectoryEntry.SizeOf;
+        }
     }
+
+    private void AddFreeRange(long position, int count) 
+        => _freeDirectoryEntryTable.AddFreeRange(position, count);
 
     private void HandleAccessed(bool forWrite)
     {
@@ -428,20 +530,16 @@ internal class Directory : IDisposable
         using var stream = new ClusterStream(FileSystem, FileAccess.Write, newEntry.FirstCluster,
                 uint.MaxValue);
         // First is the self-referencing entry...
-        var selfEntry = new DirectoryEntry(newEntry)
-        {
-            Name = FileName.SelfEntryName
-        };
-        selfEntry.WriteTo(stream);
+        var selfEntry = new DirectoryEntry(newEntry, FatFileName.SelfEntryName);
+        selfEntry.WriteTo(stream, FileSystem.FatOptions.FileNameEncodingTable);
 
         // Second is a clone of our self entry (i.e. parent) - though dates are odd...
-        var parentEntry = new DirectoryEntry(SelfEntry)
+        var parentEntry = new DirectoryEntry(SelfEntry, FatFileName.ParentEntryName)
         {
-            Name = FileName.ParentEntryName,
             CreationTime = newEntry.CreationTime,
             LastWriteTime = newEntry.LastWriteTime
         };
-        parentEntry.WriteTo(stream);
+        parentEntry.WriteTo(stream, FileSystem.FatOptions.FileNameEncodingTable);
     }
 
     private void Dispose(bool disposing)
@@ -460,7 +558,7 @@ internal class Directory : IDisposable
         {
             if (_parent == null)
             {
-                return new DirectoryEntry(FileSystem.FatOptions, FileName.ParentEntryName, FatAttributes.Directory,
+                return new DirectoryEntry(FileSystem.FatOptions, FatFileName.ParentEntryName, FatAttributes.Directory,
                     FileSystem.FatVariant);
             }
 
@@ -477,7 +575,7 @@ internal class Directory : IDisposable
             if (_parent == null)
             {
                 // If we're the root directory, simulate the parent entry with a dummy record
-                return new DirectoryEntry(FileSystem.FatOptions, FileName.Null, FatAttributes.Directory,
+                return new DirectoryEntry(FileSystem.FatOptions, FatFileName.Null, FatAttributes.Directory,
                     FileSystem.FatVariant);
             }
 
@@ -489,7 +587,7 @@ internal class Directory : IDisposable
             if (_selfEntryLocation >= 0)
             {
                 _dirStream.Position = _selfEntryLocation;
-                value.WriteTo(_dirStream);
+                value.WriteTo(_dirStream, FileSystem.FatOptions.FileNameEncodingTable);
                 _selfEntry = value;
             }
         }
@@ -507,7 +605,7 @@ internal class Directory : IDisposable
             }
 
             _dirStream.Position = _parentEntryLocation;
-            value.WriteTo(_dirStream);
+            value.WriteTo(_dirStream, FileSystem.FatOptions.FileNameEncodingTable);
             _parentEntry = value;
         }
     }

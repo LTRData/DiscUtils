@@ -41,7 +41,7 @@ public class FatFileSystemTest
         var fs = FatFileSystem.FormatFloppy(ms, FloppyDiskType.HighDensity, "KBFLOPPY   ");
     }
 
-    [Fact(Skip = "Saving LFN not yet implemented")]
+    [Fact]
     public void Cyrillic()
     {
         SetupHelper.RegisterAssembly(typeof(FatFileSystem).Assembly);
@@ -239,5 +239,223 @@ public class FatFileSystemTest
         stream.Write(buffer, 0, 1024 * 1024);
         stream.Position = 0;
         Assert.Throws<InvalidFileSystemException>(() => new FatFileSystem(stream));
+    }
+
+    [Fact]
+    public void TestShortNameDeletedEntries()
+    {
+        var diskStream = new SparseMemoryStream();
+        {
+            using var fs = FatFileSystem.FormatFloppy(diskStream, FloppyDiskType.HighDensity, "FLOPPY_IMG ");
+
+            fs.CreateDirectory(@"FOO1");
+            fs.CreateDirectory(@"FOO2");
+            fs.CreateDirectory(@"FOO3");
+            fs.CreateDirectory(@"FOO4");
+            fs.CreateDirectory(@"BAR");
+            fs.CreateDirectory(@"BAR1");
+            fs.CreateDirectory(@"BAR2");
+            fs.CreateDirectory(@"BAR3");
+
+            fs.DeleteDirectory(@"FOO1");
+            fs.DeleteDirectory(@"FOO2");
+            fs.DeleteDirectory(@"FOO3");
+            fs.DeleteDirectory(@"FOO4");
+            fs.DeleteDirectory(@"BAR1");
+            fs.DeleteDirectory(@"BAR2");
+            fs.DeleteDirectory(@"BAR3");
+            fs.CreateDirectory(@"01234567890123456789.txt");
+        }
+
+        {
+            var fs = new FatFileSystem(diskStream);
+            var entries = fs.GetFileSystemEntries("\\").OrderBy(x => x).ToList();
+            Assert.Equal(2, entries.Count);
+            Assert.Equal("\\01234567890123456789.txt", entries[0]);
+            Assert.Equal("\\BAR", entries[1]);
+
+            fs.CreateDirectory("abcdefghijklmnop.txt");
+
+            entries = fs.GetFileSystemEntries("\\").OrderBy(x => x).ToList();
+            Assert.Equal(3, entries.Count);
+            Assert.Equal("\\01234567890123456789.txt", entries[0]);
+            Assert.Equal("\\abcdefghijklmnop.txt", entries[1]);
+            Assert.Equal("\\BAR", entries[2]);
+        }
+    }
+    
+    [Fact]
+    public void TestLongNameDeletedEntries()
+    {
+        var diskStream = new SparseMemoryStream();
+        {
+            using var fs = FatFileSystem.FormatFloppy(diskStream, FloppyDiskType.HighDensity, "FLOPPY_IMG ");
+
+            fs.CreateDirectory(@"FOO_This_is_a_long_entry_1");
+            fs.CreateDirectory(@"FOO_This_is_a_long_entry_2");
+            fs.CreateDirectory(@"FOO_This_is_a_long_entry_3");
+            fs.CreateDirectory(@"FOO_This_is_a_long_entry_4");
+
+            fs.DeleteDirectory(@"FOO_This_is_a_long_entry_1"); // 26 characters, should take 3 entries (2 for LFN + 1 for SFN)
+            fs.CreateDirectory("TA"); // Should take the entry of the previously deleted entry
+            fs.CreateDirectory("TB");
+            fs.CreateDirectory("TC");
+        }
+
+        {
+            var fs = new FatFileSystem(diskStream);
+            var entries = fs.GetFileSystemEntries("\\").OrderBy(x => x).ToList();
+            Assert.Equal(6, entries.Count);
+            Assert.Equal("\\FOO_This_is_a_long_entry_2", entries[0]);
+            Assert.Equal("\\FOO_This_is_a_long_entry_3", entries[1]);
+            Assert.Equal("\\FOO_This_is_a_long_entry_4", entries[2]);
+            Assert.Equal("\\TA", entries[3]);
+            Assert.Equal("\\TB", entries[4]);
+            Assert.Equal("\\TC", entries[5]);
+        }
+    }
+
+    [Fact]
+    public void TestCreateDirectoryAndFailure()
+    {
+        var diskStream = new SparseMemoryStream();
+        {
+            using var fs = FatFileSystem.FormatFloppy(diskStream, FloppyDiskType.HighDensity, "FLOPPY_IMG ");
+
+            fs.CreateDirectory(@"BAR\BAZ\QUX");
+            fs.CreateDirectory(@"BAR\BAZ\QUX"); // Nothing is happening here
+            fs.CreateDirectory(@"BAR");
+            {
+                using var file = fs.OpenFile(@"BAR\BAZ\QUX\TEST", FileMode.Create);
+                file.WriteByte(0);
+            }
+
+            Assert.Throws<IOException>(() => fs.CreateDirectory(@"BAR\BAZ\QUX\TEST"));
+        }
+    }
+
+    [Fact]
+    public void TestLargeFileCreateOpenAppendTruncate()
+    {
+        var diskStream = new SparseMemoryStream();
+        {
+            using var fs = FatFileSystem.FormatFloppy(diskStream, FloppyDiskType.HighDensity, "FLOPPY_IMG ");
+
+            var buffer = new byte[1024 * 1024];
+            var rnd = new Random(0);
+            rnd.NextBytes(buffer);
+            using (var file = fs.OpenFile("TEST", FileMode.Create))
+            {
+                file.Write(buffer, 0, buffer.Length);
+            }
+
+            using (var file = fs.OpenFile("TEST", FileMode.Open))
+            {
+                var buffer2 = new byte[buffer.Length];
+                int length = file.Read(buffer2, 0, buffer2.Length);
+                Assert.Equal(length, buffer2.Length);
+
+                for (int i = 0; i < buffer.Length; i++)
+                {
+                    Assert.Equal(buffer[i], buffer2[i]);
+                }
+            }
+
+            using (var file = fs.OpenFile("TEST", FileMode.Append))
+            {
+                var smallerBuffer = new byte[] { 1, 2, 3, 4 };
+                file.Write(smallerBuffer, 0, smallerBuffer.Length);
+            }
+
+            using (var file = fs.OpenFile("TEST", FileMode.Open))
+            {
+                var buffer2 = new byte[buffer.Length + 4];
+                int length = file.Read(buffer2, 0, buffer2.Length);
+                Assert.Equal(length, buffer2.Length);
+
+                for (int i = 0; i < buffer.Length; i++)
+                {
+                    Assert.Equal(buffer[i], buffer2[i]);
+                }
+
+                for (int i = 0; i < 4; i++)
+                {
+                    Assert.Equal(i + 1, buffer2[buffer.Length + i]);
+                }
+            }
+
+            using (var file = fs.OpenFile("TEST", FileMode.Truncate))
+            {
+                file.Write([0]);
+            }
+
+            var attr = fs.GetFileLength("TEST");
+            Assert.Equal(1, attr);
+
+            fs.DeleteFile("TEST");
+
+            Assert.Throws<FileNotFoundException>(() => fs.GetFileLength("TEST"));
+
+            using (var file = fs.OpenFile("ANOTHER", FileMode.Create))
+            {
+                file.Write(buffer, 0, buffer.Length);
+            }
+
+            Assert.True(fs.FileExists("ANOTHER"));
+        }
+    }
+
+    [Fact]
+    public void TestShortName()
+    {
+        var diskStream = new SparseMemoryStream();
+        {
+            using var fs = FatFileSystem.FormatFloppy(diskStream, FloppyDiskType.HighDensity, "FLOPPY_IMG ");
+
+            fs.CreateDirectory("A");
+            fs.CreateDirectory("A.B");
+            fs.CreateDirectory("a");
+            fs.CreateDirectory("a.b");
+            fs.CreateDirectory("a.B");
+            fs.CreateDirectory("A1234567");
+            fs.CreateDirectory("A1234567.ext");
+            fs.CreateDirectory("this_is_a_long_name");
+            fs.CreateDirectory("V1Abcd_this_is_to_long.TXT");
+            fs.CreateDirectory("V2Abcd_this_is_to_long.TXT");
+            fs.CreateDirectory("✨.txt");
+            fs.CreateDirectory("abcdef🙂.txt");
+            fs.CreateDirectory("abc🙂.txt");
+            fs.CreateDirectory("ab🙂.txt");
+            fs.CreateDirectory("c d.txt");
+            fs.CreateDirectory("...txt");
+            fs.CreateDirectory("..a.txt");
+            fs.CreateDirectory("txt...");
+            fs.CreateDirectory("a+b=c");
+            fs.CreateDirectory("ab    .txt");
+            fs.CreateDirectory("✨TAT");
+            fs.CreateDirectory("a.b..c.d");
+            fs.CreateDirectory("Mixed.Cas");
+            fs.CreateDirectory("Mixed.txt");
+            fs.CreateDirectory("mixed.Txt");
+
+            Assert.Equal("A", fs.GetShortName("A"));
+            Assert.Equal("A.B", fs.GetShortName("A.B"));
+            Assert.Equal("A1234567", fs.GetShortName("A1234567"));
+            Assert.Equal("A1234567.EXT", fs.GetShortName("A1234567.ext"));
+            Assert.Equal("THIS_I~1", fs.GetShortName("this_is_a_long_name"));
+            Assert.Equal("V1ABCD~1.TXT", fs.GetShortName("V1Abcd_this_is_to_long.TXT"));
+            Assert.Equal("V2ABCD~1.TXT", fs.GetShortName("V2Abcd_this_is_to_long.TXT"));
+            Assert.Equal("6393~1.TXT", fs.GetShortName("✨.txt"));
+            Assert.Equal("ABCDEF~1.TXT", fs.GetShortName("abcdef🙂.txt"));
+            Assert.Equal("ABC~1.TXT", fs.GetShortName("abc🙂.txt"));
+            Assert.Equal("AB1F60~1.TXT", fs.GetShortName("ab🙂.txt"));
+
+            // Force changing the short name
+            fs.SetShortName("abcdef🙂.txt", "HELLO.TXT");
+            Assert.Equal("HELLO.TXT", fs.GetShortName("abcdef🙂.txt"));
+
+            // This should not be possible because the entry HELLO.TXT already exists
+            Assert.Throws<IOException>(() => fs.SetShortName("abc🙂.txt", "HELLO.TXT"));
+        }
     }
 }

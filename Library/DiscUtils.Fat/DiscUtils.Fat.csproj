@@ -3,10 +3,13 @@
     <Description>DiscUtils FAT filesystem parser</Description>
     <Authors>Kenneth Bell;LordMike;Olof Lagerkvist</Authors>
     <PackageTags>DiscUtils;Filesystem;FAT</PackageTags>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\DiscUtils.Core\DiscUtils.Core.csproj" />
+    <!-- In order to test FileName and other internals in Unit tests-->
+    <InternalsVisibleTo Include="LibraryTests" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework.CompareTo(`net5`))' &gt;= 0">
