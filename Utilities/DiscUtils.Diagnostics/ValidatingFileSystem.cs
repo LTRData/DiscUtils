@@ -593,7 +593,7 @@ public class ValidatingFileSystem<TFileSystem, TChecker> : DiscFileSystem
     {
         try
         {
-            return (TFileSystem)typeof(TFileSystem).GetConstructor(new Type[] { typeof(Stream) }).Invoke(new object[] { stream });
+            return (TFileSystem)typeof(TFileSystem).GetConstructor([typeof(Stream)]).Invoke([stream]);
         }
         catch (TargetInvocationException tie)
         {
@@ -608,7 +608,7 @@ public class ValidatingFileSystem<TFileSystem, TChecker> : DiscFileSystem
     {
         try
         {
-            return (TChecker)typeof(TChecker).GetConstructor(new Type[] { typeof(Stream) }).Invoke(new object[] { stream });
+            return (TChecker)typeof(TChecker).GetConstructor([typeof(Stream)]).Invoke([stream]);
         }
         catch (TargetInvocationException tie)
         {

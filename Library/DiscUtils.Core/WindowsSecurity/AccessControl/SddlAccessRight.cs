@@ -28,7 +28,7 @@ internal class SddlAccessRight
         {
             if (mask == right.Value)
             {
-                return new[] { right };
+                return [right];
             }
         }
 
@@ -64,8 +64,8 @@ internal class SddlAccessRight
         return null;
     }
 
-    private static readonly SddlAccessRight[] rights = new SddlAccessRight[]
-    {
+    private static readonly SddlAccessRight[] rights =
+    [
         new() { Name = "CC", Value = 0x00000001, ObjectType = 1 },
         new() { Name = "DC", Value = 0x00000002, ObjectType = 1 },
         new() { Name = "LC", Value = 0x00000004, ObjectType = 1 },
@@ -99,5 +99,5 @@ internal class SddlAccessRight
         new() { Name = "NW", Value = 0x00000001 },
         new() { Name = "NR", Value = 0x00000002 },
         new() { Name = "NX", Value = 0x00000004 },
-    };
+    ];
 }

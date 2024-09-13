@@ -59,7 +59,7 @@ public class DiskImageFileTest
         {
             // Write some data - exposes bug if mis-calculating where to write data
             using var diffFile = DiskImageFile.InitializeDifferencing(diffStream, Ownership.None, baseFile, @"C:\TEMP\Base.vhd", @".\Base.vhd", new DateTime(2007, 12, 31));
-            var disk = new Disk(new DiskImageFile[] { diffFile, baseFile }, Ownership.None);
+            var disk = new Disk([diffFile, baseFile], Ownership.None);
             disk.Content.Write(new byte[512], 0, 512);
         }
 

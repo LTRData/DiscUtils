@@ -41,7 +41,7 @@ public class Nfs3MountResultTest
              ],
             FileHandle = new Nfs3FileHandle()
             {
-                Value = new byte[] { 0x5 }
+                Value = [0x5]
             },
             Status = Nfs3Status.Ok
         };

@@ -57,7 +57,7 @@ public class Nfs3ReadDirResultTest
                      },
                      FileHandle = new Nfs3FileHandle()
                      {
-                         Value = new byte[]{0x20, 0x18 }
+                         Value = [0x20, 0x18]
                      },
                      FileId = 2018,
                      Name = "test.bin"

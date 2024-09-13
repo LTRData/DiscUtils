@@ -258,7 +258,7 @@ str[i] is not (>= '0' and <= '9' or >= 'A' and <= 'Z' or '_' or
 
     internal static string[] SplitFileName(string name)
     {
-        string[] parts = { name, string.Empty, "1" };
+        string[] parts = [name, string.Empty, "1"];
 
         if (name.Contains('.'))
         {

@@ -720,7 +720,7 @@ internal sealed class Connection : IDisposable
                 {
                     var value = ProtocolKeyAttribute.GetValueAsObject(inParameters[attr.Name], propInfo.PropertyType);
 
-                    propInfo.GetSetMethod(true).Invoke(this, new[] { value });
+                    propInfo.GetSetMethod(true).Invoke(this, [value]);
                     inParameters.Remove(attr.Name);
 
                     if (attr.Type == KeyType.Negotiated && !_negotiatedParameters.ContainsKey(attr.Name))

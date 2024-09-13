@@ -32,7 +32,7 @@ namespace DiscUtils.Btrfs;
 /// </summary>
 public sealed class BtrfsFileSystem : VfsFileSystemFacade, IUnixFileSystem, IAllocationExtentsFileSystem
 {
-    internal static readonly long[] SuperblockOffsets = {0x10000L, 0x4000000L, 0x4000000000L, 0x4000000000000L};
+    internal static readonly long[] SuperblockOffsets = [0x10000L, 0x4000000L, 0x4000000000L, 0x4000000000000L];
 
     /// <summary>
     /// Initializes a new instance of the BtrfsFileSystem class.

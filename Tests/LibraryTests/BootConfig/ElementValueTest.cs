@@ -144,7 +144,7 @@ public class ElementValueTest
         var s = Store.Initialize(hive.Root);
         var obj = s.CreateInherit(InheritType.AnyObject);
 
-        var el = obj.AddElement(WellKnownElement.BootMgrDisplayOrder, ElementValue.ForGuidList(new Guid[] {testGuid1, testGuid2}));
+        var el = obj.AddElement(WellKnownElement.BootMgrDisplayOrder, ElementValue.ForGuidList([testGuid1, testGuid2]));
 
         el = obj.GetElement(WellKnownElement.BootMgrDisplayOrder);
 
@@ -172,7 +172,7 @@ public class ElementValueTest
         var s = Store.Initialize(hive.Root);
         var obj = s.CreateInherit(InheritType.AnyObject);
 
-        var el = obj.AddElement(WellKnownElement.LibraryBadMemoryList, ElementValue.ForIntegerList(new long[] { 1234, 4132 }));
+        var el = obj.AddElement(WellKnownElement.LibraryBadMemoryList, ElementValue.ForIntegerList([1234, 4132]));
 
         el = obj.GetElement(WellKnownElement.LibraryBadMemoryList);
 

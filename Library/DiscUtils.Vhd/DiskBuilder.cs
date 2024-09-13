@@ -72,7 +72,7 @@ public sealed class DiskBuilder : DiskImageBuilder
 
             var footerStream = SparseStream.FromStream(new MemoryStream(footerSector, false),
                 Ownership.None);
-            Stream imageStream = new ConcatStream(Ownership.None, new[] { Content, footerStream });
+            Stream imageStream = new ConcatStream(Ownership.None, [Content, footerStream]);
             return SingleValueEnumerable.Get(new DiskImageFileSpecification($"{baseName}.vhd",
                 new PassthroughStreamBuilder(imageStream)));
         }

@@ -33,7 +33,7 @@ public class Nfs3FileHandleTest
     {
         var attributes = new Nfs3FileHandle()
         {
-            Value = new byte[] { 0x01 }
+            Value = [0x01]
         };
 
         Nfs3FileHandle clone = null;

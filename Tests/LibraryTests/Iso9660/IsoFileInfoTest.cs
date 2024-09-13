@@ -64,7 +64,7 @@ public class IsoFileInfoTest
     public void Open_Read()
     {
         var builder = new CDBuilder();
-        builder.AddFile("foo.txt", new byte[] { 1 });
+        builder.AddFile("foo.txt", [1]);
         var fs = new CDReader(builder.Build(), false);
 
         var di = fs.GetFileInfo("foo.txt");
@@ -90,7 +90,7 @@ public class IsoFileInfoTest
     public void Attributes()
     {
         var builder = new CDBuilder();
-        builder.AddFile("foo.txt", new byte[] { 1 });
+        builder.AddFile("foo.txt", [1]);
         var fs = new CDReader(builder.Build(), false);
 
         var fi = fs.GetFileInfo("foo.txt");
@@ -103,7 +103,7 @@ public class IsoFileInfoTest
     public void Exists()
     {
         var builder = new CDBuilder();
-        builder.AddFile(@"dir\foo.txt", new byte[] { 1 });
+        builder.AddFile(@"dir\foo.txt", [1]);
         var fs = new CDReader(builder.Build(), false);
 
         Assert.False(fs.GetFileInfo("unknown.txt").Exists);
@@ -115,7 +115,7 @@ public class IsoFileInfoTest
     public void CreationTimeUtc()
     {
         var builder = new CDBuilder();
-        builder.AddFile(@"foo.txt", new byte[] { 1 });
+        builder.AddFile(@"foo.txt", [1]);
         var fs = new CDReader(builder.Build(), false);
 
         Assert.True(DateTime.UtcNow >= fs.GetFileInfo("foo.txt").CreationTimeUtc);
@@ -137,7 +137,7 @@ public class IsoFileInfoTest
         var sep = Path.DirectorySeparatorChar;
 
         var builder = new CDBuilder();
-        builder.AddFile($"SOMEDIR{sep}ADIR{sep}FILE.TXT", new byte[] { 1 });
+        builder.AddFile($"SOMEDIR{sep}ADIR{sep}FILE.TXT", [1]);
         var fs = new CDReader(builder.Build(), false);
 
         var fi = fs.GetFileInfo($"SOMEDIR{sep}ADIR{sep}FILE.TXT");

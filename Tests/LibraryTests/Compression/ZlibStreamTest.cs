@@ -65,7 +65,7 @@ public class ZlibStreamTest
         }
 
         compressedStream.Seek(-2, SeekOrigin.End);
-        compressedStream.Write(new byte[] { 0, 0 }, 0, 2);
+        compressedStream.Write([0, 0], 0, 2);
 
         compressedStream.Position = 0;
         Assert.Throws<InvalidDataException>(() =>

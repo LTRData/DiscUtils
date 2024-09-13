@@ -347,8 +347,8 @@ public abstract class ProgramBase
         }
     }
 
-    private static readonly string[] shortSwitches = new string[] { "ne" };
-    private static readonly string[] shortSwitchesArray = new string[] { "h", "?" };
+    private static readonly string[] shortSwitches = ["ne"];
+    private static readonly string[] shortSwitchesArray = ["h", "?"];
 
     [Flags]
     protected internal enum StandardSwitches

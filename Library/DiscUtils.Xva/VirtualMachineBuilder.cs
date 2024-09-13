@@ -128,9 +128,9 @@ public sealed class VirtualMachineBuilder : StreamBuilder, IDisposable
                         if (diskBytesLeft < Sizes.OneMiB)
                         {
                             chunkStream = new ConcatStream(
-                                Ownership.Dispose, new SparseStream[] {
+                                Ownership.Dispose, [
                                 new SubStream(diskStream, i * Sizes.OneMiB, diskBytesLeft),
-                                new ZeroStream(Sizes.OneMiB - diskBytesLeft) });
+                                new ZeroStream(Sizes.OneMiB - diskBytesLeft) ]);
                         }
                         else
                         {
@@ -212,9 +212,9 @@ public sealed class VirtualMachineBuilder : StreamBuilder, IDisposable
                         if (diskBytesLeft < Sizes.OneMiB)
                         {
                             chunkStream = new ConcatStream(
-                                Ownership.Dispose, new SparseStream[] {
+                                Ownership.Dispose, [
                                 new SubStream(diskStream, i * Sizes.OneMiB, diskBytesLeft),
-                                new ZeroStream(Sizes.OneMiB - diskBytesLeft) });
+                                new ZeroStream(Sizes.OneMiB - diskBytesLeft) ]);
                         }
                         else
                         {

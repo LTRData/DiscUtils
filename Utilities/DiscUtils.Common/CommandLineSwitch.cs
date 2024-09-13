@@ -45,7 +45,7 @@ public class CommandLineSwitch
 
     public CommandLineSwitch(string shortSwitch, string fullSwitch, string paramName, string description)
     {
-        _shortSwitches = new string[] { shortSwitch };
+        _shortSwitches = [shortSwitch];
         _fullSwitch = fullSwitch;
         _paramName = paramName;
         _description = description;

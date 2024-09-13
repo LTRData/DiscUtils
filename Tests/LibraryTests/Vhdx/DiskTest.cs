@@ -164,7 +164,7 @@ public class DiskTest
         var grandChildStream = new MemoryStream();
         var grandChildFile = DiskImageFile.InitializeDifferencing(grandChildStream, Ownership.Dispose, childFile, @"C:\temp\child1.vhd", @".\child1.vhd", DateTime.Now);
 
-        using var disk = new Disk(new DiskImageFile[] { grandChildFile, childFile, baseFile }, Ownership.Dispose);
+        using var disk = new Disk([grandChildFile, childFile, baseFile], Ownership.Dispose);
         Assert.NotNull(disk.Content);
     }
 
@@ -180,7 +180,7 @@ public class DiskTest
         var grandChildStream = new MemoryStream();
         var grandChildFile = DiskImageFile.InitializeDifferencing(grandChildStream, Ownership.Dispose, childFile, @"C:\temp\child1.vhd", @".\child1.vhd", DateTime.Now);
 
-        using var disk = new Disk(new DiskImageFile[] { grandChildFile, childFile, baseFile }, Ownership.Dispose);
+        using var disk = new Disk([grandChildFile, childFile, baseFile], Ownership.Dispose);
         Assert.NotNull(disk.Content);
     }
 

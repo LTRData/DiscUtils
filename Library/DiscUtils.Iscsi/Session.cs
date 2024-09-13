@@ -76,11 +76,11 @@ public sealed class Session : IDisposable
 
         if (string.IsNullOrEmpty(userName))
         {
-            ActiveConnection = new Connection(this, _addresses[0], new Authenticator[] { new NullAuthenticator() });
+            ActiveConnection = new Connection(this, _addresses[0], [new NullAuthenticator()]);
         }
         else
         {
-            ActiveConnection = new Connection(this, _addresses[0], new Authenticator[] { new NullAuthenticator(), new ChapAuthenticator(userName, password) });
+            ActiveConnection = new Connection(this, _addresses[0], [new NullAuthenticator(), new ChapAuthenticator(userName, password)]);
         }
     }
 
@@ -338,7 +338,7 @@ public sealed class Session : IDisposable
                 {
                     var value = ProtocolKeyAttribute.GetValueAsObject(inParameters[attr.Name], propInfo.PropertyType);
 
-                    propInfo.GetSetMethod(true).Invoke(this, new[] { value });
+                    propInfo.GetSetMethod(true).Invoke(this, [value]);
                     inParameters.Remove(attr.Name);
 
                     if (attr.Type == KeyType.Negotiated && !_negotiatedParameters.ContainsKey(attr.Name))

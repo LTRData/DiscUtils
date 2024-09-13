@@ -85,7 +85,7 @@ public sealed class SquashFileSystemBuilderTest
         var fsImage = new MemoryStream();
 
         var builder = new SquashFileSystemBuilder();
-        builder.AddFile($"{sep}adir{sep}anotherdir{sep}file", new MemoryStream(new byte[] { 1, 2, 3, 4 }));
+        builder.AddFile($"{sep}adir{sep}anotherdir{sep}file", new MemoryStream([1, 2, 3, 4]));
         builder.Build(fsImage);
 
         var reader = new SquashFileSystemReader(fsImage);
@@ -100,7 +100,7 @@ public sealed class SquashFileSystemBuilderTest
         var fsImage = new MemoryStream();
 
         var builder = new SquashFileSystemBuilder();
-        builder.AddFile(@"file", new MemoryStream(new byte[] { 1, 2, 3, 4 }));
+        builder.AddFile(@"file", new MemoryStream([1, 2, 3, 4]));
         builder.AddDirectory(@"dir");
 
         builder.DefaultUser = 1000;
@@ -138,7 +138,7 @@ public sealed class SquashFileSystemBuilderTest
         var fsImage = new MemoryStream();
 
         var builder = new SquashFileSystemBuilder();
-        builder.AddFile(@"file", new MemoryStream(new byte[] { 1, 2, 3, 4 }));
+        builder.AddFile(@"file", new MemoryStream([1, 2, 3, 4]));
         builder.Build(fsImage);
 
         var reader = new SquashFileSystemReader(fsImage);

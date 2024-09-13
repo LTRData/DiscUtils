@@ -71,7 +71,7 @@ public class Nfs3LookupResultTest
             },
             ObjectHandle = new Nfs3FileHandle()
             {
-                Value = new byte[] { 0x20 }
+                Value = [0x20]
             },
             Status = Nfs3Status.Ok
         };

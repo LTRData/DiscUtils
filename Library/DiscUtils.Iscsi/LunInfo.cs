@@ -138,7 +138,7 @@ public class LunInfo
         }
 
         var targetInfo = new TargetInfo(targetName,
-            new[] { new TargetAddress(address, port, targetGroupTag) });
+            [new TargetAddress(address, port, targetGroupTag)]);
 
         foreach (var queryElem in uri.Query.AsMemory(1).Split('&'))
         {

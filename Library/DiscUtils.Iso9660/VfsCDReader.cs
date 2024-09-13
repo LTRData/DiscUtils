@@ -37,9 +37,9 @@ internal class VfsCDReader : VfsReadOnlyFileSystem<ReaderDirEntry, File, ReaderD
 {
     public override bool IsCaseSensitive => false;
 
-    private static readonly Iso9660Variant[] DefaultVariantsNoJoliet = { Iso9660Variant.RockRidge, Iso9660Variant.Iso9660 };
+    private static readonly Iso9660Variant[] DefaultVariantsNoJoliet = [Iso9660Variant.RockRidge, Iso9660Variant.Iso9660];
 
-    private static readonly Iso9660Variant[] DefaultVariantsWithJoliet = { Iso9660Variant.Joliet, Iso9660Variant.RockRidge, Iso9660Variant.Iso9660 };
+    private static readonly Iso9660Variant[] DefaultVariantsWithJoliet = [Iso9660Variant.Joliet, Iso9660Variant.RockRidge, Iso9660Variant.Iso9660];
 
     private byte[] _bootCatalog;
     private readonly BootVolumeDescriptor _bootVolDesc;
@@ -361,7 +361,7 @@ internal class VfsCDReader : VfsReadOnlyFileSystem<ReaderDirEntry, File, ReaderD
 
                 if (paths == null)
                 {
-                    fileIdToPaths[entry.UniqueCacheId] = Array.AsReadOnly(new[] { path });
+                    fileIdToPaths[entry.UniqueCacheId] = Array.AsReadOnly([path]);
                 }
                 else
                 {

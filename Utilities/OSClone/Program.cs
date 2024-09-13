@@ -38,10 +38,10 @@ class Program : ProgramBase
     // Shared to avoid continual re-allocation of a large buffer
     private static byte[] _copyBuffer = new byte[10 * 1024 * 1024];
 
-    private static string[] _excludedFiles = new string[]
-    {
+    private static string[] _excludedFiles =
+    [
         @"\PAGEFILE.SYS", @"\HIBERFIL.SYS", @"\SYSTEM VOLUME INFORMATION"
-    };
+    ];
 
     private CommandLineParameter _sourceFile;
     private CommandLineParameter _destFile;

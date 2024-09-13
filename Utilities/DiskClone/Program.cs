@@ -68,12 +68,12 @@ class Program : ProgramBase
         return StandardSwitches.OutputFormatAndAdapterType;
     }
 
-    protected override string[] HelpRemarks => new string[]
-            {
+    protected override string[] HelpRemarks =>
+            [
                 "DiskClone clones a live disk into a virtual disk file.  The volumes cloned must be formatted with NTFS, and partitioned using a conventional partition table.",
                 "Only Windows 7 is supported.",
                 "The tool must be run with administrator privilege."
-            };
+            ];
 
     protected override void DoRun()
     {

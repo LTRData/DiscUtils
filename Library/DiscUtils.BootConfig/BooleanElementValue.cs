@@ -45,6 +45,6 @@ internal class BooleanElementValue : ElementValue
 
     internal byte[] GetBytes()
     {
-        return new[] { _value ? (byte)1 : (byte)0 };
+        return [_value ? (byte)1 : (byte)0];
     }
 }

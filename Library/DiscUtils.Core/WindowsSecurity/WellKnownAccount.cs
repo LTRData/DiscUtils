@@ -94,8 +94,8 @@ internal class WellKnownAccount
         return null;
     }
 
-    private static readonly WellKnownAccount[] accounts = new WellKnownAccount[]
-    {
+    private static readonly WellKnownAccount[] accounts =
+    [
         new() { WellKnownValue = WellKnownSidType.NullSid, IsAbsolute = true, SidStr = "S-1-0-0", Name = @"NULL SID" },
         new() { WellKnownValue = WellKnownSidType.WorldSid, IsAbsolute = true, SidStr = "S-1-1-0", Name = @"Everyone", SddlForm = "WD" },
         new() { WellKnownValue = WellKnownSidType.LocalSid, IsAbsolute = true, SidStr = "S-1-2-0", Name = @"LOCAL" },
@@ -162,7 +162,7 @@ internal class WellKnownAccount
         new() { WellKnownValue = (WellKnownSidType)69, IsAbsolute = false, RidStr = "16384", SddlForm = "SI" },
         new() { WellKnownValue = (WellKnownSidType)74, IsAbsolute = false, RidStr = "521", SddlForm = "RO" },
         new() { WellKnownValue = (WellKnownSidType)78, IsAbsolute = false, RidStr = "574", SddlForm = "CD" },
-    };
+    ];
     private string sidStr;
     private string ridStr;
 }

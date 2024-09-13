@@ -343,7 +343,7 @@ class Program : ProgramBase
         }
     }
 
-    private static char[] BadNameChars = { '\r', '\n', '\0' };
+    private static char[] BadNameChars = ['\r', '\n', '\0'];
 
     private static string CleanName(string name)
     {

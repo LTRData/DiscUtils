@@ -78,7 +78,7 @@ public class Nfs3ReadDirPlusResultTest
                      },
                      FileHandle = new Nfs3FileHandle()
                      {
-                          Value = new byte[]{0xa}
+                          Value = [0xa]
                      },
                      FileId = 99,
                      Name = "test"

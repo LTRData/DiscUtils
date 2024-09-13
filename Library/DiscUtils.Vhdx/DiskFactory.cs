@@ -29,7 +29,7 @@ namespace DiscUtils.Vhdx;
 [VirtualDiskFactory("VHDX", ".vhdx,.avhdx")]
 internal sealed class DiskFactory : VirtualDiskFactory
 {
-    public override string[] Variants => new[] { "fixed", "dynamic" };
+    public override string[] Variants => ["fixed", "dynamic"];
 
     public override VirtualDiskTypeInfo GetDiskTypeInformation(string variant)
     {

@@ -28,7 +28,7 @@ namespace DiscUtils.HfsPlus;
 
 internal sealed class VolumeHeader : IByteArraySerializable
 {
-    private static readonly ushort[] HfsPlusSignatures = { 0x482b, 0x4858 };
+    private static readonly ushort[] HfsPlusSignatures = [0x482b, 0x4858];
 
     public ForkData AllocationFile;
     public VolumeAttributes Attributes;

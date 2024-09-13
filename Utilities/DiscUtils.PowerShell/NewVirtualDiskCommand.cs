@@ -122,7 +122,7 @@ public class NewVirtualDiskCommand : PSCmdlet
     {
         var parentObj = ResolveNewDiskPath(out var child);
 
-        var baseDiskObj = SessionState.InvokeProvider.Item.Get(new string[] { BaseDisk }, false, true)[0];
+        var baseDiskObj = SessionState.InvokeProvider.Item.Get([BaseDisk], false, true)[0];
 
         VirtualDisk baseDisk = null;
 
@@ -191,13 +191,13 @@ public class NewVirtualDiskCommand : PSCmdlet
         var parent = SessionState.Path.ParseParent(LiteralPath, null);
         var parentPath = SessionState.Path.GetResolvedPSPathFromPSPath(parent)[0];
 
-        parentObj = SessionState.InvokeProvider.Item.Get(new string[] { parentPath.Path }, false, true)[0];
+        parentObj = SessionState.InvokeProvider.Item.Get([parentPath.Path], false, true)[0];
 
         // If we got a Volume, then we need to send a special marker to the provider indicating that we
         // actually wanted the root directory on the volume, not the volume itself.
         if (parentObj.BaseObject is VolumeInfo)
         {
-            parentObj = SessionState.InvokeProvider.Item.Get(new string[] { Path.Combine(parentPath.Path, @"$Root") }, false, true)[0];
+            parentObj = SessionState.InvokeProvider.Item.Get([Path.Combine(parentPath.Path, @"$Root")], false, true)[0];
         }
 
         return parentObj;

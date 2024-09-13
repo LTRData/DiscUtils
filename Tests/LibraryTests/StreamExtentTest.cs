@@ -166,18 +166,18 @@ public class StreamExtentTest
 
         Assert.Equal(2, StreamExtent.BlockCount(s, 10));
 
-        s = new StreamExtent[] {
+        s = [
             new(0,8),
             new(9, 8)
-        };
+        ];
 
         Assert.Equal(2, StreamExtent.BlockCount(s, 10));
 
-        s = new StreamExtent[] {
+        s = [
             new(3, 4),
             new(19, 4),
             new(44, 4)
-        };
+        ];
 
         Assert.Equal(4, StreamExtent.BlockCount(s, 10));
     }
@@ -196,10 +196,10 @@ public class StreamExtentTest
         Assert.Equal(0, ranges[0].Offset);
         Assert.Equal(2, ranges[0].Count);
 
-        s = new StreamExtent[] {
+        s = [
             new(0,8),
             new(9, 8)
-        };
+        ];
 
         ranges = new List<Range<long, long>>(StreamExtent.Blocks(s, 10));
 
@@ -207,11 +207,11 @@ public class StreamExtentTest
         Assert.Equal(0, ranges[0].Offset);
         Assert.Equal(2, ranges[0].Count);
 
-        s = new StreamExtent[] {
+        s = [
             new(3, 4),
             new(19, 4),
             new(44, 4)
-        };
+        ];
 
         ranges = new List<Range<long, long>>(StreamExtent.Blocks(s, 10));
 

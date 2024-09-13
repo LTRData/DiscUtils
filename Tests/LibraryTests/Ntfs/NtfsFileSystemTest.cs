@@ -112,7 +112,7 @@ public class NtfsFileSystemTest
         var ntfs = FileSystemSource.NtfsFileSystem();
 
         ntfs.CreateDirectory("dir");
-        ntfs.SetReparsePoint("dir", new ReparsePoint(123, new byte[] { 4, 5, 6 }));
+        ntfs.SetReparsePoint("dir", new ReparsePoint(123, [4, 5, 6]));
 
         var rp = ntfs.GetReparsePoint("dir");
 

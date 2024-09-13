@@ -273,7 +273,7 @@ public static class Utilities
         return path;
     }
 
-    internal static readonly char[] PathSeparators = { '\\', '/' };
+    internal static readonly char[] PathSeparators = ['\\', '/'];
 
     public static string MakeRelativePath(string path, string basePath)
     {

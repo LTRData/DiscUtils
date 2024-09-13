@@ -36,7 +36,7 @@ public class Nfs3ReadResultTest
         var result = new Nfs3ReadResult()
         {
             Count = 1,
-            Data = new byte[] { 0x02, 0x03 },
+            Data = [0x02, 0x03],
             Eof = false,
             FileAttributes = new Nfs3FileAttributes()
             {

@@ -34,7 +34,7 @@ public class Nfs3CreateResultTest
         var result = new Nfs3CreateResult()
         {
             Status = Nfs3Status.Ok,
-            FileHandle = new Nfs3FileHandle() { Value = new byte[] { 0xab, 0xcd } },
+            FileHandle = new Nfs3FileHandle() { Value = [0xab, 0xcd] },
             CacheConsistency = new Nfs3WeakCacheConsistency()
         };
 

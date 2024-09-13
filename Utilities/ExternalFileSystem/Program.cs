@@ -144,7 +144,7 @@ class MyFile : IVfsFile
         get
         {
             var result = new SparseMemoryBuffer(10);
-            result.Write(0, new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }, 0, 10);
+            result.Write(0, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 0, 10);
             return result;
         }
     }

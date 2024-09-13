@@ -53,7 +53,7 @@ internal class LzxStream : ReadOnlyCompatibilityStream
     private readonly int _numPositionSlots;
 
     private long _position;
-    private readonly uint[] _repeatedOffsets = { 1, 1, 1 };
+    private readonly uint[] _repeatedOffsets = [1, 1, 1];
     private readonly int _windowBits;
 
     static LzxStream()
