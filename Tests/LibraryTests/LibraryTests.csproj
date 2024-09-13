@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   
   <PropertyGroup>
-    <TargetFrameworks>net8.0;net48;net46</TargetFrameworks>
+    <TargetFrameworks>net9.0</TargetFrameworks>
     <DebugType>portable</DebugType>
     <AssemblyName>LibraryTests</AssemblyName>
     <PackageId>LibraryTests</PackageId>

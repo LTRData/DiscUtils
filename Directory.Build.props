@@ -2,7 +2,7 @@
 
   <PropertyGroup>
 
-    <LangVersion>Latest</LangVersion>
+    <LangVersion>Preview</LangVersion>
 
     <PackageProjectUrl>https://github.com/LTRData/DiscUtils</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
