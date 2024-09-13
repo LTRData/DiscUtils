@@ -64,7 +64,7 @@ public static class EncodingExtensions
         }
     }
 
-    public static int GetChars(this Decoder decoder, ReadOnlySpan<byte> bytes, Span<char> chars, bool flush)
+    public static int GetChars(this Decoder decoder, ReadOnlySpan<byte> bytes, Span<char> chars)
     {
         var bytesBuffer = ArrayPool<byte>.Shared.Rent(bytes.Length);
         try
@@ -74,6 +74,54 @@ public static class EncodingExtensions
             {
                 bytes.CopyTo(bytesBuffer);
                 var i = decoder.GetChars(bytesBuffer, 0, bytes.Length, charsBuffer, 0);
+                charsBuffer.AsSpan(0, i).CopyTo(chars);
+                return i;
+            }
+            finally
+            {
+                ArrayPool<char>.Shared.Return(charsBuffer);
+            }
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(bytesBuffer);
+        }
+    }
+
+    public static int GetChars(this Decoder decoder, ReadOnlySpan<byte> bytes, Span<char> chars, bool flush)
+    {
+        var bytesBuffer = ArrayPool<byte>.Shared.Rent(bytes.Length);
+        try
+        {
+            var charsBuffer = ArrayPool<char>.Shared.Rent(chars.Length);
+            try
+            {
+                bytes.CopyTo(bytesBuffer);
+                var i = decoder.GetChars(bytesBuffer, 0, bytes.Length, charsBuffer, 0, flush);
+                charsBuffer.AsSpan(0, i).CopyTo(chars);
+                return i;
+            }
+            finally
+            {
+                ArrayPool<char>.Shared.Return(charsBuffer);
+            }
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(bytesBuffer);
+        }
+    }
+
+    public static int GetChars(this Encoding encoding, ReadOnlySpan<byte> bytes, Span<char> chars)
+    {
+        var bytesBuffer = ArrayPool<byte>.Shared.Rent(bytes.Length);
+        try
+        {
+            var charsBuffer = ArrayPool<char>.Shared.Rent(chars.Length);
+            try
+            {
+                bytes.CopyTo(bytesBuffer);
+                var i = encoding.GetChars(bytesBuffer, 0, bytes.Length, charsBuffer, 0);
                 charsBuffer.AsSpan(0, i).CopyTo(chars);
                 return i;
             }
