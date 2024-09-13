@@ -29,6 +29,7 @@ using System.Text;
 using DiscUtils.Internal;
 using DiscUtils.Streams;
 using DiscUtils.Streams.Compatibility;
+using LTRData.Extensions.Buffers;
 
 namespace DiscUtils.Fat;
 
@@ -106,10 +107,14 @@ internal struct FatFileName : IEquatable<FatFileName>
 
     public readonly FatFileName ReplaceShortName(string name, FastEncodingTable encodingTable)
     {
+#if NET6_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(name);
+#else
         if (name is null)
         {
             throw new ArgumentNullException(nameof(name));
         }
+#endif
 
         var idx = 0;
         var indexOfDot = -1;
@@ -141,7 +146,7 @@ internal struct FatFileName : IEquatable<FatFileName>
             {
                 throw new ArgumentException($"Invalid space character at index {i} in short name '{name}'", nameof(name));
             }
-            else if (InvalidCharsForShortName.IndexOf(c) >= 0 || !encodingTable.TryGetCharToByteUpperCase(c, out _))
+            else if (InvalidCharsForShortName.Contains(c) || !encodingTable.TryGetCharToByteUpperCase(c, out _))
             {
                 throw new ArgumentException($"Invalid character `{c}` at index {i} in short name '{name}'", nameof(name));
             }
@@ -204,7 +209,7 @@ internal struct FatFileName : IEquatable<FatFileName>
 
         if (_shortName.Equals(Null._shortName, StringComparison.Ordinal))
         {
-            buffer.Fill(0x00);
+            buffer.Clear();
             return;
         }
 
@@ -217,7 +222,7 @@ internal struct FatFileName : IEquatable<FatFileName>
         // Make sure that the directory entry is fully initialized to 0
         var offsetToSfnEntry = lfnCount * DirectoryEntry.SizeOf;
         var sfnEntry = buffer.Slice(offsetToSfnEntry, DirectoryEntry.SizeOf);
-        sfnEntry.Slice(12).Fill(0);
+        sfnEntry.Slice(12).Clear();
 
         var finalBytes = sfnEntry.Slice(0, 11);
         finalBytes.Fill((byte)' ');
@@ -365,7 +370,7 @@ internal struct FatFileName : IEquatable<FatFileName>
     /// <param name="encodingTable">The encoding table to use.</param>
     /// <param name="shortNameExistFunction">A function that validates if short name is already used.</param>
     /// <returns>The <see cref="FatFileName"/> instance.</returns>
-    public static unsafe FatFileName FromName(string name, FastEncodingTable encodingTable, Func<string, bool> shortNameExistFunction)
+    public static FatFileName FromName(string name, FastEncodingTable encodingTable, Func<string, bool> shortNameExistFunction)
     {
 #if NET6_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(name);
@@ -388,7 +393,7 @@ internal struct FatFileName : IEquatable<FatFileName>
         
         ValidateCharsFromLongName(name);
 
-        var shortNameBytes = stackalloc byte[12];
+        Span<byte> shortNameBytes = stackalloc byte[12];
 
         // Trailing . are entirely removed from the original long name
         name = name.TrimEnd('.');
@@ -441,7 +446,7 @@ internal struct FatFileName : IEquatable<FatFileName>
             {
                 var hash = LfnHash(name);
                 shortLength = Math.Min(shortLength, 2);
-                ConvertToHex(hash, new Span<byte>(shortNameBytes + shortLength, 4));
+                ConvertToHex(hash, shortNameBytes.Slice(shortLength, 4));
                 shortLength += 4;
                 
                 baseNameLength = shortLength;
@@ -455,7 +460,7 @@ internal struct FatFileName : IEquatable<FatFileName>
         }
 
         // Initialize the temp buffer with the short name (that will be used to generate the short name and handle collisions)
-        var tempBytes = stackalloc byte[12];
+        Span<byte> tempBytes = stackalloc byte[12];
         var tempLength = shortLength;
         for (var i = 0; i < shortLength; i++)
         {
@@ -494,13 +499,13 @@ internal struct FatFileName : IEquatable<FatFileName>
         var tailNumberLengthAscii = 1;
         var tailNumber = 1;
         var forceTrailingOnFirstLossy = lossy;
-        var bufferChar = stackalloc char[12];
+        Span<char> bufferChar = stackalloc char[12];
         var encoding = encodingTable.Encoding;
 
         while (tailNumber <= MaxTailNumber)
         {
-            var encodedShortNameChar = encoding.GetChars(tempBytes, tempLength, bufferChar, 12);
-            var shortName = new string(bufferChar, 0, encodedShortNameChar);
+            var encodedShortNameChar = encoding.GetChars(tempBytes.Slice(0, tempLength), bufferChar);
+            var shortName = bufferChar.Slice(0, encodedShortNameChar).ToString();
 
             if (forceTrailingOnFirstLossy || shortNameExistFunction(shortName))
             {
@@ -523,7 +528,7 @@ internal struct FatFileName : IEquatable<FatFileName>
                     }
 
                     // 4 hexadecimal digits
-                    ConvertToHex(hash, new Span<byte>(tempBytes + baseNameLength, 4));
+                    ConvertToHex(hash, tempBytes.Slice(baseNameLength, 4));
                     baseNameLength += 4;
 
                     hasNonSupportedChar = true;
@@ -579,7 +584,7 @@ internal struct FatFileName : IEquatable<FatFileName>
     /// <param name="encodingTable">The encoding table to use to decode shortname.</param>
     /// <param name="offset">The amount of data actually processed from <paramref name="data"/> buffer.</param>
     /// <returns></returns>
-    public static unsafe FatFileName FromDirectoryEntryBytes(ReadOnlySpan<byte> data, FastEncodingTable encodingTable, out int offset)
+    public static FatFileName FromDirectoryEntryBytes(ReadOnlySpan<byte> data, FastEncodingTable encodingTable, out int offset)
     {
         offset = 0;
 
@@ -662,7 +667,7 @@ internal struct FatFileName : IEquatable<FatFileName>
         }
         
         // Process the name part in the short name 8.3
-        var tmpBuffer = stackalloc byte[12]; // 8.3 + including `.`
+        Span<byte> tmpBuffer = stackalloc byte[12]; // 8.3 + including `.`
         int tmpLength = 0;
         for (var i = 0; i < 8; i++)
         {
@@ -725,8 +730,8 @@ internal struct FatFileName : IEquatable<FatFileName>
             var nameIsLowercase = (d0C & (1 << 3)) != 0;
             var extIsLowercase = (d0C & (1 << 4)) != 0;
 
-            var utf16Buffer = stackalloc char[12];
-            var utf16Length = encodingTable.Encoding.GetChars(tmpBuffer, tmpLength, utf16Buffer, 12);
+            Span<char> utf16Buffer = stackalloc char[12];
+            var utf16Length = encodingTable.Encoding.GetChars(tmpBuffer.Slice(0, tmpLength), utf16Buffer);
             Debug.Assert(utf16Length == tmpLength);
 
             // We apply case information recovered from the directory entry
@@ -749,7 +754,7 @@ internal struct FatFileName : IEquatable<FatFileName>
                 }
             }
 
-            shortName = new string(utf16Buffer, 0, utf16Length);
+            shortName = utf16Buffer.Slice(0, utf16Length).ToString();
         }
 
         offset += DirectoryEntry.SizeOf;
@@ -820,7 +825,7 @@ internal struct FatFileName : IEquatable<FatFileName>
     /// <summary>
     /// Function used by <see cref="FromName"/> to process the characters of the long name and compute the short name for both the base name and the extension.
     /// </summary>
-    private static unsafe void ProcessChars(ReadOnlySpan<char> name, int start, int end, int maxCount, ref bool lossy, ref bool isBaseAllUpper, ref bool isBaseAllLower, byte* shortNameBytes, ref int shortLength, ref bool hasNonSupportedChar, FastEncodingTable encodingTable)
+    private static void ProcessChars(ReadOnlySpan<char> name, int start, int end, int maxCount, ref bool lossy, ref bool isBaseAllUpper, ref bool isBaseAllLower, Span<byte> shortNameBytes, ref int shortLength, ref bool hasNonSupportedChar, FastEncodingTable encodingTable)
     {
         for (int i = start; i < end; i++)
         {
@@ -859,7 +864,7 @@ internal struct FatFileName : IEquatable<FatFileName>
                 }
             }
 
-            if (InvalidCharsForShortName.IndexOf(c) >= 0)
+            if (InvalidCharsForShortName.Contains(c))
             {
                 lossy = true;
                 shortNameBytes[shortLength] = (byte)'_';

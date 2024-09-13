@@ -3,7 +3,6 @@
     <Description>DiscUtils FAT filesystem parser</Description>
     <Authors>Kenneth Bell;LordMike;Olof Lagerkvist</Authors>
     <PackageTags>DiscUtils;Filesystem;FAT</PackageTags>
-    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,6 +13,10 @@
 
   <ItemGroup Condition="'$(TargetFramework.CompareTo(`net5`))' &gt;= 0">
     <PackageReference Include="System.Text.Encoding.CodePages" Version="*" />
+  </ItemGroup>
+
+  <ItemGroup Condition="('$(TargetFramework.CompareTo(`net5`))' &lt; 0 And '$(TargetFramework.CompareTo(`net462`))' &gt;= 0) Or '$(TargetFramework.StartsWith(`netstandard`))'">
+    <PackageReference Include="System.Collections.Immutable" Version="*" />
   </ItemGroup>
 
 </Project>

@@ -18,27 +18,42 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
-#if NET8_0_OR_GREATER
 using System;
+#if NET8_0_OR_GREATER
 using System.Collections.Frozen;
+using System.Collections.Immutable;
+#elif NET462_OR_GREATER || NETSTANDARD || NETCOREAPP
+using System.Collections.Immutable;
 #endif
+using DiscUtils.Streams;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Collections.Concurrent;
 
 namespace DiscUtils.Fat;
 
 /// <summary>
 /// Fast encoding 1-byte to 1-char table to help encoding/decoding short file names.
 /// </summary>
-internal sealed unsafe class FastEncodingTable
+internal sealed class FastEncodingTable
 {
-    private readonly char[] _mapByteToChar;
 #if NET8_0_OR_GREATER
     private readonly FrozenDictionary<char, byte> _mapUpperCharToByte;
+    private readonly ImmutableArray<char> _mapByteToChar;
+
+    private static readonly ConcurrentDictionary<Encoding, (FrozenDictionary<char, byte> mapUpperCharToByte, ImmutableArray<char> mapByteToChar)> _mappingCache = new();
+#elif NET462_OR_GREATER || NETSTANDARD || NETCOREAPP
+    private readonly ImmutableDictionary<char, byte> _mapUpperCharToByte;
+    private readonly ImmutableArray<char> _mapByteToChar;
+
+    private static readonly ConcurrentDictionary<Encoding, (ImmutableDictionary<char, byte> mapUpperCharToByte, ImmutableArray<char> mapByteToChar)> _mappingCache = new();
 #else
     private readonly Dictionary<char, byte> _mapUpperCharToByte;
+    private readonly char[] _mapByteToChar;
+
+    private static readonly ConcurrentDictionary<Encoding, (Dictionary<char, byte> mapUpperCharToByte, char[] mapByteToChar)> _mappingCache = new();
 #endif
 
 #if !NETFRAMEWORK
@@ -67,38 +82,59 @@ internal sealed unsafe class FastEncodingTable
         Debug.Assert(encoding.IsSingleByte);
         Encoding = encoding;
 
-        _mapByteToChar = new char[256];
-        var mapUpperCharToByte = new Dictionary<char, byte>(256);
-
-        // Calculate the mapping from byte to char
-        for (int i = 0; i < 256; ++i)
-        {
-            byte b = (byte)i;
-            char c = (char)0;
-            int encoded = encoding.GetChars(&b, 1, &c, 1);
-            if (encoded != 1)
+        var (mapUpperCharToByte, mapByteToChar) = _mappingCache.GetOrAdd(encoding,
+            static encoding =>
             {
-                c = ReplacementChar;
-            }
-            _mapByteToChar[i] = c;
-            mapUpperCharToByte[c] = b;
-        }
+                var mapByteToChar = new char[256];
+                var mapUpperCharToByte = new Dictionary<char, byte>(256);
 
-        // Calculate the mapping from upper char to byte
-        for (int i = 0; i < 256; ++i)
-        {
-            var c = _mapByteToChar[i];
-            var upperChar = char.ToUpperInvariant(c);
-            if (mapUpperCharToByte.TryGetValue(upperChar, out var bUpper))
-            {
-                mapUpperCharToByte[c] = bUpper;
-            }
-        }
+                Span<char> c = stackalloc char[1];
+
+                // Calculate the mapping from byte to char
+                for (int i = 0; i < 256; ++i)
+                {
+                    var b = (byte)i;
+                    c[0] = default;
+
+                    int encoded = encoding.GetChars([b], c);
+
+                    if (encoded != 1)
+                    {
+                        c[0] = ReplacementChar;
+                    }
+
+                    mapByteToChar[i] = c[0];
+                    mapUpperCharToByte[c[0]] = b;
+                }
+
+                // Calculate the mapping from upper char to byte
+                for (int i = 0; i < 256; ++i)
+                {
+                    var chr = mapByteToChar[i];
+                    var upperChar = char.ToUpperInvariant(chr);
+
+                    if (mapUpperCharToByte.TryGetValue(upperChar, out var bUpper))
+                    {
+                        mapUpperCharToByte[chr] = bUpper;
+                    }
+                }
+
 #if NET8_0_OR_GREATER
-        _mapUpperCharToByte = mapUpperCharToByte.ToFrozenDictionary();
+                var frozenMapUpperCharToByte = mapUpperCharToByte.ToFrozenDictionary();
+                var frozenMapByteToChar = mapByteToChar.ToImmutableArray();
+#elif NET462_OR_GREATER || NETSTANDARD || NETCOREAPP
+                var frozenMapUpperCharToByte = mapUpperCharToByte.ToImmutableDictionary();
+                var frozenMapByteToChar = mapByteToChar.ToImmutableArray();
 #else
-        _mapUpperCharToByte = mapUpperCharToByte;
+                var frozenMapUpperCharToByte = mapUpperCharToByte;
+                var frozenMapByteToChar = mapByteToChar;
 #endif
+
+                return (frozenMapUpperCharToByte, frozenMapByteToChar);
+            });
+
+        _mapUpperCharToByte = mapUpperCharToByte;
+        _mapByteToChar = mapByteToChar;
     }
 
     /// <summary>
