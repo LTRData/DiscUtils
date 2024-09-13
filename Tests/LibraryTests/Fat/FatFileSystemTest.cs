@@ -269,18 +269,18 @@ public class FatFileSystemTest
 
         {
             var fs = new FatFileSystem(diskStream);
-            var entries = fs.GetFileSystemEntries("\\").OrderBy(x => x).ToList();
+            var entries = fs.GetFileSystemEntries(Path.DirectorySeparatorChar.ToString()).OrderBy(x => x).ToList();
             Assert.Equal(2, entries.Count);
-            Assert.Equal("\\01234567890123456789.txt", entries[0]);
-            Assert.Equal("\\BAR", entries[1]);
+            Assert.Equal($"{Path.DirectorySeparatorChar}01234567890123456789.txt", entries[0]);
+            Assert.Equal($"{Path.DirectorySeparatorChar}BAR", entries[1]);
 
             fs.CreateDirectory("abcdefghijklmnop.txt");
 
-            entries = fs.GetFileSystemEntries("\\").OrderBy(x => x).ToList();
+            entries = fs.GetFileSystemEntries(Path.DirectorySeparatorChar.ToString()).OrderBy(x => x).ToList();
             Assert.Equal(3, entries.Count);
-            Assert.Equal("\\01234567890123456789.txt", entries[0]);
-            Assert.Equal("\\abcdefghijklmnop.txt", entries[1]);
-            Assert.Equal("\\BAR", entries[2]);
+            Assert.Equal(Path.DirectorySeparatorChar + "01234567890123456789.txt", entries[0]);
+            Assert.Equal(Path.DirectorySeparatorChar + "abcdefghijklmnop.txt", entries[1]);
+            Assert.Equal(Path.DirectorySeparatorChar + "BAR", entries[2]);
         }
     }
     
@@ -304,14 +304,14 @@ public class FatFileSystemTest
 
         {
             var fs = new FatFileSystem(diskStream);
-            var entries = fs.GetFileSystemEntries("\\").OrderBy(x => x).ToList();
+            var entries = fs.GetFileSystemEntries(Path.DirectorySeparatorChar.ToString()).OrderBy(x => x).ToList();
             Assert.Equal(6, entries.Count);
-            Assert.Equal("\\FOO_This_is_a_long_entry_2", entries[0]);
-            Assert.Equal("\\FOO_This_is_a_long_entry_3", entries[1]);
-            Assert.Equal("\\FOO_This_is_a_long_entry_4", entries[2]);
-            Assert.Equal("\\TA", entries[3]);
-            Assert.Equal("\\TB", entries[4]);
-            Assert.Equal("\\TC", entries[5]);
+            Assert.Equal($"{Path.DirectorySeparatorChar}FOO_This_is_a_long_entry_2", entries[0]);
+            Assert.Equal($"{Path.DirectorySeparatorChar}FOO_This_is_a_long_entry_3", entries[1]);
+            Assert.Equal($"{Path.DirectorySeparatorChar}FOO_This_is_a_long_entry_4", entries[2]);
+            Assert.Equal($"{Path.DirectorySeparatorChar}TA", entries[3]);
+            Assert.Equal($"{Path.DirectorySeparatorChar}TB", entries[4]);
+            Assert.Equal($"{Path.DirectorySeparatorChar}TC", entries[5]);
         }
     }
 
@@ -322,15 +322,15 @@ public class FatFileSystemTest
         {
             using var fs = FatFileSystem.FormatFloppy(diskStream, FloppyDiskType.HighDensity, "FLOPPY_IMG ");
 
-            fs.CreateDirectory(@"BAR\BAZ\QUX");
-            fs.CreateDirectory(@"BAR\BAZ\QUX"); // Nothing is happening here
-            fs.CreateDirectory(@"BAR");
+            fs.CreateDirectory(Path.Combine("BAR", "BAZ", "QUX"));
+            fs.CreateDirectory(Path.Combine("BAR", "BAZ", "QUX")); // Nothing is happening here
+            fs.CreateDirectory("BAR");
             {
-                using var file = fs.OpenFile(@"BAR\BAZ\QUX\TEST", FileMode.Create);
+                using var file = fs.OpenFile(Path.Combine("BAR", "BAZ", "QUX", "TEST"), FileMode.Create);
                 file.WriteByte(0);
             }
 
-            Assert.Throws<IOException>(() => fs.CreateDirectory(@"BAR\BAZ\QUX\TEST"));
+            Assert.Throws<IOException>(() => fs.CreateDirectory(Path.Combine("BAR", "BAZ", "QUX", "TEST")));
         }
     }
 
