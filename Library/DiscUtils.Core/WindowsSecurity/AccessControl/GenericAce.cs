@@ -241,7 +241,7 @@ public abstract class GenericAce
         var count = endPos;
         var elementsStr = sddlForm.Slice(0, count).ToString();
         elementsStr = elementsStr.ToUpperInvariant();
-        var elements = elementsStr.AsMemory().Split(';').ToArray();
+        var elements = elementsStr.AsMemory().TokenEnum(';').ToArray();
         if (elements.Length != 6)
         {
             throw new ArgumentException("Invalid SDDL string.", nameof(sddlForm));

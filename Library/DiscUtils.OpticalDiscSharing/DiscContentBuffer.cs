@@ -173,13 +173,13 @@ internal sealed class DiscContentBuffer : Buffer
     {
         var result = new Dictionary<string, string>();
 
-        var elements = header.AsMemory().Split(' ').ToArray();
+        var elements = header.AsMemory().TokenEnum(' ').ToArray();
 
         authMethod = elements[0].ToString();
 
         for (var i = 1; i < elements.Length; ++i)
         {
-            var nvPair = elements[i].Split('=', StringSplitOptions.None);
+            var nvPair = elements[i].TokenEnum('=', StringSplitOptions.None);
             result.Add(nvPair.ElementAt(0).ToString(), nvPair.ElementAt(1).Span.Trim('\"').ToString());
         }
 

@@ -593,7 +593,7 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
 
     private static void SplitFileName(string path, out string filePart, out string altStreamPart)
     {
-        var streamSepPos = path.IndexOf(":", StringComparison.Ordinal);
+        var streamSepPos = path.IndexOf(':');
 
         if (streamSepPos >= 0)
         {
@@ -673,7 +673,7 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
             path = Path.DirectorySeparatorChar + path;
         }
 
-        return GetEntry(GetDirectory(0), path.AsMemory().Split('/', '\\').ToArray());
+        return GetEntry(GetDirectory(0), path.AsMemory().TokenEnum('/', '\\').ToArray());
     }
 
     private DirectoryEntry GetEntry(List<DirectoryEntry> dir, ReadOnlyMemory<char>[] path)

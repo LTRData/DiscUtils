@@ -107,8 +107,8 @@ public abstract class BuildDirectoryMember
     {
         public override int Compare(BuildDirectoryMember x, BuildDirectoryMember y)
         {
-            var xParts = x.Name.AsMemory().Split('.', ';').ToArray();
-            var yParts = y.Name.AsMemory().Split('.', ';').ToArray();
+            var xParts = x.Name.AsMemory().TokenEnum('.', ';').ToArray();
+            var yParts = y.Name.AsMemory().TokenEnum('.', ';').ToArray();
 
             ReadOnlyMemory<char> xPart;
             ReadOnlyMemory<char> yPart;

@@ -242,11 +242,11 @@ public sealed class OpticalDiscService
         if (_instance.Parameters.TryGetValue(section, out var data))
         {
             var asString = Encoding.ASCII.GetString(data);
-            var nvPairs = asString.AsSpan().Split(',');
+            var nvPairs = asString.AsSpan().TokenEnum(',');
 
             foreach (var nvPair in nvPairs)
             {
-                var parts = nvPair.Split('=');
+                var parts = nvPair.TokenEnum('=');
                 result[parts.First().ToString()] = parts.ElementAt(1).ToString();
             }
         }

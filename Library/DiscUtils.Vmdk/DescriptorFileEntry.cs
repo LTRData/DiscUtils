@@ -45,7 +45,7 @@ internal class DescriptorFileEntry
 
     public static DescriptorFileEntry Parse(string value)
     {
-        var parts = value.AsMemory().Split('=').Take(2).ToArray();
+        var parts = value.AsMemory().TokenEnum('=').Take(2).ToArray();
 
         for (var i = 0; i < parts.Length; ++i)
         {

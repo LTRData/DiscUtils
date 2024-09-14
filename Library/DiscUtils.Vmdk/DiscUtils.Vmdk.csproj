@@ -1,16 +1,13 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>DiscUtils VMDK</Description>
-    
     <PackageTags>DiscUtils;VMDK</PackageTags>
   </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="System.ValueTuple" Version="*" />
+    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\DiscUtils.Core\DiscUtils.Core.csproj" />
   </ItemGroup>
-
 </Project>

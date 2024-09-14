@@ -190,7 +190,7 @@ public sealed class CDBuilder : StreamBuilder, IFileSystemBuilder
     /// </remarks>
     public BuildDirectoryInfo AddDirectory(string name)
     {
-        var nameElements = name.AsMemory().Split('\\', '/', StringSplitOptions.RemoveEmptyEntries).ToArray();
+        var nameElements = name.AsMemory().TokenEnum('\\', '/', StringSplitOptions.RemoveEmptyEntries).ToArray();
         return GetDirectory(nameElements, nameElements.Length, true);
     }
 
@@ -541,7 +541,7 @@ public sealed class CDBuilder : StreamBuilder, IFileSystemBuilder
     /// <returns>BuildDirectoryMember object representing already added file.</returns>
     public BuildDirectoryMember GetFile(string path)
     {
-        var nameElements = path.AsMemory().Split('\\', '/', StringSplitOptions.RemoveEmptyEntries).ToArray();
+        var nameElements = path.AsMemory().TokenEnum('\\', '/', StringSplitOptions.RemoveEmptyEntries).ToArray();
         var dir = GetDirectory(nameElements, nameElements.Length - 1, true);
 
         var name = nameElements[nameElements.Length - 1].ToString();
@@ -563,7 +563,7 @@ public sealed class CDBuilder : StreamBuilder, IFileSystemBuilder
 
     private void CheckDirectoryForFilePath(string name, out ReadOnlyMemory<char>[] nameElements, out BuildDirectoryInfo dir)
     {
-        nameElements = name.AsMemory().Split('\\', '/', StringSplitOptions.RemoveEmptyEntries).ToArray();
+        nameElements = name.AsMemory().TokenEnum('\\', '/', StringSplitOptions.RemoveEmptyEntries).ToArray();
         dir = GetDirectory(nameElements, nameElements.Length - 1, true);
 
         if (dir.TryGetMember(nameElements[nameElements.Length - 1].ToString(), out _))

@@ -1,22 +1,19 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>DiscUtils FAT filesystem parser</Description>
     <Authors>Kenneth Bell;LordMike;Olof Lagerkvist</Authors>
     <PackageTags>DiscUtils;Filesystem;FAT</PackageTags>
   </PropertyGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\DiscUtils.Core\DiscUtils.Core.csproj" />
     <!-- In order to test FileName and other internals in Unit tests-->
     <InternalsVisibleTo Include="LibraryTests" />
   </ItemGroup>
-
   <ItemGroup Condition="'$(TargetFramework.CompareTo(`net5`))' &gt;= 0">
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="*" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0" />
   </ItemGroup>
-
   <ItemGroup Condition="('$(TargetFramework.CompareTo(`net5`))' &lt; 0 And '$(TargetFramework.CompareTo(`net462`))' &gt;= 0) Or '$(TargetFramework.StartsWith(`netstandard`))'">
-    <PackageReference Include="System.Collections.Immutable" Version="*" />
+    <PackageReference Include="System.Collections.Immutable" Version="8.0.0" />
   </ItemGroup>
-
 </Project>

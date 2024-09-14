@@ -956,7 +956,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
     /// <param name="path">The directory to create.</param>
     public override void CreateDirectory(string path)
     {
-        var pathElements = path.AsMemory().Split('\\', '/', StringSplitOptions.RemoveEmptyEntries);
+        var pathElements = path.AsMemory().TokenEnum('\\', '/', StringSplitOptions.RemoveEmptyEntries);
 
         var focusDir = _rootDir;
 
@@ -1735,7 +1735,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
 
     private long GetDirectoryEntry(Directory dir, string path, out Directory parent, out string lastPathName)
     {
-        var pathElements = path.AsMemory().Split('\\', '/', StringSplitOptions.RemoveEmptyEntries).ToArray();
+        var pathElements = path.AsMemory().TokenEnum('\\', '/', StringSplitOptions.RemoveEmptyEntries).ToArray();
         return GetDirectoryEntry(dir, pathElements, 0, out parent, out lastPathName);
     }
 

@@ -1,17 +1,14 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>DiscUtils Registry</Description>
-    
     <PackageTags>DiscUtils;Registry</PackageTags>
   </PropertyGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\DiscUtils.Core\DiscUtils.Core.csproj" />
     <ProjectReference Include="..\DiscUtils.Streams\DiscUtils.Streams.csproj" />
   </ItemGroup>
-
   <ItemGroup>
-    <PackageReference Include="System.Memory" Version="*" />
+    <PackageReference Include="System.Memory" Version="4.5.5" />
   </ItemGroup>
-
 </Project>

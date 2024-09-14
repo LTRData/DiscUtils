@@ -140,7 +140,7 @@ public class LunInfo
         var targetInfo = new TargetInfo(targetName,
             [new TargetAddress(address, port, targetGroupTag)]);
 
-        foreach (var queryElem in uri.Query.AsMemory(1).Split('&'))
+        foreach (var queryElem in uri.Query.AsMemory(1).TokenEnum('&'))
         {
             if (queryElem.Span.StartsWith("LUN=".AsSpan(), StringComparison.OrdinalIgnoreCase))
             {
