@@ -17,6 +17,12 @@
     <None Remove="_Data\*" />
     <EmbeddedResource Include="_Data\*" />
   </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="SquashFs\TestData\test_lz4.sqfs" />
+    <EmbeddedResource Include="SquashFs\TestData\test_lzo.sqfs" />
+    <EmbeddedResource Include="SquashFs\TestData\test.txt" />
+  </ItemGroup>
   
   <ItemGroup>
     <ProjectReference Include="..\..\Utilities\DiscUtils.Diagnostics\DiscUtils.Diagnostics.csproj" />

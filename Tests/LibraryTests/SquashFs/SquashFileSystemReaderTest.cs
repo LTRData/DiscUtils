@@ -20,8 +20,12 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
+using System;
 using System.IO;
+using System.Reflection;
 using DiscUtils.SquashFs;
+using K4os.Compression.LZ4.Encoders;
+using lzo.net;
 using Xunit;
 
 namespace LibraryTests.SquashFs;
@@ -42,4 +46,48 @@ public sealed class SquashFileSystemReaderTest
         builder.Build(emptyFs);
         Assert.True(SquashFileSystemReader.Detect(emptyFs));
     }
+
+#if TEST_EMBEDDED_LZO
+    [Fact]
+    public void DecompressLzo()
+    {
+        var fsImage = Assembly.GetExecutingAssembly().GetManifestResourceStream(typeof(SquashFileSystemReaderTest), @"TestData.test_lzo.sqfs")
+            ?? throw new InvalidOperationException("Missing embedded test file");
+
+        var testData = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream(typeof(SquashFileSystemReaderTest), @"TestData.test.txt"))?.ReadToEnd()
+            ?? throw new InvalidOperationException("Missing embedded test file");
+
+        var reader = new SquashFileSystemReader(fsImage, new SquashFileSystemReaderOptions()
+        {
+            GetDecompressor = (kind, options) => kind == SquashFileSystemCompressionKind.Lzo ? static stream => new LzoStream(stream, System.IO.Compression.CompressionMode.Decompress) : null
+        });
+
+        using var fs = reader.OpenFile("test.txt", FileMode.Open);
+        var readData = new StreamReader(fs).ReadToEnd();
+
+        Assert.Equal(testData, readData);
+    }
+#endif
+
+#if TEST_EMBEDDED_LZ4
+    [Fact]
+    public void DecompressLz4()
+    {
+        var fsImage = Assembly.GetExecutingAssembly().GetManifestResourceStream(typeof(SquashFileSystemReaderTest), @"TestData.test_lz4.sqfs")
+            ?? throw new InvalidOperationException("Missing embedded test file");
+
+        var testData = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream(typeof(SquashFileSystemReaderTest), @"TestData.test.txt"))?.ReadToEnd()
+            ?? throw new InvalidOperationException("Missing embedded test file");
+
+        var reader = new SquashFileSystemReader(fsImage, new SquashFileSystemReaderOptions()
+        {
+            GetDecompressor = (kind, options) => kind == SquashFileSystemCompressionKind.Lz4 ? static stream => new SimpleLz4Stream(stream) : null
+        });
+
+        using var fs = reader.OpenFile("test.txt", FileMode.Open);
+        var readData = new StreamReader(fs).ReadToEnd();
+
+        Assert.Equal(testData, readData);
+    }
+#endif
 }
