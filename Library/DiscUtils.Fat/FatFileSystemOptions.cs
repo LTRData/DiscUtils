@@ -39,7 +39,7 @@ public sealed class FatFileSystemOptions : DiscFileSystemOptions
 
     internal FatFileSystemOptions(FileSystemParameters parameters)
     {
-        if (parameters.FileNameEncoding is not null)
+        if (parameters?.FileNameEncoding is not null)
         {
             FileNameEncoding = parameters.FileNameEncoding;
         }

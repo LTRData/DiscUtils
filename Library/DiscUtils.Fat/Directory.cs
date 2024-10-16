@@ -420,9 +420,13 @@ internal class Directory : IDisposable
     private void AddEntryRaw(long pos, DirectoryEntry entry)
     {
         _entries.Add(pos, entry);
+
         // Update the short and full name lookup tables
-        _shortFileNameToEntry.Add(entry.Name.ShortName, pos);
-        _fullFileNameToEntry.Add(entry.Name.FullName, pos);
+        if (!entry.Attributes.HasFlag(FatAttributes.VolumeId))
+        {
+            _shortFileNameToEntry.Add(entry.Name.ShortName, pos);
+            _fullFileNameToEntry.Add(entry.Name.FullName, pos);
+        }
     }
 
     private void LoadEntries()
