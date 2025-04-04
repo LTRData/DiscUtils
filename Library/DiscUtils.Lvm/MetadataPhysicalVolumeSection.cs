@@ -31,11 +31,18 @@ internal class MetadataPhysicalVolumeSection
     public string Name;
     public string Id;
     public string Device;
+    public string DeviceHint;
+    public string DeviceId;
+    public string DeviceIdType;
     public PhysicalVolumeStatus Status;
     public string[] Flags;
     public ulong DeviceSize;
     public ulong PeStart;
     public ulong PeCount;
+    public ulong BaStart;
+    public ulong BaSize;
+    public string[] Tags;
+
 
     internal void Parse(string head, TextReader data)
     {
@@ -58,6 +65,15 @@ internal class MetadataPhysicalVolumeSection
                         break;
                     case "device":
                         Device = Metadata.ParseStringValue(parameter.Value.Span);
+                        break;
+                    case "device_hint":
+                        DeviceHint = Metadata.ParseStringValue(parameter.Value.Span);
+                        break;
+                    case "device_id":
+                        DeviceId = Metadata.ParseStringValue(parameter.Value.Span);
+                        break;
+                    case "device_id_type":
+                        DeviceIdType = Metadata.ParseStringValue(parameter.Value.Span);
                         break;
                     case "status":
                         var values = Metadata.ParseArrayValue(parameter.Value.Span);
@@ -84,6 +100,15 @@ internal class MetadataPhysicalVolumeSection
                         break;
                     case "pe_count":
                         PeCount = Metadata.ParseNumericValue(parameter.Value.Span);
+                        break;
+                    case "ba_start":
+                        BaStart = Metadata.ParseNumericValue(parameter.Value.Span);
+                        break;
+                    case "ba_size":
+                        BaSize = Metadata.ParseNumericValue(parameter.Value.Span);
+                        break;
+                    case "tags":
+                        Tags = Metadata.ParseArrayValue(parameter.Value.Span);
                         break;
                     default:
                         throw new ArgumentOutOfRangeException(parameter.Key.ToString(), "Unexpected parameter in global metadata");
