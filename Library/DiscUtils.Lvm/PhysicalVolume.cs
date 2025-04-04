@@ -50,9 +50,8 @@ internal class PhysicalVolume
             var area = PvHeader.MetadataDiskAreas[0];
             var metadata = new VolumeGroupMetadata();
             content.Position = (long) area.Offset;
-            buffer = stackalloc byte[(int)area.Length];
-            content.ReadExactly(buffer);
-            metadata.ReadFrom(buffer);
+            var metadataBuffer = StreamUtilities.ReadExactly(content, (int)area.Length);
+            metadata.ReadFrom(metadataBuffer);
             VgMetadata = metadata;
         }
 
@@ -74,7 +73,7 @@ internal class PhysicalVolume
         }
 
         pv = new PhysicalVolume(label, content);
-        
+
         return true;
     }
 

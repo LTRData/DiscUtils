@@ -105,67 +105,60 @@ internal sealed class LogEntry
         }
 
         var entryLength = checked((int)header.EntryLength);
-        var logEntryBuffer = ArrayPool<byte>.Shared.Rent(entryLength);
+        var logEntryBuffer = new byte[entryLength];
 
-        try
+        headerBuffer.CopyTo(logEntryBuffer);
+
+        bytesToRead = entryLength - LogEntryHeader.ByteCount;
+        if (logStream.ReadMaximum(logEntryBuffer, LogEntryHeader.ByteCount, bytesToRead) != bytesToRead)
         {
-            headerBuffer.CopyTo(logEntryBuffer);
+            entry = null;
+            return false;
+        }
 
-            bytesToRead = entryLength - LogEntryHeader.ByteCount;
-            if (logStream.ReadMaximum(logEntryBuffer, LogEntryHeader.ByteCount, bytesToRead) != bytesToRead)
+        Array.Clear(logEntryBuffer, 4, sizeof(uint));
+        if (header.Checksum !=
+            Crc32LittleEndian.Compute(Crc32Algorithm.Castagnoli, logEntryBuffer, 0, entryLength))
+        {
+            entry = null;
+            return false;
+        }
+
+        var dataPos = MathUtilities.RoundUp((int)header.DescriptorCount * 32 + 64, LogSectorSize);
+
+        var descriptors = new List<Descriptor>();
+        for (var i = 0; i < header.DescriptorCount; ++i)
+        {
+            var offset = i * 32 + 64;
+            Descriptor descriptor;
+
+            var descriptorSig = EndianUtilities.ToUInt32LittleEndian(logEntryBuffer, offset);
+            switch (descriptorSig)
             {
-                entry = null;
-                return false;
-            }
-
-            Array.Clear(logEntryBuffer, 4, sizeof(uint));
-            if (header.Checksum !=
-                Crc32LittleEndian.Compute(Crc32Algorithm.Castagnoli, logEntryBuffer, 0, entryLength))
-            {
-                entry = null;
-                return false;
-            }
-
-            var dataPos = MathUtilities.RoundUp((int)header.DescriptorCount * 32 + 64, LogSectorSize);
-
-            var descriptors = new List<Descriptor>();
-            for (var i = 0; i < header.DescriptorCount; ++i)
-            {
-                var offset = i * 32 + 64;
-                Descriptor descriptor;
-
-                var descriptorSig = EndianUtilities.ToUInt32LittleEndian(logEntryBuffer, offset);
-                switch (descriptorSig)
-                {
-                    case Descriptor.ZeroDescriptorSignature:
-                        descriptor = new ZeroDescriptor();
-                        break;
-                    case Descriptor.DataDescriptorSignature:
-                        descriptor = new DataDescriptor(logEntryBuffer, dataPos);
-                        dataPos += LogSectorSize;
-                        break;
-                    default:
-                        entry = null;
-                        return false;
-                }
-
-                descriptor.ReadFrom(logEntryBuffer, offset);
-                if (!descriptor.IsValid(header.SequenceNumber))
-                {
+                case Descriptor.ZeroDescriptorSignature:
+                    descriptor = new ZeroDescriptor();
+                    break;
+                case Descriptor.DataDescriptorSignature:
+                    descriptor = new DataDescriptor(logEntryBuffer, dataPos);
+                    dataPos += LogSectorSize;
+                    break;
+                default:
                     entry = null;
                     return false;
-                }
-
-                descriptors.Add(descriptor);
             }
 
-            entry = new LogEntry(position, header, descriptors);
-            return true;
+            descriptor.ReadFrom(logEntryBuffer, offset);
+            if (!descriptor.IsValid(header.SequenceNumber))
+            {
+                entry = null;
+                return false;
+            }
+
+            descriptors.Add(descriptor);
         }
-        finally
-        {
-            ArrayPool<byte>.Shared.Return(logEntryBuffer);
-        }
+
+        entry = new LogEntry(position, header, descriptors);
+        return true;
     }
 
     private abstract class Descriptor : IByteArraySerializable
