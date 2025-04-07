@@ -22,7 +22,6 @@
 
 
 using System;
-using System.Buffers;
 using System.IO;
 using DiscUtils.Partitions;
 using DiscUtils.Streams;
@@ -50,29 +49,8 @@ internal class PhysicalVolume
         {
             var area = PvHeader.MetadataDiskAreas[0];
 
-            var metadata = new VolumeGroupMetadata();
             content.Position = (long)area.Offset;
-
-            var areaLength = (int)area.Length;
-            byte[] metadataAlloc = null;
-            var metadataBuffer = areaLength <= 1024
-                ? stackalloc byte[areaLength]
-                : (metadataAlloc = ArrayPool<byte>.Shared.Rent(areaLength)).AsSpan(0, areaLength);
-
-            try
-            {
-                content.ReadExactly(metadataBuffer);
-                metadata.ReadFrom(metadataBuffer);
-            }
-            finally
-            {
-                if (metadataAlloc is not null)
-                {
-                    ArrayPool<byte>.Shared.Return(metadataAlloc);
-                }
-            }
-
-            VgMetadata = metadata;
+            VgMetadata = content.ReadStruct<VolumeGroupMetadata>((int)area.Length);
         }
 
         Content = content;
