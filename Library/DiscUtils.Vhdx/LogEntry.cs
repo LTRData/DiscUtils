@@ -105,7 +105,7 @@ internal sealed class LogEntry
         }
 
         var entryLength = checked((int)header.EntryLength);
-        var logEntryBuffer = ArrayPool<byte>.Shared.Rent(entryLength);
+        var logEntryBuffer = new byte[entryLength];
 
         headerBuffer.CopyTo(logEntryBuffer);
 
@@ -289,7 +289,7 @@ internal sealed class LogEntry
             EndianUtilities.WriteBytesLittleEndian(TrailingBytes, trailing);
 
             target.Write(leading);
-            target.Write(_data, _offset+8, 4084);
+            target.Write(_data, _offset + 8, 4084);
             target.Write(trailing);
         }
     }
