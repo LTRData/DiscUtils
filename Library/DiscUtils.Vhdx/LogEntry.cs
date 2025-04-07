@@ -105,9 +105,7 @@ internal sealed class LogEntry
         }
 
         var entryLength = checked((int)header.EntryLength);
-        var logEntryBuffer = entryLength <= 1024
-            ? (stackalloc byte[entryLength]).ToArray()
-            : ArrayPool<byte>.Shared.Rent(entryLength);
+        var logEntryBuffer = ArrayPool<byte>.Shared.Rent(entryLength);
 
         headerBuffer.CopyTo(logEntryBuffer);
 
