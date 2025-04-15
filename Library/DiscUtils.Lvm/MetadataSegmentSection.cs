@@ -51,13 +51,15 @@ internal class MetadataSegmentSection
             if (line.AsSpan().Contains("=".AsSpan(), StringComparison.Ordinal))
             {
                 var parameter = Metadata.ParseParameter(line.AsMemory());
+                var parameterValue = parameter.Value.Span;
+
                 switch (parameter.Key.ToString().ToLowerInvariant())
                 {
                     case "start_extent":
-                        StartExtent = Metadata.ParseNumericValue(parameter.Value.Span);
+                        StartExtent = Metadata.ParseNumericValue(parameterValue);
                         break;
                     case "extent_count":
-                        ExtentCount = Metadata.ParseNumericValue(parameter.Value.Span);
+                        ExtentCount = Metadata.ParseNumericValue(parameterValue);
                         break;
                     case "type":
                         var value = Metadata.ParseStringValue(parameter.Value.Span);
@@ -127,12 +129,23 @@ internal class MetadataSegmentSection
 
                         break;
                     case "stripe_count":
-                        StripeCount = Metadata.ParseNumericValue(parameter.Value.Span);
+                        StripeCount = Metadata.ParseNumericValue(parameterValue);
                         break;
                     case "stripes":
-                        if (parameter.Value.Span.Equals("[".AsSpan(), StringComparison.Ordinal))
+                        if (parameterValue.Equals("[", StringComparison.Ordinal))
                         {
-                            Stripes = ParseStripesSection(data).ToArray();
+                            // Multi-line section
+                            Stripes = ParseMultiLineStripesSection(data).ToArray();
+                        }
+                        else if (parameterValue.StartsWith("[", StringComparison.Ordinal) && parameterValue.EndsWith("]", StringComparison.Ordinal))
+                        {
+                            // Single line section
+                            // Exclude the brackets from the input
+                            Stripes = ParseSinglelineStripesSection(parameterValue[1..^1]).ToArray();
+                        }
+                        else
+                        {
+                            throw new ArgumentException("Unsupported or invalid stripe format", line);
                         }
 
                         break;
@@ -151,7 +164,7 @@ internal class MetadataSegmentSection
         }
     }
 
-    private static IEnumerable<MetadataStripe> ParseStripesSection(TextReader data)
+    private static IEnumerable<MetadataStripe> ParseMultiLineStripesSection(TextReader data)
     {
         string line;
         while ((line = Metadata.ReadLine(data)) != null)
@@ -166,10 +179,47 @@ internal class MetadataSegmentSection
                 yield break;
             }
 
-            var pv = new MetadataStripe();
-            pv.Parse(line);
-            yield return pv;
+            var metadataStripes = ParseSinglelineStripesSection(line);
+
+            foreach (var metadataStripe in metadataStripes)
+            {
+                yield return metadataStripe;
+            }
         }
+    }
+
+    private static List<MetadataStripe> ParseSinglelineStripesSection(ReadOnlySpan<char> data)
+    {
+        var metadataStripes = new List<MetadataStripe>();
+        while (!data.IsEmpty)
+        {
+            // Find the first comma separating the pair
+            var firstCommaIndex = data.IndexOf(',');
+            if (firstCommaIndex == -1) break;
+
+            // Extract the first value
+            var volumeNameSpan = data.Slice(0, firstCommaIndex);
+            data = data[(firstCommaIndex + 1)..];
+
+            // Find the second comma separating the pair
+            var secondCommaIndex = data.IndexOf(',');
+            var extentNumberSpan = secondCommaIndex == -1
+                ? data // Last value
+                : data.Slice(0, secondCommaIndex);
+
+            // Create and parse the MetadataStripe
+            var metadataStripe = new MetadataStripe();
+            metadataStripe.Parse(volumeNameSpan, extentNumberSpan);
+
+            metadataStripes.Add(metadataStripe);
+
+            // Move to the next pair
+            data = secondCommaIndex == -1
+                ? ReadOnlySpan<char>.Empty
+                : data[(secondCommaIndex + 1)..];
+        }
+
+        return metadataStripes;
     }
 }
 

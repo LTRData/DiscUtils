@@ -29,15 +29,9 @@ internal class MetadataStripe
     public string PhysicalVolumeName;
     public ulong StartExtentNumber;
 
-    internal void Parse(string line)
+    internal void Parse(ReadOnlySpan<char> volumeNameSpan, ReadOnlySpan<char> extentNumberSpan)
     {
-        var parts = line.Split(',');
-        if (parts.Length != 2)
-        {
-            throw new ArgumentException("invalid stripe format", line);
-        }
-
-        PhysicalVolumeName = Metadata.ParseStringValue(parts[0].AsSpan());
-        StartExtentNumber = Metadata.ParseNumericValue(parts[1].AsSpan());
+        PhysicalVolumeName = Metadata.ParseStringValue(volumeNameSpan);
+        StartExtentNumber = Metadata.ParseNumericValue(extentNumberSpan);
     }
 }
