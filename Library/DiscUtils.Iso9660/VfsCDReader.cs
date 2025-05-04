@@ -305,14 +305,12 @@ internal class VfsCDReader : VfsReadOnlyFileSystem<ReaderDirEntry, File, ReaderD
         var entry = GetDirectoryEntry(path)
             ?? throw new FileNotFoundException("File not found", path);
 
-        if (entry.Record.FileUnitSize != 0 || entry.Record.InterleaveGapSize != 0)
+        if (entry.RecordExtents.Any(e => e.FileUnitSize != 0 || e.InterleaveGapSize != 0))
         {
             throw new NotSupportedException("Non-contiguous extents not supported");
         }
 
-        return SingleValueEnumerable.Get(
-            new Range<long, long>(entry.Record.LocationOfExtent,
-                MathUtilities.Ceil(entry.Record.DataLength, IsoUtilities.SectorSize)));
+        return entry.RecordExtents.Select(e => new Range<long, long>(e.LocationOfExtent, MathUtilities.Ceil(e.DataLength, IsoUtilities.SectorSize)));
     }
 
     public IEnumerable<StreamExtent> PathToExtents(string path)
@@ -320,13 +318,12 @@ internal class VfsCDReader : VfsReadOnlyFileSystem<ReaderDirEntry, File, ReaderD
         var entry = GetDirectoryEntry(path)
             ?? throw new FileNotFoundException("File not found", path);
 
-        if (entry.Record.FileUnitSize != 0 || entry.Record.InterleaveGapSize != 0)
+        if (entry.RecordExtents.Any(e => e.FileUnitSize != 0 || e.InterleaveGapSize != 0))
         {
             throw new NotSupportedException("Non-contiguous extents not supported");
         }
 
-        return SingleValueEnumerable.Get(
-            new StreamExtent(entry.Record.LocationOfExtent * IsoUtilities.SectorSize, entry.Record.DataLength));
+        return entry.RecordExtents.Select(e => new StreamExtent(e.LocationOfExtent * IsoUtilities.SectorSize, e.DataLength));
     }
 
     public long GetAllocatedClustersCount(string path)
@@ -334,12 +331,12 @@ internal class VfsCDReader : VfsReadOnlyFileSystem<ReaderDirEntry, File, ReaderD
         var entry = GetDirectoryEntry(path)
             ?? throw new FileNotFoundException("File not found", path);
 
-        if (entry.Record.FileUnitSize != 0 || entry.Record.InterleaveGapSize != 0)
+        if (entry.RecordExtents.Any(e => e.FileUnitSize != 0 || e.InterleaveGapSize != 0))
         {
             throw new NotSupportedException("Non-contiguous extents not supported");
         }
 
-        return entry.Record.DataLength / IsoUtilities.SectorSize;
+        return entry.RecordExtentsDataLength / IsoUtilities.SectorSize;
     }
 
     public ClusterMap BuildClusterMap()
@@ -371,16 +368,19 @@ internal class VfsCDReader : VfsReadOnlyFileSystem<ReaderDirEntry, File, ReaderD
                     fileIdToPaths[entry.UniqueCacheId] = Array.AsReadOnly(newPaths);
                 }
 
-                if (entry.Record.FileUnitSize != 0 || entry.Record.InterleaveGapSize != 0)
+                if (entry.RecordExtents.Any(e => e.FileUnitSize != 0 || e.InterleaveGapSize != 0))
                 {
                     throw new NotSupportedException("Non-contiguous extents not supported");
                 }
 
-                long clusters = MathUtilities.Ceil(entry.Record.DataLength, IsoUtilities.SectorSize);
-                for (long i = 0; i < clusters; ++i)
+                foreach (var e in entry.RecordExtents)
                 {
-                    clusterToRole[i + entry.Record.LocationOfExtent] = ClusterRoles.DataFile;
-                    clusterToFileId[i + entry.Record.LocationOfExtent] = entry.UniqueCacheId;
+                    long clusters = MathUtilities.Ceil(e.DataLength, IsoUtilities.SectorSize);
+                    for (long i = 0; i < clusters; ++i)
+                    {
+                        clusterToRole[i + e.LocationOfExtent] = ClusterRoles.DataFile;
+                        clusterToFileId[i + e.LocationOfExtent] = entry.UniqueCacheId;
+                    }
                 }
             });
 

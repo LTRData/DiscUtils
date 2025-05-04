@@ -41,12 +41,17 @@ internal class ReaderDirectory : File, IVfsDirectory<ReaderDirEntry, File>
         var buffer = ArrayPool<byte>.Shared.Rent(IsoUtilities.SectorSize);
         try
         {
+            if (dirEntry.RecordExtents is not [var dirExtent])
+            {
+                throw new NotSupportedException("MultiExtent directory entries are not supported");
+            }
+
             Array.Clear(buffer, 0, buffer.Length);
-            Stream extent = new ExtentStream(_context.DataStream, dirEntry.Record.LocationOfExtent, uint.MaxValue, 0, 0);
+            Stream extent = new ExtentStream(_context.DataStream, dirExtent.LocationOfExtent, uint.MaxValue, 0, 0);
 
             _records = new(StringComparer.OrdinalIgnoreCase, entry => entry.FileName);
 
-            var totalLength = dirEntry.Record.DataLength;
+            var totalLength = dirExtent.DataLength;
             uint totalRead = 0;
             while (totalRead < totalLength)
             {
@@ -73,7 +78,14 @@ internal class ReaderDirectory : File, IVfsDirectory<ReaderDirEntry, File>
                         }
                         else
                         {
-                            _records.Add(childDirEntry);
+                            if (_records.TryGetValue(childDirEntry.FileName, out var existingEntry))
+                            {
+                                existingEntry._records.Add(dr);
+                            }
+                            else
+                            {
+                                _records.Add(childDirEntry);
+                            }
                         }
                     }
                     else if (dr.FileIdentifier == "\0")
@@ -91,7 +103,7 @@ internal class ReaderDirectory : File, IVfsDirectory<ReaderDirEntry, File>
         }
     }
 
-    public override byte[] SystemUseData => Self.Record.SystemUseData;
+    public override byte[] SystemUseData => Self.RecordExtents[0].SystemUseData;
 
     public IReadOnlyDictionary<string, ReaderDirEntry> AllEntries => _records;
 

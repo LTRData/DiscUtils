@@ -26,6 +26,7 @@ using DiscUtils.Vfs;
 using DiscUtils.Streams;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using LTRData.Extensions.Buffers;
 
 namespace DiscUtils.Iso9660;
@@ -41,7 +42,7 @@ internal class File : IVfsFile
         _dirEntry = dirEntry;
     }
 
-    public virtual byte[] SystemUseData => _dirEntry.Record.SystemUseData;
+    public virtual byte[] SystemUseData => _dirEntry.RecordExtents[0].SystemUseData;
 
     public UnixFileSystemInfo UnixFileInfo
     {
@@ -54,8 +55,7 @@ internal class File : IVfsFile
 
             var suspRecords = new SuspRecords(_context, SystemUseData);
 
-            var pfi =
-                suspRecords.GetEntry<PosixFileInfoSystemUseEntry>(_context.RockRidgeIdentifier, "PX");
+            var pfi = suspRecords.GetEntry<PosixFileInfoSystemUseEntry>(_context.RockRidgeIdentifier, "PX");
             if (pfi != null)
             {
                 return new UnixFileSystemInfo
@@ -101,19 +101,35 @@ internal class File : IVfsFile
         set => throw new NotSupportedException();
     }
 
-    public long FileLength => _dirEntry.Record.DataLength;
+    public long FileLength => _dirEntry.RecordExtentsDataLength;
 
     public IBuffer FileContent
     {
         get
         {
-            var es = new ExtentStream(_context.DataStream, _dirEntry.Record.LocationOfExtent,
-                _dirEntry.Record.DataLength, _dirEntry.Record.FileUnitSize, _dirEntry.Record.InterleaveGapSize);
-            return new StreamBuffer(es, Ownership.Dispose);
+            if (_dirEntry.RecordExtents is [var extent])
+            {
+                return new StreamBuffer(
+                    new ExtentStream(_context.DataStream, extent.LocationOfExtent, extent.DataLength, extent.FileUnitSize, extent.InterleaveGapSize),
+                    Ownership.Dispose
+                );
+            }
+            
+            return new StreamBuffer(
+                new ConcatStream(
+                    Ownership.Dispose,
+                    _dirEntry.RecordExtents.Select(
+                        e => SparseStream.FromStream(
+                            new ExtentStream(_context.DataStream, e.LocationOfExtent, e.DataLength, e.FileUnitSize, e.InterleaveGapSize),
+                            Ownership.Dispose
+                        )
+                    )
+                ),
+                Ownership.Dispose
+            );
         }
     }
 
     public IEnumerable<StreamExtent> EnumerateAllocationExtents()
-        => SingleValueEnumerable.Get(new StreamExtent(_dirEntry.Record.LocationOfExtent * IsoUtilities.SectorSize,
-            _dirEntry.Record.DataLength));
+        => _dirEntry.RecordExtents.Select(e => new StreamExtent(e.LocationOfExtent * IsoUtilities.SectorSize, e.DataLength));
 }
