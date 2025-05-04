@@ -132,12 +132,13 @@ internal class MetadataSegmentSection
                         StripeCount = Metadata.ParseNumericValue(parameterValue);
                         break;
                     case "stripes":
-                        if (parameterValue.Equals("[", StringComparison.Ordinal))
+                        if (parameterValue.Equals("[".AsSpan(), StringComparison.Ordinal))
                         {
                             // Multi-line section
                             Stripes = ParseMultiLineStripesSection(data).ToArray();
                         }
-                        else if (parameterValue.StartsWith("[", StringComparison.Ordinal) && parameterValue.EndsWith("]", StringComparison.Ordinal))
+                        else if (parameterValue.StartsWith("[".AsSpan(), StringComparison.Ordinal)
+                            && parameterValue.EndsWith("]".AsSpan(), StringComparison.Ordinal))
                         {
                             // Single line section
                             // Exclude the brackets from the input
@@ -179,7 +180,7 @@ internal class MetadataSegmentSection
                 yield break;
             }
 
-            var metadataStripes = ParseSinglelineStripesSection(line);
+            var metadataStripes = ParseSinglelineStripesSection(line.AsSpan());
 
             foreach (var metadataStripe in metadataStripes)
             {
