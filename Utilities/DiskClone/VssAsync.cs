@@ -24,6 +24,20 @@ using System.Runtime.InteropServices;
 
 namespace DiskClone;
 
+#if NET8_0_OR_GREATER
+
+[System.Runtime.InteropServices.Marshalling.GeneratedComInterface]
+[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+[Guid("507C37B4-CF5B-4e95-B0AF-14EB9767467E")]
+public partial interface IVssAsync
+{
+    void Cancel();
+    void Wait(uint millis);
+    void QueryStatus(out uint hrResult, ref int pReserved);
+}
+
+#else
+
 [ComImport]
 [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
 [Guid("507C37B4-CF5B-4e95-B0AF-14EB9767467E")]
@@ -33,3 +47,5 @@ public interface IVssAsync
     void Wait(uint millis);
     void QueryStatus(out uint hrResult, ref int pReserved);
 }
+
+#endif

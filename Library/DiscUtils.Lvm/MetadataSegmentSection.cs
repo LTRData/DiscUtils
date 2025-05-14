@@ -20,7 +20,6 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-
 using System;
 using System.IO;
 using System.Collections.Generic;
@@ -39,11 +38,11 @@ internal class MetadataSegmentSection
 
     internal void Parse(string head, TextReader data)
     {
-        Name = head.Trim().TrimEnd('{').TrimEnd();
-        string line;
-        while ((line = Metadata.ReadLine(data)) != null)
+        Name = head.AsSpan().Trim().TrimEnd('{').TrimEnd().ToString();
+
+        while (Metadata.ReadLine(data) is var line)
         {
-            if (line == String.Empty)
+            if (string.IsNullOrWhiteSpace(line))
             {
                 continue;
             }

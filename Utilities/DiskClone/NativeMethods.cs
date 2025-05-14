@@ -31,6 +31,8 @@ using System.IO;
 using System.Runtime.InteropServices;
 using Microsoft.Win32.SafeHandles;
 
+#pragma warning disable IDE0079 // Remove unnecessary suppression
+
 namespace DiskClone;
 
 internal static partial class NativeMethods

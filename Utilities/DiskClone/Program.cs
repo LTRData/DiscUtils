@@ -264,8 +264,6 @@ class Program : ProgramBase
         CallAsyncMethod(backupCmpnts.BackupComplete);
 
         backupCmpnts.DeleteSnapshots(snapshotSetId, 2 /*VSS_OBJECT_SNAPSHOT_SET*/, true, out var numDeleteFailed, out var deleteFailed);
-
-        Marshal.ReleaseComObject(backupCmpnts);
     }
 
     private static bool IsAdministrator()

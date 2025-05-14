@@ -106,7 +106,7 @@ internal static class Plist
         };
     }
 
-    private static XmlNode CreateNode(XmlDocument xmlDoc, object obj)
+    private static XmlElement CreateNode(XmlDocument xmlDoc, object obj)
     {
         if (obj is Dictionary<string, object>)
         {
