@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>Mounts DiscUtils IFileSystem implementations using Dokan file system driver</Description>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DokanNet" Version="*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DiscUtils.Core\DiscUtils.Core.csproj" />
+    <ProjectReference Include="..\DiscUtils.Streams\DiscUtils.Streams.csproj" />
+    <ProjectReference Include="..\DiscUtils.VirtualFileSystem\DiscUtils.VirtualFileSystem.csproj" />
+  </ItemGroup>
+
+</Project>

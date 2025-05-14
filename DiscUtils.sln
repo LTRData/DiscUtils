@@ -1,4 +1,4 @@
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -150,6 +150,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VHDXCreate", "Utilities\VHDXCreate\VHDXCreate.csproj", "{D331F5B9-E0C3-484C-BA42-3BA88596D44A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscUtils.MountDokan", "Library\DiscUtils.MountDokan\DiscUtils.MountDokan.csproj", "{BB261677-0165-4742-825F-C0976A59FE98}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscUtils.MountFuse", "Library\DiscUtils.MountFuse\DiscUtils.MountFuse.csproj", "{9E4B1416-3632-4D9E-A767-F57DABE35086}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -381,6 +385,14 @@ Global
 		{D331F5B9-E0C3-484C-BA42-3BA88596D44A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D331F5B9-E0C3-484C-BA42-3BA88596D44A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D331F5B9-E0C3-484C-BA42-3BA88596D44A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BB261677-0165-4742-825F-C0976A59FE98}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BB261677-0165-4742-825F-C0976A59FE98}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BB261677-0165-4742-825F-C0976A59FE98}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BB261677-0165-4742-825F-C0976A59FE98}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E4B1416-3632-4D9E-A767-F57DABE35086}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E4B1416-3632-4D9E-A767-F57DABE35086}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E4B1416-3632-4D9E-A767-F57DABE35086}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E4B1416-3632-4D9E-A767-F57DABE35086}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -442,6 +454,8 @@ Global
 		{FAA5ADC9-49ED-4949-B53B-9EC93AE35893} = {E20ADC28-C578-4EF4-A6A2-18DCE2C40984}
 		{DD506E79-41D5-490D-BE12-05F5C7839575} = {E20ADC28-C578-4EF4-A6A2-18DCE2C40984}
 		{D331F5B9-E0C3-484C-BA42-3BA88596D44A} = {ACF7813E-5C0D-4900-BAD6-4169A2E013AE}
+		{BB261677-0165-4742-825F-C0976A59FE98} = {E20ADC28-C578-4EF4-A6A2-18DCE2C40984}
+		{9E4B1416-3632-4D9E-A767-F57DABE35086} = {E20ADC28-C578-4EF4-A6A2-18DCE2C40984}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {17B6D55E-AA02-4B51-9B53-36A14678CCA2}
