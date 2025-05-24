@@ -40,7 +40,7 @@ internal class MetadataSegmentSection
     {
         Name = head.AsSpan().Trim().TrimEnd('{').TrimEnd().ToString();
 
-        while (Metadata.ReadLine(data) is var line)
+        while (Metadata.ReadLine(data) is { } line)
         {
             if (string.IsNullOrWhiteSpace(line))
             {
