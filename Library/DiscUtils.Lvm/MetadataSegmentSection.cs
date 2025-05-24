@@ -166,10 +166,9 @@ internal class MetadataSegmentSection
 
     private static IEnumerable<MetadataStripe> ParseMultiLineStripesSection(TextReader data)
     {
-        string line;
-        while ((line = Metadata.ReadLine(data)) != null)
+        while (Metadata.ReadLine(data) is { } line)
         {
-            if (line == string.Empty)
+            if (string.IsNullOrWhiteSpace(line))
             {
                 continue;
             }

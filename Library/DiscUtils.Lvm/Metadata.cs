@@ -49,21 +49,15 @@ internal class Metadata
     private void Parse(TextReader data)
     {
         var vgSection = new List<MetadataVolumeGroupSection>();
-        for(; ;)
+        
+        while(ReadLine(data) is { } lineStr)
         {
-            var lineStr = ReadLine(data);
-
-            if (lineStr == null)
-            {
-                break;
-            }
-
-            var line = lineStr.AsMemory();
-
-            if (line.Span.IsWhiteSpace())
+            if (string.IsNullOrWhiteSpace(lineStr))
             {
                 continue;
             }
+
+            var line = lineStr.AsMemory();
 
             if (line.Span.Contains("=".AsSpan(), StringComparison.Ordinal))
             {
