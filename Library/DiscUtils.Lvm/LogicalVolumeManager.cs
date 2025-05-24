@@ -148,7 +148,8 @@ public class LogicalVolumeManager
                         lv.Open(pvs, vg.ExtentSize),
                         lv.ExtentCount * (long) vg.ExtentSize * PhysicalVolume.SECTOR_SIZE,
                         0,
-                        DiscUtils.LogicalVolumeStatus.Healthy);
+                        DiscUtils.LogicalVolumeStatus.Healthy,
+                        $"Linux LVM {lv.Name}");
                     yield return lvi;
                 }
             }

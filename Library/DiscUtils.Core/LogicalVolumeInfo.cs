@@ -35,7 +35,7 @@ public sealed class LogicalVolumeInfo : VolumeInfo
     private readonly PhysicalVolumeInfo _physicalVol;
 
     internal LogicalVolumeInfo(Guid guid, PhysicalVolumeInfo physicalVolume, SparseStreamOpenDelegate opener,
-                               long length, byte biosType, LogicalVolumeStatus status)
+                               long length, byte biosType, LogicalVolumeStatus status, string typeAsString)
     {
         _guid = guid;
         _physicalVol = physicalVolume;
@@ -43,6 +43,7 @@ public sealed class LogicalVolumeInfo : VolumeInfo
         Length = length;
         BiosType = biosType;
         Status = status;
+        TypeAsString = typeAsString;
     }
 
     /// <summary>
@@ -94,6 +95,11 @@ public sealed class LogicalVolumeInfo : VolumeInfo
     /// Gets the status of the logical volume, indicating volume health.
     /// </summary>
     public LogicalVolumeStatus Status { get; }
+    
+    /// <summary>
+    /// Type of volume
+    /// </summary>
+    public string TypeAsString { get; }
 
     /// <summary>
     /// Gets the underlying physical volume info

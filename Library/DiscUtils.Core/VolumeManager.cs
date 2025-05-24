@@ -236,20 +236,18 @@ public sealed class VolumeManager
         return null;
     }
 
-    private static void MapPhysicalVolumes(IEnumerable<PhysicalVolumeInfo> physicalVols, Dictionary<string, LogicalVolumeInfo> result)
+    private static void MapPhysicalVolume(PhysicalVolumeInfo physicalVol, Dictionary<string, LogicalVolumeInfo> result)
     {
-        foreach (var physicalVol in physicalVols)
-        {
-            var lvi = new LogicalVolumeInfo(
-                physicalVol.PartitionIdentity,
-                physicalVol,
-                physicalVol.Open,
-                physicalVol.Length,
-                physicalVol.BiosType,
-                LogicalVolumeStatus.Healthy);
+        var lvi = new LogicalVolumeInfo(
+            physicalVol.PartitionIdentity,
+            physicalVol,
+            physicalVol.Open,
+            physicalVol.Length,
+            physicalVol.BiosType,
+            LogicalVolumeStatus.Healthy,
+            physicalVol.Partition?.TypeAsString);
 
-            result.Add(lvi.Identity, lvi);
-        }
+        result.Add(lvi.Identity, lvi);
     }
 
     /// <summary>
@@ -268,7 +266,6 @@ public sealed class VolumeManager
 
     private Dictionary<string, LogicalVolumeInfo> ScanForLogicalVolumes(IEnumerable<PhysicalVolumeInfo> physicalVols)
     {
-        var unhandledPhysical = new List<PhysicalVolumeInfo>();
         var result = new Dictionary<string, LogicalVolumeInfo>();
 
         foreach (var pvi in physicalVols)
@@ -286,11 +283,9 @@ public sealed class VolumeManager
 
             if (!handled)
             {
-                unhandledPhysical.Add(pvi);
+                MapPhysicalVolume(pvi, result);
             }
         }
-
-        MapPhysicalVolumes(unhandledPhysical, result);
 
         foreach (var volFactory in LogicalVolumeFactories)
         {

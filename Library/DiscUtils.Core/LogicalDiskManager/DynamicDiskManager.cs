@@ -133,7 +133,8 @@ public class DynamicDiskManager : IDiagnosticTraceable
                     volume.Open,
                     volume.Length,
                     volume.BiosType,
-                    volume.Status);
+                    volume.Status,
+                    BiosPartitionTypes.ToString(volume.BiosType));
                 yield return lvi;
             }
         }
