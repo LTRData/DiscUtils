@@ -299,7 +299,7 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
                 }
             }
 
-            AddFileToDirectory(newFile, destParentDir, Utilities.GetFileFromPath(destinationFile), null);
+            AddFileToDirectory(newFile, destParentDir, Utilities.GetFileFromPath(destinationFile), options: default);
             destParentDirEntry.Value.UpdateFrom(destParentDir);
         }
     }
@@ -310,7 +310,7 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
     /// <param name="path">The path of the new directory.</param>
     public override void CreateDirectory(string path)
     {
-        CreateDirectory(path, null);
+        CreateDirectory(path, options: default);
     }
 
     /// <summary>
@@ -659,7 +659,7 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
                 }
 
                 RemoveFileFromDirectory(sourceParentDir, file, sourceEntry.Value.Details.FileName);
-                AddFileToDirectory(file, destParentDir, Utilities.GetFileFromPath(destinationDirectoryName), null);
+                AddFileToDirectory(file, destParentDir, Utilities.GetFileFromPath(destinationDirectoryName), options: default);
             }
         }
     }
@@ -722,7 +722,7 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
             }
 
             RemoveFileFromDirectory(sourceParentDir, file, sourceEntry.Value.Details.FileName);
-            AddFileToDirectory(file, destParentDir, Utilities.GetFileFromPath(destinationName), null);
+            AddFileToDirectory(file, destParentDir, Utilities.GetFileFromPath(destinationName), options: default);
         }
     }
 
@@ -735,7 +735,7 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
     /// <returns>The new stream.</returns>
     public override SparseStream OpenFile(string path, FileMode mode, FileAccess access)
     {
-        return OpenFile(path, mode, access, null);
+        return OpenFile(path, mode, access, options: default);
     }
 
     /// <summary>
@@ -1515,7 +1515,7 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
     /// <param name="shortName">The shortName, which should not include a path.</param>
     public void SetShortName(string path, string shortName)
     {
-        if (!Utilities.Is8Dot3(shortName))
+        if (!Utilities.Is8Dot3(shortName, ignoreCase: false))
         {
             throw new ArgumentException("Short name is not a valid 8.3 file name", nameof(shortName));
         }
@@ -1868,7 +1868,7 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
                 if (childDirEntry == null)
                 {
                     var newDirAttrs = focusDir.StandardInformation.FileAttributes;
-                    if (options != null && options.Compressed.HasValue)
+                    if (options.Compressed.HasValue)
                     {
                         if (options.Compressed.Value)
                         {
@@ -1887,7 +1887,7 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
 
                         var parentSd = DoGetSecurity(focusDir);
                         RawSecurityDescriptor newSd;
-                        if (options != null && options.SecurityDescriptor != null)
+                        if (options.SecurityDescriptor is not null)
                         {
                             newSd = options.SecurityDescriptor;
                         }
@@ -2211,7 +2211,7 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
         var parentDir = GetDirectory(parentDirEntry.Value.Reference);
 
         var newFileAttrs = parentDir.StandardInformation.FileAttributes;
-        if (options != null && options.Compressed.HasValue)
+        if (options.Compressed.HasValue)
         {
             if (options.Compressed.Value)
             {
@@ -2230,7 +2230,7 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
 
             var parentSd = DoGetSecurity(parentDir);
             RawSecurityDescriptor newSd;
-            if (options != null && options.SecurityDescriptor != null)
+            if (options.SecurityDescriptor != null)
             {
                 newSd = options.SecurityDescriptor;
             }
@@ -2329,7 +2329,7 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
         DirectoryEntry entry;
 
         bool createShortNames;
-        if (options != null && options.CreateShortNames.HasValue)
+        if (options.CreateShortNames.HasValue)
         {
             createShortNames = options.CreateShortNames.Value;
         }
@@ -2340,7 +2340,7 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
 
         if (createShortNames)
         {
-            if (Utilities.Is8Dot3(name.ToUpperInvariant()))
+            if (Utilities.Is8Dot3(name, ignoreCase: true))
             {
                 entry = dir.AddEntry(file, name, FileNameNamespace.Win32AndDos);
             }

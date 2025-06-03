@@ -77,19 +77,19 @@ internal class File
     {
         get
         {
-            var attrs = new List<NtfsAttribute>(GetAttributes(AttributeType.FileName));
+            var attrs = GetAttributes(AttributeType.FileName).GetEnumerator();
 
             string bestName = null;
 
-            if (attrs.Count != 0)
+            if (attrs.MoveNext())
             {
-                bestName = attrs[0].ToString();
+                bestName = attrs.Current.ToString();
 
-                for (var i = 1; i < attrs.Count; ++i)
+                while (attrs.MoveNext())
                 {
-                    var name = attrs[i].ToString();
+                    var name = attrs.Current.ToString();
 
-                    if (Utilities.Is8Dot3(bestName))
+                    if (Utilities.Is8Dot3(bestName, ignoreCase: false))
                     {
                         bestName = name;
                     }

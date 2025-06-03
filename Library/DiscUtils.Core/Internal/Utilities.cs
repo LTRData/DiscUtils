@@ -23,6 +23,7 @@
 using LTRData.Extensions.Buffers;
 using LTRData.Extensions.Split;
 using System;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -169,16 +170,24 @@ public static class Utilities
     /// <param name="path">The path to process.</param>
     /// <returns>The directory part.</returns>
     public static string GetDirectoryFromPath(string path)
+        => GetDirectoryFromPath(path.AsSpan()).ToString();
+
+    /// <summary>
+    /// Extracts the directory part of a path.
+    /// </summary>
+    /// <param name="path">The path to process.</param>
+    /// <returns>The directory part.</returns>
+    public static ReadOnlySpan<char> GetDirectoryFromPath(ReadOnlySpan<char> path)
     {
-        var trimmed = path.AsSpan().TrimEndAny(PathSeparators);
+        var trimmed = path.TrimEndAny(PathSeparators);
 
         var index = trimmed.LastIndexOfAny(PathSeparators);
         if (index < 0)
         {
-            return string.Empty; // No directory, just a file name
+            return default; // No directory, just a file name
         }
 
-        return trimmed.Slice(0, index).ToString();
+        return trimmed.Slice(0, index);
     }
 
     /// <summary>
@@ -187,16 +196,24 @@ public static class Utilities
     /// <param name="path">The path to process.</param>
     /// <returns>The file part of the path.</returns>
     public static string GetFileFromPath(string path)
+        => GetFileFromPath(path.AsSpan()).ToString();
+
+    /// <summary>
+    /// Extracts the file part of a path.
+    /// </summary>
+    /// <param name="path">The path to process.</param>
+    /// <returns>The file part of the path.</returns>
+    public static ReadOnlySpan<char> GetFileFromPath(ReadOnlySpan<char> path)
     {
-        var trimmed = path.AsSpan().TrimEndAny(PathSeparators);
+        var trimmed = path.TrimEndAny(PathSeparators);
 
         var index = trimmed.LastIndexOfAny(PathSeparators);
         if (index < 0)
         {
-            return trimmed.ToString(); // No directory, just a file name
+            return trimmed; // No directory, just a file name
         }
 
-        return trimmed.Slice(index + 1).ToString();
+        return trimmed.Slice(index + 1);
     }
 
     /// <summary>
@@ -221,6 +238,31 @@ public static class Utilities
         }
 
         return a.TrimEnd(PathSeparators) + Path.DirectorySeparatorChar + b.TrimStart(PathSeparators);
+#endif
+    }
+
+    /// <summary>
+    /// Combines two paths.
+    /// </summary>
+    /// <param name="a">The first part of the path.</param>
+    /// <param name="b">The second part of the path.</param>
+    /// <returns>The combined path.</returns>
+    public static string CombinePaths(ReadOnlySpan<char> a, ReadOnlySpan<char> b)
+    {
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP
+        return Path.Join(a, b);
+#else
+        if (a.IsEmpty || (b.Length > 0 && b[0] is '\\' or '/'))
+        {
+            return b.ToString();
+        }
+
+        if (b.IsEmpty)
+        {
+            return a.ToString();
+        }
+
+        return a.TrimEnd(PathSeparators).ToString() + Path.DirectorySeparatorChar + b.TrimStart(PathSeparators).ToString();
 #endif
     }
 
@@ -253,8 +295,8 @@ public static class Utilities
 
         var merged = Path.GetFullPath(Path.Combine(basePath, relativePath));
 
-        if (merged.Length > 2 && 
-            (basePath[0] == '\\' || basePath[0] == '/') &&
+        if (merged.Length > 2 &&
+            (basePath[0] is '\\' or '/') &&
             merged[1] == ':' && merged[2] == '\\')
         {
             return merged.Substring(2);
@@ -265,7 +307,7 @@ public static class Utilities
 
     public static string ResolvePath(string basePath, string path)
     {
-        if (path.Length == 0 || (path[0] != '\\' && path[0] != '/'))
+        if (path.Length == 0 || (path[0] is not '\\' and not '/'))
         {
             return ResolveRelativePath(basePath, path);
         }
@@ -278,11 +320,11 @@ public static class Utilities
     public static string MakeRelativePath(string path, string basePath)
     {
         var pathElements = path.AsMemory().TokenEnum('\\', '/', StringSplitOptions.RemoveEmptyEntries).ToArray();
-        var basePathElements = basePath.AsMemory().TokenEnum('\\', '/', StringSplitOptions.RemoveEmptyEntries).ToArray();
+        var basePathElements = basePath.AsMemory().TokenEnum('\\', '/', StringSplitOptions.RemoveEmptyEntries).ToArray().AsSpan();
 
         if (basePathElements.Length > 0 && basePath[basePath.Length - 1] != Path.DirectorySeparatorChar)
         {
-            Array.Resize(ref basePathElements, basePathElements.Length - 1);
+            basePathElements = basePathElements.Slice(0, basePathElements.Length - 1);
         }
 
         // Find first part of paths that don't match
@@ -328,16 +370,27 @@ public static class Utilities
         return result.ToString();
     }
 
-#endregion
-    
-#region Filesystem Support
+    #endregion
+
+    #region Filesystem Support
+
 
     /// <summary>
     /// Indicates if a file name matches the 8.3 pattern.
     /// </summary>
     /// <param name="name">The name to test.</param>
+    /// <param name="ignoreCase">If true, also accepts lowercase letters as allowed 8.3 name characters.</param>
     /// <returns><c>true</c> if the name is 8.3, otherwise <c>false</c>.</returns>
-    public static bool Is8Dot3(string name)
+    public static bool Is8Dot3(string name, bool ignoreCase)
+        => Is8Dot3(name.AsSpan(), ignoreCase);
+
+    /// <summary>
+    /// Indicates if a file name matches the 8.3 pattern.
+    /// </summary>
+    /// <param name="name">The name to test.</param>
+    /// <param name="ignoreCase">If true, also accepts lowercase letters as allowed 8.3 name characters.</param>
+    /// <returns><c>true</c> if the name is 8.3, otherwise <c>false</c>.</returns>
+    public static bool Is8Dot3(ReadOnlySpan<char> name, bool ignoreCase)
     {
         if (name.Length is 0 or > 12)
         {
@@ -350,15 +403,15 @@ public static class Utilities
         }
 
         var i = name.LastIndexOf('.');
-
+        
         // Check for more than one dot
-        if (i >= 0 && name.LastIndexOf('.', i - 1) >= 0)
+        if (i >= 0 && name.Slice(0, i).LastIndexOf('.') >= 0)
         {
             return false;
         }
 
-        var namePart = i >= 0 ? name.AsSpan(0, i) : name.AsSpan();
-        var extPart = i >= 0 ? name.AsSpan(i + 1) : default;
+        var namePart = i >= 0 ? name.Slice(0, i) : name;
+        var extPart = i >= 0 ? name.Slice(i + 1) : default;
 
         if (namePart.Length is 0 or > 8
             || extPart.Length > 3)
@@ -369,7 +422,7 @@ public static class Utilities
         // Check for invalid chars
         foreach (var ch in namePart)
         {
-            if (!Is8Dot3Char(ch))
+            if (!Is8Dot3Char(ch, ignoreCase))
             {
                 return false;
             }
@@ -377,7 +430,7 @@ public static class Utilities
 
         foreach (var ch in extPart)
         {
-            if (!Is8Dot3Char(ch))
+            if (!Is8Dot3Char(ch, ignoreCase))
             {
                 return false;
             }
@@ -386,10 +439,13 @@ public static class Utilities
         return true;
     }
 
-    public static bool Is8Dot3Char(char ch)
-    {
-        return (ch >= 'A' && ch <= 'Z') || (ch >= '0' && ch <= '9') || "_^$~!#%£-{}()@'`&".Contains(ch);
-    }
+    public static bool Is8Dot3Char(char ch, bool ignoreCase)
+        => (ch is >= 'A' and <= 'Z')
+        || (ch is >= '0' and <= '9')
+        || (ignoreCase && ch is >= 'a' and <= 'z')
+        || "_^$~!#%£-{}()@'`&".Contains(ch);
+
+    private static readonly ConcurrentDictionary<(string pattern, bool ignoreCase), Func<string, bool>> wildcardsCache = new();
 
     /// <summary>
     /// Converts a 'standard' wildcard file/path specification into a regular expression.
@@ -403,6 +459,15 @@ public static class Utilities
     /// </remarks>
     public static Func<string, bool> ConvertWildcardsToRegEx(string pattern, bool ignoreCase)
     {
+#if NET6_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(pattern);
+#else
+        if (pattern is null)
+        {
+            throw new ArgumentNullException(nameof(pattern));
+        }
+#endif
+
         if (pattern is "*" or "*.*")
         {
             return null;
@@ -421,18 +486,23 @@ public static class Utilities
             }
             else
             {
-                return name => StringComparer.Ordinal.Equals(name, pattern);
+                return pattern.Equals;
             }
         }
 
-        var regexOptions = RegexOptions.CultureInvariant;
-        if (ignoreCase)
+        return wildcardsCache.GetOrAdd((pattern, ignoreCase), static key =>
         {
-            regexOptions |= RegexOptions.IgnoreCase;
-        }
+            var regexOptions = RegexOptions.CultureInvariant | RegexOptions.Compiled;
 
-        var query = $"^{Regex.Escape(pattern).Replace(@"\*", ".*").Replace(@"\?", "[^.]")}$";
-        return new Regex(query, regexOptions).IsMatch;
+            if (key.ignoreCase)
+            {
+                regexOptions |= RegexOptions.IgnoreCase;
+            }
+
+            var query = $"^{Regex.Escape(key.pattern).Replace(@"\*", ".*").Replace(@"\?", "[^.]")}$";
+
+            return new Regex(query, regexOptions).IsMatch;
+        });
     }
 
     public static FileAttributes FileAttributesFromUnixFileType(this UnixFileType fileType)
@@ -485,10 +555,10 @@ public static class Utilities
     public static string DirectorySeparatorString { get; } = Path.DirectorySeparatorChar.ToString();
 
     public static bool StartsWithDirectorySeparator(this string path) =>
-        path is not null && path.Length > 0 && (path[0] == '/' || path[0] == '\\');
+        path is not null && path.Length > 0 && (path[0] is '/' or '\\');
 
     public static bool EndsWithDirectorySeparator(this string path) =>
-        path is not null && path.Length > 0 && (path[path.Length - 1] == '/' || path[path.Length - 1] == '\\');
+        path is not null && path.Length > 0 && (path[path.Length - 1] is '/' or '\\');
 
 #endregion
 }

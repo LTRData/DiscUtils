@@ -27,33 +27,44 @@ namespace DiscUtils.Ntfs;
 /// <summary>
 /// Options controlling how new NTFS files are created.
 /// </summary>
-public sealed class NewFileOptions
+public readonly struct NewFileOptions
 {
     /// <summary>
     /// Initializes a new instance of the NewFileOptions class.
     /// </summary>
     public NewFileOptions()
     {
-        Compressed = null;
-        CreateShortNames = null;
-        SecurityDescriptor = null;
     }
 
     /// <summary>
-    /// Gets or sets whether the new file should be compressed.
+    /// Initializes a new instance of the NewFileOptions class.
+    /// The default (<c>null</c>) value of a parameter indicates the file system default behaviour applies
     /// </summary>
-    /// <remarks>The default (<c>null</c>) value indicates the file system default behaviour applies.</remarks>
-    public bool? Compressed { get; set; }
+    /// <param name="compressed">Sets whether the new file should be compressed.</param>
+    /// <param name="createShortNames">Sets whether a short name should be created for the file.</param>
+    /// <param name="securityDescriptor">Sets the security descriptor that to set for the new file.</param>
+    public NewFileOptions(bool? compressed, bool? createShortNames, RawSecurityDescriptor securityDescriptor)
+    {
+        Compressed = compressed;
+        CreateShortNames = createShortNames;
+        SecurityDescriptor = securityDescriptor;
+    }
 
     /// <summary>
-    /// Gets or sets whether a short name should be created for the file.
+    /// Gets whether the new file should be compressed.
     /// </summary>
     /// <remarks>The default (<c>null</c>) value indicates the file system default behaviour applies.</remarks>
-    public bool? CreateShortNames { get; set; }
+    public bool? Compressed { get; }
 
     /// <summary>
-    /// Gets or sets the security descriptor that to set for the new file.
+    /// Gets whether a short name should be created for the file.
+    /// </summary>
+    /// <remarks>The default (<c>null</c>) value indicates the file system default behaviour applies.</remarks>
+    public bool? CreateShortNames { get; }
+
+    /// <summary>
+    /// Gets the security descriptor that to set for the new file.
     /// </summary>
     /// <remarks>The default (<c>null</c>) value indicates the security descriptor is inherited.</remarks>
-    public RawSecurityDescriptor SecurityDescriptor { get; set; }
+    public RawSecurityDescriptor SecurityDescriptor { get; }
 }

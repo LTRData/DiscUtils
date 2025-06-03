@@ -195,7 +195,7 @@ internal class Directory : File
         while (baseName.Length < 6 && i < name.Length && i != lastPeriod)
         {
             var upperChar = char.ToUpperInvariant(name[i]);
-            if (Utilities.Is8Dot3Char(upperChar))
+            if (Utilities.Is8Dot3Char(upperChar, ignoreCase: false))
             {
                 baseName += upperChar;
             }
@@ -209,7 +209,7 @@ internal class Directory : File
             while (ext.Length < 3 && i < name.Length)
             {
                 var upperChar = char.ToUpperInvariant(name[i]);
-                if (Utilities.Is8Dot3Char(upperChar))
+                if (Utilities.Is8Dot3Char(upperChar, ignoreCase: false))
                 {
                     ext += upperChar;
                 }

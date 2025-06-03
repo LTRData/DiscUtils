@@ -20,7 +20,6 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-
 using DiscUtils.Streams.Compatibility;
 using LTRData.Extensions.Buffers;
 using System;
@@ -28,6 +27,7 @@ using System.Collections.Generic;
 using System.IO;
 
 namespace DiscUtils.Lvm;
+
 internal class Metadata
 {
     public DateTime CreationTime;
