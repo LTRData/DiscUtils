@@ -339,7 +339,12 @@ public static class Utilities
     /// <returns><c>true</c> if the name is 8.3, otherwise <c>false</c>.</returns>
     public static bool Is8Dot3(string name)
     {
-        if (name.Length > 12)
+        if (name.Length is 0 or > 12)
+        {
+            return false;
+        }
+
+        if (name[0] == '.')
         {
             return false;
         }
