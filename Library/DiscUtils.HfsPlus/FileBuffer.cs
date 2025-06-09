@@ -103,7 +103,7 @@ internal sealed class FileBuffer : Buffer
                 break;
             }
 
-            var volStream = _context.VolumeStream;
+            var volStream = _context.RawStream;
             volStream.Position = extentStreamStart + extentOffset;
             var numRead = volStream.Read(buffer, offset + totalRead, toRead);
 
@@ -135,7 +135,7 @@ internal sealed class FileBuffer : Buffer
                 break;
             }
 
-            var volStream = _context.VolumeStream;
+            var volStream = _context.RawStream;
             volStream.Position = extentStreamStart + extentOffset;
             var numRead = await volStream.ReadAsync(buffer.Slice(totalRead, toRead), cancellationToken).ConfigureAwait(false);
 
@@ -167,7 +167,7 @@ internal sealed class FileBuffer : Buffer
                 break;
             }
 
-            var volStream = _context.VolumeStream;
+            var volStream = _context.RawStream;
             volStream.Position = extentStreamStart + extentOffset;
             var numRead = volStream.Read(buffer.Slice(totalRead, toRead));
 

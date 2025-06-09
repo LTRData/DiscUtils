@@ -42,7 +42,7 @@ internal class Context : VfsContext
 
     public BtrfsFileSystemOptions Options { get; private set; }
 
-    public Stream RawStream { get; set; }
+    public override Stream RawStream { get; set; }
 
     public SuperBlock SuperBlock { get; set; }
 

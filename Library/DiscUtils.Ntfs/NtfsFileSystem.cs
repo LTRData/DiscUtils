@@ -37,10 +37,11 @@ using System.Collections.Concurrent;
 using DiscUtils.Ntfs.Internals;
 
 namespace DiscUtils.Ntfs;
+
 /// <summary>
 /// Class for accessing NTFS file systems.
 /// </summary>
-public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
+public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
     IFileSystemWithClusterMap, IWindowsFileSystem, IDiagnosticTraceable
 {
     private const FileAttributes NonSettableFileAttributes =
@@ -54,6 +55,8 @@ public sealed class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
     private readonly ObjectCache<long, File> _fileCache;
     
     public VolumeInformation VolumeInfo { get; }
+
+    public override Stream RawStream => _context.RawStream;
 
     /// <summary>
     /// Initializes a new instance of the NtfsFileSystem class.

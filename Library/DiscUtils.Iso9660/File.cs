@@ -110,7 +110,7 @@ internal class File : IVfsFile
             if (_dirEntry.RecordExtents is [var extent])
             {
                 return new StreamBuffer(
-                    new ExtentStream(_context.DataStream, extent.LocationOfExtent, extent.DataLength, extent.FileUnitSize, extent.InterleaveGapSize),
+                    new ExtentStream(_context.RawStream, extent.LocationOfExtent, extent.DataLength, extent.FileUnitSize, extent.InterleaveGapSize),
                     Ownership.Dispose
                 );
             }
@@ -120,7 +120,7 @@ internal class File : IVfsFile
                     Ownership.Dispose,
                     _dirEntry.RecordExtents.Select(
                         e => SparseStream.FromStream(
-                            new ExtentStream(_context.DataStream, e.LocationOfExtent, e.DataLength, e.FileUnitSize, e.InterleaveGapSize),
+                            new ExtentStream(_context.RawStream, e.LocationOfExtent, e.DataLength, e.FileUnitSize, e.InterleaveGapSize),
                             Ownership.Dispose
                         )
                     )

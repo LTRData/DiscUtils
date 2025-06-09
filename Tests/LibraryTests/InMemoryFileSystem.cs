@@ -20,11 +20,12 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
+using DiscUtils;
+using DiscUtils.Streams;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using DiscUtils;
-using DiscUtils.Streams;
+using System.Xml.Linq;
 
 namespace LibraryTests;
 
@@ -39,6 +40,8 @@ class InMemoryFileSystem : DiscFileSystem
     {
         _files = [];
     }
+
+    public override Stream RawStream => throw new NotImplementedException();
 
     public override string FriendlyName => throw new NotImplementedException();
 

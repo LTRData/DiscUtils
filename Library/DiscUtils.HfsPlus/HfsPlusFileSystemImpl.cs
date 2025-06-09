@@ -46,7 +46,7 @@ internal sealed class HfsPlusFileSystemImpl : VfsFileSystem<DirEntry, File, Dire
 
         Context = new Context
         {
-            VolumeStream = s,
+            RawStream = s,
             VolumeHeader = hdr
         };
 

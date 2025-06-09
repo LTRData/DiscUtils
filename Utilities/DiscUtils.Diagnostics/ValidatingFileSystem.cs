@@ -20,12 +20,13 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
+using DiscUtils.Streams;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
-using DiscUtils.Streams;
+using System.Xml.Linq;
 
 namespace DiscUtils.Diagnostics;
 
@@ -138,6 +139,8 @@ public class ValidatingFileSystem<TFileSystem, TChecker> : DiscFileSystem
     private long _totalEventsBeforeLockDown;
 
     private int _numScheduledCheckpoints;
+
+    public override Stream RawStream => _baseStream;
 
     /// <summary>
     /// Creates a new instance.

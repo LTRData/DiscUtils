@@ -190,6 +190,7 @@ class MyDirectory : MyFile, IVfsDirectory<MyDirEntry, MyFile>
 
 class MyContext : VfsContext
 {
+    public override Stream RawStream { get; set; }
 }
 
 class MyFileSystem : VfsFileSystem<MyDirEntry, MyFile, MyDirectory, MyContext>

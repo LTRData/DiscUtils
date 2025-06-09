@@ -29,7 +29,7 @@ internal class Context : VfsContext
 {
     public ExtFileSystemOptions Options { get; set; }
 
-    public Stream RawStream { get; set; }
+    public override Stream RawStream { get; set; }
 
     public SuperBlock SuperBlock { get; set; }
 

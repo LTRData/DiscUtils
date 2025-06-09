@@ -144,7 +144,7 @@ internal class VfsCDReader : VfsReadOnlyFileSystem<ReaderDirEntry, File, ReaderD
                         data.ReadExactly(buffer, 0, IsoUtilities.SectorSize);
                         var volDesc = new SupplementaryVolumeDescriptor(buffer);
 
-                        Context = new IsoContext { VolumeDescriptor = volDesc, DataStream = _data };
+                        Context = new IsoContext { VolumeDescriptor = volDesc, RawStream = _data };
                         RootDirectory = new ReaderDirectory(Context,
                             new ReaderDirEntry(Context, volDesc.RootDirectory));
                         ActiveVariant = Iso9660Variant.Joliet;
@@ -160,7 +160,7 @@ internal class VfsCDReader : VfsReadOnlyFileSystem<ReaderDirEntry, File, ReaderD
                         data.ReadExactly(buffer, 0, IsoUtilities.SectorSize);
                         var volDesc = new PrimaryVolumeDescriptor(buffer);
 
-                        var context = new IsoContext { VolumeDescriptor = volDesc, DataStream = _data };
+                        var context = new IsoContext { VolumeDescriptor = volDesc, RawStream = _data };
                         var rootSelfRecord = ReadRootSelfRecord(context);
 
                         InitializeSusp(context, rootSelfRecord);
@@ -619,13 +619,13 @@ internal class VfsCDReader : VfsReadOnlyFileSystem<ReaderDirEntry, File, ReaderD
 
     private static DirectoryRecord ReadRootSelfRecord(IsoContext context)
     {
-        context.DataStream.Position = context.VolumeDescriptor.RootDirectory.LocationOfExtent *
+        context.RawStream.Position = context.VolumeDescriptor.RootDirectory.LocationOfExtent *
                                       context.VolumeDescriptor.LogicalBlockSize;
         
         var firstSector = ArrayPool<byte>.Shared.Rent(context.VolumeDescriptor.LogicalBlockSize);
         try
         {
-            context.DataStream.ReadExactly(firstSector, 0, context.VolumeDescriptor.LogicalBlockSize);
+            context.RawStream.ReadExactly(firstSector, 0, context.VolumeDescriptor.LogicalBlockSize);
 
             DirectoryRecord.ReadFrom(firstSector, context.VolumeDescriptor.CharacterEncoding, out var rootSelfRecord);
             return rootSelfRecord;

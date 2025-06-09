@@ -28,7 +28,7 @@ namespace DiscUtils.Iso9660;
 
 internal class IsoContext : VfsContext
 {
-    public Stream DataStream { get; set; }
+    public override Stream RawStream { get; set; }
 
     public string RockRidgeIdentifier { get; set; }
 

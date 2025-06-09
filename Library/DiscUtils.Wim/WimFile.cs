@@ -92,6 +92,8 @@ public class WimFile
         }
     }
 
+    public Stream FileStream => _fileStream;
+
     /// <summary>
     /// Gets a particular image within the file (zero-based index).
     /// </summary>
@@ -155,7 +157,7 @@ public class WimFile
 
     internal SparseStream OpenResourceStream(ShortResourceHeader hdr)
     {
-        SparseStream fileSectionStream = new SubStream(_fileStream, Ownership.None, hdr.FileOffset,
+        SparseStream fileSectionStream = new SubStream(FileStream, Ownership.None, hdr.FileOffset,
             hdr.CompressedSize);
         if ((hdr.Flags & ResourceFlags.Compressed) == 0)
         {

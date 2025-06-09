@@ -33,7 +33,7 @@ internal class Context : VfsContext
 
     public MetablockReader InodeReader { get; set; }
 
-    public Stream RawStream { get; set; }
+    public override Stream RawStream { get; set; }
 
     public ReadBlock ReadBlock { get; set; }
 

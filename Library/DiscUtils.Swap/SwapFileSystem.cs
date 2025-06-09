@@ -38,10 +38,11 @@ public sealed class SwapFileSystem : VfsReadOnlyFileSystem<VfsDirEntry, IVfsFile
     /// Initializes a new instance of the SwapFileSystem class.
     /// </summary>
     /// <param name="stream">The stream containing the file system.</param>
-    public SwapFileSystem(Stream stream):base(new DiscFileSystemOptions())
+    public SwapFileSystem(Stream stream) : base(new DiscFileSystemOptions())
     {
         Context = new SwapContext
         {
+            RawStream = stream,
             Header = ReadSwapHeader(stream)
         };
         if (Context.Header == null)

@@ -75,6 +75,8 @@ public partial class VirtualFileSystem : DiscFileSystem, IWindowsFileSystem, IUn
 
     public event EventHandler<CreateFileEventArgs> CreateFile;
 
+    public override Stream RawStream => null;
+
     public new VirtualFileSystemOptions Options => (VirtualFileSystemOptions)base.Options;
 
     public override bool CanWrite => Options.CanWrite;

@@ -47,7 +47,7 @@ internal class ReaderDirectory : File, IVfsDirectory<ReaderDirEntry, File>
             }
 
             Array.Clear(buffer, 0, buffer.Length);
-            Stream extent = new ExtentStream(_context.DataStream, dirExtent.LocationOfExtent, uint.MaxValue, 0, 0);
+            Stream extent = new ExtentStream(_context.RawStream, dirExtent.LocationOfExtent, uint.MaxValue, 0, 0);
 
             _records = new(StringComparer.OrdinalIgnoreCase, entry => entry.FileName);
 

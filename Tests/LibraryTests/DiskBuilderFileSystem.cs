@@ -46,6 +46,8 @@ class DiskBuilderFileSystem : DiscFileSystem
         }
     }
 
+    public override Stream RawStream => throw new NotImplementedException();
+
     public override string FriendlyName => throw new NotImplementedException();
 
     public override bool CanWrite => throw new NotImplementedException();

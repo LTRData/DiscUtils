@@ -39,6 +39,8 @@ public class NativeFileSystem : DiscFileSystem
 {
     private readonly bool _readOnly;
 
+    public override Stream RawStream { get; }
+
     /// <summary>
     /// Initializes a new instance of the NativeFileSystem class.
     /// </summary>

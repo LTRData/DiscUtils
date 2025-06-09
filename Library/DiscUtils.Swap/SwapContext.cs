@@ -21,10 +21,13 @@
 //
 
 using DiscUtils.Vfs;
+using System.IO;
 
 namespace DiscUtils.Swap;
 
-public class SwapContext:VfsContext
+public class SwapContext : VfsContext
 {
+    public override Stream RawStream { get; set; }
+
     public SwapHeader Header { get; set; }
 }

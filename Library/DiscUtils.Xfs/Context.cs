@@ -28,7 +28,7 @@ using DiscUtils.Vfs;
 namespace DiscUtils.Xfs;
 internal class Context : VfsContext
 {
-    public Stream RawStream { get; set; }
+    public override Stream RawStream { get; set; }
 
     public SuperBlock SuperBlock { get; set; }
 

@@ -65,6 +65,8 @@ public class NfsFileSystem : DiscFileSystem
         _client = new Nfs3Client(address, credentials, mountPoint);
     }
 
+    public override Stream RawStream => null;
+
     /// <summary>
     /// Gets whether this file system supports modification (true for NFS).
     /// </summary>

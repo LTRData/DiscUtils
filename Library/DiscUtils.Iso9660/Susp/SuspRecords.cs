@@ -37,10 +37,10 @@ internal sealed class SuspRecords
         var contEntry = Parse(context, data.Slice(context.SuspSkipBytes));
         while (contEntry != null)
         {
-            context.DataStream.Position = contEntry.Block * (long)context.VolumeDescriptor.LogicalBlockSize +
+            context.RawStream.Position = contEntry.Block * (long)context.VolumeDescriptor.LogicalBlockSize +
                                           contEntry.BlockOffset;
             
-            var contData = context.DataStream.ReadExactly((int)contEntry.Length);
+            var contData = context.RawStream.ReadExactly((int)contEntry.Length);
 
             contEntry = Parse(context, contData);
         }

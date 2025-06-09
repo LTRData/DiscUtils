@@ -60,6 +60,8 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
         VolumeLabel = XDocument.Parse(_file.Manifest)?.XPathSelectElement($"WIM/IMAGE[@INDEX=\"{index + 1}\"]/NAME")?.Value;
     }
 
+    public override Stream RawStream => _file.FileStream;
+
     public override string VolumeLabel { get; }
 
     /// <summary>

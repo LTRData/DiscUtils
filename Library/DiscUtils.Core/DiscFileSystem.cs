@@ -76,6 +76,12 @@ public abstract class DiscFileSystem :
     /// <returns>true if the file system is read-write.</returns>
     public abstract bool CanWrite { get; }
 
+    /// <summary>
+    /// Gets underlying raw volume stream, if available.
+    /// </summary>
+    /// <returns>Underlying raw volume stream, or null if not available.</returns>
+    public abstract Stream RawStream { get; }
+
     private DiscDirectoryInfo _root;
 
     /// <summary>

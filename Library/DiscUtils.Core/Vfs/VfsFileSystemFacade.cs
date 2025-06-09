@@ -20,10 +20,10 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
+using DiscUtils.Streams;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using DiscUtils.Streams;
 
 namespace DiscUtils.Vfs;
 
@@ -37,6 +37,8 @@ namespace DiscUtils.Vfs;
 public abstract class VfsFileSystemFacade : DiscFileSystem
 {
     private readonly DiscFileSystem _wrapped;
+
+    public override Stream RawStream => _wrapped.RawStream;
 
     /// <summary>
     /// Initializes a new instance of the VfsFileSystemFacade class.

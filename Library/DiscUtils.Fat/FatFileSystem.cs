@@ -164,6 +164,8 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
         _ownsData = ownsData;
     }
 
+    public override Stream RawStream => _data;
+
     /// <summary>
     /// Gets the active FAT (zero-based index).
     /// </summary>

@@ -20,13 +20,14 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
+using DiscUtils.Internal;
+using DiscUtils.Streams;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
-using DiscUtils.Internal;
-using DiscUtils.Streams;
 
 namespace DiscUtils.Vfs;
 
@@ -71,6 +72,8 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
     /// Gets the volume label.
     /// </summary>
     public abstract override string VolumeLabel { get; }
+
+    public override Stream RawStream => Context.RawStream;
 
     /// <summary>
     /// Copies a file - not supported on read-only file systems.

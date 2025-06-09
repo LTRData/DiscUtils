@@ -34,5 +34,6 @@ internal sealed class Context : VfsContext
     public BTree<ExtentKey> ExtentsOverflow { get; set; }
 
     public VolumeHeader VolumeHeader { get; set; }
-    public Stream VolumeStream { get; set; }
+
+    public override Stream RawStream { get; set; }
 }

@@ -20,6 +20,7 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
+using System.Collections.Specialized;
 using System.Text;
 
 namespace DiscUtils;
@@ -45,4 +46,9 @@ public sealed class FileSystemParameters
     /// time (local time where the file system is authored) to UTC time.  This parameter determines
     /// the algorithm to use.</remarks>
     public TimeConverter TimeConverter { get; set; }
+
+    /// <summary>
+    /// Other string parameters for file systems.
+    /// </summary>
+    public StringDictionary Parameters { get; } = new();
 }

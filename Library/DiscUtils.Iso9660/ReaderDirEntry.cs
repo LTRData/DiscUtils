@@ -72,12 +72,12 @@ internal sealed class ReaderDirEntry : VfsDirEntry
             var clEntry = SuspRecords.GetEntry<ChildLinkSystemUseEntry>(_context.RockRidgeIdentifier, "CL");
             if (clEntry != null)
             {
-                _context.DataStream.Position = clEntry.ChildDirLocation * _context.VolumeDescriptor.LogicalBlockSize;
+                _context.RawStream.Position = clEntry.ChildDirLocation * _context.VolumeDescriptor.LogicalBlockSize;
 
                 var firstSector = ArrayPool<byte>.Shared.Rent(_context.VolumeDescriptor.LogicalBlockSize);
                 try
                 {
-                    _context.DataStream.ReadExactly(firstSector, 0, _context.VolumeDescriptor.LogicalBlockSize);
+                    _context.RawStream.ReadExactly(firstSector, 0, _context.VolumeDescriptor.LogicalBlockSize);
 
                     DirectoryRecord.ReadFrom(firstSector, _context.VolumeDescriptor.CharacterEncoding, out dirRecord);
                     if (dirRecord.SystemUseData != null)

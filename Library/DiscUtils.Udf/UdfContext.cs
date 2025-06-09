@@ -20,13 +20,33 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-using System.Collections.Generic;
+using DiscUtils.Streams;
 using DiscUtils.Vfs;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace DiscUtils.Udf;
 
 internal class UdfContext : VfsContext
 {
+    public override Stream RawStream
+    {
+        get
+        {
+            if (LogicalPartitions.FirstOrDefault()?.Content is { } content)
+            {
+                return new BufferStream(content, FileAccess.Read);
+            }
+
+            return null;
+        }
+        set
+        {
+            throw new NotSupportedException();
+        }
+    }
     public List<LogicalPartition> LogicalPartitions;
     public Dictionary<ushort, PhysicalPartition> PhysicalPartitions;
     public int PhysicalSectorSize;
