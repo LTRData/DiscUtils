@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using InternalMasterFileTable = DiscUtils.Ntfs.MasterFileTable;
 
 namespace DiscUtils.Ntfs.Internals;
+
 /// <summary>
 /// Provides read-only access to the Master File Table of an NTFS file system.
 /// </summary>
@@ -155,5 +156,5 @@ public sealed class MasterFileTable
 
     public (uint IndexInMft, ushort AttributeId)[] GetClusterList() => _mft.GetClusterList();
 
-    public DiscUtils.AllocationBitmap GetAllocationBitMap() => _mft.GetAllocationBitMap();
+    public AllocationBitmap GetAllocationBitMap() => _mft.GetAllocationBitMap();
 }

@@ -35,6 +35,11 @@ public sealed class AllocationBitmap
     private readonly int _offset;
 
     /// <summary>
+    /// Gets underlying bitmap for this instance.
+    /// </summary>
+    public ArraySegment<byte> Bitmap => new(_data, _offset, (int)_length);
+
+    /// <summary>
     /// Create an instance over an existing bitmap stored in an array.
     /// </summary>
     /// <param name="data">Existing array</param>
