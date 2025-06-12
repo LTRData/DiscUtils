@@ -73,9 +73,17 @@ public partial class VirtualFileSystem : DiscFileSystem, IWindowsFileSystem, IUn
         _root = new VirtualFileSystemDirectory(this);
     }
 
+    public VirtualFileSystem(VirtualFileSystemOptions options, Stream referenceStream)
+        : base(options)
+    {
+        _root = new VirtualFileSystemDirectory(this);
+        
+        RawStream = referenceStream;
+    }
+
     public event EventHandler<CreateFileEventArgs> CreateFile;
 
-    public override Stream RawStream => null;
+    public override Stream RawStream { get; }
 
     public new VirtualFileSystemOptions Options => (VirtualFileSystemOptions)base.Options;
 
