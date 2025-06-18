@@ -22,6 +22,8 @@
 
 using DiscUtils.Internal;
 using DiscUtils.Streams;
+using LTRData.Extensions.Formatting;
+using LTRData.Extensions.Split;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -124,7 +126,7 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
 
         if (dirEntry != null && dirEntry.IsSymlink)
         {
-            dirEntry = ResolveSymlink(dirEntry, path);
+            dirEntry = ResolveSymlink(dirEntry, path).TargetEntry;
         }
 
         if (dirEntry == null)
@@ -165,7 +167,7 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
 
         if (dirEntry != null && dirEntry.IsSymlink)
         {
-            dirEntry = ResolveSymlink(dirEntry, path);
+            dirEntry = ResolveSymlink(dirEntry, path).TargetEntry;
         }
 
         if (dirEntry == null)
@@ -206,7 +208,7 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
 
         if (dirEntry != null && dirEntry.IsSymlink)
         {
-            dirEntry = ResolveSymlink(dirEntry, path);
+            dirEntry = ResolveSymlink(dirEntry, path).TargetEntry;
         }
 
         if (dirEntry == null)
@@ -228,7 +230,7 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
 
         if (attributes.HasFlag(FileAttributes.Directory))
         {
-            return new(this, path);
+            return new CachedDiscFileInfo(this, path, attributes, creationTimeUtc, lastAccessTimeUtc, lastWriteTimeUtc, 0);
         }
         else
         {
@@ -252,7 +254,7 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
 
         if (dirEntry != null && dirEntry.IsSymlink)
         {
-            dirEntry = ResolveSymlink(dirEntry, path);
+            dirEntry = ResolveSymlink(dirEntry, path).TargetEntry;
         }
 
         if (dirEntry != null)
@@ -279,7 +281,7 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
 
         if (dirEntry != null && dirEntry.IsSymlink)
         {
-            dirEntry = ResolveSymlink(dirEntry, path);
+            dirEntry = ResolveSymlink(dirEntry, path).TargetEntry;
         }
 
         if (dirEntry != null)
@@ -306,7 +308,7 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
 
         if (dirEntry != null && dirEntry.IsSymlink)
         {
-            dirEntry = ResolveSymlink(dirEntry, path);
+            dirEntry = ResolveSymlink(dirEntry, path).TargetEntry;
         }
 
         if (dirEntry != null)
@@ -457,7 +459,7 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
 
         if (entry.IsSymlink)
         {
-            entry = ResolveSymlink(entry, entryPath) ??
+            entry = ResolveSymlink(entry, entryPath).TargetEntry ??
                 throw new FileNotFoundException("Unable to resolve symlink", entryPath);
         }
 
@@ -679,7 +681,7 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
 
         if (dirEntry != null && dirEntry.IsSymlink)
         {
-            dirEntry = ResolveSymlink(dirEntry, path);
+            dirEntry = ResolveSymlink(dirEntry, path).TargetEntry;
         }
 
         if (dirEntry == null || !dirEntry.IsDirectory)
@@ -749,7 +751,7 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
 
         if (dirEntry != null && dirEntry.IsSymlink)
         {
-            dirEntry = ResolveSymlink(dirEntry, path);
+            dirEntry = ResolveSymlink(dirEntry, path).TargetEntry;
         }
 
         return GetFile(dirEntry);
@@ -778,7 +780,7 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
 
     protected static bool IsRoot(string path)
     {
-        return string.IsNullOrEmpty(path) || path == @"\" || path == "/";
+        return string.IsNullOrWhiteSpace(path) || path is @"\" or "/";
     }
 
     protected TDirEntry GetDirectoryEntry(TDirectory dir, string path)
@@ -799,19 +801,31 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
         entry = dir?.GetEntryByName(pathEntries[pathOffset]);
         if (entry != null)
         {
+            if (entry.IsSymlink)
+            {
+                var (targetEntry, targetPath) = ResolveSymlink(entry, pathEntries.Take(pathOffset + 1).Join(Path.DirectorySeparatorChar));
+
+                if (targetEntry == null)
+                {
+                    return entry;
+                }
+
+                entry = targetEntry;
+
+                var newPathEntries = targetPath.AsMemory()
+                    .TokenEnum('\\', '/', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(entry => entry.ToString())
+                    .Concat(pathEntries.Skip(pathOffset + 1))
+                    .ToArray();
+
+                pathOffset += newPathEntries.Length - pathEntries.Length;
+
+                pathEntries = newPathEntries;
+            }
+
             if (pathOffset == pathEntries.Length - 1)
             {
                 return entry;
-            }
-
-            if (entry.IsSymlink)
-            {
-                entry = ResolveSymlink(entry, pathEntries[pathOffset]);
-
-                if (entry == null)
-                {
-                    return null;
-                }
             }
 
             if (entry.IsDirectory)
@@ -873,7 +887,7 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
 
             if (entry.IsSymlink)
             {
-                entry = ResolveSymlink(entry, $@"{path}\{entry.FileName}");
+                entry = ResolveSymlink(entry, $@"{path}\{entry.FileName}").TargetEntry;
 
                 if (entry == null)
                 {
@@ -907,13 +921,9 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
         }
     }
 
-    protected virtual TDirEntry ResolveSymlink(TDirEntry entry, string path)
+    protected virtual (TDirEntry TargetEntry, string TargetPath) ResolveSymlink(TDirEntry entry, string path)
     {
         var currentEntry = entry;
-        if (path.Length > 0 && path[0] != '\\' && path[0] != '/')
-        {
-            path = Path.DirectorySeparatorChar + path;
-        }
 
         var currentPath = path;
         var resolvesLeft = 20;
@@ -922,16 +932,26 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
             if (GetFile(currentEntry) is not IVfsSymlink<TDirEntry, TFile> symlink)
             {
                 Trace.WriteLine($"Unable to resolve symlink '{path}'");
-                return null;
+                return default;
             }
 
-            currentPath = Utilities.ResolvePath(currentPath.TrimEnd(Utilities.PathSeparators), symlink.TargetPath);
+            var targetPath = symlink.TargetPath;
+
+            if (targetPath.Length == 0 || targetPath[0] is '\\' or '/')
+            {
+                currentPath = targetPath;
+            }
+            else
+            {
+                currentPath = Utilities.CombinePaths(Utilities.GetDirectoryFromPath(currentPath.AsSpan()), targetPath.AsSpan());
+            }
+
             currentEntry = GetDirectoryEntry(currentPath);
 
             if (currentEntry == null)
             {
                 Trace.WriteLine($"Unable to resolve symlink '{path}' to '{symlink.TargetPath}'");
-                return null;
+                return default;
             }
 
             --resolvesLeft;
@@ -940,10 +960,10 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
         if (currentEntry != null && currentEntry.IsSymlink)
         {
             Trace.WriteLine($"Unable to resolve symlink - too many links '{path}'");
-            return null;
+            return default;
         }
 
-        return currentEntry;
+        return (currentEntry, currentPath);
     }
 
     /// <summary>

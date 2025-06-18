@@ -175,7 +175,7 @@ public abstract class VfsReadOnlyFileSystem<TDirEntry, TFile, TDirectory, TConte
 
         if (dirEntry != null && dirEntry.IsSymlink)
         {
-            dirEntry = ResolveSymlink(dirEntry, path);
+            dirEntry = ResolveSymlink(dirEntry, path).TargetEntry;
         }
 
         if (dirEntry == null)
@@ -216,7 +216,7 @@ public abstract class VfsReadOnlyFileSystem<TDirEntry, TFile, TDirectory, TConte
 
         if (dirEntry != null && dirEntry.IsSymlink)
         {
-            dirEntry = ResolveSymlink(dirEntry, path);
+            dirEntry = ResolveSymlink(dirEntry, path).TargetEntry;
         }
 
         if (dirEntry == null)
@@ -257,7 +257,7 @@ public abstract class VfsReadOnlyFileSystem<TDirEntry, TFile, TDirectory, TConte
 
         if (dirEntry != null && dirEntry.IsSymlink)
         {
-            dirEntry = ResolveSymlink(dirEntry, path);
+            dirEntry = ResolveSymlink(dirEntry, path).TargetEntry;
         }
 
         if (dirEntry == null)

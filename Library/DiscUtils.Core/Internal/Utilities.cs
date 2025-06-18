@@ -24,6 +24,7 @@ using LTRData.Extensions.Buffers;
 using LTRData.Extensions.Split;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -224,21 +225,62 @@ public static class Utilities
     /// <returns>The combined path.</returns>
     public static string CombinePaths(string a, string b)
     {
-#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP
-        return Path.Combine(a, b);
-#else
-        if (string.IsNullOrEmpty(a) || (b.Length > 0 && b[0] is '\\' or '/'))
+        if (string.IsNullOrWhiteSpace(a) || (b.Length > 0 && b[0] is '\\' or '/'))
         {
             return b;
         }
 
-        if (string.IsNullOrEmpty(b))
+        if (string.IsNullOrWhiteSpace(b))
         {
             return a;
         }
 
-        return a.TrimEnd(PathSeparators) + Path.DirectorySeparatorChar + b.TrimStart(PathSeparators);
-#endif
+        var buffer = new List<ReadOnlyMemory<char>>();
+
+        if (a[0] is '\\' or '/')
+        {
+            buffer.Add(default);
+        }
+
+        foreach (var entry in a.AsMemory().TokenEnum('\\', '/', StringSplitOptions.RemoveEmptyEntries))
+        {
+            var trimmed = entry.Trim();
+
+            if (trimmed.Span.Equals("..".AsSpan(), StringComparison.Ordinal)
+                && buffer.Count > 0)
+            {
+                buffer.RemoveAt(buffer.Count - 1);
+                continue;
+            }
+
+            if (trimmed.Span.Equals(".".AsSpan(), StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            buffer.Add(trimmed);
+        }
+
+        foreach (var entry in b.AsMemory().TokenEnum('\\', '/', StringSplitOptions.RemoveEmptyEntries))
+        {
+            var trimmed = entry.Trim();
+
+            if (trimmed.Span.Equals("..".AsSpan(), StringComparison.Ordinal)
+                && buffer.Count > 0)
+            {
+                buffer.RemoveAt(buffer.Count - 1);
+                continue;
+            }
+
+            if (trimmed.Span.Equals(".".AsSpan(), StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            buffer.Add(trimmed);
+        }
+
+        return string.Join(DirectorySeparatorString, buffer);
     }
 
     /// <summary>
@@ -249,21 +291,62 @@ public static class Utilities
     /// <returns>The combined path.</returns>
     public static string CombinePaths(ReadOnlySpan<char> a, ReadOnlySpan<char> b)
     {
-#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP
-        return Path.Join(a, b);
-#else
-        if (a.IsEmpty || (b.Length > 0 && b[0] is '\\' or '/'))
+        if (a.IsWhiteSpace() || (b.Length > 0 && b[0] is '\\' or '/'))
         {
             return b.ToString();
         }
 
-        if (b.IsEmpty)
+        if (b.IsWhiteSpace())
         {
             return a.ToString();
         }
 
-        return a.TrimEnd(PathSeparators).ToString() + Path.DirectorySeparatorChar + b.TrimStart(PathSeparators).ToString();
-#endif
+        var buffer = new List<string>();
+
+        if (a[0] is '\\' or '/')
+        {
+            buffer.Add("");
+        }
+
+        foreach (var entry in a.TokenEnum('\\', '/', StringSplitOptions.RemoveEmptyEntries))
+        {
+            var trimmed = entry.Trim();
+
+            if (trimmed.Equals("..".AsSpan(), StringComparison.Ordinal)
+                && buffer.Count > 0)
+            {
+                buffer.RemoveAt(buffer.Count - 1);
+                continue;
+            }
+
+            if (trimmed.Equals(".".AsSpan(), StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            buffer.Add(trimmed.ToString());
+        }
+
+        foreach (var entry in b.TokenEnum('\\', '/', StringSplitOptions.RemoveEmptyEntries))
+        {
+            var trimmed = entry.Trim();
+
+            if (trimmed.Equals("..".AsSpan(), StringComparison.Ordinal)
+                && buffer.Count > 0)
+            {
+                buffer.RemoveAt(buffer.Count - 1);
+                continue;
+            }
+
+            if (trimmed.Equals(".".AsSpan(), StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            buffer.Add(trimmed.ToString());
+        }
+
+        return string.Join(DirectorySeparatorString, buffer);
     }
 
     /// <summary>
@@ -373,7 +456,6 @@ public static class Utilities
     #endregion
 
     #region Filesystem Support
-
 
     /// <summary>
     /// Indicates if a file name matches the 8.3 pattern.
