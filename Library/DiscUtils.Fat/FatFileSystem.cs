@@ -1114,9 +1114,9 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
     /// <returns>Array of directories matching the search pattern.</returns>
     public override IEnumerable<string> GetDirectories(string path, string searchPattern, SearchOption searchOption)
     {
-        var re = Utilities.ConvertWildcardsToRegEx(searchPattern, ignoreCase: true);
+        var filter = Utilities.ConvertWildcardsToRegEx(searchPattern, ignoreCase: true);
 
-        var dirs = DoSearch(path, re, searchOption == SearchOption.AllDirectories, true, false);
+        var dirs = DoSearch(path, filter, searchOption == SearchOption.AllDirectories, true, false);
         return dirs;
     }
 

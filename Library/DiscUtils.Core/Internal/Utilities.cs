@@ -555,13 +555,13 @@ public static class Utilities
             return null;
         }
 
-        if (!pattern.Contains('.'))
-        {
-            pattern += ".";
-        }
-
         if (pattern.AsSpan().IndexOfAny('*', '?') < 0)
         {
+            if (!pattern.Contains('.'))
+            {
+                pattern += '.';
+            }
+
             if (ignoreCase)
             {
                 return name => StringComparer.OrdinalIgnoreCase.Equals(name, pattern);
@@ -572,7 +572,7 @@ public static class Utilities
             }
         }
 
-        return wildcardsCache.GetOrAdd((pattern, ignoreCase), static key =>
+        static Func<string, bool> filterFactory((string pattern, bool ignoreCase) key)
         {
             var regexOptions = RegexOptions.CultureInvariant | RegexOptions.Compiled;
 
@@ -584,7 +584,9 @@ public static class Utilities
             var query = $"^{Regex.Escape(key.pattern).Replace(@"\*", ".*").Replace(@"\?", "[^.]")}$";
 
             return new Regex(query, regexOptions).IsMatch;
-        });
+        }
+
+        return wildcardsCache.GetOrAdd((pattern, ignoreCase), filterFactory);
     }
 
     public static FileAttributes FileAttributesFromUnixFileType(this UnixFileType fileType)

@@ -511,11 +511,11 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
     /// <returns>Array of directories matching the search pattern.</returns>
     public override IEnumerable<string> GetDirectories(string path, string searchPattern, SearchOption searchOption)
     {
+        var filter = Utilities.ConvertWildcardsToRegEx(searchPattern, ignoreCase: true);
+
         using (NtfsTransaction.Begin())
         {
-            var re = Utilities.ConvertWildcardsToRegEx(searchPattern, ignoreCase: true);
-
-            foreach (var dir in DoSearch(path, re, searchOption == SearchOption.AllDirectories, true, false, FilterEntry))
+            foreach (var dir in DoSearch(path, filter, searchOption == SearchOption.AllDirectories, true, false, FilterEntry))
             {
                 yield return dir;
             }
@@ -532,10 +532,10 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
     /// <returns>Array of files matching the search pattern.</returns>
     public override IEnumerable<string> GetFiles(string path, string searchPattern, SearchOption searchOption)
     {
+        var filter = Utilities.ConvertWildcardsToRegEx(searchPattern, ignoreCase: true);
+
         using (NtfsTransaction.Begin())
         {
-            var filter = Utilities.ConvertWildcardsToRegEx(searchPattern, ignoreCase: true);
-
             foreach (var result in DoSearch(path, filter, searchOption == SearchOption.AllDirectories, false, true, FilterEntry))
             {
                 yield return result;
@@ -593,12 +593,10 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
     /// <returns>Array of files and subdirectories matching the search pattern.</returns>
     public override IEnumerable<string> GetFileSystemEntries(string path, string searchPattern)
     {
+        var filter = Utilities.ConvertWildcardsToRegEx(searchPattern, ignoreCase: true);
+
         using (NtfsTransaction.Begin())
         {
-            // TODO: Be smarter, use the B*Tree for better performance when the start of the pattern is known
-            // characters
-            var filter = Utilities.ConvertWildcardsToRegEx(searchPattern, ignoreCase: true);
-
             var parentDirEntry = GetDirectoryEntry(path)
                 ?? throw new DirectoryNotFoundException($"The directory '{path}' does not exist");
 

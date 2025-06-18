@@ -56,5 +56,7 @@ public class ExtFileSystemTest
 
         tmpData = fs.OpenFile($"bar{sep}testdir1{sep}test.txt", FileMode.Open).ReadAll();
         Assert.Equal(Encoding.ASCII.GetBytes("Mon Feb 11 19:54:14 UTC 2019\n"), tmpData);
+
+        Assert.Single(fs.GetFiles("bar", "b*"));
     }
 }
