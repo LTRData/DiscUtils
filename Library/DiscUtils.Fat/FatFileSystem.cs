@@ -1325,7 +1325,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
 
     internal Directory GetDirectory(string path)
     {
-        if (string.IsNullOrEmpty(path) || path == @"\" || path == "/")
+        if (string.IsNullOrWhiteSpace(path) || path is @"\" or "/")
         {
             return _rootDir;
         }
@@ -1642,7 +1642,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
 
     private static bool IsRootPath(string path)
     {
-        return string.IsNullOrEmpty(path) || path == @"\" || path == "/";
+        return string.IsNullOrWhiteSpace(path) || path is @"\" or "/";
     }
 
     private static DateTime DefaultTimeConverter(DateTime time, bool toUtc)
