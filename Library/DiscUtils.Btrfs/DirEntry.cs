@@ -42,17 +42,17 @@ internal class DirEntry : VfsDirEntry
     }
 
     public DirEntry(ulong treeId, DirIndex item, InodeItem inode)
-        :this(treeId, item.ChildLocation.ObjectId)
+        : this(treeId, item.ChildLocation.ObjectId)
     {
         _inode = inode;
         _item = item;
     }
 
-    public override DateTime CreationTimeUtc => _inode.CTime.DateTime.DateTime;
+    public override DateTime CreationTimeUtc => _inode?.CTime.DateTime.DateTime ?? DateTime.UtcNow;
 
-    public override DateTime LastAccessTimeUtc => _inode.ATime.DateTime.DateTime;
+    public override DateTime LastAccessTimeUtc => _inode?.ATime.DateTime.DateTime ?? DateTime.UtcNow;
 
-    public override DateTime LastWriteTimeUtc => _inode.MTime.DateTime.DateTime;
+    public override DateTime LastWriteTimeUtc => _inode?.MTime.DateTime.DateTime ?? DateTime.UtcNow;
 
     public override bool HasVfsTimeInfo => true;
 
@@ -60,11 +60,11 @@ internal class DirEntry : VfsDirEntry
     {
         get
         {
-            var unixFileType = _item.ChildType switch
+            var unixFileType = _item?.ChildType switch
             {
                 DirItemChildType.Unknown => UnixFileType.None,
                 DirItemChildType.RegularFile => UnixFileType.Regular,
-                DirItemChildType.Directory => UnixFileType.Directory,
+                DirItemChildType.Directory or null => UnixFileType.Directory,
                 DirItemChildType.CharDevice => UnixFileType.Character,
                 DirItemChildType.BlockDevice => UnixFileType.Block,
                 DirItemChildType.Fifo => UnixFileType.Fifo,
@@ -73,9 +73,10 @@ internal class DirEntry : VfsDirEntry
                 DirItemChildType.ExtendedAttribute => UnixFileType.None,
                 _ => throw new ArgumentOutOfRangeException(),
             };
+            
             var result = Utilities.FileAttributesFromUnixFileType(unixFileType);
 
-            if (_inode != null && (_inode.Flags & InodeFlag.Readonly) == InodeFlag.Readonly)
+            if (_inode is not null && _inode.Flags.HasFlag(InodeFlag.Readonly))
             {
                 result |= FileAttributes.ReadOnly;
             }
@@ -86,11 +87,11 @@ internal class DirEntry : VfsDirEntry
 
     public override bool HasVfsFileAttributes => _item != null;
 
-    public override string FileName => _item.Name;
+    public override string FileName => _item?.Name ?? "/";
 
-    public override bool IsDirectory => _item.ChildType == DirItemChildType.Directory;
+    public override bool IsDirectory => _item is null || _item.ChildType == DirItemChildType.Directory;
 
-    public override bool IsSymlink => _item.ChildType == DirItemChildType.Symlink;
+    public override bool IsSymlink => _item is not null && _item.ChildType == DirItemChildType.Symlink;
 
     public override long UniqueCacheId
     {
@@ -98,9 +99,14 @@ internal class DirEntry : VfsDirEntry
         {
             unchecked
             {
-                var result = _inode == null?0:(long)_inode.TransId;
-                result = (result * 397) ^ (long)_item.TransId;
-                result = (result * 397) ^ (long)_item.ChildLocation.ObjectId;
+                var result = _inode is null ? 0 : (long)_inode.TransId;
+                
+                if (_item is not null)
+                {
+                    result = (result * 397) ^ (long)_item.TransId;
+                    result = (result * 397) ^ (long)_item.ChildLocation.ObjectId;
+                }
+
                 return result;
             }
         }
@@ -108,13 +114,13 @@ internal class DirEntry : VfsDirEntry
 
     internal Directory CachedDirectory { get; set; }
 
-    internal DirItemChildType Type => _item.ChildType;
+    internal DirItemChildType Type => _item?.ChildType ?? DirItemChildType.Directory;
 
     internal ulong ObjectId { get; private set; }
 
     internal ulong TreeId => _treeId;
 
-    internal ulong FileSize => _inode.FileSize;
+    internal ulong FileSize => _inode?.FileSize ?? 0;
 
-    internal bool IsSubtree => _item != null && _item.ChildLocation.ItemType == ItemType.RootItem;
+    internal bool IsSubtree => _item is not null && _item.ChildLocation.ItemType == ItemType.RootItem;
 }

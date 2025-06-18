@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <PackageReference Include="lzo.net" Version="0.0.6" />
+    <PackageReference Include="ZstdSharp.Port" Version="*" Condition="'$(TargetFramework)' != 'net46'" />
   </ItemGroup>
 
   <ItemGroup>

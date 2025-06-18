@@ -2,6 +2,7 @@
 using DokanNet;
 using DokanNet.Logging;
 using LTRData.Extensions.Buffers;
+using LTRData.Extensions.Formatting;
 using LTRData.Extensions.Native.Memory;
 using System;
 using System.Buffers;
@@ -1329,13 +1330,24 @@ public class DokanDiscUtils : IDokanOperations2, IDisposable
         else
         {
             var files = FileSystem.GetFileSystemEntries(path, searchPattern)
-                .Select(FileSystem.GetFileSystemInfo)
-                .Where(dirEntry => dirEntry.Exists)
+                .Select(name =>
+                {
+                    try
+                    {
+                        return FileSystem.GetFileSystemInfo(name);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger?.Warn("Failed getting information about file {name}: {message}", name, ex.JoinMessages());
+                        return null;
+                    }
+                })
+                .Where(dirEntry => dirEntry is not null && dirEntry.Exists)
                 .Select(dirEntry =>
                 {
                     var info = new FindFileInformation
                     {
-                        Attributes = FilterAttributes(dirEntry.Attributes),
+                        Attributes = FilterAttributes(dirEntry!.Attributes),
                         CreationTime = dirEntry.CreationTime,
                         LastAccessTime = dirEntry.LastAccessTime,
                         LastWriteTime = dirEntry.LastWriteTime,

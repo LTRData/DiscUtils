@@ -27,6 +27,9 @@ using System.IO.Compression;
 using DiscUtils.Compression;
 using DiscUtils.Streams;
 using lzo.net;
+#if NET462_OR_GREATER || NETSTANDARD || NETCOREAPP
+using ZstdSharp;
+#endif
 
 namespace DiscUtils.Btrfs.Base.Items;
 
@@ -150,14 +153,16 @@ internal class ExtentData : BaseItem
         {
             case ExtentDataCompression.None:
                 break;
+
             case ExtentDataCompression.Zlib:
                 {
-                    var zlib = new ZlibStream(stream, CompressionMode.Decompress, false);
+                    var zlib = new ZlibStream(stream, CompressionMode.Decompress, leaveOpen: false);
                     var sparse = SparseStream.FromStream(zlib, Ownership.Dispose);
                     var length = new LengthWrappingStream(sparse, (long)LogicalSize, Ownership.Dispose);
-                    stream = new PositionWrappingStream(length, 0, Ownership.Dispose);
+                    stream = new PositionWrappingStream(length, currentPosition: 0, Ownership.Dispose);
                     break;
                 }
+
             case ExtentDataCompression.Lzo:
                 {
                     Span<byte> buffer = stackalloc byte[sizeof(uint)];
@@ -173,7 +178,7 @@ internal class ExtentData : BaseItem
                         var partLength = EndianUtilities.ToUInt32LittleEndian(buffer);
                         processed += sizeof(uint);
                         var part = new SubStream(stream, Ownership.Dispose, processed, partLength);
-                        var uncompressed = new SeekableLzoStream(part, CompressionMode.Decompress, false);
+                        var uncompressed = new SeekableLzoStream(part, CompressionMode.Decompress, leaveOpen: false);
                         uncompressed.SetLength(Math.Min(Sizes.OneKiB * 4, remaining));
                         remaining -= uncompressed.Length;
                         parts.Add(SparseStream.FromStream(uncompressed, Ownership.Dispose));
@@ -183,6 +188,18 @@ internal class ExtentData : BaseItem
                     stream = new ConcatStream(Ownership.Dispose, parts);
                     break;
                 }
+
+#if NET462_OR_GREATER || NETSTANDARD || NETCOREAPP
+            case ExtentDataCompression.Zstd:
+                {
+                    var buffer = new MemoryStream();
+                    using var zlib = new DecompressionStream(stream, leaveOpen: false);
+                    zlib.CopyTo(buffer);
+                    stream = buffer;
+                    break;
+                }
+#endif
+
             default:
                 throw new IOException($"Unsupported extent compression ({Compression})");
         }
