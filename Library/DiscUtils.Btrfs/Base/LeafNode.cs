@@ -64,7 +64,7 @@ internal class LeafNode:NodeHeader
 
     private static BaseItem CreateItem(NodeItem item, ReadOnlySpan<byte> buffer)
     {
-        var data = EndianUtilities.ToByteArray(buffer.Slice((int)(item.DataOffset), (int)item.DataSize));
+        var data = buffer.Slice((int)item.DataOffset, (int)item.DataSize);
         BaseItem result = item.Key.ItemType switch
         {
             ItemType.ChunkItem => new ChunkItem(item.Key),

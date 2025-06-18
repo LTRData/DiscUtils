@@ -580,9 +580,6 @@ public static class EndianUtilities
         }
     }
 
-    public static byte[] ToByteArray(byte[] buffer, int offset, int length)
-        => buffer.AsSpan(offset, length).ToArray();
-
     public static byte[] ToByteArray(ReadOnlySpan<byte> buffer)
         => buffer.ToArray();
 

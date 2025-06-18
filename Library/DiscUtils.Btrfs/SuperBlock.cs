@@ -210,11 +210,11 @@ internal class SuperBlock : IByteArraySerializable
         ChunkRootLevel = buffer[0xc7];
         LogRootLevel = buffer[0xc8];
         //c9 	62 		DEV_ITEM data for this device
-        var labelData = EndianUtilities.ToByteArray(buffer.Slice(0x12b, 0x100));
-        var eos = Array.IndexOf(labelData, (byte) 0);
+        var labelData = buffer.Slice(0x12b, 0x100);
+        var eos = labelData.IndexOf((byte)0);
         if (eos != -1)
         {
-            Label = Encoding.UTF8.GetString(labelData, 0, eos);
+            Label = Encoding.UTF8.GetString(labelData.Slice(0, eos));
         }
 
         //22b 	100 		reserved

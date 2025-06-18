@@ -62,7 +62,7 @@ internal class ExtendedFileEntry : FileEntry, IByteArraySerializable
         AllocationDescriptors = EndianUtilities.ToByteArray(buffer.Slice(216 + ExtendedAttributesLength,
             AllocationDescriptorsLength));
 
-        var eaData = EndianUtilities.ToByteArray(buffer.Slice(216, ExtendedAttributesLength));
+        var eaData = buffer.Slice(216, ExtendedAttributesLength).ToArray();
         ExtendedAttributes = ReadExtendedAttributes(eaData).ToList();
 
         return 216 + ExtendedAttributesLength + AllocationDescriptorsLength;
