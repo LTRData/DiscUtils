@@ -38,11 +38,16 @@ internal abstract class BaseItem : IByteArraySerializable
     public Key Key { get; private set; }
 
     public abstract int Size { get; }
+    
+    public ulong PhysicalPostiiton { get; private set; }
 
     public abstract int ReadFrom(ReadOnlySpan<byte> buffer);
 
-    void IByteArraySerializable.WriteTo(Span<byte> buffer)
+    public int ReadFrom(ReadOnlySpan<byte> buffer, ulong physicalPostiiton)
     {
-        throw new NotImplementedException();
+        PhysicalPostiiton = physicalPostiiton;
+        return ReadFrom(buffer);
     }
+
+    void IByteArraySerializable.WriteTo(Span<byte> buffer) => throw new NotImplementedException();
 }

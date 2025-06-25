@@ -32,6 +32,11 @@ internal abstract class NodeHeader : IByteArraySerializable
     public static readonly int Length = 0x65;
 
     /// <summary>
+    /// Node position within physical volume
+    /// </summary>
+    public ulong PhysicalPosition { get; private set; }
+
+    /// <summary>
     /// Checksum of everything past this field (from 20 to the end of the node)
     /// </summary>
     public byte[] Checksum { get; private set; }
@@ -81,6 +86,12 @@ internal abstract class NodeHeader : IByteArraySerializable
 
     public virtual int Size => Length;
 
+    public int ReadFrom(ReadOnlySpan<byte> buffer, ulong physicalPosition)
+    {
+        PhysicalPosition = physicalPosition;
+        return ReadFrom(buffer);
+    }
+
     public virtual int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         Checksum = EndianUtilities.ToByteArray(buffer.Slice(0, 0x20));
@@ -103,7 +114,7 @@ internal abstract class NodeHeader : IByteArraySerializable
         throw new NotImplementedException();
     }
 
-    public static NodeHeader Create(ReadOnlySpan<byte> buffer)
+    public static NodeHeader Create(ReadOnlySpan<byte> buffer, ulong physicalPosition)
     {
         var level = buffer[0x64];
         NodeHeader result;
@@ -116,7 +127,8 @@ internal abstract class NodeHeader : IByteArraySerializable
             result = new InternalNode();
         }
 
-        result.ReadFrom(buffer);
+        result.ReadFrom(buffer, physicalPosition);
+
         return result;
     }
 

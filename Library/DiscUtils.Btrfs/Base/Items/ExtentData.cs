@@ -217,6 +217,12 @@ internal class ExtentData : BaseItem
         switch (Type)
         {
             case ExtentDataType.Inline:
+
+                if (PhysicalPostiiton > 0)
+                {
+                    return new((long)PhysicalPostiiton + 0x15, InlineData.Length);
+                }
+
                 break;
 
             case ExtentDataType.Regular:

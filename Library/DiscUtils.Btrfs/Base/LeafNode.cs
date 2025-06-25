@@ -44,17 +44,24 @@ internal class LeafNode:NodeHeader
         var itemOffset = base.ReadFrom(buffer);
         Items = new NodeItem[ItemCount];
         NodeData = new BaseItem[ItemCount];
+
         for (var i = 0; i < ItemCount; i++)
         {
-            Items[i] = new NodeItem();
-            itemOffset += Items[i].ReadFrom(buffer.Slice(itemOffset));
-            switch (Items[i].Key.ObjectId)
+            var item = new NodeItem();
+
+            itemOffset += item.ReadFrom(buffer.Slice(itemOffset));
+
+            Items[i] = item;
+
+            switch (item.Key.ObjectId)
             {
                 case (ulong)ReservedObjectId.CsumItem:
                 case (ulong)ReservedObjectId.TreeReloc:
                     continue;
+
                 default:
-                    NodeData[i] = CreateItem(Items[i], buffer.Slice(Length));
+                    var itemData = buffer.Slice((int)(Length + item.DataOffset), (int)item.DataSize);
+                    NodeData[i] = CreateItem(item, itemData, PhysicalPosition + (uint)Length + item.DataOffset);
                     break;
             }
         }
@@ -62,9 +69,8 @@ internal class LeafNode:NodeHeader
         return Size;
     }
 
-    private static BaseItem CreateItem(NodeItem item, ReadOnlySpan<byte> buffer)
+    private static BaseItem CreateItem(NodeItem item, ReadOnlySpan<byte> data, ulong physicalPosition)
     {
-        var data = buffer.Slice((int)item.DataOffset, (int)item.DataSize);
         BaseItem result = item.Key.ItemType switch
         {
             ItemType.ChunkItem => new ChunkItem(item.Key),
@@ -81,7 +87,7 @@ internal class LeafNode:NodeHeader
             ItemType.OrphanItem => new OrphanItem(item.Key),
             _ => throw new IOException($"Unsupported item type {item.Key.ItemType}"),
         };
-        result.ReadFrom(data);
+        result.ReadFrom(data, physicalPosition);
         return result;
     }
 
