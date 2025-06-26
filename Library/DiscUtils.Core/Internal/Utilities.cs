@@ -52,6 +52,9 @@ public static class Utilities
 
     public static bool IsAllZeros(byte[] buffer, int offset, int count)
     {
+#if NET8_0_OR_GREATER
+        return !buffer.AsSpan(offset, count).ContainsAnyExcept((byte)0);
+#else
         var end = offset + count;
         for (var i = offset; i < end; ++i)
         {
@@ -62,10 +65,14 @@ public static class Utilities
         }
 
         return true;
+#endif
     }
 
     public static bool IsAllZeros(ReadOnlySpan<byte> buffer)
     {
+#if NET8_0_OR_GREATER
+        return !buffer.ContainsAnyExcept((byte)0);
+#else
         for (var i = 0; i < buffer.Length; ++i)
         {
             if (buffer[i] != 0)
@@ -75,6 +82,7 @@ public static class Utilities
         }
 
         return true;
+#endif
     }
 
     public static bool IsPowerOfTwo(uint val)
@@ -161,7 +169,7 @@ public static class Utilities
         return (long)BitSwap((ulong)value);
     }
 
-    #endregion
+#endregion
 
     #region Path Manipulation
 
@@ -555,25 +563,25 @@ public static class Utilities
             return null;
         }
 
-        if (pattern.AsSpan().IndexOfAny('*', '?') < 0)
-        {
-            if (!pattern.Contains('.'))
-            {
-                pattern += '.';
-            }
-
-            if (ignoreCase)
-            {
-                return name => StringComparer.OrdinalIgnoreCase.Equals(name, pattern);
-            }
-            else
-            {
-                return pattern.Equals;
-            }
-        }
-
         static Func<string, bool> filterFactory((string pattern, bool ignoreCase) key)
         {
+            if (key.pattern.AsSpan().IndexOfAny('*', '?') < 0)
+            {
+                if (!key.pattern.Contains('.'))
+                {
+                    key.pattern += '.';
+                }
+
+                if (key.ignoreCase)
+                {
+                    return name => StringComparer.OrdinalIgnoreCase.Equals(name, key.pattern);
+                }
+                else
+                {
+                    return key.pattern.Equals;
+                }
+            }
+
             var regexOptions = RegexOptions.CultureInvariant | RegexOptions.Compiled;
 
             if (key.ignoreCase)
@@ -610,17 +618,10 @@ public static class Utilities
             attr |= FileAttributes.ReadOnly;
         }
 
-#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP
-        if (Path.GetFileName(name.AsSpan()).StartsWith(".", StringComparison.Ordinal))
+        if (GetFileFromPath(name.AsSpan()).StartsWith(".".AsSpan(), StringComparison.Ordinal))
         {
             attr |= FileAttributes.Hidden;
         }
-#else
-        if (Path.GetFileName(name).StartsWith(".", StringComparison.Ordinal))
-        {
-            attr |= FileAttributes.Hidden;
-        }
-#endif
 
         return attr;
     }
