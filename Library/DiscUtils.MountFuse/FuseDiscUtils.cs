@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 
 namespace DiscUtils.MountFuse;
 
@@ -115,7 +116,7 @@ public class FuseDiscUtils : IFuseOperations
         return Trace(nameof(Access), path, PosixResult.Success);
     }
 
-    public PosixResult Create(ReadOnlyNativeMemory<byte> fileNamePtr, PosixFileMode mode, ref FuseFileInfo fileInfo)
+    public PosixResult Create(ReadOnlyNativeMemory<byte> fileNamePtr, int mode, ref FuseFileInfo fileInfo)
     {
         if (!FileSystem.CanWrite)
         {
@@ -143,6 +144,55 @@ public class FuseDiscUtils : IFuseOperations
         }
 
         return Trace(nameof(Flush), fileNamePtr, fileInfo, PosixResult.EBADF);
+    }
+
+    public PosixResult ChMod(NativeMemory<byte> fileNamePtr, PosixFileMode mode)
+    {
+        if (!FileSystem.CanWrite)
+        {
+            return Trace(nameof(ChMod), fileNamePtr, PosixResult.EROFS);
+        }
+
+        return Trace(nameof(ChMod), fileNamePtr, PosixResult.Success);
+    }
+
+    public PosixResult ChOwn(NativeMemory<byte> fileNamePtr, int uid, int gid)
+    {
+        if (!FileSystem.CanWrite)
+        {
+            return Trace(nameof(ChOwn), fileNamePtr, PosixResult.EROFS);
+        }
+
+        return Trace(nameof(ChOwn), fileNamePtr, PosixResult.Success);
+    }
+
+    public PosixResult FAllocate(NativeMemory<byte> fileNamePtr, FuseAllocateMode mode, long offset, long length, ref FuseFileInfo fileInfo)
+    {
+        if (!FileSystem.CanWrite)
+        {
+            return Trace(nameof(FAllocate), fileNamePtr, PosixResult.EROFS);
+        }
+
+        if (mode != 0)
+        {
+            return Trace(nameof(FAllocate), fileNamePtr, PosixResult.ENOSYS);
+        }
+
+        if (fileInfo.Context is Stream stream)
+        {
+            var newLength = checked(offset + length);
+
+            if (newLength <= stream.Length)
+            {
+                return Trace(nameof(FAllocate), fileNamePtr, fileInfo, PosixResult.Success);
+            }
+
+            stream.SetLength(newLength);
+
+            return Trace(nameof(FAllocate), fileNamePtr, fileInfo, PosixResult.Success);
+        }
+
+        return Trace(nameof(FAllocate), fileNamePtr, fileInfo, PosixResult.EBADF);
     }
 
     public PosixResult FSync(ReadOnlyNativeMemory<byte> fileNamePtr, bool datasync, ref FuseFileInfo fileInfo)
@@ -471,7 +521,7 @@ public class FuseDiscUtils : IFuseOperations
         if (FileSystem is IClusterBasedFileSystem cfs)
         {
             statvfs.f_bsize = (uint)cfs.ClusterSize;
-            statvfs.f_blocks = cfs.TotalClusters;
+            statvfs.f_blocks = (ulong)cfs.TotalClusters;
             statvfs.f_frsize = (uint)cfs.ClusterSize;
         }
 
