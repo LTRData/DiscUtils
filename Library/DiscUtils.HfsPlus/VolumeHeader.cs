@@ -21,7 +21,6 @@
 //
 
 using System;
-using System.Linq;
 using DiscUtils.Streams;
 
 namespace DiscUtils.HfsPlus;

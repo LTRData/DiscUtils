@@ -24,7 +24,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using DiscUtils.Compression;
 using DiscUtils.Internal;
 using DiscUtils.Streams;

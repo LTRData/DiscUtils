@@ -22,16 +22,13 @@
 
 using System.Collections.Generic;
 using System.IO;
-using DiscUtils.Core.WindowsSecurity.AccessControl;
 using DiscUtils;
 using DiscUtils.Ntfs;
 using DiscUtils.Streams;
 using Xunit;
 using System.Linq;
 using System.Threading.Tasks;
-using System;
 using System.Threading;
-using DiscUtils.Streams.Compatibility;
 
 namespace LibraryTests.Ntfs;
 

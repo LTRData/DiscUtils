@@ -20,7 +20,6 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-using System.Collections.Generic;
 using DiscUtils.Streams;
 using Xunit;
 

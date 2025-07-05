@@ -21,10 +21,8 @@
 //
 
 using System.Collections.Generic;
-using System.IO;
 using DiscUtils.Streams;
 using DiscUtils.Vhdx;
-using LibraryTests.Utilities;
 using Xunit;
 
 namespace LibraryTests.Vhdx;

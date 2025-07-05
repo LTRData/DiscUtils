@@ -30,7 +30,6 @@ using Xunit;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
-using DiscUtils.Streams.Compatibility;
 using System;
 
 namespace LibraryTests.Ntfs;

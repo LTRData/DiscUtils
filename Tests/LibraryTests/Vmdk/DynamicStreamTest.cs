@@ -334,17 +334,17 @@ public class DynamicStreamTest
         Assert.Equal(1 * unit, extents[0].Length);
 
         // Limit to disk content length
-        extents = new List<StreamExtent>(disk.Content.GetExtentsInRange(21 * unit, 20 * unit));
+        extents = [.. disk.Content.GetExtentsInRange(21 * unit, 20 * unit)];
         Assert.Single(extents);
         Assert.Equal(21 * unit, extents[0].Start);
         Assert.Equal(3 * unit, extents[0].Length);
 
         // Out of range
-        extents = new List<StreamExtent>(disk.Content.GetExtentsInRange(25 * unit, 4 * unit));
+        extents = [.. disk.Content.GetExtentsInRange(25 * unit, 4 * unit)];
         Assert.Empty(extents);
 
         // Non-unit multiples
-        extents = new List<StreamExtent>(disk.Content.GetExtentsInRange(21 * unit + 10, 20 * unit));
+        extents = [.. disk.Content.GetExtentsInRange(21 * unit + 10, 20 * unit)];
         Assert.Single(extents);
         Assert.Equal(21 * unit + 10, extents[0].Start);
         Assert.Equal(3 * unit - 10, extents[0].Length);

@@ -22,6 +22,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using DiscUtils.Streams;
 
 namespace DiscUtils.Udf;
@@ -130,25 +132,17 @@ internal class FileContentBuffer : Streams.Buffer
         return ReadFromExtents(pos, buffer);
     }
 
-    public override void Write(long pos, ReadOnlySpan<byte> buffer) =>
-        throw new NotImplementedException();
+    public override void Write(long pos, ReadOnlySpan<byte> buffer) => throw new NotImplementedException();
 
-    public override void Clear(long pos, int count)
-    {
-        throw new NotSupportedException();
-    }
+    public override void Clear(long pos, int count) => throw new NotSupportedException();
+
+    public override ValueTask ClearAsync(long pos, int count, CancellationToken cancellationToken) => throw new NotSupportedException();
 
     public override void Flush() {}
 
-    public override void SetCapacity(long value)
-    {
-        throw new NotImplementedException();
-    }
+    public override void SetCapacity(long value) => throw new NotImplementedException();
 
-    public override IEnumerable<StreamExtent> GetExtentsInRange(long start, long count)
-    {
-        throw new NotImplementedException();
-    }
+    public override IEnumerable<StreamExtent> GetExtentsInRange(long start, long count) => throw new NotImplementedException();
 
     private void LoadExtents()
     {

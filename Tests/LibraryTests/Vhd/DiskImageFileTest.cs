@@ -23,7 +23,6 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using DiscUtils;
 using DiscUtils.Streams;
 using DiscUtils.Vhd;

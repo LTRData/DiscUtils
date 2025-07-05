@@ -58,8 +58,8 @@ public sealed class ReplayReport
     {
         _failureException = failureEx;
         _replayException = replayEx;
-        _globalTraceReport = new List<StreamTraceRecord>(globalTraceStream.Log);
-        _traceReport = new List<StreamTraceRecord>(traceStream.Log);
+        _globalTraceReport = [.. globalTraceStream.Log];
+        _traceReport = [.. traceStream.Log];
         _replayBufferSize = replayBufferSize;
         _eventsReplayed = eventsReplayed;
         _eventsBeforeLockdown = eventsBeforeLockdown;

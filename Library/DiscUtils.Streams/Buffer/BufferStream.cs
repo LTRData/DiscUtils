@@ -31,8 +31,8 @@ namespace DiscUtils.Streams;
 /// </summary>
 public class BufferStream : SparseStream
 {
-    private readonly FileAccess _access;
-    private readonly IBuffer _buffer;
+    private FileAccess _access;
+    private IBuffer _buffer;
 
     private long _position;
 
@@ -50,7 +50,7 @@ public class BufferStream : SparseStream
     /// <summary>
     /// Gets an indication of whether read access is permitted.
     /// </summary>
-    public override bool CanRead => _access != FileAccess.Write;
+    public override bool CanRead => _access.HasFlag(FileAccess.Read);
 
     /// <summary>
     /// Gets an indication of whether seeking is permitted.
@@ -60,17 +60,33 @@ public class BufferStream : SparseStream
     /// <summary>
     /// Gets an indication of whether write access is permitted.
     /// </summary>
-    public override bool CanWrite => _access != FileAccess.Read;
+    public override bool CanWrite => _access.HasFlag(FileAccess.Write);
 
     /// <summary>
     /// Gets the stored extents within the sparse stream.
     /// </summary>
-    public override IEnumerable<StreamExtent> Extents => _buffer.Extents;
+    public override IEnumerable<StreamExtent> Extents
+    {
+        get
+        {
+            CheckDisposed();
+
+            return _buffer.Extents;
+        }
+    }
 
     /// <summary>
     /// Gets the length of the stream (the capacity of the underlying buffer).
     /// </summary>
-    public override long Length => _buffer.Capacity;
+    public override long Length
+    {
+        get
+        {
+            CheckDisposed();
+
+            return _buffer.Capacity;
+        }
+    }
 
     /// <summary>
     /// Gets and sets the current position within the stream.
@@ -95,6 +111,8 @@ public class BufferStream : SparseStream
     /// <returns>The number of bytes read.</returns>
     public override int Read(byte[] buffer, int offset, int count)
     {
+        CheckDisposed();
+
         if (!CanRead)
         {
             throw new IOException("Attempt to read from write-only stream");
@@ -114,6 +132,8 @@ public class BufferStream : SparseStream
     /// <returns>The number of bytes read.</returns>
     public override int Read(Span<byte> buffer)
     {
+        CheckDisposed();
+
         if (!CanRead)
         {
             throw new IOException("Attempt to read from write-only stream");
@@ -157,6 +177,8 @@ public class BufferStream : SparseStream
     /// <param name="value">The new length of the stream.</param>
     public override void SetLength(long value)
     {
+        CheckDisposed();
+
         _buffer.SetCapacity(value);
     }
 
@@ -168,6 +190,8 @@ public class BufferStream : SparseStream
     /// <param name="count">The number of bytes to write.</param>
     public override void Write(byte[] buffer, int offset, int count)
     {
+        CheckDisposed();
+
         if (!CanWrite)
         {
             throw new IOException("Attempt to write to read-only stream");
@@ -185,6 +209,8 @@ public class BufferStream : SparseStream
     /// <param name="buffer">The buffer to write.</param>
     public override void Write(ReadOnlySpan<byte> buffer)
     {
+        CheckDisposed();
+
         if (!CanWrite)
         {
             throw new IOException("Attempt to write to read-only stream");
@@ -209,6 +235,8 @@ public class BufferStream : SparseStream
     /// </remarks>
     public override void Clear(int count)
     {
+        CheckDisposed();
+
         if (!CanWrite)
         {
             throw new IOException("Attempt to erase bytes in a read-only stream");
@@ -226,6 +254,40 @@ public class BufferStream : SparseStream
     /// <returns>An enumeration of stream extents, indicating stored bytes.</returns>
     public override IEnumerable<StreamExtent> GetExtentsInRange(long start, long count)
     {
+        CheckDisposed();
+
         return _buffer.GetExtentsInRange(start, count);
+    }
+
+    private void CheckDisposed()
+    {
+#if NET7_0_OR_GREATER
+        ObjectDisposedException.ThrowIf(IsDisposed, this);
+#else
+        if (IsDisposed)
+        {
+            throw new ObjectDisposedException(nameof(BufferStream));
+        }
+#endif
+    }
+
+    public bool IsDisposed { get; private set; }
+
+    protected override void Dispose(bool disposing)
+    {
+        try
+        {
+            if (!IsDisposed)
+            {
+                IsDisposed = true;
+
+                _buffer = null;
+                _access = 0;
+            }
+        }
+        finally
+        {
+            base.Dispose(disposing);
+        }
     }
 }

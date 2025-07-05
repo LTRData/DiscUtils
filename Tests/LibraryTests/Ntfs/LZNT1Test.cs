@@ -23,7 +23,6 @@
 using System;
 using System.Runtime.InteropServices;
 using DiscUtils.Compression;
-using DiscUtils.Ntfs;
 using Xunit;
 
 namespace LibraryTests.Ntfs;

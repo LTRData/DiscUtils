@@ -21,9 +21,7 @@
 //
 
 using System.Collections.Generic;
-using System.Linq;
 using DiscUtils;
-using DiscUtils.Streams;
 using DiscUtils.Vfs;
 using DiscUtils.VirtualFileSystem;
 using LTRData.Extensions.Buffers;

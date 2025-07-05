@@ -100,7 +100,7 @@ public class ThreadSafeStreamTest
         Assert.Equal(100, extents[0].Start);
         Assert.Equal(1, extents[0].Length);
 
-        extents = new List<StreamExtent>(altView.GetExtentsInRange(10, 300));
+        extents = [.. altView.GetExtentsInRange(10, 300)];
         Assert.Single(extents);
         Assert.Equal(100, extents[0].Start);
         Assert.Equal(1, extents[0].Length);

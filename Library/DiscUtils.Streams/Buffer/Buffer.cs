@@ -91,11 +91,49 @@ public abstract class Buffer : MarshalByRefObject, IBuffer, IDisposable
     /// </remarks>
     public virtual void Clear(long pos, int count)
     {
+        if (count <= 512)
+        {
+            Span<byte> buf = stackalloc byte[count];
+            buf.Clear();
+            Write(pos, buf);
+
+            return;
+        }
+
         var buffer = ArrayPool<byte>.Shared.Rent(count);
         try
         {
             Array.Clear(buffer, 0, count);
             Write(pos, buffer, 0, count);
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(buffer);
+        }
+    }
+
+    /// <summary>
+    /// Clears bytes from the buffer.
+    /// </summary>
+    /// <param name="pos">The start offset within the buffer.</param>
+    /// <param name="count">The number of bytes to clear.</param>
+    /// <param name="cancellationToken"></param>
+    /// <remarks>
+    /// <para>Logically equivalent to writing <c>count</c> null/zero bytes to the buffer, some
+    /// implementations determine that some (or all) of the range indicated is not actually
+    /// stored.  There is no direct, automatic, correspondence to clearing bytes and them
+    /// not being represented as an 'extent' - for example, the implementation of the underlying
+    /// stream may not permit fine-grained extent storage.</para>
+    /// <para>It is always safe to call this method to 'zero-out' a section of a buffer, regardless of
+    /// the underlying buffer implementation.</para>
+    /// </remarks>
+    public virtual async ValueTask ClearAsync(long pos, int count, CancellationToken cancellationToken)
+    {
+        var buffer = ArrayPool<byte>.Shared.Rent(count);
+        try
+        {
+            Array.Clear(buffer, 0, count);
+            await WriteAsync(pos, buffer.AsMemory(0, count), cancellationToken).ConfigureAwait(false);
         }
         finally
         {

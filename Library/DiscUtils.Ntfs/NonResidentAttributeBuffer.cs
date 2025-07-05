@@ -440,6 +440,82 @@ internal class NonResidentAttributeBuffer : NonResidentDataBuffer
         _cookedRuns.CollapseRuns();
     }
 
+    public override async ValueTask ClearAsync(long pos, int count, CancellationToken cancellationToken)
+    {
+        if (!CanWrite)
+        {
+            throw new IOException("Attempt to erase bytes from file not opened for write");
+        }
+
+        if (count == 0)
+        {
+            return;
+        }
+
+        if (pos + count > Capacity)
+        {
+            await SetCapacityAsync(pos + count, cancellationToken).ConfigureAwait(false);
+        }
+
+        _file.MarkMftRecordDirty();
+
+        // Write zeros from end of current initialized data to the start of the new write
+        if (pos > PrimaryAttributeRecord.InitializedDataLength)
+        {
+            await InitializeDataAsync(pos, cancellationToken).ConfigureAwait(false);
+        }
+
+        var releasedClusters = 0;
+
+        var focusPos = pos;
+        while (focusPos < pos + count)
+        {
+            var vcn = focusPos / _bytesPerCluster;
+            var remaining = pos + count - focusPos;
+            var clusterOffset = focusPos - vcn * _bytesPerCluster;
+
+            if (vcn * _bytesPerCluster != focusPos || remaining < _bytesPerCluster)
+            {
+                // Unaligned or short write
+                var toClear = (int)Math.Min(remaining, _bytesPerCluster - clusterOffset);
+
+                if (_activeStream.IsClusterStored(vcn))
+                {
+                    await _activeStream.ReadClustersAsync(vcn, 1, _ioBuffer, cancellationToken).ConfigureAwait(false);
+                    Array.Clear(_ioBuffer, (int)clusterOffset, toClear);
+                    releasedClusters -= await _activeStream.WriteClustersAsync(vcn, 1, _ioBuffer, cancellationToken).ConfigureAwait(false);
+                }
+
+                focusPos += toClear;
+            }
+            else
+            {
+                // Aligned, full cluster clears...
+                var fullClusters = (int)(remaining / _bytesPerCluster);
+                releasedClusters += await _activeStream.ClearClustersAsync(vcn, fullClusters, cancellationToken).ConfigureAwait(false);
+
+                focusPos += fullClusters * _bytesPerCluster;
+            }
+        }
+
+        if (pos + count > PrimaryAttributeRecord.InitializedDataLength)
+        {
+            PrimaryAttributeRecord.InitializedDataLength = pos + count;
+        }
+
+        if (pos + count > PrimaryAttributeRecord.DataLength)
+        {
+            PrimaryAttributeRecord.DataLength = pos + count;
+        }
+
+        if ((_attribute.Flags & (AttributeFlags.Compressed | AttributeFlags.Sparse)) != 0)
+        {
+            PrimaryAttributeRecord.CompressedDataSize -= releasedClusters * _bytesPerCluster;
+        }
+
+        _cookedRuns.CollapseRuns();
+    }
+
     private static CookedDataRuns CookRuns(NtfsAttribute attribute)
     {
         var result = new CookedDataRuns();

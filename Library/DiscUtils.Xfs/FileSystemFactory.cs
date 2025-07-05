@@ -24,8 +24,6 @@
 
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using DiscUtils.Streams;
 using DiscUtils.Vfs;
 using LTRData.Extensions.Buffers;
 

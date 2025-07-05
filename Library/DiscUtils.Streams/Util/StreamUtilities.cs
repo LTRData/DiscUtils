@@ -793,5 +793,28 @@ public static class StreamUtilities
         }
     }
 
-#endregion
+    /// <summary>
+    /// Writes a structure to a stream.
+    /// </summary>
+    /// <typeparam name="T">The type of the structure.</typeparam>
+    /// <param name="stream">The stream to write to.</param>
+    /// <param name="obj">The structure to write.</param>
+    /// <param name="cancellationToken"></param>
+    public static async ValueTask WriteStructAsync<T>(this Stream stream, T obj, CancellationToken cancellationToken)
+        where T : IByteArraySerializable
+    {
+        var buffer = ArrayPool<byte>.Shared.Rent(obj.Size);
+
+        try
+        {
+            obj.WriteTo(buffer);
+            await stream.WriteAsync(buffer.AsMemory(0, obj.Size), cancellationToken).ConfigureAwait(false);
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(buffer);
+        }
+    }
+
+    #endregion
 }

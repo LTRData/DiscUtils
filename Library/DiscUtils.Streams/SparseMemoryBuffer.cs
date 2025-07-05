@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -52,19 +53,15 @@ public sealed class SparseMemoryBuffer : Buffer
     /// <summary>
     /// Gets the (sorted) list of allocated chunks, as chunk indexes.
     /// </summary>
-    /// <returns>An enumeration of chunk indexes.</returns>
+    /// <returns>An ordered enumeration of chunk indexes.</returns>
     /// <remarks>This method returns chunks as an index rather than absolute stream position.
     /// For example, if ChunkSize is 16KB, and the first 32KB of the buffer is actually stored,
     /// this method will return 0 and 1.  This indicates the first and second chunks are stored.</remarks>
-    public IEnumerable<int> AllocatedChunks
-    {
-        get
-        {
-            var keys = new List<int>(_buffers.Keys);
-            keys.Sort();
-            return keys;
-        }
-    }
+#if NET7_0_OR_GREATER
+    public IEnumerable<int> AllocatedChunks => _buffers.Keys.Order();
+#else
+    public IEnumerable<int> AllocatedChunks => _buffers.Keys.OrderBy(i => i);
+#endif
 
     /// <summary>
     /// Indicates this stream can be read (always <c>true</c>).
@@ -104,11 +101,7 @@ public sealed class SparseMemoryBuffer : Buffer
             return 0;
         }
 
-        set
-        {
-            ReadOnlySpan<byte> buffer = stackalloc byte[1] { value };
-            Write(pos, buffer);
-        }
+        set => Write(pos, [value]);
     }
 
     /// <summary>
@@ -265,6 +258,13 @@ public sealed class SparseMemoryBuffer : Buffer
         }
 
         _capacity = Math.Max(_capacity, pos);
+    }
+
+    public override ValueTask ClearAsync(long pos, int count, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        Clear(pos, count);
+        return default;
     }
 
     /// <summary>

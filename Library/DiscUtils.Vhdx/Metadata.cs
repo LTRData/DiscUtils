@@ -23,6 +23,8 @@
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Threading;
+using System.Threading.Tasks;
 using DiscUtils.Streams;
 using DiscUtils.Streams.Compatibility;
 
@@ -96,6 +98,35 @@ internal sealed class Metadata
 
         metadataStream.Position = 0;
         metadataStream.WriteStruct(header);
+        return new Metadata(metadataStream);
+    }
+
+    internal static async ValueTask<Metadata> InitializeAsync(Stream metadataStream, FileParameters fileParameters, ulong diskSize,
+                                        uint logicalSectorSize, uint physicalSectorSize, ParentLocator parentLocator, CancellationToken cancellationToken)
+    {
+        var header = new MetadataTable();
+
+        var dataOffset = (uint)(64 * Sizes.OneKiB);
+        dataOffset += AddEntryStruct(fileParameters, MetadataTable.FileParametersGuid, MetadataEntryFlags.IsRequired,
+            header, dataOffset, metadataStream);
+        dataOffset += AddEntryValue(diskSize, EndianUtilities.WriteBytesLittleEndian, MetadataTable.VirtualDiskSizeGuid,
+            MetadataEntryFlags.IsRequired | MetadataEntryFlags.IsVirtualDisk, header, dataOffset, metadataStream);
+        dataOffset += AddEntryValue(Guid.NewGuid(), EndianUtilities.WriteBytesLittleEndian, MetadataTable.Page83DataGuid,
+            MetadataEntryFlags.IsRequired | MetadataEntryFlags.IsVirtualDisk, header, dataOffset, metadataStream);
+        dataOffset += AddEntryValue(logicalSectorSize, EndianUtilities.WriteBytesLittleEndian,
+            MetadataTable.LogicalSectorSizeGuid, MetadataEntryFlags.IsRequired | MetadataEntryFlags.IsVirtualDisk,
+            header, dataOffset, metadataStream);
+        dataOffset += AddEntryValue(physicalSectorSize, EndianUtilities.WriteBytesLittleEndian,
+            MetadataTable.PhysicalSectorSizeGuid, MetadataEntryFlags.IsRequired | MetadataEntryFlags.IsVirtualDisk,
+            header, dataOffset, metadataStream);
+        if (parentLocator != null)
+        {
+            dataOffset += AddEntryStruct(parentLocator, MetadataTable.ParentLocatorGuid,
+                MetadataEntryFlags.IsRequired, header, dataOffset, metadataStream);
+        }
+
+        metadataStream.Position = 0;
+        await metadataStream.WriteStructAsync(header, cancellationToken).ConfigureAwait(false);
         return new Metadata(metadataStream);
     }
 

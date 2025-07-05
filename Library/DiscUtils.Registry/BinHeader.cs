@@ -21,7 +21,6 @@
 //
 
 using System;
-using System.IO;
 using DiscUtils.Streams;
 
 namespace DiscUtils.Registry;

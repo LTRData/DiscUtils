@@ -21,8 +21,8 @@
 //
 
 using System;
-using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using DiscUtils;
 using DiscUtils.Streams;
 using DiscUtils.Vhdx;
@@ -35,8 +35,8 @@ public class DiskTest
     [Fact]
     public void InitializeFixed()
     {
-        var ms = new MemoryStream();
-        using (var disk = Disk.InitializeDynamic(ms, Ownership.None, 8 * Sizes.OneMiB))
+        var ms = new SparseMemoryStream();
+        using (var disk = Disk.InitializeFixed(ms, Ownership.None, 8 * Sizes.OneMiB))
         {
             Assert.NotNull(disk);
             Assert.True(disk.Geometry.Value.Capacity is > (long)(7.5 * Sizes.OneMiB) and <= (8 * Sizes.OneMiB));
@@ -50,7 +50,7 @@ public class DiskTest
     [Fact]
     public void InitializeFixedOwnStream()
     {
-        var ms = new MemoryStream();
+        var ms = new SparseMemoryStream();
         using (var disk = Disk.InitializeFixed(ms, Ownership.Dispose, 8 * Sizes.OneMiB))
         {
         }
@@ -99,7 +99,7 @@ public class DiskTest
             Assert.NotNull(disk);
             Assert.True(disk.Geometry.Value.Capacity is > (long)(15.8 * Sizes.OneGiB) and <= (16 * Sizes.OneGiB));
             Assert.True(disk.Geometry.Value.Capacity == baseFile.Geometry.Capacity);
-            Assert.Equal(2, new List<VirtualDiskLayer>(disk.Layers).Count);
+            Assert.Equal(2, disk.Layers.Count());
         }
 
         Assert.True(8 * Sizes.OneMiB > diffStream.Length);
@@ -133,7 +133,7 @@ public class DiskTest
     public void ConstructorFixed()
     {
         Geometry geometry;
-        var ms = new MemoryStream();
+        var ms = new SparseMemoryStream();
         using (var disk = Disk.InitializeFixed(ms, Ownership.None, 16 * Sizes.OneMiB))
         {
             geometry = disk.Geometry.Value;

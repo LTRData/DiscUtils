@@ -24,7 +24,6 @@ using DiscUtils.Streams;
 using System;
 using System.Buffers;
 using System.IO;
-using System.Runtime.InteropServices;
 
 namespace DiscUtils.Ntfs.Internals;
 

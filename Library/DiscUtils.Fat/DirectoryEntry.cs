@@ -23,7 +23,6 @@
 using System;
 using System.Buffers;
 using System.IO;
-using System.Text;
 using DiscUtils.Streams;
 using DiscUtils.Streams.Compatibility;
 

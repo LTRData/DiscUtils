@@ -201,7 +201,7 @@ public class StreamExtentTest
             new(9, 8)
         ];
 
-        ranges = new List<Range<long, long>>(StreamExtent.Blocks(s, 10));
+        ranges = [.. StreamExtent.Blocks(s, 10)];
 
         Assert.Single(ranges);
         Assert.Equal(0, ranges[0].Offset);
@@ -213,7 +213,7 @@ public class StreamExtentTest
             new(44, 4)
         ];
 
-        ranges = new List<Range<long, long>>(StreamExtent.Blocks(s, 10));
+        ranges = [.. StreamExtent.Blocks(s, 10)];
 
         Assert.Equal(2, ranges.Count);
         Assert.Equal(0, ranges[0].Offset);

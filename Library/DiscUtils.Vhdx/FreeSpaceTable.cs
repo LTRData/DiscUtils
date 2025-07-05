@@ -63,26 +63,26 @@ internal sealed class FreeSpaceTable
         if (isFree)
         {
             _freeExtents =
-                new List<StreamExtent>(StreamExtent.Union(_freeExtents,
-                    new StreamExtent(_fileSize, fileSize - _fileSize)));
+                [.. StreamExtent.Union(_freeExtents,
+                    new StreamExtent(_fileSize, fileSize - _fileSize))];
         }
     }
 
     public void Release(long start, long length)
     {
         ValidateRange(start, length, "release");
-        _freeExtents = new List<StreamExtent>(StreamExtent.Union(_freeExtents, new StreamExtent(start, length)));
+        _freeExtents = [.. StreamExtent.Union(_freeExtents, new StreamExtent(start, length))];
     }
 
     public void Reserve(long start, long length)
     {
         ValidateRange(start, length, "reserve");
-        _freeExtents = new List<StreamExtent>(StreamExtent.Subtract(_freeExtents, new StreamExtent(start, length)));
+        _freeExtents = [.. StreamExtent.Subtract(_freeExtents, new StreamExtent(start, length))];
     }
 
     public void Reserve(IEnumerable<StreamExtent> extents)
     {
-        _freeExtents = new List<StreamExtent>(StreamExtent.Subtract(_freeExtents, extents));
+        _freeExtents = [.. StreamExtent.Subtract(_freeExtents, extents)];
     }
 
     public bool TryAllocate(long length, out long start)

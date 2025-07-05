@@ -24,7 +24,6 @@ using System;
 using System.Text;
 using DiscUtils.CoreCompat;
 using DiscUtils.Streams;
-using DiscUtils.Streams.Compatibility;
 
 namespace DiscUtils.Ext;
 

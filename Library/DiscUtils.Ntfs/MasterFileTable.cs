@@ -26,7 +26,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using DiscUtils.Internal;
 using DiscUtils.Streams;
 
@@ -248,12 +247,11 @@ internal class MasterFileTable : IDiagnosticTraceable, IDisposable
 
         var bitmapStream = _self.CreateStream(AttributeType.Bitmap, null, firstBitmapCluster,
             numBitmapClusters, (uint)bpb.BytesPerCluster);
-        using (var s = bitmapStream.Open(FileAccess.ReadWrite))
-        {
-            Wipe(s);
-            s.SetLength(8);
-            _bitmap = new Bitmap(s, long.MaxValue);
-        }
+
+        var bitmap = bitmapStream.Open(FileAccess.ReadWrite);
+        Wipe(bitmap);
+        bitmap.SetLength(8);
+        _bitmap = new Bitmap(bitmap, long.MaxValue);
 
         RecordSize = context.BiosParameterBlock.MftRecordSize;
         _bytesPerSector = context.BiosParameterBlock.BytesPerSector;

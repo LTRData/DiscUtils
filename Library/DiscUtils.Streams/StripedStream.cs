@@ -20,7 +20,6 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-using DiscUtils.Streams.Compatibility;
 using LTRData.Extensions.Buffers;
 using System;
 using System.Collections.Generic;
@@ -44,7 +43,7 @@ public class StripedStream : SparseStream
 
     public StripedStream(long stripeSize, Ownership ownsWrapped, IEnumerable<SparseStream> wrapped)
     {
-        _wrapped = new List<SparseStream>(wrapped);
+        _wrapped = [.. wrapped];
         _stripeSize = stripeSize;
         _ownsWrapped = ownsWrapped;
 

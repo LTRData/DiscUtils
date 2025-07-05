@@ -227,7 +227,7 @@ internal sealed class DiscContentBuffer : Buffer
         }
     }
 
-    private async Task<HttpWebResponse> SendRequestAsync(WebRequestCreator wrc)
+    private async ValueTask<HttpWebResponse> SendRequestAsync(WebRequestCreator wrc)
     {
         var wr = wrc();
         if (_authHeader != null)

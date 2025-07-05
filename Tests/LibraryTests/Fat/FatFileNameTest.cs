@@ -21,7 +21,6 @@
 using System;
 using DiscUtils.Fat;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace LibraryTests.Fat;
 

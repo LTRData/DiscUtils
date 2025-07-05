@@ -20,6 +20,7 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
+using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -49,7 +50,7 @@ public sealed class Chunk
     private byte[] _sectorBitmap;
 
     internal Chunk(Stream bat, SparseStream file, FreeSpaceTable freeSpace, FileParameters fileParameters, int chunk,
-                 int blocksPerChunk)
+                   int blocksPerChunk)
     {
         _bat = bat;
         _file = file;
@@ -116,6 +117,27 @@ public sealed class Chunk
         _file.Write(_sectorBitmap, offset, bytesPerBlock);
     }
 
+    public ValueTask WriteBlockBitmapAsync(int block, CancellationToken cancellationToken)
+    {
+        var bytesPerBlock = (int)(Sizes.OneMiB / _blocksPerChunk);
+        var offset = bytesPerBlock * block;
+
+        _file.Position = SectorBitmapPos + offset;
+        return _file.WriteAsync(_sectorBitmap.AsMemory(offset, bytesPerBlock), cancellationToken);
+    }
+
+    public void WriteSectorBitmap()
+    {
+        _file.Position = SectorBitmapPos;
+        _file.Write(_sectorBitmap, 0, _sectorBitmap.Length);
+    }
+
+    public ValueTask WriteSectorBitmapAsync(CancellationToken cancellationToken)
+    {
+        _file.Position = SectorBitmapPos;
+        return _file.WriteAsync(_sectorBitmap, cancellationToken);
+    }
+
     internal PayloadBlockStatus AllocateSpaceForBlock(int block)
     {
         var dataModified = false;
@@ -158,10 +180,57 @@ public sealed class Chunk
         return blockEntry.PayloadBlockStatus;
     }
 
-    private byte[] LoadSectorBitmap()
+    internal async ValueTask<PayloadBlockStatus> AllocateSpaceForBlockAsync(int block, CancellationToken cancellationToken)
+    {
+        var dataModified = false;
+
+        var blockEntry = new BatEntry(_batData, block * 8);
+        if (blockEntry.FileOffsetMB == 0)
+        {
+            blockEntry.FileOffsetMB = await AllocateSpaceAsync((int)_fileParameters.BlockSize, zero: false, cancellationToken).ConfigureAwait(false) / Sizes.OneMiB;
+            dataModified = true;
+        }
+
+        if (blockEntry.PayloadBlockStatus is not PayloadBlockStatus.FullyPresent
+            and not PayloadBlockStatus.PartiallyPresent)
+        {
+            if ((_fileParameters.Flags & FileParametersFlags.HasParent) != 0)
+            {
+                if (!HasSectorBitmap)
+                {
+                    SectorBitmapPos = await AllocateSpaceAsync((int)Sizes.OneMiB, zero: true, cancellationToken).ConfigureAwait(true);
+                }
+
+                blockEntry.PayloadBlockStatus = PayloadBlockStatus.PartiallyPresent;
+            }
+            else
+            {
+                blockEntry.PayloadBlockStatus = PayloadBlockStatus.FullyPresent;
+            }
+
+            dataModified = true;
+        }
+
+        if (dataModified)
+        {
+            blockEntry.WriteTo(_batData, block * 8);
+
+            _bat.Position = _chunk * (_blocksPerChunk + 1) * 8;
+            await _bat.WriteAsync(_batData.AsMemory(0, (_blocksPerChunk + 1) * 8), cancellationToken).ConfigureAwait(false);
+        }
+
+        return blockEntry.PayloadBlockStatus;
+    }
+
+    internal byte[] LoadSectorBitmap()
     {
         if (_sectorBitmap == null)
         {
+            if (SectorBitmapPos == 0)
+            {
+                throw new InvalidOperationException("No bitmaps in use for present chunk");
+            }
+
             _file.Position = SectorBitmapPos;
             _sectorBitmap = _file.ReadExactly((int)Sizes.OneMiB);
         }
@@ -169,10 +238,15 @@ public sealed class Chunk
         return _sectorBitmap;
     }
 
-    private async ValueTask<byte[]> LoadSectorBitmapAsync(CancellationToken cancellationToken)
+    internal async ValueTask<byte[]> LoadSectorBitmapAsync(CancellationToken cancellationToken)
     {
         if (_sectorBitmap == null)
         {
+            if (SectorBitmapPos == 0)
+            {
+                throw new InvalidOperationException("No bitmaps in use for present chunk");
+            }
+
             _file.Position = SectorBitmapPos;
             _sectorBitmap = await _file.ReadExactlyAsync((int)Sizes.OneMiB, cancellationToken).ConfigureAwait(false);
         }
@@ -192,6 +266,23 @@ public sealed class Chunk
         {
             _file.Position = pos;
             _file.Clear(sizeBytes);
+        }
+
+        return pos;
+    }
+
+    private async ValueTask<long> AllocateSpaceAsync(int sizeBytes, bool zero, CancellationToken cancellationToken)
+    {
+        if (!_freeSpace.TryAllocate(sizeBytes, out var pos))
+        {
+            pos = MathUtilities.RoundUp(_file.Length, Sizes.OneMiB);
+            _file.SetLength(pos + sizeBytes);
+            _freeSpace.ExtendTo(pos + sizeBytes, false);
+        }
+        else if (zero)
+        {
+            _file.Position = pos;
+            await _file.ClearAsync(sizeBytes, cancellationToken).ConfigureAwait(false);
         }
 
         return pos;

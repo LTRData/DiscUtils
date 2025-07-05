@@ -20,7 +20,6 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-using System.Collections.Generic;
 using DiscUtils;
 using DiscUtils.Ntfs;
 using DiscUtils.Streams;

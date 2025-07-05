@@ -27,7 +27,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 using DiscUtils.Internal;
 using DiscUtils.Ntfs.Internals;
 using DiscUtils.Streams;

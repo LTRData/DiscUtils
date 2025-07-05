@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Buffers;
-using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using LTRData.Extensions.Async;
 
 namespace DiscUtils.Streams.Compatibility;
 

@@ -1,5 +1,4 @@
 ﻿using DiscUtils.Archives;
-using DiscUtils.Internal;
 using DiscUtils.Streams;
 using LTRData.Extensions.Buffers;
 using System;

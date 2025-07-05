@@ -25,10 +25,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Text;
 using DiscUtils.Internal;
 using DiscUtils.Streams;
-using DiscUtils.Streams.Compatibility;
 using LTRData.Extensions.Buffers;
 
 namespace DiscUtils.Fat;

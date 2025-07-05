@@ -20,8 +20,6 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-using DiscUtils.Streams;
-using DiscUtils.Streams.Compatibility;
 using LTRData.Extensions.Async;
 using System;
 using System.IO;

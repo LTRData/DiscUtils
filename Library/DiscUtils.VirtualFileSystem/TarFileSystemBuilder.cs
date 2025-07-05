@@ -1,11 +1,7 @@
 ﻿using System;
-
-using DiscUtils;
 using DiscUtils.Archives;
 using DiscUtils.Internal;
 using System.IO;
-using System.Collections.Specialized;
-using System.Linq;
 using LTRData.Extensions.Buffers;
 
 namespace DiscUtils.VirtualFileSystem;

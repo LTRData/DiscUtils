@@ -441,7 +441,7 @@ public sealed class ContentStream : MappedStream
 
         if (_position % _metadata.LogicalSectorSize != 0 || count % _metadata.LogicalSectorSize != 0)
         {
-            throw new IOException("Unaligned read");
+            throw new IOException("Unaligned write");
         }
 
         var totalWritten = 0;
@@ -491,7 +491,7 @@ public sealed class ContentStream : MappedStream
 
         if (_position % _metadata.LogicalSectorSize != 0 || buffer.Length % _metadata.LogicalSectorSize != 0)
         {
-            throw new IOException("Unaligned read");
+            throw new IOException("Unaligned write");
         }
 
         var totalWritten = 0;
@@ -506,7 +506,7 @@ public sealed class ContentStream : MappedStream
             var blockStatus = chunk.GetBlockStatus(blockIndex);
             if (blockStatus is not PayloadBlockStatus.FullyPresent and not PayloadBlockStatus.PartiallyPresent)
             {
-                blockStatus = chunk.AllocateSpaceForBlock(blockIndex);
+                blockStatus = await chunk.AllocateSpaceForBlockAsync(blockIndex, cancellationToken).ConfigureAwait(false);
             }
 
             var toWrite = Math.Min(blockBytesRemaining, buffer.Length - totalWritten);
@@ -520,7 +520,7 @@ public sealed class ContentStream : MappedStream
 
                 if (changed)
                 {
-                    chunk.WriteBlockBitmap(blockIndex);
+                    await chunk.WriteBlockBitmapAsync(blockIndex, cancellationToken).ConfigureAwait(false);
                 }
             }
 
@@ -541,7 +541,7 @@ public sealed class ContentStream : MappedStream
 
         if (_position % _metadata.LogicalSectorSize != 0 || buffer.Length % _metadata.LogicalSectorSize != 0)
         {
-            throw new IOException("Unaligned read");
+            throw new IOException("Unaligned write");
         }
 
         var totalWritten = 0;
@@ -662,9 +662,13 @@ public sealed class ContentStream : MappedStream
 
     private void CheckDisposed()
     {
-        if (_parentStream == null)
+#if NET7_0_OR_GREATER
+        ObjectDisposedException.ThrowIf(_parentStream is null, this);
+#else
+        if (_parentStream is null)
         {
-            throw new ObjectDisposedException("ContentStream", "Attempt to use closed stream");
+            throw new ObjectDisposedException(nameof(ContentStream), "Attempt to use closed stream");
         }
+#endif
     }
 }

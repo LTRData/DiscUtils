@@ -25,7 +25,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using DiscUtils.Internal;
 using DiscUtils.Streams;
 
 namespace DiscUtils.Iso9660;
@@ -237,9 +236,11 @@ public sealed class BuildDirectoryInfo : BuildDirectoryMember
     {
         if (_sortedMembers == null)
         {
-            var sorted = new List<BuildDirectoryMember>(_membersLongNames.Values);
-            sorted.Sort(SortedComparison);
-            _sortedMembers = sorted;
+#if NET7_0_OR_GREATER
+            _sortedMembers = [.. _membersLongNames.Values.Order(SortedComparison)];
+#else
+            _sortedMembers = [.. _membersLongNames.Values.OrderBy(v => v, SortedComparison)];
+#endif
         }
 
         return _sortedMembers;

@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Security.Cryptography;
 using DiscUtils;
 using DiscUtils.Complete;
 using DiscUtils.Streams;
 using DiscUtils.Xfs;
 using DiscUtils.Vhdx;
-using LibraryTests.Utilities;
 using Xunit;
-using File=System.IO.File;
 using static LibraryTests.Helpers.Helpers;
 
 namespace LibraryTests.Xfs;

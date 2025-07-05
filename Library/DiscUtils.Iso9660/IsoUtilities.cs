@@ -25,7 +25,6 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 using DiscUtils.Streams;
-using DiscUtils.Streams.Compatibility;
 using LTRData.Extensions.Buffers;
 
 namespace DiscUtils.Iso9660;

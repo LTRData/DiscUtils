@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Security.Cryptography;
 using DiscUtils;
 using DiscUtils.Btrfs;
 using DiscUtils.Streams;
 using DiscUtils.Vhdx;
-using LibraryTests.Utilities;
-using LTRData.Extensions.Formatting;
 using Xunit;
 using static LibraryTests.Helpers.Helpers;
 

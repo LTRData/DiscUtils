@@ -22,8 +22,6 @@
 
 using System;
 using System.IO;
-using System.IO.Compression;
-using DiscUtils.Compression;
 using DiscUtils.Streams;
 using DiscUtils.Streams.Compatibility;
 using LTRData.Extensions.Buffers;

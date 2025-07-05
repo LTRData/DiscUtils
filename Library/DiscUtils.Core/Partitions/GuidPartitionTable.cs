@@ -172,7 +172,7 @@ public sealed class GuidPartitionTable : PartitionTable
     /// otherwise IOException is thrown.</remarks>
     public override int Create(WellKnownPartitionType type, bool active)
     {
-        var allEntries = new List<GptEntry>(GetAllEntries());
+        var allEntries = GetAllEntries().ToList();
 
         EstablishReservedPartition(allEntries);
 
@@ -224,7 +224,7 @@ public sealed class GuidPartitionTable : PartitionTable
             throw new ArgumentException("Alignment is not a multiple of the sector size");
         }
 
-        var allEntries = new List<GptEntry>(GetAllEntries());
+        var allEntries = GetAllEntries().ToList();
 
         EstablishReservedPartition(allEntries);
 
@@ -472,7 +472,7 @@ public sealed class GuidPartitionTable : PartitionTable
 
     private long FindGap(long numSectors, long alignmentSectors)
     {
-        var list = new List<GptEntry>(GetAllEntries());
+        var list = GetAllEntries().ToList();
         list.Sort();
 
         var startSector = MathUtilities.RoundUp(_primaryHeader.FirstUsable, alignmentSectors);

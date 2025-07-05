@@ -1,8 +1,5 @@
-using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using DiscUtils.Iso9660;
-using LibraryTests.Utilities;
 using Xunit;
 
 namespace LibraryTests.Iso9660;

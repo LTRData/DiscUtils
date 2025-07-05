@@ -24,7 +24,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using DiscUtils.Streams;
-using DiscUtils.Streams.Compatibility;
 
 namespace DiscUtils.Partitions;
 

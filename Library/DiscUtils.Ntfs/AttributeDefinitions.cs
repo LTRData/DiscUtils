@@ -21,11 +21,10 @@
 //
 
 using System;
-using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using DiscUtils.Streams;
-using DiscUtils.Streams.Compatibility;
 
 namespace DiscUtils.Ntfs;
 
@@ -67,7 +66,7 @@ public sealed class AttributeDefinitions
         while (s.ReadMaximum(buffer) == AttributeDefinitionRecord.Size)
         {
             var record = new AttributeDefinitionRecord();
-            record.Read(buffer);
+            record.ReadFrom(buffer);
 
             // NULL terminator record
             if (record.Type != AttributeType.None)
@@ -79,16 +78,20 @@ public sealed class AttributeDefinitions
 
     internal void WriteTo(File file)
     {
-        var attribs = new List<AttributeType>(_attrDefs.Keys);
-        attribs.Sort();
+#if NET7_0_OR_GREATER
+        var attribs = _attrDefs.Keys.Order();
+#else
+        var attribs = _attrDefs.Keys.OrderBy(item => item);
+#endif
 
         using var s = file.OpenStream(AttributeType.Data, null, FileAccess.ReadWrite);
         Span<byte> buffer = stackalloc byte[AttributeDefinitionRecord.Size];
-        for (var i = 0; i < attribs.Count; ++i)
+        
+        foreach (var attrib in attribs)
         {
             buffer.Clear();
-            var attrDef = _attrDefs[attribs[i]];
-            attrDef.Write(buffer);
+            var attrDef = _attrDefs[attrib];
+            attrDef.WriteTo(buffer);
 
             s.Write(buffer);
         }

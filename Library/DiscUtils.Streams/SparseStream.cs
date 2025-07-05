@@ -132,11 +132,47 @@ public abstract class SparseStream : CompatibilityStream
     /// </remarks>
     public virtual void Clear(int count)
     {
+        byte[] array = null;
+
+        var buffer = count <= 512
+            ? stackalloc byte[count]
+            : (array = ArrayPool<byte>.Shared.Rent(count)).AsSpan(0, count);
+
+        try
+        {
+            buffer.Clear();
+            Write(buffer);
+        }
+        finally
+        {
+            if (array is not null)
+            {
+                ArrayPool<byte>.Shared.Return(array);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Clears bytes from the stream.
+    /// </summary>
+    /// <param name="count">The number of bytes (from the current position) to clear.</param>
+    /// <param name="cancellationToken"></param>
+    /// <remarks>
+    /// <para>Logically equivalent to writing <c>count</c> null/zero bytes to the stream, some
+    /// implementations determine that some (or all) of the range indicated is not actually
+    /// stored.  There is no direct, automatic, correspondence to clearing bytes and them
+    /// not being represented as an 'extent' - for example, the implementation of the underlying
+    /// stream may not permit fine-grained extent storage.</para>
+    /// <para>It is always safe to call this method to 'zero-out' a section of a stream, regardless of
+    /// the underlying stream implementation.</para>
+    /// </remarks>
+    public virtual async ValueTask ClearAsync(int count, CancellationToken cancellationToken)
+    {
         var buffer = ArrayPool<byte>.Shared.Rent(count);
         try
         {
             Array.Clear(buffer, 0, count);
-            Write(buffer, 0, count);
+            await WriteAsync(buffer.AsMemory(0, count), cancellationToken).ConfigureAwait(false);
         }
         finally
         {
@@ -347,7 +383,7 @@ public abstract class SparseStream : CompatibilityStream
 
             if (extents != null)
             {
-                _extents = new List<StreamExtent>(extents);
+                _extents = [.. extents];
             }
         }
 

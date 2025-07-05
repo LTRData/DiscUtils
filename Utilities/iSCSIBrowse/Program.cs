@@ -21,7 +21,6 @@
 //
 
 using System;
-using System.Globalization;
 using System.Linq;
 using DiscUtils.Common;
 using DiscUtils.Iscsi;

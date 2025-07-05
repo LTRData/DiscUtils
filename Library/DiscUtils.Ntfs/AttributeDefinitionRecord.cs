@@ -23,7 +23,6 @@
 using System;
 using System.Text;
 using DiscUtils.Streams;
-using DiscUtils.Streams.Compatibility;
 
 namespace DiscUtils.Ntfs;
 
@@ -39,7 +38,7 @@ internal struct AttributeDefinitionRecord
     public string Name;
     public AttributeType Type;
 
-    internal void Read(ReadOnlySpan<byte> buffer)
+    internal void ReadFrom(ReadOnlySpan<byte> buffer)
     {
         Name = string.Intern(Encoding.Unicode.GetString(buffer.Slice(0, 128)).Trim('\0'));
         Type = (AttributeType)EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x80));
@@ -50,7 +49,7 @@ internal struct AttributeDefinitionRecord
         MaxSize = EndianUtilities.ToInt64LittleEndian(buffer.Slice(0x98));
     }
 
-    internal void Write(Span<byte> buffer)
+    internal void WriteTo(Span<byte> buffer)
     {
         Encoding.Unicode.GetBytes(Name.AsSpan(), buffer);
         EndianUtilities.WriteBytesLittleEndian((uint)Type, buffer.Slice(0x80));

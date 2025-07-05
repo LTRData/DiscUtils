@@ -25,7 +25,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using DiscUtils.Internal;
 using DiscUtils.Streams;
 using LTRData.Extensions.Buffers;
 using LTRData.Extensions.Split;

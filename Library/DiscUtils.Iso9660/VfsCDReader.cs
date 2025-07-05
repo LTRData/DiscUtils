@@ -28,7 +28,6 @@ using System.Linq;
 using DiscUtils.Partitions;
 using DiscUtils.Streams;
 using DiscUtils.Vfs;
-using LTRData.Extensions.Buffers;
 
 namespace DiscUtils.Iso9660;
 

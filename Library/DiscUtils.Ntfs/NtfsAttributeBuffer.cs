@@ -328,6 +328,13 @@ internal class NtfsAttributeBuffer : Buffer, IMappedBuffer
         }
     }
 
+    public override ValueTask ClearAsync(long pos, int count, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        Clear(pos, count);
+        return default;
+    }
+
     public override IEnumerable<StreamExtent> GetExtentsInRange(long start, long count)
     {
         return StreamExtent.Intersect(_attribute.RawBuffer.GetExtentsInRange(start, count),

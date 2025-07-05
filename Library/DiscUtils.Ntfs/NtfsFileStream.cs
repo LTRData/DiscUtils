@@ -331,9 +331,13 @@ internal sealed class NtfsFileStream : SparseStream
 
     private void AssertOpen()
     {
-        if (_baseStream == null)
+#if NET7_0_OR_GREATER
+        ObjectDisposedException.ThrowIf(_baseStream is null, this);
+#else
+        if (_baseStream is null)
         {
             throw new ObjectDisposedException(_entry.Details.FileName, "Attempt to use closed stream");
         }
+#endif
     }
 }

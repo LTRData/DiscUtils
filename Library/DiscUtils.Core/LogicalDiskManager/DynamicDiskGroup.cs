@@ -22,8 +22,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
+using System.Linq;
 using DiscUtils.Partitions;
 using DiscUtils.Streams;
 
@@ -165,21 +165,6 @@ internal class DynamicDiskGroup : IDiagnosticTraceable
         return 0;
     }
 
-    private static int CompareExtentInterleaveOrder(ExtentRecord x, ExtentRecord y)
-    {
-        if (x.InterleaveOrder > y.InterleaveOrder)
-        {
-            return 1;
-        }
-
-        if (x.InterleaveOrder < y.InterleaveOrder)
-        {
-            return -1;
-        }
-
-        return 0;
-    }
-
     private static LogicalVolumeStatus WorstOf(LogicalVolumeStatus x, LogicalVolumeStatus y)
     {
         return (LogicalVolumeStatus)Math.Max((int)x, (int)y);
@@ -249,40 +234,35 @@ internal class DynamicDiskGroup : IDiagnosticTraceable
     {
         if (component.MergeType == ExtentMergeType.Concatenated)
         {
-            var extents = new List<ExtentRecord>(_database.GetComponentExtents(component.Id));
-            extents.Sort(CompareExtentOffsets);
+#if NET7_0_OR_GREATER
+            var extents = _database.GetComponentExtents(component.Id).Order();
+#else
+            var extents = _database.GetComponentExtents(component.Id).OrderBy(x => x);
+#endif
 
-            // Sanity Check...
             long pos = 0;
-            foreach (var extent in extents)
+
+            var streams = extents.Select(extent =>
             {
+                // Sanity Check...
                 if (extent.OffsetInVolumeLba != pos)
                 {
                     throw new IOException("Volume extents are non-contiguous");
                 }
 
                 pos += extent.SizeLba;
-            }
 
-            var streams = new List<SparseStream>();
-            foreach (var extent in extents)
-            {
-                streams.Add(OpenExtent(extent));
-            }
+                return OpenExtent(extent);
+            });
 
             return new ConcatStream(Ownership.Dispose, streams);
         }
 
         if (component.MergeType == ExtentMergeType.Interleaved)
         {
-            var extents = new List<ExtentRecord>(_database.GetComponentExtents(component.Id));
-            extents.Sort(CompareExtentInterleaveOrder);
+            var extents = _database.GetComponentExtents(component.Id).OrderBy(x => x.InterleaveOrder);
 
-            var streams = new List<SparseStream>();
-            foreach (var extent in extents)
-            {
-                streams.Add(OpenExtent(extent));
-            }
+            var streams = extents.Select(OpenExtent);
 
             return new StripedStream(component.StripeSizeSectors * Sizes.Sector, Ownership.Dispose, streams);
         }

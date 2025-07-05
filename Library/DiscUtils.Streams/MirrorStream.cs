@@ -20,7 +20,6 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-using DiscUtils.Streams.Compatibility;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -41,7 +40,7 @@ public class MirrorStream : SparseStream
 
     public MirrorStream(Ownership ownsWrapped, IEnumerable<SparseStream> wrapped)
     {
-        _wrapped = new List<SparseStream>(wrapped);
+        _wrapped = [.. wrapped];
         _ownsWrapped = ownsWrapped;
 
         _canRead = _wrapped[0].CanRead;

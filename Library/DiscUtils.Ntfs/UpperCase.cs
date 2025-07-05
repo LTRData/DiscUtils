@@ -25,7 +25,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using DiscUtils.Streams;
-using DiscUtils.Streams.Compatibility;
 
 namespace DiscUtils.Ntfs;
 

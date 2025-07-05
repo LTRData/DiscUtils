@@ -26,7 +26,6 @@ using DiscUtils.Core.WindowsSecurity.AccessControl;
 using DiscUtils.Core.WindowsSecurity;
 using DiscUtils.Streams;
 using System.Buffers;
-using DiscUtils.Streams.Compatibility;
 
 namespace DiscUtils.Ntfs;
 

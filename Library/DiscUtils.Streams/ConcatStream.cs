@@ -42,7 +42,7 @@ public class ConcatStream : SparseStream
     public ConcatStream(Ownership ownsStreams, IEnumerable<SparseStream> streams)
     {
         _ownsStreams = ownsStreams;
-        _streams = new(streams);
+        _streams = [.. streams];
 
         // Only allow writes if all streams can be written
         _canWrite = true;

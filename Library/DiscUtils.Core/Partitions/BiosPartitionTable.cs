@@ -78,7 +78,7 @@ public sealed class BiosPartitionTable : PartitionTable
                 }
             }
 
-            return new ReadOnlyCollection<BiosPartitionInfo>(result);
+            return result.AsReadOnly();
         }
     }
 
@@ -134,7 +134,7 @@ public sealed class BiosPartitionTable : PartitionTable
                 }
             }
 
-            return new ReadOnlyCollection<PartitionInfo>(result);
+            return result.AsReadOnly();
         }
     }
 
@@ -193,7 +193,7 @@ public sealed class BiosPartitionTable : PartitionTable
             return false;
         }
 
-        var knownPartitions = new List<StreamExtent>();
+        StreamExtent[] knownPartitions = [];
         foreach (var record in ReadPrimaryRecords(bootSector))
         {
             // If the partition extends beyond the end of the disk, this is probably an invalid partition table
@@ -215,7 +215,7 @@ public sealed class BiosPartitionTable : PartitionTable
                     return false;
                 }
 
-                knownPartitions = new List<StreamExtent>(StreamExtent.Union(knownPartitions, thisPartitionExtents));
+                knownPartitions = [.. StreamExtent.Union(knownPartitions, thisPartitionExtents)];
             }
         }
 

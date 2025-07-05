@@ -22,12 +22,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using DiscUtils.Streams;
 using DiscUtils.Internal;
-using System.Linq;
 using System.Buffers;
-using System.IO;
 
 namespace DiscUtils.Registry;
 

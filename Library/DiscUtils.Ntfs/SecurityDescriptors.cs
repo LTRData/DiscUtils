@@ -22,10 +22,8 @@
 
 using System;
 using System.Buffers;
-using System.Diagnostics;
 using System.IO;
 using DiscUtils.Core.WindowsSecurity.AccessControl;
-using DiscUtils.Internal;
 using DiscUtils.Streams;
 
 namespace DiscUtils.Ntfs;

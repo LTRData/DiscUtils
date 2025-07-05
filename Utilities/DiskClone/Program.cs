@@ -198,8 +198,7 @@ class Program : ProgramBase
                 }
             }
 
-            var extents = new List<StreamExtent>(BitmapToRanges(volBitmap, clusterSize));
-            var partSourceStream = SparseStream.FromStream(rawVolStream, Ownership.None, extents);
+            var partSourceStream = SparseStream.FromStream(rawVolStream, Ownership.None, BitmapToRanges(volBitmap, clusterSize));
 
             for (var i = 0; i < contentBuilder.PartitionTable.Partitions.Count; ++i)
             {

@@ -23,6 +23,8 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Threading;
+using System.Threading.Tasks;
 using DiscUtils.Streams;
 using LTRData.Extensions.Buffers;
 
@@ -161,20 +163,15 @@ internal class FileContentBuffer : Streams.Buffer
         return totalRead;
     }
 
-    public override void Write(long pos, ReadOnlySpan<byte> buffer) =>
-        throw new NotSupportedException();
+    public override void Write(long pos, ReadOnlySpan<byte> buffer) => throw new NotSupportedException();
 
-    public override void Clear(long pos, int count)
-    {
-        throw new NotSupportedException();
-    }
+    public override void Clear(long pos, int count) => throw new NotSupportedException();
+
+    public override ValueTask ClearAsync(long pos, int count, CancellationToken cancellationToken) => throw new NotSupportedException();
 
     public override void Flush() {}
 
-    public override void SetCapacity(long value)
-    {
-        throw new NotSupportedException();
-    }
+    public override void SetCapacity(long value) => throw new NotSupportedException();
 
     public override IEnumerable<StreamExtent> GetExtentsInRange(long start, long count)
     {

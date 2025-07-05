@@ -510,7 +510,7 @@ public sealed class SnapshotStream : SparseStream
             // Beware of Linq's delayed model - force execution now by placing into a list.
             // Without this, large execution chains can build up (v. slow) and potential for stack overflow.
             _diffExtents =
-                new List<StreamExtent>(StreamExtent.Union(_diffExtents, new StreamExtent(_position, count)));
+                [.. StreamExtent.Union(_diffExtents, new StreamExtent(_position, count))];
 
             _position += count;
         }
@@ -539,7 +539,7 @@ public sealed class SnapshotStream : SparseStream
             // Beware of Linq's delayed model - force execution now by placing into a list.
             // Without this, large execution chains can build up (v. slow) and potential for stack overflow.
             _diffExtents =
-                new List<StreamExtent>(StreamExtent.Union(_diffExtents, new StreamExtent(_position, buffer.Length)));
+                [.. StreamExtent.Union(_diffExtents, new StreamExtent(_position, buffer.Length))];
 
             _position += buffer.Length;
         }
@@ -567,7 +567,7 @@ public sealed class SnapshotStream : SparseStream
             // Beware of Linq's delayed model - force execution now by placing into a list.
             // Without this, large execution chains can build up (v. slow) and potential for stack overflow.
             _diffExtents =
-                new List<StreamExtent>(StreamExtent.Union(_diffExtents, new StreamExtent(_position, buffer.Length)));
+                [.. StreamExtent.Union(_diffExtents, new StreamExtent(_position, buffer.Length))];
 
             _position += buffer.Length;
         }

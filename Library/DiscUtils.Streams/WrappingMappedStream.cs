@@ -50,7 +50,7 @@ public class WrappingMappedStream<T> : MappedStream
         _ownership = ownership;
         if (extents != null)
         {
-            _extents = new List<StreamExtent>(extents);
+            _extents = [.. extents];
         }
     }
 

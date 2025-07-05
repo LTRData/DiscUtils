@@ -22,7 +22,6 @@
 
 using System;
 using DiscUtils.Streams;
-using DiscUtils.Streams.Compatibility;
 
 namespace DiscUtils.Vhd;
 

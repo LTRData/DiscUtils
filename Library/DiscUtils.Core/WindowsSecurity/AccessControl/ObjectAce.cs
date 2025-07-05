@@ -1,6 +1,5 @@
 using DiscUtils.Streams;
 using System;
-using System.Globalization;
 
 namespace DiscUtils.Core.WindowsSecurity.AccessControl;
 
