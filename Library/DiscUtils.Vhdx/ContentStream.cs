@@ -606,13 +606,16 @@ public sealed class ContentStream : MappedStream
     private IEnumerable<StreamExtent> GetExtentsRaw(long start, long count)
     {
         var chunkSize = (1L << 23) * _metadata.LogicalSectorSize;
-        var chunkRatio = (int)(chunkSize / _metadata.FileParameters.BlockSize);
 
         var pos = MathUtilities.RoundDown(start, chunkSize);
 
         while (pos < start + count)
         {
             var chunk = GetChunk(pos, out _, out _, out _);
+
+            var thisChunkSize = Math.Min(chunkSize, start + count - pos);
+
+            var chunkRatio = (int)(thisChunkSize / _metadata.FileParameters.BlockSize);
 
             for (var i = 0; i < chunkRatio; ++i)
             {
