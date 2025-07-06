@@ -361,9 +361,13 @@ public sealed class Disk : VirtualDisk
         {
             var chunk = content.GetChunk(virtualOffset, out _, out _, out _);
 
-            var numblocks = chunk.BlocksPerChunk;
+            var blockSize = chunkSize / chunk.BlocksPerChunk;
 
-            for (var blockIndex = 0; blockIndex < numblocks; blockIndex++)
+            var thisChunkSize = Math.Min(chunkSize, capacity - virtualOffset);
+
+            var numBlocks = thisChunkSize / blockSize;
+
+            for (var blockIndex = 0; blockIndex < numBlocks; blockIndex++)
             {
                 chunk.AllocateSpaceForBlock(blockIndex);
             }
@@ -395,9 +399,13 @@ public sealed class Disk : VirtualDisk
         {
             var chunk = content.GetChunk(virtualOffset, out _, out _, out _);
 
-            var numblocks = chunk.BlocksPerChunk;
+            var blockSize = chunkSize / chunk.BlocksPerChunk;
 
-            for (var blockIndex = 0; blockIndex < numblocks; blockIndex++)
+            var thisChunkSize = Math.Min(chunkSize, capacity - virtualOffset);
+
+            var numBlocks = thisChunkSize / blockSize;
+
+            for (var blockIndex = 0; blockIndex < numBlocks; blockIndex++)
             {
                 await chunk.AllocateSpaceForBlockAsync(blockIndex, cancellationToken).ConfigureAwait(false);
             }

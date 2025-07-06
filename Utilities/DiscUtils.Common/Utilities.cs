@@ -91,7 +91,7 @@ public static class Utilities
     public static bool TryParseDiskSize(string size, out long value)
     {
         var lastChar = size[size.Length - 1];
-        if (Char.IsDigit(lastChar))
+        if (char.IsDigit(lastChar))
         {
             return long.TryParse(size, out value);
         }

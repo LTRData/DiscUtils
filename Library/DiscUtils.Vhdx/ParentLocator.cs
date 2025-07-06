@@ -42,10 +42,15 @@ internal sealed class ParentLocator : IByteArraySerializable
     {
     }
 
-    public ParentLocator(String parentUid, String relativePath, String absolutePath)
+    public ParentLocator(string parentUid, string relativePath, string absolutePath)
     {
         Entries.Add("parent_linkage", parentUid);
-        Entries.Add("relative_path", relativePath);
+        
+        if (!string.IsNullOrWhiteSpace(relativePath))
+        {
+            Entries.Add("relative_path", relativePath);
+        }
+
         if (absolutePath.Length > 3 && absolutePath[1] == ':' && absolutePath[2] == '\\')
         {
             absolutePath = $@"\\?\{absolutePath}";

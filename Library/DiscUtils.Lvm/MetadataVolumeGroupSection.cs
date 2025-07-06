@@ -139,7 +139,7 @@ internal class MetadataVolumeGroupSection
         string line;
         while ((line = Metadata.ReadLine(data)) != null)
         {
-            if (line == String.Empty)
+            if (line == string.Empty)
             {
                 continue;
             }
@@ -162,7 +162,7 @@ internal class MetadataVolumeGroupSection
         string line;
         while ((line = Metadata.ReadLine(data)) != null)
         {
-            if (line == String.Empty)
+            if (line == string.Empty)
             {
                 continue;
             }

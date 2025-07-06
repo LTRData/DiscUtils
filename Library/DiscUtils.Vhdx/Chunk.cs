@@ -21,6 +21,7 @@
 //
 
 using System;
+using System.Buffers;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -59,8 +60,20 @@ public sealed class Chunk
         _chunk = chunk;
         _blocksPerChunk = blocksPerChunk;
 
-        _bat.Position = _chunk * (_blocksPerChunk + 1) * 8;
-        _batData = bat.ReadExactly((_blocksPerChunk + 1) * 8);
+        var chunkBatSize = (_blocksPerChunk + 1) * 8;
+
+        _bat.Position = _chunk * chunkBatSize;
+        
+        var batBuffer = ArrayPool<byte>.Shared.Rent(chunkBatSize);
+        try
+        {
+            var length = bat.ReadMaximum(batBuffer);
+            _batData = batBuffer.AsSpan(0, length).ToArray();
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(batBuffer);
+        }
     }
 
     public bool HasSectorBitmap => new BatEntry(_batData, _blocksPerChunk * 8).BitmapBlockPresent;
@@ -174,7 +187,7 @@ public sealed class Chunk
             blockEntry.WriteTo(_batData, block * 8);
 
             _bat.Position = _chunk * (_blocksPerChunk + 1) * 8;
-            _bat.Write(_batData, 0, (_blocksPerChunk + 1) * 8);
+            _bat.Write(_batData, 0, _batData.Length);
         }
 
         return blockEntry.PayloadBlockStatus;
@@ -216,7 +229,7 @@ public sealed class Chunk
             blockEntry.WriteTo(_batData, block * 8);
 
             _bat.Position = _chunk * (_blocksPerChunk + 1) * 8;
-            await _bat.WriteAsync(_batData.AsMemory(0, (_blocksPerChunk + 1) * 8), cancellationToken).ConfigureAwait(false);
+            await _bat.WriteAsync(_batData, cancellationToken).ConfigureAwait(false);
         }
 
         return blockEntry.PayloadBlockStatus;

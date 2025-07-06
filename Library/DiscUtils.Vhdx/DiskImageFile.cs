@@ -261,9 +261,32 @@ public sealed class DiskImageFile : VirtualDiskLayer
     internal long StoredSize => _fileStream.Length;
 
     /// <summary>
-    /// Gets the unique id of this file.
+    /// Gets or sets the unique id of this file.
     /// </summary>
-    public Guid UniqueId => _header.DataWriteGuid;
+    public Guid UniqueId
+    {
+        get => _header.DataWriteGuid;
+        set
+        {
+            _header.DataWriteGuid = value;
+            _header.SequenceNumber = 0;
+
+            _header.CalcChecksum();
+
+            _fileStream.Position = 64 * Sizes.OneKiB;
+            _fileStream.WriteStruct(_header);
+
+            var header2 = new VhdxHeader(_header)
+            {
+                SequenceNumber = 1
+            };
+
+            header2.CalcChecksum();
+
+            _fileStream.Position = 128 * Sizes.OneKiB;
+            _fileStream.WriteStruct(header2);
+        }
+    }
 
     /// <summary>
     /// Initializes a stream as a fixed-sized VHDX file.

@@ -50,7 +50,7 @@ internal class MetadataPhysicalVolumeSection
         string line;
         while ((line = Metadata.ReadLine(data)) != null)
         {
-            if (line == String.Empty)
+            if (line == string.Empty)
             {
                 continue;
             }

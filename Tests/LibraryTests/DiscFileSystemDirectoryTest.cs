@@ -77,7 +77,7 @@ public class DiscFileSystemDirectoryTest
     {
         var fs = fsFactory();
 
-        var dirInfo = fs.GetDirectoryInfo(new String('X', 256));
+        var dirInfo = fs.GetDirectoryInfo(new string('X', 256));
         Assert.Throws<IOException>(dirInfo.Create);
     }
 

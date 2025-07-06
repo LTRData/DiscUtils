@@ -30,7 +30,7 @@ namespace DiscUtils.Streams;
 /// </summary>
 public abstract class DataReader
 {
-    private const int _bufferSize = sizeof(UInt64);
+    private const int _bufferSize = sizeof(ulong);
 
     protected readonly Stream _stream;
 

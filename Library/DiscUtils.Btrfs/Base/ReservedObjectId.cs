@@ -77,17 +77,17 @@ internal enum ReservedObjectId : ulong
     /// <summary>
     /// The objectid that refers to the TREE_LOG tree
     /// </summary>
-    TreeLog = UInt64.MaxValue - 7UL,
+    TreeLog = ulong.MaxValue - 7UL,
     
     /// <summary>
     /// The objectid that refers to the TREE_RELOC tree
     /// </summary>
-    TreeReloc = UInt64.MaxValue-8UL,
+    TreeReloc = ulong.MaxValue-8UL,
     
     /// <summary>
     /// The objectid that refers to the DATA_RELOC tree
     /// </summary>
-    DataRelocTree = UInt64.MaxValue - 9UL,
+    DataRelocTree = ulong.MaxValue - 9UL,
     
     /// <summary>
     /// The objectid that refers to the directory within the root tree. 
@@ -101,9 +101,9 @@ internal enum ReservedObjectId : ulong
     /// <summary>
     /// The objectid used for orphan root tracking
     /// </summary>
-    Orphan = UInt64.MaxValue - 5UL,
+    Orphan = ulong.MaxValue - 5UL,
     
-    CsumItem = UInt64.MaxValue - 10UL,
+    CsumItem = ulong.MaxValue - 10UL,
 
     /// <summary>
     /// This objectid indicates the first available objectid in this CHUNK_TREE.

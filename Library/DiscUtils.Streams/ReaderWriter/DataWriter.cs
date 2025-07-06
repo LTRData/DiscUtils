@@ -30,7 +30,7 @@ namespace DiscUtils.Streams;
 
 public abstract class DataWriter
 {
-    private const int _bufferSize = sizeof(UInt64);
+    private const int _bufferSize = sizeof(ulong);
 
     protected readonly Stream _stream;
 

@@ -775,9 +775,11 @@ public static class StreamUtilities
     {
         byte[] allocated = null;
 
-        var buffer = obj.Size <= 1024
-            ? stackalloc byte[obj.Size]
-            : (allocated = ArrayPool<byte>.Shared.Rent(obj.Size)).AsSpan(0, obj.Size);
+        var objSize = obj.Size;
+
+        var buffer = objSize <= 1024
+            ? stackalloc byte[objSize]
+            : (allocated = ArrayPool<byte>.Shared.Rent(objSize)).AsSpan(0, objSize);
 
         try
         {
@@ -803,12 +805,14 @@ public static class StreamUtilities
     public static async ValueTask WriteStructAsync<T>(this Stream stream, T obj, CancellationToken cancellationToken)
         where T : IByteArraySerializable
     {
-        var buffer = ArrayPool<byte>.Shared.Rent(obj.Size);
+        var objSize = obj.Size;
+
+        var buffer = ArrayPool<byte>.Shared.Rent(objSize);
 
         try
         {
             obj.WriteTo(buffer);
-            await stream.WriteAsync(buffer.AsMemory(0, obj.Size), cancellationToken).ConfigureAwait(false);
+            await stream.WriteAsync(buffer.AsMemory(0, objSize), cancellationToken).ConfigureAwait(false);
         }
         finally
         {
