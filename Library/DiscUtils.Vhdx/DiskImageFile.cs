@@ -375,6 +375,23 @@ public sealed class DiskImageFile : VirtualDiskLayer
     }
 
     /// <summary>
+    /// Initializes a stream as a dynamically-sized VHDX file.
+    /// </summary>
+    /// <param name="stream">The stream to initialize.</param>
+    /// <param name="ownsStream">Indicates if the new instance controls the lifetime of the stream.</param>
+    /// <param name="capacity">The desired capacity of the new disk.</param>
+    /// <param name="geometry"></param>
+    /// <param name="blockSize">The size of each block (unit of allocation).</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>An object that accesses the stream as a VHDX file.</returns>
+    public static async ValueTask<DiskImageFile> InitializeDynamicAsync(Stream stream, Ownership ownsStream, long capacity, Geometry? geometry, long? blockSize, CancellationToken cancellationToken)
+    {
+        await InitializeDynamicInternalAsync(stream, capacity, geometry, blockSize, cancellationToken).ConfigureAwait(false);
+
+        return new DiskImageFile(stream, ownsStream);
+    }
+
+    /// <summary>
     /// Initializes a stream as a differencing disk VHDX file.
     /// </summary>
     /// <param name="stream">The stream to initialize.</param>
@@ -394,6 +411,32 @@ public sealed class DiskImageFile : VirtualDiskLayer
     {
         InitializeDifferencingInternal(stream, parent, parentAbsolutePath, parentRelativePath,
             parentModificationTimeUtc);
+
+        return new DiskImageFile(stream, ownsStream);
+    }
+
+    /// <summary>
+    /// Initializes a stream as a differencing disk VHDX file.
+    /// </summary>
+    /// <param name="stream">The stream to initialize.</param>
+    /// <param name="ownsStream">Indicates if the new instance controls the lifetime of the stream.</param>
+    /// <param name="parent">The disk this file is a different from.</param>
+    /// <param name="parentAbsolutePath">The full path to the parent disk.</param>
+    /// <param name="parentRelativePath">The relative path from the new disk to the parent disk.</param>
+    /// <param name="parentModificationTimeUtc">The time the parent disk's file was last modified (from file system).</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>An object that accesses the stream as a VHDX file.</returns>
+    public static async ValueTask<DiskImageFile> InitializeDifferencingAsync(
+        Stream stream,
+        Ownership ownsStream,
+        DiskImageFile parent,
+        string parentAbsolutePath,
+        string parentRelativePath,
+        DateTime parentModificationTimeUtc,
+        CancellationToken cancellationToken)
+    {
+        await InitializeDifferencingInternalAsync(stream, parent, parentAbsolutePath, parentRelativePath,
+            parentModificationTimeUtc, cancellationToken).ConfigureAwait(false);
 
         return new DiskImageFile(stream, ownsStream);
     }
@@ -487,6 +530,19 @@ public sealed class DiskImageFile : VirtualDiskLayer
         var lastWriteTime = _fileLocator.GetLastWriteTimeUtc(_fileName);
 
         InitializeDifferencingInternal(stream, this, fullPath, relativePath, lastWriteTime);
+
+        return new DiskImageFile(fileLocator, path, stream, Ownership.Dispose);
+    }
+
+    internal async ValueTask<DiskImageFile> CreateDifferencingAsync(FileLocator fileLocator, string path, CancellationToken cancellationToken)
+    {
+        var stream = fileLocator.Open(path, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
+
+        var fullPath = _fileLocator.GetFullPath(_fileName);
+        var relativePath = fileLocator.MakeRelativePath(_fileLocator, _fileName);
+        var lastWriteTime = _fileLocator.GetLastWriteTimeUtc(_fileName);
+
+        await InitializeDifferencingInternalAsync(stream, this, fullPath, relativePath, lastWriteTime, cancellationToken).ConfigureAwait(false);
 
         return new DiskImageFile(fileLocator, path, stream, Ownership.Dispose);
     }
@@ -809,8 +865,10 @@ public sealed class DiskImageFile : VirtualDiskLayer
         stream.WriteStruct(regionTable);
 
         // Set stream to min size
-        stream.Position = fileEnd - 1;
-        stream.WriteByte(0);
+        if (stream.Length < fileEnd)
+        {
+            stream.SetLength(fileEnd);
+        }
 
         // Metadata
         var fileParams = new FileParameters
@@ -822,6 +880,110 @@ public sealed class DiskImageFile : VirtualDiskLayer
         var metadataStream = new SubStream(stream, metadataRegion.FileOffset, metadataRegion.Length);
         _ = Metadata.Initialize(metadataStream, fileParams, (ulong)capacity,
             (uint)logicalSectorSize, (uint)physicalSectorSize, null);
+    }
+
+    private static async ValueTask InitializeDynamicInternalAsync(Stream stream, long capacity, Geometry? geometry, long? blockSize, CancellationToken cancellationToken)
+    {
+        if (!blockSize.HasValue)
+        {
+            blockSize = FileParameters.DefaultBlockSize;
+        }
+        else if (blockSize.Value < Sizes.OneMiB || blockSize.Value > Sizes.OneMiB * 256 || !Utilities.IsPowerOfTwo(blockSize.Value))
+        {
+            throw new ArgumentOutOfRangeException(nameof(blockSize), blockSize.Value,
+                "BlockSize must be a power of 2 between 1MB and 256MB");
+        }
+
+        geometry ??= Geometry.FromCapacity(capacity);
+
+        var logicalSectorSize = geometry.Value.BytesPerSector;
+        var physicalSectorSize = 4096;
+        var chunkRatio = 0x800000L * logicalSectorSize / blockSize.Value;
+        var dataBlocksCount = MathUtilities.Ceil(capacity, blockSize.Value);
+        var sectorBitmapBlocksCount = MathUtilities.Ceil(dataBlocksCount, chunkRatio);
+        var totalBatEntriesDynamic = dataBlocksCount + (dataBlocksCount - 1) / chunkRatio;
+
+        var fileHeader = new FileHeader { Creator = ".NET DiscUtils" };
+
+        var fileEnd = Sizes.OneMiB;
+
+        var header1 = new VhdxHeader
+        {
+            SequenceNumber = 0,
+            FileWriteGuid = Guid.NewGuid(),
+            DataWriteGuid = Guid.NewGuid(),
+            LogGuid = Guid.Empty,
+            LogVersion = 0,
+            Version = 1,
+            LogLength = (uint)Sizes.OneMiB,
+            LogOffset = (ulong)fileEnd
+        };
+        header1.CalcChecksum();
+
+        fileEnd += header1.LogLength;
+
+        var header2 = new VhdxHeader(header1)
+        {
+            SequenceNumber = 1
+        };
+        header2.CalcChecksum();
+
+        var regionTable = new RegionTable();
+
+        var metadataRegion = new RegionEntry
+        {
+            Guid = RegionEntry.MetadataRegionGuid,
+            FileOffset = fileEnd,
+            Length = (uint)Sizes.OneMiB,
+            Flags = RegionFlags.Required
+        };
+        regionTable.Regions.Add(metadataRegion.Guid, metadataRegion);
+
+        fileEnd += metadataRegion.Length;
+
+        var batRegion = new RegionEntry
+        {
+            Guid = RegionEntry.BatGuid,
+            FileOffset = 3 * Sizes.OneMiB,
+            Length = (uint)MathUtilities.RoundUp(totalBatEntriesDynamic * 8, Sizes.OneMiB),
+            Flags = RegionFlags.Required
+        };
+        regionTable.Regions.Add(batRegion.Guid, batRegion);
+
+        fileEnd += batRegion.Length;
+
+        stream.Position = 0;
+        await stream.WriteStructAsync(fileHeader, cancellationToken).ConfigureAwait(false);
+
+        stream.Position = 64 * Sizes.OneKiB;
+        await stream.WriteStructAsync(header1, cancellationToken).ConfigureAwait(false);
+
+        stream.Position = 128 * Sizes.OneKiB;
+        await stream.WriteStructAsync(header2, cancellationToken).ConfigureAwait(false);
+
+        stream.Position = 192 * Sizes.OneKiB;
+        await stream.WriteStructAsync(regionTable, cancellationToken).ConfigureAwait(false);
+
+        stream.Position = 256 * Sizes.OneKiB;
+        await stream.WriteStructAsync(regionTable, cancellationToken).ConfigureAwait(false);
+
+        // Set stream to min size
+        if (stream.Length < fileEnd)
+        {
+            stream.SetLength(fileEnd);
+        }
+
+        // Metadata
+        var fileParams = new FileParameters
+        {
+            BlockSize = (uint)blockSize,
+            Flags = FileParametersFlags.None,
+        };
+
+        var metadataStream = new SubStream(stream, metadataRegion.FileOffset, metadataRegion.Length);
+        
+        _ = await Metadata.InitializeAsync(metadataStream, fileParams, (ulong)capacity,
+            (uint)logicalSectorSize, (uint)physicalSectorSize, parentLocator: null, cancellationToken).ConfigureAwait(false);
     }
 
     private static void InitializeDifferencingInternal(Stream stream, DiskImageFile parent,
@@ -903,8 +1065,10 @@ public sealed class DiskImageFile : VirtualDiskLayer
         stream.WriteStruct(regionTable);
 
         // Set stream to min size
-        stream.Position = fileEnd - 1;
-        stream.WriteByte(0);
+        if (stream.Length < fileEnd)
+        {
+            stream.SetLength(fileEnd);
+        }
 
         // Metadata
         var fileParams = new FileParameters
@@ -917,6 +1081,108 @@ public sealed class DiskImageFile : VirtualDiskLayer
         var metadataStream = new SubStream(stream, metadataRegion.FileOffset, metadataRegion.Length);
         _ = Metadata.Initialize(metadataStream, fileParams, capacity,
             logicalSectorSize, physicalSectorSize, parentLocator);
+    }
+
+    private static async ValueTask InitializeDifferencingInternalAsync(Stream stream,
+                                                                       DiskImageFile parent,
+                                                                       string parentAbsolutePath,
+                                                                       string parentRelativePath,
+                                                                       DateTime parentModificationTimeUtc,
+                                                                       CancellationToken cancellationToken)
+    {
+        var logicalSectorSize = parent._metadata.LogicalSectorSize;
+        var physicalSectorSize = parent._metadata.PhysicalSectorSize;
+
+        uint blockSize = parent._metadata.FileParameters.BlockSize;
+        var capacity = parent._metadata.DiskSize;
+
+        var chunkRatio = 0x800000L * logicalSectorSize / blockSize;
+        var dataBlocksCount = MathUtilities.Ceil((long)capacity, blockSize);
+        var sectorBitmapBlocksCount = MathUtilities.Ceil(dataBlocksCount, chunkRatio);
+        var totalBatEntriesDynamic = dataBlocksCount + (dataBlocksCount - 1) / chunkRatio;
+
+        var fileHeader = new FileHeader { Creator = ".NET DiscUtils" };
+
+        var fileEnd = Sizes.OneMiB;
+
+        var header1 = new VhdxHeader
+        {
+            SequenceNumber = 0,
+            FileWriteGuid = Guid.NewGuid(),
+            DataWriteGuid = Guid.NewGuid(),
+            LogGuid = Guid.Empty,
+            LogVersion = 0,
+            Version = 1,
+            LogLength = (uint)Sizes.OneMiB,
+            LogOffset = (ulong)fileEnd
+        };
+        header1.CalcChecksum();
+
+        fileEnd += header1.LogLength;
+
+        var header2 = new VhdxHeader(header1)
+        {
+            SequenceNumber = 1
+        };
+        header2.CalcChecksum();
+
+        var regionTable = new RegionTable();
+
+        var metadataRegion = new RegionEntry
+        {
+            Guid = RegionEntry.MetadataRegionGuid,
+            FileOffset = fileEnd,
+            Length = (uint)Sizes.OneMiB,
+            Flags = RegionFlags.Required
+        };
+        regionTable.Regions.Add(metadataRegion.Guid, metadataRegion);
+
+        fileEnd += metadataRegion.Length;
+
+        var batRegion = new RegionEntry
+        {
+            Guid = RegionEntry.BatGuid,
+            FileOffset = 3 * Sizes.OneMiB,
+            Length = (uint)MathUtilities.RoundUp(totalBatEntriesDynamic * 8, Sizes.OneMiB),
+            Flags = RegionFlags.Required
+        };
+        regionTable.Regions.Add(batRegion.Guid, batRegion);
+
+        fileEnd += batRegion.Length;
+
+        stream.Position = 0;
+        await stream.WriteStructAsync(fileHeader, cancellationToken).ConfigureAwait(false);
+
+        stream.Position = 64 * Sizes.OneKiB;
+        await stream.WriteStructAsync(header1, cancellationToken).ConfigureAwait(false);
+
+        stream.Position = 128 * Sizes.OneKiB;
+        await stream.WriteStructAsync(header2, cancellationToken).ConfigureAwait(false);
+
+        stream.Position = 192 * Sizes.OneKiB;
+        await stream.WriteStructAsync(regionTable, cancellationToken).ConfigureAwait(false);
+
+        stream.Position = 256 * Sizes.OneKiB;
+        await stream.WriteStructAsync(regionTable, cancellationToken).ConfigureAwait(false);
+
+        // Set stream to min size
+        if (stream.Length < fileEnd)
+        {
+            stream.SetLength(fileEnd);
+        }
+
+        // Metadata
+        var fileParams = new FileParameters
+        {
+            BlockSize = blockSize,
+            Flags = FileParametersFlags.HasParent,
+        };
+        var parentLocator = new ParentLocator(parent._header.DataWriteGuid.ToString("b"), parentRelativePath, parentAbsolutePath);
+
+        var metadataStream = new SubStream(stream, metadataRegion.FileOffset, metadataRegion.Length);
+
+        await Metadata.InitializeAsync(metadataStream, fileParams, capacity,
+            logicalSectorSize, physicalSectorSize, parentLocator, cancellationToken).ConfigureAwait(false);
     }
 
     private void Initialize()

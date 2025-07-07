@@ -454,6 +454,22 @@ public sealed class Disk : VirtualDisk
     }
 
     /// <summary>
+    /// Initializes a stream as a dynamically-sized VHDX file.
+    /// </summary>
+    /// <param name="stream">The stream to initialize.</param>
+    /// <param name="ownsStream">Indicates if the new instance controls the lifetime of the stream.</param>
+    /// <param name="capacity">The desired capacity of the new disk.</param>
+    /// <param name="geometry"></param>
+    /// <param name="blockSize">The size of each block (unit of allocation).</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>An object that accesses the stream as a VHDX file.</returns>
+    public static async ValueTask<Disk> InitializeDynamicAsync(Stream stream, Ownership ownsStream, long capacity, Geometry? geometry, long? blockSize, CancellationToken cancellationToken)
+    {
+        var diskImageFile = await DiskImageFile.InitializeDynamicAsync(stream, ownsStream, capacity, geometry, blockSize, cancellationToken).ConfigureAwait(false);
+        return new Disk(diskImageFile, Ownership.Dispose);
+    }
+
+    /// <summary>
     /// Creates a new VHDX differencing disk file.
     /// </summary>
     /// <param name="path">The path to the new disk file.</param>
@@ -485,6 +501,28 @@ public sealed class Disk : VirtualDisk
     }
 
     /// <summary>
+    /// Creates a new VHDX differencing disk file.
+    /// </summary>
+    /// <param name="path">The path to the new disk file.</param>
+    /// <param name="parentPath">The path to the parent disk file.</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>An object that accesses the new file as a Disk.</returns>
+    public static async ValueTask<Disk> InitializeDifferencingAsync(string path, string parentPath, CancellationToken cancellationToken)
+    {
+        var parentLocator = new LocalFileLocator(Path.GetDirectoryName(parentPath), useAsync: true);
+        var parentFileName = Path.GetFileName(parentPath);
+
+        DiskImageFile newFile;
+        using (var parent = new DiskImageFile(parentLocator, parentFileName, FileAccess.Read))
+        {
+            var locator = new LocalFileLocator(Path.GetDirectoryName(path), useAsync: true);
+            newFile = await parent.CreateDifferencingAsync(locator, Path.GetFileName(path), cancellationToken).ConfigureAwait(false);
+        }
+
+        return new Disk(newFile, Ownership.Dispose, parentLocator, parentFileName);
+    }
+
+    /// <summary>
     /// Initializes a stream as a differencing disk VHDX file.
     /// </summary>
     /// <param name="stream">The stream to initialize.</param>
@@ -506,6 +544,33 @@ public sealed class Disk : VirtualDisk
     {
         var file = DiskImageFile.InitializeDifferencing(stream, ownsStream, parent, parentAbsolutePath,
             parentRelativePath, parentModificationTime);
+        return new Disk(file, Ownership.Dispose, parent, ownsParent);
+    }
+
+    /// <summary>
+    /// Initializes a stream as a differencing disk VHDX file.
+    /// </summary>
+    /// <param name="stream">The stream to initialize.</param>
+    /// <param name="ownsStream">Indicates if the new instance controls the lifetime of the <paramref name="stream"/>.</param>
+    /// <param name="parent">The disk this file is a different from.</param>
+    /// <param name="ownsParent">Indicates if the new instance controls the lifetime of the <paramref name="parent"/> file.</param>
+    /// <param name="parentAbsolutePath">The full path to the parent disk.</param>
+    /// <param name="parentRelativePath">The relative path from the new disk to the parent disk.</param>
+    /// <param name="parentModificationTime">The time the parent disk's file was last modified (from file system).</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>An object that accesses the stream as a VHDX file.</returns>
+    public static async ValueTask<Disk> InitializeDifferencingAsync(
+        Stream stream,
+        Ownership ownsStream,
+        DiskImageFile parent,
+        Ownership ownsParent,
+        string parentAbsolutePath,
+        string parentRelativePath,
+        DateTime parentModificationTime,
+        CancellationToken cancellationToken)
+    {
+        var file = await DiskImageFile.InitializeDifferencingAsync(stream, ownsStream, parent, parentAbsolutePath,
+            parentRelativePath, parentModificationTime, cancellationToken).ConfigureAwait(false);
         return new Disk(file, Ownership.Dispose, parent, ownsParent);
     }
 
