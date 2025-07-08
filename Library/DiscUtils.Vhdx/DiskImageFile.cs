@@ -269,7 +269,11 @@ public sealed class DiskImageFile : VirtualDiskLayer
         set
         {
             _header.DataWriteGuid = value;
-            _header.SequenceNumber = 0;
+
+            var information = Information;
+
+            _header.SequenceNumber = (ulong)(Math.Max(information.FirstHeader.SequenceNumber,
+                information.SecondHeader.SequenceNumber) + 1);
 
             _header.CalcChecksum();
 
@@ -278,7 +282,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
 
             var header2 = new VhdxHeader(_header)
             {
-                SequenceNumber = 1
+                SequenceNumber = _header.SequenceNumber + 1
             };
 
             header2.CalcChecksum();
@@ -633,6 +637,17 @@ public sealed class DiskImageFile : VirtualDiskLayer
 
         var regionTable = new RegionTable();
 
+        var batRegion = new RegionEntry
+        {
+            Guid = RegionEntry.BatGuid,
+            FileOffset = fileEnd,
+            Length = (uint)MathUtilities.RoundUp(totalBatEntriesFixed * 8, Sizes.OneMiB),
+            Flags = RegionFlags.Required
+        };
+        regionTable.Regions.Add(batRegion.Guid, batRegion);
+
+        fileEnd += batRegion.Length;
+
         var metadataRegion = new RegionEntry
         {
             Guid = RegionEntry.MetadataRegionGuid,
@@ -643,17 +658,6 @@ public sealed class DiskImageFile : VirtualDiskLayer
         regionTable.Regions.Add(metadataRegion.Guid, metadataRegion);
 
         fileEnd += metadataRegion.Length;
-
-        var batRegion = new RegionEntry
-        {
-            Guid = RegionEntry.BatGuid,
-            FileOffset = 3 * Sizes.OneMiB,
-            Length = (uint)MathUtilities.RoundUp(totalBatEntriesFixed * 8, Sizes.OneMiB),
-            Flags = RegionFlags.Required
-        };
-        regionTable.Regions.Add(batRegion.Guid, batRegion);
-
-        fileEnd += batRegion.Length;
 
         stream.Position = 0;
         stream.WriteStruct(fileHeader);
@@ -727,6 +731,17 @@ public sealed class DiskImageFile : VirtualDiskLayer
 
         var regionTable = new RegionTable();
 
+        var batRegion = new RegionEntry
+        {
+            Guid = RegionEntry.BatGuid,
+            FileOffset = fileEnd,
+            Length = (uint)MathUtilities.RoundUp(totalBatEntriesFixed * 8, Sizes.OneMiB),
+            Flags = RegionFlags.Required
+        };
+        regionTable.Regions.Add(batRegion.Guid, batRegion);
+
+        fileEnd += batRegion.Length;
+
         var metadataRegion = new RegionEntry
         {
             Guid = RegionEntry.MetadataRegionGuid,
@@ -737,17 +752,6 @@ public sealed class DiskImageFile : VirtualDiskLayer
         regionTable.Regions.Add(metadataRegion.Guid, metadataRegion);
 
         fileEnd += metadataRegion.Length;
-
-        var batRegion = new RegionEntry
-        {
-            Guid = RegionEntry.BatGuid,
-            FileOffset = 3 * Sizes.OneMiB,
-            Length = (uint)MathUtilities.RoundUp(totalBatEntriesFixed * 8, Sizes.OneMiB),
-            Flags = RegionFlags.Required
-        };
-        regionTable.Regions.Add(batRegion.Guid, batRegion);
-
-        fileEnd += batRegion.Length;
 
         stream.Position = 0;
         await stream.WriteStructAsync(fileHeader, cancellationToken).ConfigureAwait(false);
@@ -827,6 +831,17 @@ public sealed class DiskImageFile : VirtualDiskLayer
 
         var regionTable = new RegionTable();
 
+        var batRegion = new RegionEntry
+        {
+            Guid = RegionEntry.BatGuid,
+            FileOffset = fileEnd,
+            Length = (uint)MathUtilities.RoundUp(totalBatEntriesDynamic * 8, Sizes.OneMiB),
+            Flags = RegionFlags.Required
+        };
+        regionTable.Regions.Add(batRegion.Guid, batRegion);
+
+        fileEnd += batRegion.Length;
+
         var metadataRegion = new RegionEntry
         {
             Guid = RegionEntry.MetadataRegionGuid,
@@ -837,17 +852,6 @@ public sealed class DiskImageFile : VirtualDiskLayer
         regionTable.Regions.Add(metadataRegion.Guid, metadataRegion);
 
         fileEnd += metadataRegion.Length;
-
-        var batRegion = new RegionEntry
-        {
-            Guid = RegionEntry.BatGuid,
-            FileOffset = 3 * Sizes.OneMiB,
-            Length = (uint)MathUtilities.RoundUp(totalBatEntriesDynamic * 8, Sizes.OneMiB),
-            Flags = RegionFlags.Required
-        };
-        regionTable.Regions.Add(batRegion.Guid, batRegion);
-
-        fileEnd += batRegion.Length;
 
         stream.Position = 0;
         stream.WriteStruct(fileHeader);
@@ -884,9 +888,11 @@ public sealed class DiskImageFile : VirtualDiskLayer
 
     private static async ValueTask InitializeDynamicInternalAsync(Stream stream, long capacity, Geometry? geometry, long? blockSize, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         if (!blockSize.HasValue)
         {
-            blockSize = FileParameters.DefaultBlockSize;
+            blockSize = FileParameters.DefaultDynamicBlockSize;
         }
         else if (blockSize.Value < Sizes.OneMiB || blockSize.Value > Sizes.OneMiB * 256 || !Utilities.IsPowerOfTwo(blockSize.Value))
         {
@@ -930,6 +936,17 @@ public sealed class DiskImageFile : VirtualDiskLayer
 
         var regionTable = new RegionTable();
 
+        var batRegion = new RegionEntry
+        {
+            Guid = RegionEntry.BatGuid,
+            FileOffset = fileEnd,
+            Length = (uint)MathUtilities.RoundUp(totalBatEntriesDynamic * 8, Sizes.OneMiB),
+            Flags = RegionFlags.Required
+        };
+        regionTable.Regions.Add(batRegion.Guid, batRegion);
+
+        fileEnd += batRegion.Length;
+
         var metadataRegion = new RegionEntry
         {
             Guid = RegionEntry.MetadataRegionGuid,
@@ -941,16 +958,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
 
         fileEnd += metadataRegion.Length;
 
-        var batRegion = new RegionEntry
-        {
-            Guid = RegionEntry.BatGuid,
-            FileOffset = 3 * Sizes.OneMiB,
-            Length = (uint)MathUtilities.RoundUp(totalBatEntriesDynamic * 8, Sizes.OneMiB),
-            Flags = RegionFlags.Required
-        };
-        regionTable.Regions.Add(batRegion.Guid, batRegion);
-
-        fileEnd += batRegion.Length;
+        cancellationToken.ThrowIfCancellationRequested();
 
         stream.Position = 0;
         await stream.WriteStructAsync(fileHeader, cancellationToken).ConfigureAwait(false);
@@ -992,8 +1000,14 @@ public sealed class DiskImageFile : VirtualDiskLayer
         var logicalSectorSize = parent._metadata.LogicalSectorSize;
         var physicalSectorSize = parent._metadata.PhysicalSectorSize;
 
-        uint blockSize = parent._metadata.FileParameters.BlockSize;
         var capacity = parent._metadata.DiskSize;
+
+        uint blockSize = FileParameters.DefaultDifferencingBlockSize;
+
+        if ((capacity & (blockSize - 1)) != 0)
+        {
+            blockSize = parent._metadata.FileParameters.BlockSize;
+        }
 
         var chunkRatio = 0x800000L * logicalSectorSize / blockSize;
         var dataBlocksCount = MathUtilities.Ceil((long)capacity, blockSize);
@@ -1027,6 +1041,17 @@ public sealed class DiskImageFile : VirtualDiskLayer
 
         var regionTable = new RegionTable();
 
+        var batRegion = new RegionEntry
+        {
+            Guid = RegionEntry.BatGuid,
+            FileOffset = fileEnd,
+            Length = (uint)MathUtilities.RoundUp(totalBatEntriesDynamic * 8, Sizes.OneMiB),
+            Flags = RegionFlags.Required
+        };
+        regionTable.Regions.Add(batRegion.Guid, batRegion);
+
+        fileEnd += batRegion.Length;
+
         var metadataRegion = new RegionEntry
         {
             Guid = RegionEntry.MetadataRegionGuid,
@@ -1037,17 +1062,6 @@ public sealed class DiskImageFile : VirtualDiskLayer
         regionTable.Regions.Add(metadataRegion.Guid, metadataRegion);
 
         fileEnd += metadataRegion.Length;
-
-        var batRegion = new RegionEntry
-        {
-            Guid = RegionEntry.BatGuid,
-            FileOffset = 3 * Sizes.OneMiB,
-            Length = (uint)MathUtilities.RoundUp(totalBatEntriesDynamic * 8, Sizes.OneMiB),
-            Flags = RegionFlags.Required
-        };
-        regionTable.Regions.Add(batRegion.Guid, batRegion);
-
-        fileEnd += batRegion.Length;
 
         stream.Position = 0;
         stream.WriteStruct(fileHeader);
@@ -1090,11 +1104,19 @@ public sealed class DiskImageFile : VirtualDiskLayer
                                                                        DateTime parentModificationTimeUtc,
                                                                        CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+        
         var logicalSectorSize = parent._metadata.LogicalSectorSize;
         var physicalSectorSize = parent._metadata.PhysicalSectorSize;
 
-        uint blockSize = parent._metadata.FileParameters.BlockSize;
         var capacity = parent._metadata.DiskSize;
+
+        uint blockSize = FileParameters.DefaultDifferencingBlockSize;
+
+        if ((capacity & (blockSize - 1)) != 0)
+        {
+            blockSize = parent._metadata.FileParameters.BlockSize;
+        }
 
         var chunkRatio = 0x800000L * logicalSectorSize / blockSize;
         var dataBlocksCount = MathUtilities.Ceil((long)capacity, blockSize);
@@ -1128,6 +1150,18 @@ public sealed class DiskImageFile : VirtualDiskLayer
 
         var regionTable = new RegionTable();
 
+        var batRegion = new RegionEntry
+        {
+            Guid = RegionEntry.BatGuid,
+            FileOffset = fileEnd,
+            Length = (uint)MathUtilities.RoundUp(totalBatEntriesDynamic * 8, Sizes.OneMiB),
+            Flags = RegionFlags.Required
+        };
+
+        regionTable.Regions.Add(batRegion.Guid, batRegion);
+
+        fileEnd += batRegion.Length;
+
         var metadataRegion = new RegionEntry
         {
             Guid = RegionEntry.MetadataRegionGuid,
@@ -1135,20 +1169,12 @@ public sealed class DiskImageFile : VirtualDiskLayer
             Length = (uint)Sizes.OneMiB,
             Flags = RegionFlags.Required
         };
+
         regionTable.Regions.Add(metadataRegion.Guid, metadataRegion);
 
         fileEnd += metadataRegion.Length;
 
-        var batRegion = new RegionEntry
-        {
-            Guid = RegionEntry.BatGuid,
-            FileOffset = 3 * Sizes.OneMiB,
-            Length = (uint)MathUtilities.RoundUp(totalBatEntriesDynamic * 8, Sizes.OneMiB),
-            Flags = RegionFlags.Required
-        };
-        regionTable.Regions.Add(batRegion.Guid, batRegion);
-
-        fileEnd += batRegion.Length;
+        cancellationToken.ThrowIfCancellationRequested();
 
         stream.Position = 0;
         await stream.WriteStructAsync(fileHeader, cancellationToken).ConfigureAwait(false);

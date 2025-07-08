@@ -136,17 +136,6 @@ public sealed class DiskBuilder : DiskImageBuilder
 
             var regionTable = new RegionTable();
 
-            var metadataRegion = new RegionEntry
-            {
-                Guid = RegionEntry.MetadataRegionGuid,
-                FileOffset = fileEnd,
-                Length = (uint)Sizes.OneMiB,
-                Flags = RegionFlags.Required
-            };
-            regionTable.Regions.Add(metadataRegion.Guid, metadataRegion);
-
-            fileEnd += metadataRegion.Length;
-
             var batRegion = new RegionEntry
             {
                 Guid = RegionEntry.BatGuid,
@@ -157,6 +146,17 @@ public sealed class DiskBuilder : DiskImageBuilder
             regionTable.Regions.Add(batRegion.Guid, batRegion);
 
             fileEnd += batRegion.Length;
+
+            var metadataRegion = new RegionEntry
+            {
+                Guid = RegionEntry.MetadataRegionGuid,
+                FileOffset = fileEnd,
+                Length = (uint)Sizes.OneMiB,
+                Flags = RegionFlags.Required
+            };
+            regionTable.Regions.Add(metadataRegion.Guid, metadataRegion);
+
+            fileEnd += metadataRegion.Length;
 
             extents.Add(ExtentForStruct(fileHeader, 0));
             extents.Add(ExtentForStruct(header1, 64 * Sizes.OneKiB));

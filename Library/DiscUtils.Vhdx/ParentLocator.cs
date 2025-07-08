@@ -45,28 +45,13 @@ internal sealed class ParentLocator : IByteArraySerializable
     public ParentLocator(string parentUid, string relativePath, string absolutePath)
     {
         Entries.Add("parent_linkage", parentUid);
-        
+
+        Entries.Add("absolute_win32_path", absolutePath);
+
         if (!string.IsNullOrWhiteSpace(relativePath))
         {
             Entries.Add("relative_path", relativePath);
         }
-
-        if (absolutePath.Length > 3 && absolutePath[1] == ':' && absolutePath[2] == '\\')
-        {
-            absolutePath = $@"\\?\{absolutePath}";
-        }
-        else if (absolutePath.StartsWith(@"\\", StringComparison.Ordinal)
-            && !(absolutePath.StartsWith(@"\\?\", StringComparison.Ordinal)
-            || absolutePath.StartsWith(@"\\.\", StringComparison.Ordinal)))
-        {
-#if NET5_0_OR_GREATER
-            absolutePath = $@"\\?\UNC\{absolutePath.AsSpan(2)}";
-#else
-            absolutePath = $@"\\?\UNC\{absolutePath.Substring(2)}";
-#endif
-        }
-
-        Entries.Add("absolute_win32_path", absolutePath);
     }
 
     public int Size
@@ -126,8 +111,8 @@ internal sealed class ParentLocator : IByteArraySerializable
 
         foreach (var entry in Entries)
         {
-            var keyData = EndianUtilities.StringToLittleEndianUnicodeBytes(entry.Key.AsSpan());
-            var valueData = EndianUtilities.StringToLittleEndianUnicodeBytes(entry.Value.AsSpan());
+            var keyData = EndianUtilities.StringToLittleEndianUnicodeBytes(entry.Key);
+            var valueData = EndianUtilities.StringToLittleEndianUnicodeBytes(entry.Value);
 
             keyData.CopyTo(buffer.Slice(20 + Count * 12 + entryOffset));
             EndianUtilities.WriteBytesLittleEndian((ushort)(20 + Count * 12 + entryOffset), buffer.Slice(20 + item * 12));

@@ -67,10 +67,7 @@ public sealed class BZip2DecoderStream : ReadOnlyCompatibilityStream
         _bitstream = new BigEndianBitStream(new BufferedStream(stream));
 
         // The Magic BZh
-        Span<byte> magic = stackalloc byte[3];
-        magic[0] = (byte)_bitstream.Read(8);
-        magic[1] = (byte)_bitstream.Read(8);
-        magic[2] = (byte)_bitstream.Read(8);
+        Span<byte> magic = [(byte)_bitstream.Read(8), (byte)_bitstream.Read(8), (byte)_bitstream.Read(8)];
         if (magic[0] != 0x42 || magic[1] != 0x5A || magic[2] != 0x68)
         {
             throw new InvalidDataException("Bad magic at start of stream");

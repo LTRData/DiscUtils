@@ -27,6 +27,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using DiscUtils.Streams;
 using DiscUtils.Streams.Compatibility;
+using System.Buffers;
+
 
 #if !NET5_0_OR_GREATER
 using System.Security.Permissions;
@@ -82,14 +84,14 @@ internal sealed class Metadata
             header, dataOffset, metadataStream);
         dataOffset += AddEntryValue(diskSize, EndianUtilities.WriteBytesLittleEndian, MetadataTable.VirtualDiskSizeGuid,
             MetadataEntryFlags.IsRequired | MetadataEntryFlags.IsVirtualDisk, header, dataOffset, metadataStream);
-        dataOffset += AddEntryValue(Guid.NewGuid(), EndianUtilities.WriteBytesLittleEndian, MetadataTable.Page83DataGuid,
-            MetadataEntryFlags.IsRequired | MetadataEntryFlags.IsVirtualDisk, header, dataOffset, metadataStream);
         dataOffset += AddEntryValue(logicalSectorSize, EndianUtilities.WriteBytesLittleEndian,
             MetadataTable.LogicalSectorSizeGuid, MetadataEntryFlags.IsRequired | MetadataEntryFlags.IsVirtualDisk,
             header, dataOffset, metadataStream);
         dataOffset += AddEntryValue(physicalSectorSize, EndianUtilities.WriteBytesLittleEndian,
             MetadataTable.PhysicalSectorSizeGuid, MetadataEntryFlags.IsRequired | MetadataEntryFlags.IsVirtualDisk,
             header, dataOffset, metadataStream);
+        dataOffset += AddEntryValue(Guid.NewGuid(), EndianUtilities.WriteBytesLittleEndian, MetadataTable.Page83DataGuid,
+            MetadataEntryFlags.IsRequired | MetadataEntryFlags.IsVirtualDisk, header, dataOffset, metadataStream);
         if (parentLocator != null)
         {
             dataOffset += AddEntryStruct(parentLocator, MetadataTable.ParentLocatorGuid,
@@ -107,22 +109,22 @@ internal sealed class Metadata
         var header = new MetadataTable();
 
         var dataOffset = (uint)(64 * Sizes.OneKiB);
-        dataOffset += AddEntryStruct(fileParameters, MetadataTable.FileParametersGuid, MetadataEntryFlags.IsRequired,
-            header, dataOffset, metadataStream);
-        dataOffset += AddEntryValue(diskSize, EndianUtilities.WriteBytesLittleEndian, MetadataTable.VirtualDiskSizeGuid,
-            MetadataEntryFlags.IsRequired | MetadataEntryFlags.IsVirtualDisk, header, dataOffset, metadataStream);
-        dataOffset += AddEntryValue(Guid.NewGuid(), EndianUtilities.WriteBytesLittleEndian, MetadataTable.Page83DataGuid,
-            MetadataEntryFlags.IsRequired | MetadataEntryFlags.IsVirtualDisk, header, dataOffset, metadataStream);
-        dataOffset += AddEntryValue(logicalSectorSize, EndianUtilities.WriteBytesLittleEndian,
+        dataOffset += await AddEntryStructAsync(fileParameters, MetadataTable.FileParametersGuid, MetadataEntryFlags.IsRequired,
+            header, dataOffset, metadataStream, cancellationToken).ConfigureAwait(false);
+        dataOffset += await AddEntryValueAsync(diskSize, EndianUtilities.WriteBytesLittleEndian, MetadataTable.VirtualDiskSizeGuid,
+            MetadataEntryFlags.IsRequired | MetadataEntryFlags.IsVirtualDisk, header, dataOffset, metadataStream, cancellationToken).ConfigureAwait(false);
+        dataOffset += await AddEntryValueAsync(logicalSectorSize, EndianUtilities.WriteBytesLittleEndian,
             MetadataTable.LogicalSectorSizeGuid, MetadataEntryFlags.IsRequired | MetadataEntryFlags.IsVirtualDisk,
-            header, dataOffset, metadataStream);
-        dataOffset += AddEntryValue(physicalSectorSize, EndianUtilities.WriteBytesLittleEndian,
+            header, dataOffset, metadataStream, cancellationToken).ConfigureAwait(false);
+        dataOffset += await AddEntryValueAsync(physicalSectorSize, EndianUtilities.WriteBytesLittleEndian,
             MetadataTable.PhysicalSectorSizeGuid, MetadataEntryFlags.IsRequired | MetadataEntryFlags.IsVirtualDisk,
-            header, dataOffset, metadataStream);
+            header, dataOffset, metadataStream, cancellationToken).ConfigureAwait(false);
+        dataOffset += await AddEntryValueAsync(Guid.NewGuid(), EndianUtilities.WriteBytesLittleEndian, MetadataTable.Page83DataGuid,
+            MetadataEntryFlags.IsRequired | MetadataEntryFlags.IsVirtualDisk, header, dataOffset, metadataStream, cancellationToken).ConfigureAwait(false);
         if (parentLocator != null)
         {
-            dataOffset += AddEntryStruct(parentLocator, MetadataTable.ParentLocatorGuid,
-                MetadataEntryFlags.IsRequired, header, dataOffset, metadataStream);
+            dataOffset += await AddEntryStructAsync(parentLocator, MetadataTable.ParentLocatorGuid,
+                MetadataEntryFlags.IsRequired, header, dataOffset, metadataStream, cancellationToken).ConfigureAwait(false);
         }
 
         metadataStream.Position = 0;
@@ -151,6 +153,27 @@ internal sealed class Metadata
         return entry.Length;
     }
 
+    private static async ValueTask<uint> AddEntryStructAsync<T>(T data, Guid id, MetadataEntryFlags flags, MetadataTable header,
+                                          uint dataOffset, Stream stream, CancellationToken cancellationToken)
+        where T : IByteArraySerializable
+    {
+        var key = new MetadataEntryKey(id, (flags & MetadataEntryFlags.IsUser) != 0);
+        var entry = new MetadataEntry
+        {
+            ItemId = id,
+            Offset = dataOffset,
+            Length = (uint)data.Size,
+            Flags = flags
+        };
+
+        header.Entries[key] = entry;
+
+        stream.Position = dataOffset;
+        await stream.WriteStructAsync(data, cancellationToken).ConfigureAwait(false);
+
+        return entry.Length;
+    }
+
 #if !NET5_0_OR_GREATER
     [SecurityPermission(SecurityAction.Demand, UnmanagedCode = true)]
 #endif
@@ -173,6 +196,39 @@ internal sealed class Metadata
         Span<byte> buffer = stackalloc byte[(int)entry.Length];
         writer(data, buffer);
         stream.Write(buffer);
+
+        return entry.Length;
+    }
+
+#if !NET5_0_OR_GREATER
+    [SecurityPermission(SecurityAction.Demand, UnmanagedCode = true)]
+#endif
+    private static async ValueTask <uint> AddEntryValueAsync<T>(T data, Writer<T> writer, Guid id, MetadataEntryFlags flags,
+                                         MetadataTable header, uint dataOffset, Stream stream, CancellationToken cancellationToken)
+    {
+        var key = new MetadataEntryKey(id, (flags & MetadataEntryFlags.IsUser) != 0);
+        var entry = new MetadataEntry
+        {
+            ItemId = id,
+            Offset = dataOffset,
+            Length = (uint)Marshal.SizeOf<T>(),
+            Flags = flags
+        };
+
+        header.Entries[key] = entry;
+
+        stream.Position = dataOffset;
+
+        var buffer = ArrayPool<byte>.Shared.Rent((int)entry.Length);
+        try
+        {
+            writer(data, buffer);
+            await stream.WriteAsync(buffer.AsMemory(0, (int)entry.Length), cancellationToken).ConfigureAwait(false);
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(buffer);
+        }
 
         return entry.Length;
     }

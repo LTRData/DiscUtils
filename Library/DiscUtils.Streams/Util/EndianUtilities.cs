@@ -20,6 +20,8 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
+using DiscUtils.Streams.Compatibility;
+using LTRData.Extensions.Formatting;
 using System;
 using System.Buffers;
 using System.IO;
@@ -259,7 +261,7 @@ public static class EndianUtilities
 #if NET8_0_OR_GREATER
         MemoryMarshal.Write(buffer, val);
 #else
-            MemoryMarshal.Write(buffer, ref val);
+        MemoryMarshal.Write(buffer, ref val);
 #endif
 
         if (_isLittleEndian)
@@ -601,24 +603,57 @@ public static class EndianUtilities
 
     public static string LittleEndianUnicodeBytesToString(ReadOnlySpan<byte> bytes)
     {
-#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP
-        return Encoding.Unicode.GetString(bytes);
-#else
+        if (!BitConverter.IsLittleEndian)
+        {
+            return Encoding.Unicode.GetString(bytes);
+        }
+
         return MemoryMarshal.Cast<byte, char>(bytes).ToString();
-#endif
+    }
+
+    public static string LittleEndianUnicodeBytesToString(byte[] bytes, int offset, int count)
+    {
+        if (!BitConverter.IsLittleEndian)
+        {
+            return Encoding.Unicode.GetString(bytes, offset, count);
+        }
+
+        return MemoryMarshal.Cast<byte, char>(bytes.AsSpan(offset, count)).ToString();
     }
 
     public static ReadOnlySpan<byte> StringToLittleEndianUnicodeBytes(ReadOnlySpan<char> chars)
     {
-#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP
         if (!BitConverter.IsLittleEndian)
         {
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP
             var byteCount = Encoding.Unicode.GetByteCount(chars);
             var bytes = StreamUtilities.GetUninitializedArray<byte>(byteCount);
             return bytes.AsSpan(0, Encoding.Unicode.GetBytes(chars, bytes));
-        }
+#else
+            var buffer = ArrayPool<char>.Shared.Rent(chars.Length);
+            try
+            {
+                chars.CopyTo(buffer);
+                return Encoding.Unicode.GetBytes(buffer, 0, chars.Length);
+            }
+            finally
+            {
+                ArrayPool<char>.Shared.Return(buffer);
+            }
 #endif
+        }
+
         return MemoryMarshal.AsBytes(chars);
+    }
+
+    public static ReadOnlySpan<byte> StringToLittleEndianUnicodeBytes(string chars)
+    {
+        if (!BitConverter.IsLittleEndian)
+        {
+            return Encoding.Unicode.GetBytes(chars);
+        }
+
+        return MemoryMarshal.AsBytes(chars.AsSpan());
     }
 
     /// <summary>

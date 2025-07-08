@@ -75,7 +75,7 @@ public abstract class CompatibilityStream : Stream
     }
 
     public override void WriteByte(byte value) =>
-        Write(stackalloc byte[] { value });
+        Write([value]);
 
     public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback callback, object state) =>
         ReadAsync(buffer, offset, count, CancellationToken.None).AsAsyncResult(callback, state);
