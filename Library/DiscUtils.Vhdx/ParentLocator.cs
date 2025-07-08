@@ -23,7 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
+using System.Runtime.InteropServices;
 using DiscUtils.Streams;
 
 namespace DiscUtils.Vhdx;
@@ -62,8 +62,8 @@ internal sealed class ParentLocator : IByteArraySerializable
 
             foreach (var entry in Entries)
             {
-                size += Encoding.Unicode.GetByteCount(entry.Key);
-                size += Encoding.Unicode.GetByteCount(entry.Value);
+                size += MemoryMarshal.AsBytes(entry.Key.AsSpan()).Length;
+                size += MemoryMarshal.AsBytes(entry.Value.AsSpan()).Length;
             }
 
             return size;

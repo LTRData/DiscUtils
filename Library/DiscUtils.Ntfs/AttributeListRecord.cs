@@ -22,6 +22,7 @@
 
 using System;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
 using DiscUtils.Streams;
 
@@ -38,8 +39,7 @@ internal class AttributeListRecord : IDiagnosticTraceable, IByteArraySerializabl
     public ulong StartVcn;
     public AttributeType Type;
 
-    public int Size => MathUtilities.RoundUp(0x20 + (string.IsNullOrEmpty(Name) ? 0 : Encoding.Unicode.GetByteCount(Name)),
-                8);
+    public int Size => MathUtilities.RoundUp(0x20 + (string.IsNullOrEmpty(Name) ? 0 : MemoryMarshal.AsBytes(Name.AsSpan()).Length), 8);
 
     public int ReadFrom(ReadOnlySpan<byte> data)
     {

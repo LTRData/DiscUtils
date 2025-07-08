@@ -20,10 +20,11 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
+using DiscUtils.Streams;
 using System;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
-using DiscUtils.Streams;
 
 namespace DiscUtils.Ntfs;
 
@@ -38,7 +39,7 @@ internal sealed class VolumeName : IByteArraySerializable, IDiagnosticTraceable
 
     public string Name { get; private set; }
 
-    public int Size => Encoding.Unicode.GetByteCount(Name);
+    public int Size => MemoryMarshal.AsBytes(Name.AsSpan()).Length;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
