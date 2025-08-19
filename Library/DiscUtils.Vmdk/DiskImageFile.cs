@@ -255,7 +255,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
     /// Gets the Geometry of this disk.
     /// </summary>
     public override Geometry Geometry => _descriptor.DiskGeometry
-        ?? throw new InvalidOperationException("Unknown geometry");
+        ?? Geometry.FromCapacity(Capacity);
 
     /// <summary>
     /// Gets an indication as to whether the disk file is sparse.
