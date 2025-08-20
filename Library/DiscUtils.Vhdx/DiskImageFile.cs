@@ -529,26 +529,42 @@ public sealed class DiskImageFile : VirtualDiskLayer
     {
         var stream = fileLocator.Open(path, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
 
-        var fullPath = _fileLocator.GetFullPath(_fileName);
-        var relativePath = fileLocator.MakeRelativePath(_fileLocator, _fileName);
-        var lastWriteTime = _fileLocator.GetLastWriteTimeUtc(_fileName);
+        try
+        {
+            var fullPath = _fileLocator.GetFullPath(_fileName);
+            var relativePath = fileLocator.MakeRelativePath(_fileLocator, _fileName);
+            var lastWriteTime = _fileLocator.GetLastWriteTimeUtc(_fileName);
 
-        InitializeDifferencingInternal(stream, this, fullPath, relativePath, lastWriteTime);
+            InitializeDifferencingInternal(stream, this, fullPath, relativePath, lastWriteTime);
 
-        return new DiskImageFile(fileLocator, path, stream, Ownership.Dispose);
+            return new DiskImageFile(fileLocator, path, stream, Ownership.Dispose);
+        }
+        catch
+        {
+            stream.Dispose();
+            throw;
+        }
     }
 
     internal async ValueTask<DiskImageFile> CreateDifferencingAsync(FileLocator fileLocator, string path, CancellationToken cancellationToken)
     {
         var stream = fileLocator.Open(path, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
 
-        var fullPath = _fileLocator.GetFullPath(_fileName);
-        var relativePath = fileLocator.MakeRelativePath(_fileLocator, _fileName);
-        var lastWriteTime = _fileLocator.GetLastWriteTimeUtc(_fileName);
+        try
+        {
+            var fullPath = _fileLocator.GetFullPath(_fileName);
+            var relativePath = fileLocator.MakeRelativePath(_fileLocator, _fileName);
+            var lastWriteTime = _fileLocator.GetLastWriteTimeUtc(_fileName);
 
-        await InitializeDifferencingInternalAsync(stream, this, fullPath, relativePath, lastWriteTime, cancellationToken).ConfigureAwait(false);
+            await InitializeDifferencingInternalAsync(stream, this, fullPath, relativePath, lastWriteTime, cancellationToken).ConfigureAwait(false);
 
-        return new DiskImageFile(fileLocator, path, stream, Ownership.Dispose);
+            return new DiskImageFile(fileLocator, path, stream, Ownership.Dispose);
+        }
+        catch
+        {
+            stream.Dispose();
+            throw;
+        }
     }
 
     internal MappedStream DoOpenContent(SparseStream parent, Ownership ownsParent)
