@@ -515,7 +515,7 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
 
         using (NtfsTransaction.Begin())
         {
-            foreach (var dir in DoSearch(path, filter, searchOption == SearchOption.AllDirectories, true, false, FilterEntry))
+            foreach (var dir in DoSearch(path, filter, searchOption == SearchOption.AllDirectories, dirs: true, files: false, FilterEntry))
             {
                 yield return dir;
             }
@@ -536,7 +536,7 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
 
         using (NtfsTransaction.Begin())
         {
-            foreach (var result in DoSearch(path, filter, searchOption == SearchOption.AllDirectories, false, true, FilterEntry))
+            foreach (var result in DoSearch(path, filter, searchOption == SearchOption.AllDirectories, dirs: false, files: true, FilterEntry))
             {
                 yield return result;
             }
@@ -569,14 +569,10 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
     internal bool FilterEntry(DirectoryIndexEntry entry)
     {
         // Weed out short-name entries for files and any hidden / system / metadata files.
-        if ((entry.Key.Flags & NtfsFileAttributes.Hidden) != 0
-            && _context.Options.HideHiddenFiles
-            || (entry.Key.Flags & NtfsFileAttributes.System) != 0
-            && _context.Options.HideSystemFiles
-            || entry.Value.MftIndex < 24
-            && _context.Options.HideMetafiles
-            || entry.Key.FileNameNamespace == FileNameNamespace.Dos
-            && _context.Options.HideDosFileNames)
+        if (_context.Options.HideHiddenFiles && entry.Key.Flags.HasFlag(NtfsFileAttributes.Hidden)
+            || _context.Options.HideSystemFiles && entry.Key.Flags.HasFlag(NtfsFileAttributes.System)
+            || _context.Options.HideMetafiles && entry.Value.MftIndex < 16
+            || _context.Options.HideDosFileNames && entry.Key.FileNameNamespace == FileNameNamespace.Dos)
         {
             return false;
         }
