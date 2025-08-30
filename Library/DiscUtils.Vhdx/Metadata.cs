@@ -106,33 +106,33 @@ internal sealed class Metadata
     internal static async ValueTask<Metadata> InitializeAsync(Stream metadataStream, FileParameters fileParameters, ulong diskSize,
                                         uint logicalSectorSize, uint physicalSectorSize, ParentLocator parentLocator, CancellationToken cancellationToken)
     {
-        var header = new MetadataTable();
+        var table = new MetadataTable();
 
         var dataOffset = (uint)(64 * Sizes.OneKiB);
         dataOffset += await AddEntryStructAsync(fileParameters, MetadataTable.FileParametersGuid, MetadataEntryFlags.IsRequired,
-            header, dataOffset, metadataStream, cancellationToken).ConfigureAwait(false);
+            table, dataOffset, metadataStream, cancellationToken).ConfigureAwait(false);
         dataOffset += await AddEntryValueAsync(diskSize, EndianUtilities.WriteBytesLittleEndian, MetadataTable.VirtualDiskSizeGuid,
-            MetadataEntryFlags.IsRequired | MetadataEntryFlags.IsVirtualDisk, header, dataOffset, metadataStream, cancellationToken).ConfigureAwait(false);
+            MetadataEntryFlags.IsRequired | MetadataEntryFlags.IsVirtualDisk, table, dataOffset, metadataStream, cancellationToken).ConfigureAwait(false);
         dataOffset += await AddEntryValueAsync(logicalSectorSize, EndianUtilities.WriteBytesLittleEndian,
             MetadataTable.LogicalSectorSizeGuid, MetadataEntryFlags.IsRequired | MetadataEntryFlags.IsVirtualDisk,
-            header, dataOffset, metadataStream, cancellationToken).ConfigureAwait(false);
+            table, dataOffset, metadataStream, cancellationToken).ConfigureAwait(false);
         dataOffset += await AddEntryValueAsync(physicalSectorSize, EndianUtilities.WriteBytesLittleEndian,
             MetadataTable.PhysicalSectorSizeGuid, MetadataEntryFlags.IsRequired | MetadataEntryFlags.IsVirtualDisk,
-            header, dataOffset, metadataStream, cancellationToken).ConfigureAwait(false);
+            table, dataOffset, metadataStream, cancellationToken).ConfigureAwait(false);
         dataOffset += await AddEntryValueAsync(Guid.NewGuid(), EndianUtilities.WriteBytesLittleEndian, MetadataTable.Page83DataGuid,
-            MetadataEntryFlags.IsRequired | MetadataEntryFlags.IsVirtualDisk, header, dataOffset, metadataStream, cancellationToken).ConfigureAwait(false);
+            MetadataEntryFlags.IsRequired | MetadataEntryFlags.IsVirtualDisk, table, dataOffset, metadataStream, cancellationToken).ConfigureAwait(false);
         if (parentLocator != null)
         {
             dataOffset += await AddEntryStructAsync(parentLocator, MetadataTable.ParentLocatorGuid,
-                MetadataEntryFlags.IsRequired, header, dataOffset, metadataStream, cancellationToken).ConfigureAwait(false);
+                MetadataEntryFlags.IsRequired, table, dataOffset, metadataStream, cancellationToken).ConfigureAwait(false);
         }
 
         metadataStream.Position = 0;
-        await metadataStream.WriteStructAsync(header, cancellationToken).ConfigureAwait(false);
+        await metadataStream.WriteStructAsync(table, cancellationToken).ConfigureAwait(false);
         return new Metadata(metadataStream);
     }
 
-    private static uint AddEntryStruct<T>(T data, Guid id, MetadataEntryFlags flags, MetadataTable header,
+    private static uint AddEntryStruct<T>(T data, Guid id, MetadataEntryFlags flags, MetadataTable table,
                                           uint dataOffset, Stream stream)
         where T : IByteArraySerializable
     {
@@ -145,7 +145,7 @@ internal sealed class Metadata
             Flags = flags
         };
 
-        header.Entries[key] = entry;
+        table.Entries[key] = entry;
 
         stream.Position = dataOffset;
         stream.WriteStruct(data);
@@ -153,7 +153,7 @@ internal sealed class Metadata
         return entry.Length;
     }
 
-    private static async ValueTask<uint> AddEntryStructAsync<T>(T data, Guid id, MetadataEntryFlags flags, MetadataTable header,
+    private static async ValueTask<uint> AddEntryStructAsync<T>(T data, Guid id, MetadataEntryFlags flags, MetadataTable table,
                                           uint dataOffset, Stream stream, CancellationToken cancellationToken)
         where T : IByteArraySerializable
     {
@@ -166,7 +166,7 @@ internal sealed class Metadata
             Flags = flags
         };
 
-        header.Entries[key] = entry;
+        table.Entries[key] = entry;
 
         stream.Position = dataOffset;
         await stream.WriteStructAsync(data, cancellationToken).ConfigureAwait(false);
@@ -178,7 +178,7 @@ internal sealed class Metadata
     [SecurityPermission(SecurityAction.Demand, UnmanagedCode = true)]
 #endif
     private static uint AddEntryValue<T>(T data, Writer<T> writer, Guid id, MetadataEntryFlags flags,
-                                         MetadataTable header, uint dataOffset, Stream stream)
+                                         MetadataTable table, uint dataOffset, Stream stream)
     {
         var key = new MetadataEntryKey(id, (flags & MetadataEntryFlags.IsUser) != 0);
         var entry = new MetadataEntry
@@ -189,7 +189,7 @@ internal sealed class Metadata
             Flags = flags
         };
 
-        header.Entries[key] = entry;
+        table.Entries[key] = entry;
 
         stream.Position = dataOffset;
 
@@ -204,7 +204,7 @@ internal sealed class Metadata
     [SecurityPermission(SecurityAction.Demand, UnmanagedCode = true)]
 #endif
     private static async ValueTask <uint> AddEntryValueAsync<T>(T data, Writer<T> writer, Guid id, MetadataEntryFlags flags,
-                                         MetadataTable header, uint dataOffset, Stream stream, CancellationToken cancellationToken)
+                                         MetadataTable table, uint dataOffset, Stream stream, CancellationToken cancellationToken)
     {
         var key = new MetadataEntryKey(id, (flags & MetadataEntryFlags.IsUser) != 0);
         var entry = new MetadataEntry
@@ -215,7 +215,7 @@ internal sealed class Metadata
             Flags = flags
         };
 
-        header.Entries[key] = entry;
+        table.Entries[key] = entry;
 
         stream.Position = dataOffset;
 

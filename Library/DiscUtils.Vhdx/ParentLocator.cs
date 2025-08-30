@@ -89,10 +89,21 @@ internal sealed class ParentLocator : IByteArraySerializable
             int keyLength = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(kvOffset + 8));
             int valueLength = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(kvOffset + 10));
 
-            var key = EndianUtilities.LittleEndianUnicodeBytesToString(buffer.Slice(keyOffset, keyLength));
-            var value = EndianUtilities.LittleEndianUnicodeBytesToString(buffer.Slice(valueOffset, valueLength));
+            try
+            {
+                var key = EndianUtilities.LittleEndianUnicodeBytesToString(buffer.Slice(keyOffset, keyLength));
+                var value = EndianUtilities.LittleEndianUnicodeBytesToString(buffer.Slice(valueOffset, valueLength));
 
-            Entries[key] = value;
+                Entries[key] = value;
+            }
+            catch (Exception ex)
+            {
+#if DEBUG
+                throw new InvalidOperationException($"Corrupt vhdx parent locator (keyOffset = {keyOffset}, keyLength = {keyLength}, valueOffset = {valueOffset}, valueLength = {valueLength}, i = {i}, Count = {Count}, buffer size = {buffer.Length})", ex);
+#else
+                throw new InvalidOperationException($"Corrupt vhdx parent locator", ex);
+#endif
+            }
         }
 
         return 0;
