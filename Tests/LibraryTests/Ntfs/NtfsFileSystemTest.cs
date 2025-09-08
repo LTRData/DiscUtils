@@ -65,6 +65,28 @@ public class NtfsFileSystemTest
         Assert.False(info.Exists);
     }
 
+    [Fact]
+    public void FindSubdir()
+    {
+        var ntfs = FileSystemSource.NtfsFileSystem();
+
+        ntfs.CreateDirectory("testdir");
+
+        Assert.NotEmpty(ntfs.Root.GetDirectories("testdir"));
+
+        Assert.NotEmpty(ntfs.Root.GetDirectories("test*"));
+
+        Assert.NotEmpty(ntfs.Root.GetDirectories("*dir"));
+
+        Assert.NotEmpty(ntfs.Root.GetDirectories("*e*i*"));
+
+        Assert.Empty(ntfs.Root.GetDirectories("abc"));
+
+        Assert.Empty(ntfs.Root.GetDirectories("abc*"));
+
+        Assert.Empty(ntfs.Root.GetDirectories("*abc"));
+    }
+
     [Fact]//(Skip = "Issue #14")]
     public void AclInheritance()
     {

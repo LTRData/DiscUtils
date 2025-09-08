@@ -582,6 +582,11 @@ public static class Utilities
                 }
             }
 
+            if (!key.pattern.Contains('.'))
+            {
+                key.pattern += ".*";
+            }
+
             var regexOptions = RegexOptions.CultureInvariant | RegexOptions.Compiled;
 
             if (key.ignoreCase)
