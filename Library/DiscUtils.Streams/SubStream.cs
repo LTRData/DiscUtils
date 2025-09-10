@@ -45,11 +45,6 @@ public class SubStream : MappedStream
         _first = first;
         _length = length;
         _ownsParent = Ownership.None;
-
-        if (_first + _length > _parent.Length)
-        {
-            throw new ArgumentException("Substream extends beyond end of parent stream");
-        }
     }
 
     public SubStream(Stream parent, Ownership ownsParent, long first, long length)
@@ -58,11 +53,6 @@ public class SubStream : MappedStream
         _ownsParent = ownsParent;
         _first = first;
         _length = length;
-
-        if (_first + _length > _parent.Length)
-        {
-            throw new ArgumentException("Substream extends beyond end of parent stream");
-        }
     }
 
     public override bool CanRead => _parent.CanRead;
