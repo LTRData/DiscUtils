@@ -20,7 +20,7 @@ public class SampleDataTests
         DiscUtils.Setup.SetupHelper.RegisterAssembly(typeof(BtrfsFileSystem).GetTypeInfo().Assembly);
         using var vhdx = LoadTestDataFileFromGZipFile("Btrfs", "btrfs.vhdx.gz");
         using var diskImage = new DiskImageFile(vhdx, Ownership.Dispose);
-        using var disk = new Disk(new List<DiskImageFile> { diskImage }, Ownership.Dispose);
+        using var disk = new Disk([diskImage], Ownership.Dispose);
         var manager = new VolumeManager(disk);
         var logicalVolumes = manager.GetLogicalVolumes();
         Assert.Single(logicalVolumes);

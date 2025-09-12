@@ -34,7 +34,7 @@ public class LogReplayTest
     {
         using var vhdx = Helpers.Helpers.LoadTestDataFileFromGZipFile("Vhdx", "vhdx-log-replay.vhdx.gz");
         using var diskImage = new DiskImageFile(vhdx, Ownership.Dispose);
-        using var disk = new Disk(new List<DiskImageFile> { diskImage }, Ownership.Dispose);
+        using var disk = new Disk([diskImage], Ownership.Dispose);
         Assert.True(disk.IsPartitioned);
         Assert.Equal(2, disk.Partitions.Count);
     }

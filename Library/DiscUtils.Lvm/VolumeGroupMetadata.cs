@@ -78,7 +78,7 @@ internal class VolumeGroupMetadata : IByteArraySerializable
                 continue;
             }
 
-            var checksum = PhysicalVolume.CalcCrc(buffer.Slice((int) location.Offset, (int) location.Length));
+            var checksum = PhysicalVolume.CalcCrc(buffer.Slice((int)location.Offset, (int)location.Length));
             if (location.Checksum != checksum)
             {
                 throw new IOException("invalid metadata checksum");

@@ -29,88 +29,104 @@ using DiscUtils.Partitions;
 namespace DiscUtils.Lvm.LinuxRaid;
 
 [LogicalVolumeFactory]
-internal class LinuxRaidDiskManagerFactory : LogicalVolumeFactory {
-	public override bool HandlesPhysicalVolume(PhysicalVolumeInfo volume) {
-		var pi = volume.Partition;
-		if (pi == null)//i think even if is a full disk it creates a partition that is just the disk in size
-			return false;
+internal class LinuxRaidDiskManagerFactory : LogicalVolumeFactory
+{
+    public override bool HandlesPhysicalVolume(PhysicalVolumeInfo volume)
+    {
+        var pi = volume.Partition;
+        if (pi == null)//i think even if is a full disk it creates a partition that is just the disk in size
+        {
+            return false;
+        }
 
-		if (IsLinuxRaidPartition(pi))
-			return true;
-		else {
-			var sb = LinuxRaidDiskVolume.GetSuperblock(volume.Partition);
-			if (sb?.IsValid == true)
-				return true;
-		}
+        if (IsLinuxRaidPartition(pi))
+        {
+            return true;
+        }
+        else
+        {
+            var sb = LinuxRaidDiskVolume.GetSuperblock(volume.Partition);
+            
+            if (sb?.IsValid == true)
+            {
+                return true;
+            }
+        }
 
+        return false; // We only handle partitions for now
+    }
 
-		return false; // We only handle partitions for now
-	}
+    public override void MapDisks(IEnumerable<VirtualDisk> disks, Dictionary<string, LogicalVolumeInfo> result)
+    {
+        var raidPartitions = new List<LinuxRaidDiskVolume>();
 
-	public override void MapDisks(IEnumerable<VirtualDisk> disks, Dictionary<string, LogicalVolumeInfo> result) {
-		var raidPartitions = new List<LinuxRaidDiskVolume>();
+        // Find all Linux RAID partitions across all disks
+        foreach (var disk in disks)
+        {
+            if (disk.IsPartitioned)
+            {
+                foreach (var partition in disk.Partitions.Partitions)
+                {
+                    var superBlock = LinuxRaidDiskVolume.GetSuperblock(partition);
 
-		// Find all Linux RAID partitions across all disks
-		foreach (var disk in disks) {
-			if (disk.IsPartitioned) {
-				foreach (var partition in disk.Partitions.Partitions) {
-					if (IsLinuxRaidPartition(partition)) {
-						// Create a temporary PhysicalVolumeInfo for this partition to test it
+                    if (superBlock?.IsValid == true)
+                    {
+                        var physicalVolume = new PhysicalVolumeInfo(superBlock.ArrayUuid.ToString(), disk, partition);
+                        var raidDisk = new LinuxRaidDiskVolume(physicalVolume, superBlock);
 
-						var partitionStream = partition.Open();
+                        // Only support RAID 1 for now
+                        if (raidDisk.RaidLevel == 1)
+                        {
+                            raidPartitions.Add(raidDisk);
+                        }
+                    }
+                }
+            }
+        }
 
-						var superBlock = LinuxRaidDiskVolume.GetSuperblock(partition);
-						if (superBlock?.IsValid == true) {
-							var physicalVolume = new PhysicalVolumeInfo(superBlock.ArrayUuid.ToString(), disk, partition);
-							var raidDisk = new LinuxRaidDiskVolume(physicalVolume, superBlock);
+        // Group RAID partitions by array UUID
+        var raidGroups = raidPartitions
+            .GroupBy(rp => rp.ArrayUuid)
+            .ToList();
 
-							// Only support RAID 1 for now
-							if (raidDisk.RaidLevel == 1)
-								raidPartitions.Add(raidDisk);
+        // Create logical volumes for each complete RAID array
+        foreach (var group in raidGroups)
+        {
+            var diskList = group.ToList();
+            if (diskList.Count > 0)
+            {
+                var raidGroup = new LinuxRaidDiskGroup(diskList[0]);
 
-						}
-					}
-				}
-			}
-		}
+                // Create logical volume for this RAID array
+                foreach (var volume in raidGroup.GetVolumes())
+                {
+                    var lvi = new LogicalVolumeInfo(
+                        volume.Guid,
+                        raidGroup.FirstDisk.PhysicalVolume,
+                        volume.Open,
+                        volume.Length,
+                        volume.BiosType,
+                        volume.Status,
+                        GetTypeAsString(raidGroup.RaidLevel));
+                    result.Add(lvi.Identity, lvi);
+                }
+            }
+        }
+    }
 
-		// Group RAID partitions by array UUID
-		var raidGroups = raidPartitions
-			.GroupBy(rp => rp.ArrayUuid)
-			.ToList();
+    private static bool IsLinuxRaidPartition(PartitionInfo partition)
+    {
+        // Check for Linux RAID partition types
+        return partition.BiosType == BiosPartitionTypes.LinuxRaidAutoDetect ||
+               partition.GuidType == GuidPartitionTypes.LinuxRaid;
+    }
 
-		// Create logical volumes for each complete RAID array
-		foreach (var group in raidGroups) {
-			var diskList = group.ToList();
-			if (diskList.Count > 0) {
-				var raidGroup = new LinuxRaidDiskGroup(diskList[0]);
-
-				// Create logical volume for this RAID array
-				foreach (var volume in raidGroup.GetVolumes()) {
-					var lvi = new LogicalVolumeInfo(
-						volume.Guid,
-						raidGroup.FirstDisk.PhysicalVolume,
-						volume.Open,
-						volume.Length,
-						volume.BiosType,
-						volume.Status,
-						GetTypeAsString(raidGroup.RaidLevel));
-					result.Add(lvi.Identity, lvi);
-				}
-			}
-		}
-	}
-
-	private static bool IsLinuxRaidPartition(PartitionInfo partition) {
-		// Check for Linux RAID partition types
-		return partition.BiosType == BiosPartitionTypes.LinuxRaidAutoDetect ||
-			   partition.GuidType == GuidPartitionTypes.LinuxRaid;
-	}
-
-	private static string GetTypeAsString(uint raidLevel) {
-		return raidLevel switch {
-			1 => "Linux RAID 1 (Mirror)",
-			_ => $"Linux RAID {raidLevel}"
-		};
-	}
+    private static string GetTypeAsString(uint raidLevel)
+    {
+        return raidLevel switch
+        {
+            1 => "Linux RAID 1 (Mirror)",
+            _ => $"Linux RAID {raidLevel}"
+        };
+    }
 }

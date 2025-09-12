@@ -37,7 +37,7 @@ internal class LogicalVolumeManagerFactory : LogicalVolumeFactory
     public override void MapDisks(IEnumerable<VirtualDisk> disks, Dictionary<string, LogicalVolumeInfo> result)
     {
         var mgr = new LogicalVolumeManager(disks);
-        
+
         foreach (var vol in mgr.GetLogicalVolumes())
         {
             result.Add(vol.Identity, vol);

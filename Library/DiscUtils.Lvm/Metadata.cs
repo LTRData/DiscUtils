@@ -48,8 +48,8 @@ internal class Metadata
     private void Parse(TextReader data)
     {
         var vgSection = new List<MetadataVolumeGroupSection>();
-        
-        while(ReadLine(data) is { } lineStr)
+
+        while (ReadLine(data) is { } lineStr)
         {
             if (string.IsNullOrWhiteSpace(lineStr))
             {
@@ -67,7 +67,7 @@ internal class Metadata
                         Contents = ParseStringValue(parameter.Value.Span);
                         break;
                     case "version":
-                        Version = (int) ParseNumericValue(parameter.Value.Span);
+                        Version = (int)ParseNumericValue(parameter.Value.Span);
                         break;
                     case "description":
                         Description = ParseStringValue(parameter.Value.Span);

@@ -50,7 +50,7 @@ internal class MetadataLogicalVolumeSection
         var segments = new List<MetadataSegmentSection>();
         Name = head.AsSpan().Trim().TrimEnd('{').TrimEnd().ToString();
         string line;
-        
+
         while ((line = Metadata.ReadLine(data)) != null)
         {
             if (line == "")
@@ -131,7 +131,7 @@ internal class MetadataLogicalVolumeSection
             var length = 0L;
             foreach (var segment in Segments)
             {
-                length += (long) segment.ExtentCount;
+                length += (long)segment.ExtentCount;
             }
 
             return length;
@@ -205,9 +205,9 @@ internal class MetadataLogicalVolumeSection
         }
 
         var dataArea = pv.PvHeader.DiskAreas[0];
-        var start = dataArea.Offset + (stripe.StartExtentNumber*_extentSize*PhysicalVolume.SECTOR_SIZE);
-        var length = segment.ExtentCount*_extentSize*PhysicalVolume.SECTOR_SIZE;
-        return new SubStream(pv.Content, Ownership.None, (long) start, (long)length);
+        var start = dataArea.Offset + (stripe.StartExtentNumber * _extentSize * PhysicalVolume.SECTOR_SIZE);
+        var length = segment.ExtentCount * _extentSize * PhysicalVolume.SECTOR_SIZE;
+        return new SubStream(pv.Content, Ownership.None, (long)start, (long)length);
     }
 
     private int CompareSegments(MetadataSegmentSection x, MetadataSegmentSection y)

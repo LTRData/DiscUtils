@@ -18,7 +18,7 @@ public class SampleDataTests
         SetupHelper.SetupComplete();
         using var vhdx = Helpers.Helpers.LoadTestDataFileFromGZipFile("Xfs", "xfs.vhdx.gz");
         using var diskImage = new DiskImageFile(vhdx, Ownership.Dispose);
-        using var disk = new Disk(new List<DiskImageFile> { diskImage }, Ownership.Dispose);
+        using var disk = new Disk([diskImage], Ownership.Dispose);
         var manager = new VolumeManager(disk);
         var logicalVolumes = manager.GetLogicalVolumes();
         Assert.Single(logicalVolumes);
@@ -45,7 +45,7 @@ public class SampleDataTests
         SetupHelper.SetupComplete();
         using var vhdx = Helpers.Helpers.LoadTestDataFileFromGZipFile("Xfs", "xfs5.vhdx.gz");
         using var diskImage = new DiskImageFile(vhdx, Ownership.Dispose);
-        using var disk = new Disk(new List<DiskImageFile> { diskImage }, Ownership.Dispose);
+        using var disk = new Disk([diskImage], Ownership.Dispose);
         var manager = new VolumeManager(disk);
         var logicalVolumes = manager.GetLogicalVolumes();
         Assert.Single(logicalVolumes);

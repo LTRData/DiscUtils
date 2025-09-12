@@ -48,7 +48,7 @@ internal class MetadataVolumeGroupSection
     {
         Name = head.Span.Trim().TrimEnd('{').TrimEnd().ToString();
 
-        for(; ;)
+        for (; ; )
         {
             var lineStr = Metadata.ReadLine(data);
 

@@ -194,7 +194,10 @@ internal class MetadataSegmentSection
         {
             // Find the first comma separating the pair
             var firstCommaIndex = data.IndexOf(',');
-            if (firstCommaIndex == -1) break;
+            if (firstCommaIndex == -1)
+            {
+                break;
+            }
 
             // Extract the first value
             var volumeNameSpan = data.Slice(0, firstCommaIndex);

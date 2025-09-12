@@ -146,7 +146,7 @@ public class LogicalVolumeManager
                         lv.Identity,
                         null,
                         lv.Open(pvs, vg.ExtentSize),
-                        lv.ExtentCount * (long) vg.ExtentSize * PhysicalVolume.SECTOR_SIZE,
+                        lv.ExtentCount * (long)vg.ExtentSize * PhysicalVolume.SECTOR_SIZE,
                         0,
                         DiscUtils.LogicalVolumeStatus.Healthy,
                         $"Linux LVM {lv.Name}");

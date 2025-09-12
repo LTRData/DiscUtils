@@ -25,7 +25,7 @@ using DiscUtils.Partitions;
 using DiscUtils.Streams;
 
 namespace DiscUtils.Lvm.LinuxRaid;
-using LogicalVolumeStatus=DiscUtils.LogicalVolumeStatus;
+using LogicalVolumeStatus = DiscUtils.LogicalVolumeStatus;
 internal class LinuxRaidVolume
 {
     private readonly LinuxRaidDiskGroup _group;
@@ -35,9 +35,9 @@ internal class LinuxRaidVolume
         _group = group;
     }
 
-	public Guid Guid => _group.ArrayUuid;
+    public Guid Guid => _group.ArrayUuid;
 
-	public string Identity => $"RAID:{Guid:D}";
+    public string Identity => $"RAID:{Guid:D}";
 
     public long Length => CalculateVolumeLength();
 
@@ -53,7 +53,7 @@ internal class LinuxRaidVolume
     private long CalculateVolumeLength()
     {
         var memberDiskSize = GetMemberDiskSize();
-        
+
         switch (_group.RaidLevel)
         {
             case 0: // RAID 0 - total of all disks
