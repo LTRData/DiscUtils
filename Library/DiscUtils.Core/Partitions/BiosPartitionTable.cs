@@ -665,6 +665,8 @@ public sealed class BiosPartitionTable : PartitionTable
                 return BiosPartitionTypes.Ntfs;
             case WellKnownPartitionType.Linux:
                 return BiosPartitionTypes.LinuxNative;
+			case WellKnownPartitionType.LinuxAutoRaid:
+				return BiosPartitionTypes.LinuxRaidAutoDetect;
             case WellKnownPartitionType.LinuxSwap:
                 return BiosPartitionTypes.LinuxSwap;
             case WellKnownPartitionType.LinuxLvm:

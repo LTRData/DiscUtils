@@ -102,6 +102,11 @@ public static class BiosPartitionTypes
     /// </summary>
     public const byte EfiSystem = 0xEF;
 
+	/// <summary>
+    /// Linux Raid Auto Detect
+    /// </summary>
+    public const byte LinuxRaidAutoDetect = 0xFD;
+
     /// <summary>
     /// Provides a string representation of some known BIOS partition types.
     /// </summary>
@@ -149,6 +154,7 @@ public static class BiosPartitionTypes
             0xEF => "EFI",
             0xFB => "VMware File System",
             0xFC => "VMware Swap",
+			0xFD => "Linux Raid Auto Detect",
             0xFE => "IBM OEM",
             _ => $"Unknown 0x{type:X2}",
         };
