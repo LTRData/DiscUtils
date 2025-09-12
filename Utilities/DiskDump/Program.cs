@@ -203,7 +203,7 @@ class Program : ProgramBase
             foreach (var vol in volMgr.GetLogicalVolumes())
             {
                 Console.WriteLine($"  {vol.Identity}");
-                Console.WriteLine($"    BIOS Type: {vol.BiosType:X2} [{BiosPartitionTypes.ToString(vol.BiosType)}]");
+                Console.WriteLine($"    BIOS Type: {vol.BiosType:X2} [{BiosPartitionTypes.ToString(vol.BiosType)}] {vol.TypeAsString}");
                 Console.WriteLine($"    Status: {vol.Status}");
                 Console.WriteLine($"    Size: {vol.Length}");
                 Console.WriteLine($"    Disk Geometry: {vol.PhysicalGeometry}");
@@ -273,7 +273,8 @@ class Program : ProgramBase
                         {
                             Console.WriteLine($"    {fsi.Name} Volume Label: {fs.VolumeLabel}");
                             Console.WriteLine($"    Files ({fsi.Name})...");
-                            ShowDir(fs.Root, 6);
+							if (fs.Root.Exists)
+								ShowDir(fs.Root, 6);
                         }
 
                         Console.WriteLine();
