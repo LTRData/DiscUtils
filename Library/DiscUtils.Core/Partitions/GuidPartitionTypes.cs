@@ -59,6 +59,11 @@ public static class GuidPartitionTypes
     /// </summary>
     public static readonly Guid LinuxSwap = new("0657FD6D-A4AB-43C4-84E5-0933C84B4F4F");
 
+	/// <summary>
+    /// Linux Raid
+    /// </summary>
+    public static readonly Guid LinuxRaid = new("A19D880F-05FC-4D3B-A006-743F0F84911E");
+
     /// <summary>
     /// Windows Logical Disk Manager metadata.
     /// </summary>
@@ -94,6 +99,7 @@ public static class GuidPartitionTypes
         return wellKnown switch
         {
             WellKnownPartitionType.Linux or WellKnownPartitionType.WindowsFat or WellKnownPartitionType.WindowsNtfs => WindowsBasicData,
+			WellKnownPartitionType.LinuxAutoRaid => LinuxRaid,
             WellKnownPartitionType.LinuxLvm => LinuxLvm,
             WellKnownPartitionType.LinuxSwap => LinuxSwap,
             _ => throw new ArgumentException("Unknown partition type"),
