@@ -370,4 +370,7 @@ public interface IFileSystem
     /// UsedSpace and Size properties
     /// </summary>
     bool SupportsUsedAvailableSpace { get; }
+
+	 Vfs.IAbstractRecord GetAbstractRecord(string path);
+	 string GetSymlinkTarget(Vfs.IAbstractRecord dirEntry);
 }

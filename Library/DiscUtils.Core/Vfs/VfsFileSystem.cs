@@ -655,6 +655,50 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
         return file.FileLength;
     }
 
+	virtual protected IAbstractRecord GetAbstractRecord(TDirEntry dirEntry){
+		if (dirEntry.IsDirectory)
+			return new FullDirectory(this, dirEntry, ConvertDirEntryToDirectory(dirEntry));
+		else
+			return new FullFile(dirEntry, GetFile(dirEntry));
+	}
+	internal class FullDirectory(VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> fs, VfsDirEntry DirEntry, TDirectory Directory) : FullFile(DirEntry, Directory), IAbstractDirectory {
+		public IEnumerable<IAbstractRecord> AllEntries => Directory.AllEntries.Values.Select(fs.GetAbstractRecord);
+
+	}
+	private class FakeRootDirEntry(TDirectory rootDir, String rootPath) : VfsDirEntry {
+		public override DateTime CreationTimeUtc => rootDir.CreationTimeUtc;
+		public override FileAttributes FileAttributes => rootDir.FileAttributes;
+		public override string FileName => rootPath;
+		public override bool HasVfsFileAttributes => true;
+		public override bool HasVfsTimeInfo => true;
+		public override bool IsDirectory => true;
+		public override bool IsSymlink => false;
+		public override DateTime LastAccessTimeUtc => rootDir.LastAccessTimeUtc;
+		public override DateTime LastWriteTimeUtc => rootDir.LastWriteTimeUtc;
+		public override long UniqueCacheId => -1;
+	}
+	
+	//override string GetSymlinkTarget(
+	public override IAbstractRecord GetAbstractRecord(string path) {
+		if (IsRoot(path))
+        {
+			if (RootDirectory.Self == null){
+				return new FullDirectory(this, new FakeRootDirEntry(RootDirectory, path), RootDirectory);
+			}
+            return GetAbstractRecord(RootDirectory.Self);
+        }
+
+        if (path == null)
+        {
+            return default;
+        }
+
+        var dirEntry = GetDirectoryEntry(path)
+            ?? throw new FileNotFoundException("No such file or directory", path);
+		return GetAbstractRecord(dirEntry);
+	}
+
+
     protected TFile GetFile(TDirEntry dirEntry)
     {
         var cacheKey = dirEntry.UniqueCacheId;
@@ -755,6 +799,9 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
 
         return GetFile(dirEntry);
     }
+
+
+	protected virtual TDirectory ConvertDirEntryToDirectory(TDirEntry dirEntry) => throw new NotImplementedException();
 
     /// <summary>
     /// Converts a directory entry to an object representing a file.
@@ -928,7 +975,20 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
             }
         }
     }
-
+	public override string GetSymlinkTarget(IAbstractRecord dirEntry) {
+		if (! dirEntry.IsSymlink)
+			throw new ArgumentException(dirEntry.FileName + " is not a symlink");
+		var file = dirEntry.GetAsFile();
+		if (file is not IVfsSymlink<TDirEntry, TFile>) {
+			var dirEnt = dirEntry.GetAsDirEntry() as TDirEntry;
+			if (dirEnt == null)
+				throw new ArgumentException("Not a valid record for this filesystem");
+			file = GetFile(dirEnt);
+		}
+		if (file is not IVfsSymlink<TDirEntry, TFile> symlink)
+			throw new AccessViolationException($"Unknown Error: the directory entry says it is a symlink but unable to get as symlink");
+		return symlink.TargetPath;
+	}
     protected virtual (TDirEntry TargetEntry, string TargetPath) ResolveSymlink(TDirEntry entry, string path)
     {
         var currentEntry = entry;

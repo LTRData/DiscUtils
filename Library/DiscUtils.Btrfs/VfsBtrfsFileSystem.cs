@@ -131,7 +131,13 @@ internal sealed class VfsBtrfsFileSystem : VfsReadOnlyFileSystem<DirEntry, File,
             yield return new Subvolume { Id = volume.Key.Offset, Name = volume.Name };
         }
     }
+	protected override Directory ConvertDirEntryToDirectory(DirEntry dirEntry) {
+        if (dirEntry.IsDirectory)
+			throw new Exception("Invalid Directory Request record is not a directory");
+        
+        return dirEntry.CachedDirectory ??= new Directory(dirEntry, Context);
 
+	}
     protected override File ConvertDirEntryToFile(DirEntry dirEntry)
     {
         if (dirEntry.IsDirectory)

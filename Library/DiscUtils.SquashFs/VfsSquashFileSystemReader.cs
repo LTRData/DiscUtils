@@ -179,7 +179,15 @@ internal class VfsSquashFileSystemReader : VfsReadOnlyFileSystem<DirectoryEntry,
             _ => throw new NotSupportedException($"Unrecognized inode type: {inodeType}"),
         };
     }
+	protected override Directory ConvertDirEntryToDirectory(DirectoryEntry dirEntry) {
+        if (!dirEntry.IsDirectory)
+			throw new Exception("Invalid Directory Request record is not a directory");
+        var inodeRef = dirEntry.InodeReference;
+        _context.InodeReader.SetPosition(inodeRef);
+        var inode = Inode.Read(_context.InodeReader);
+        return new Directory(_context, inode, inodeRef);
 
+	}
     protected override File ConvertDirEntryToFile(DirectoryEntry dirEntry)
     {
         var inodeRef = dirEntry.InodeReference;

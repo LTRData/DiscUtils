@@ -539,7 +539,13 @@ internal class VfsCDReader : VfsReadOnlyFileSystem<ReaderDirEntry, File, ReaderD
 
         throw new InvalidOperationException("No valid boot image");
     }
+	protected override ReaderDirectory ConvertDirEntryToDirectory(ReaderDirEntry dirEntry) {
+        if (dirEntry.IsDirectory)
+			throw new Exception("Invalid Directory Request record is not a directory");
+        
+        return new ReaderDirectory(Context, dirEntry);
 
+	}
     protected override File ConvertDirEntryToFile(ReaderDirEntry dirEntry)
     {
         if (dirEntry.IsDirectory)
