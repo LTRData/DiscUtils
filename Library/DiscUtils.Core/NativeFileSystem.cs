@@ -29,6 +29,7 @@ using System.IO;
 using System.Linq;
 using DiscUtils.Internal;
 using DiscUtils.Streams;
+using DiscUtils.Vfs;
 
 namespace DiscUtils;
 
@@ -782,4 +783,7 @@ public class NativeFileSystem : DiscFileSystem
     {
         return dirtyItems.Substring(BasePath.Length - 1);
     }
+
+	public override IAbstractRecord GetAbstractRecord(string path) => throw new NotImplementedException();
+	public override string GetSymlinkTarget(IAbstractRecord dirEntry) => throw new NotImplementedException();
 }

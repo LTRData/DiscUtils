@@ -6,6 +6,7 @@ using DiscUtils.Internal;
 using DiscUtils.Streams;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using DiscUtils.Vfs;
 
 namespace DiscUtils.VirtualFileSystem;
 public partial class VirtualFileSystem : DiscFileSystem, IWindowsFileSystem, IUnixFileSystem, IFileSystemBuilder
@@ -834,4 +835,6 @@ public partial class VirtualFileSystem : DiscFileSystem, IWindowsFileSystem, IUn
 
     void IFileSystemBuilder.AddFile(string name, string sourcePath, int ownerId, int groupId, UnixFilePermissions fileMode, DateTime modificationTime)
         => AddFile(name, sourcePath, ownerId, groupId, fileMode, UnixFileType.Regular, modificationTime, modificationTime, modificationTime);
+	public override string GetSymlinkTarget(IAbstractRecord record) => throw new NotImplementedException();
+	public override IAbstractRecord GetAbstractRecord(string path) => throw new NotImplementedException();
 }

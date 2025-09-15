@@ -659,9 +659,9 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
 		if (dirEntry.IsDirectory)
 			return new FullDirectory(this, dirEntry, ConvertDirEntryToDirectory(dirEntry));
 		else
-			return new FullFile(dirEntry, GetFile(dirEntry));
+			return new VfsAbstractRecord(dirEntry, GetFile(dirEntry));
 	}
-	internal class FullDirectory(VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> fs, VfsDirEntry DirEntry, TDirectory Directory) : FullFile(DirEntry, Directory), IAbstractDirectory {
+	internal class FullDirectory(VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> fs, VfsDirEntry DirEntry, TDirectory Directory) : VfsAbstractRecord(DirEntry, Directory), IAbstractDirectory {
 		public IEnumerable<IAbstractRecord> AllEntries => Directory.AllEntries.Values.Select(fs.GetAbstractRecord);
 
 	}
