@@ -844,18 +844,31 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
             ?? throw new DirectoryNotFoundException($"The directory '{path}' was not found");
 
         var resultPrefixPath = path;
+        
         if (IsRoot(path))
         {
             resultPrefixPath = Utilities.DirectorySeparatorString;
         }
 
-        if (parentDir.AllEntries.TryGetValue(searchPattern, out var entry))
+        if (!subFolders && parentDir.AllEntries.TryGetValue(searchPattern, out var entry))
         {
+            var fullPath = Utilities.CombinePaths(resultPrefixPath, FormatFileName(entry.FileName));
+
+            if (entry.IsSymlink)
+            {
+                entry = ResolveSymlink(entry, fullPath).TargetEntry;
+
+                if (entry is null)
+                {
+                    yield break;
+                }
+            }
+
             var isDir = entry.IsDirectory;
 
             if ((isDir && dirs) || (!isDir && files))
             {
-                yield return Utilities.CombinePaths(resultPrefixPath, FormatFileName(entry.FileName));
+                yield return fullPath;
             }
 
             yield break;
@@ -884,17 +897,14 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
         {
             var entry = de;
 
+            var fullPath = Utilities.CombinePaths(resultPrefixPath, FormatFileName(entry.FileName));
+
             if (entry.IsSymlink)
             {
-                entry = ResolveSymlink(entry, $@"{path}\{entry.FileName}").TargetEntry;
-
-                if (entry == null)
-                {
-                    continue;
-                }
+                entry = ResolveSymlink(entry, fullPath).TargetEntry;
             }
 
-            if(entry == null)
+            if (entry is null)
             {
                 continue;
             }
@@ -905,14 +915,13 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
             {
                 if (filter is null || filter(de.SearchName))
                 {
-                    yield return Utilities.CombinePaths(resultPrefixPath, FormatFileName(entry.FileName));
+                    yield return fullPath;
                 }
             }
 
             if (subFolders && isDir)
             {
-                foreach (var subdirentry in DoSearch(Utilities.CombinePaths(resultPrefixPath, FormatFileName(entry.FileName)), filter,
-                    subFolders, dirs, files))
+                foreach (var subdirentry in DoSearch(fullPath, filter, subFolders, dirs, files))
                 {
                     yield return subdirentry;
                 }

@@ -91,22 +91,138 @@ public class ExtFileSystemTest
         using var data = Helpers.Helpers.LoadTestDataFileFromGZipFile("Ext", "data.ext4.links.gz");
         using var fs = new ExtFileSystem(data, new FileSystemParameters());
 
-        Assert.NotEmpty(fs.GetDirectoryInfo("dir4").GetFiles("file4"));
+        var dir4 = fs.GetDirectoryInfo("dir4");
 
-        Assert.NotEmpty(fs.GetDirectoryInfo("dir1").GetDirectories("link4rel").First().GetFiles("file4"));
+        Assert.True(dir4.Exists);
 
-        Assert.NotEmpty(fs.GetDirectoryInfo("dir1").GetDirectories("link4abs").First().GetFiles("file4"));
+        Assert.Single(dir4.GetFiles("file4"));
 
-        Assert.NotEmpty(fs.GetDirectories("link1rel"));
+        var dir1 = fs.GetDirectoryInfo("dir1");
+        
+        Assert.True(dir1.Exists);
 
-        Assert.NotEmpty(fs.GetDirectories("link1abs"));
+        var dir1_link4rel = dir1.GetDirectories("link4rel").ToArray();
+        
+        Assert.Single(dir1_link4rel);
 
-        Assert.NotEmpty(fs.GetDirectoryInfo("link1rel").GetDirectories("dir3").First().GetDirectories("link2abs"));
+        Assert.Single(dir1_link4rel[0].GetFiles("file4"));
 
-        Assert.NotEmpty(fs.GetDirectoryInfo("link1abs").GetDirectories("dir3").First().GetDirectories("link2abs"));
+        var dir1_link4abs = dir1.GetDirectories("link4abs").ToArray();
+        
+        Assert.Single(dir1_link4abs[0].GetFiles("file4"));
 
-        Assert.NotEmpty(fs.GetDirectoryInfo("link1rel").GetDirectories("link4abs").First().GetFiles("file4"));
+        Assert.Equal(4, fs.GetDirectories("link1rel").Count());
 
-        Assert.NotEmpty(fs.GetDirectoryInfo("link1abs").GetDirectories("link4rel").First().GetFiles("file4"));
+        Assert.Equal(4, fs.GetDirectories("link1abs").Count());
+
+        var link1rel = fs.GetDirectoryInfo("link1rel");
+        
+        Assert.True(link1rel.Exists);
+
+        var link1rel_dir3 = link1rel.GetDirectories("dir3").ToArray();
+        
+        Assert.Single(link1rel_dir3);
+        
+        Assert.Single(link1rel_dir3[0].GetDirectories("link2abs"));
+
+        var link1abs = fs.GetDirectoryInfo("link1abs");
+        
+        Assert.True(link1abs.Exists);
+
+        var link1abs_dir3 = link1abs.GetDirectories("dir3").ToArray();
+        
+        Assert.Single(link1abs_dir3);
+        
+        Assert.Single(link1abs_dir3[0].GetDirectories("link2abs"));
+
+        var link1rel_link4abs = link1rel.GetDirectories("link4abs").ToArray();
+        
+        Assert.Single(link1rel_link4abs);
+        
+        Assert.Single(link1rel_link4abs[0].GetFiles("file4"));
+
+        var link1abs_link4rel = link1abs.GetDirectories("link4rel").ToArray();
+        
+        Assert.Single(link1abs_link4rel);
+        
+        Assert.Single(link1abs_link4rel[0].GetFiles("file4"));
+    }
+
+    [Fact]
+    public void TestLinksWithWildcards()
+    {
+        using var data = Helpers.Helpers.LoadTestDataFileFromGZipFile("Ext", "data.ext4.links.gz");
+        using var fs = new ExtFileSystem(data, new FileSystemParameters());
+
+        var dir4 = fs.GetDirectoryInfo("dir4");
+
+        Assert.True(dir4.Exists);
+
+        Assert.Single(dir4.GetFiles("file*"));
+
+        var dir1 = fs.GetDirectoryInfo("dir1");
+
+        Assert.True(dir1.Exists);
+
+        var dir1_link4rel = dir1.GetDirectories("link4r*").ToArray();
+
+        Assert.Single(dir1_link4rel);
+
+        Assert.Single(dir1_link4rel[0].GetFiles("file*"));
+
+        var dir1_link4abs = dir1.GetDirectories("link4a*").ToArray();
+
+        Assert.Single(dir1_link4abs[0].GetFiles("file*"));
+
+        Assert.Equal(4, fs.GetDirectories("link1rel").Count());
+
+        Assert.Equal(4, fs.GetDirectories("link1abs").Count());
+
+        var link1rel = fs.GetDirectoryInfo("link1rel");
+
+        Assert.True(link1rel.Exists);
+
+        var link1rel_dir3 = link1rel.GetDirectories("*3").ToArray();
+
+        Assert.Single(link1rel_dir3);
+
+        Assert.Single(link1rel_dir3[0].GetDirectories("link2a*"));
+
+        var link1abs = fs.GetDirectoryInfo("link1abs");
+
+        Assert.True(link1abs.Exists);
+
+        var link1abs_dir3 = link1abs.GetDirectories("*3").ToArray();
+
+        Assert.Single(link1abs_dir3);
+
+        Assert.Single(link1abs_dir3[0].GetDirectories("link2a*"));
+
+        var link1rel_link4abs = link1rel.GetDirectories("link4a*").ToArray();
+
+        Assert.Single(link1rel_link4abs);
+
+        Assert.Single(link1rel_link4abs[0].GetFiles("file*"));
+
+        var link1abs_link4rel = link1abs.GetDirectories("link4r*").ToArray();
+
+        Assert.Single(link1abs_link4rel);
+
+        Assert.Single(link1abs_link4rel[0].GetFiles("file*"));
+    }
+
+    [Fact]
+    public void TestLinksSubFolderSearch()
+    {
+        using var data = Helpers.Helpers.LoadTestDataFileFromGZipFile("Ext", "data.ext4.links.gz");
+        using var fs = new ExtFileSystem(data, new FileSystemParameters());
+
+        var filesFound = fs.GetFiles("/link1rel", "file*", SearchOption.AllDirectories).ToArray();
+
+        Assert.Equal(6, filesFound.Length);
+
+        var file4Found = fs.GetFiles("/link1rel", "file4", SearchOption.AllDirectories).ToArray();
+
+        Assert.Equal(6, file4Found.Length);
     }
 }
