@@ -59,4 +59,54 @@ public class ExtFileSystemTest
 
         Assert.Single(fs.GetFiles("bar", "b*"));
     }
+
+    [Fact]
+    public void TestLinks()
+    {
+        using var data = Helpers.Helpers.LoadTestDataFileFromGZipFile("Ext", "data.ext4.links.gz");
+        using var fs = new ExtFileSystem(data, new FileSystemParameters());
+
+        Assert.True(fs.FileExists("/dir4/file4"));
+
+        Assert.True(fs.FileExists("/dir1/link4rel/file4"));
+
+        Assert.True(fs.FileExists("/dir1/link4abs/file4"));
+
+        Assert.True(fs.DirectoryExists("/link1rel"));
+
+        Assert.True(fs.DirectoryExists("/link1abs"));
+
+        Assert.True(fs.DirectoryExists("/link1rel/dir3/link2abs"));
+
+        Assert.True(fs.DirectoryExists("/link1abs/dir3/link2abs"));
+
+        Assert.True(fs.FileExists("/link1rel/link4abs/file4"));
+
+        Assert.True(fs.FileExists("/link1abs/link4rel/file4"));
+    }
+
+    [Fact]
+    public void TestLinksWithInfo()
+    {
+        using var data = Helpers.Helpers.LoadTestDataFileFromGZipFile("Ext", "data.ext4.links.gz");
+        using var fs = new ExtFileSystem(data, new FileSystemParameters());
+
+        Assert.NotEmpty(fs.GetDirectoryInfo("dir4").GetFiles("file4"));
+
+        Assert.NotEmpty(fs.GetDirectoryInfo("dir1").GetDirectories("link4rel").First().GetFiles("file4"));
+
+        Assert.NotEmpty(fs.GetDirectoryInfo("dir1").GetDirectories("link4abs").First().GetFiles("file4"));
+
+        Assert.NotEmpty(fs.GetDirectories("link1rel"));
+
+        Assert.NotEmpty(fs.GetDirectories("link1abs"));
+
+        Assert.NotEmpty(fs.GetDirectoryInfo("link1rel").GetDirectories("dir3").First().GetDirectories("link2abs"));
+
+        Assert.NotEmpty(fs.GetDirectoryInfo("link1abs").GetDirectories("dir3").First().GetDirectories("link2abs"));
+
+        Assert.NotEmpty(fs.GetDirectoryInfo("link1rel").GetDirectories("link4abs").First().GetFiles("file4"));
+
+        Assert.NotEmpty(fs.GetDirectoryInfo("link1abs").GetDirectories("link4rel").First().GetFiles("file4"));
+    }
 }
