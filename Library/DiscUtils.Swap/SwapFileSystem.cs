@@ -21,6 +21,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using DiscUtils.Streams;
 using DiscUtils.Vfs;
@@ -108,4 +109,7 @@ public sealed class SwapFileSystem : VfsReadOnlyFileSystem<VfsDirEntry, IVfsFile
     {
         throw new NotImplementedException();
     }
+
+	
+	protected override IVfsDirectory<VfsDirEntry, IVfsFile> ConvertDirEntryToDirectory(VfsDirEntry dirEntry) => throw new NotImplementedException();
 }

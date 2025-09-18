@@ -801,7 +801,7 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
     }
 
 
-	protected virtual TDirectory ConvertDirEntryToDirectory(TDirEntry dirEntry) => throw new NotImplementedException();
+	protected abstract TDirectory ConvertDirEntryToDirectory(TDirEntry dirEntry);// => throw new NotImplementedException();
 
     /// <summary>
     /// Converts a directory entry to an object representing a file.
@@ -997,7 +997,7 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
         var resolvesLeft = 20;
         while (currentEntry.IsSymlink && resolvesLeft > 0)
         {
-            if (GetFile(currentEntry) is not IVfsSymlink<TDirEntry, TFile> symlink)
+            if (VfsDirEntry.NO_SYMLINK_RESOLUTION || GetFile(currentEntry) is not IVfsSymlink<TDirEntry, TFile> symlink)
             {
                 Trace.WriteLine($"Unable to resolve symlink '{path}'");
                 return default;

@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.IO;
 using DiscUtils.Internal;
 using DiscUtils.Streams;
+using DiscUtils.Vfs;
 using LTRData.Extensions.Buffers;
 
 namespace DiscUtils.Nfs;
@@ -829,4 +830,7 @@ public class NfsFileSystem : DiscFileSystem
 
         return handle;
     }
+
+	public override IAbstractRecord GetAbstractRecord(string path) => throw new NotImplementedException();
+	public override string GetSymlinkTarget(IAbstractRecord dirEntry) => throw new NotImplementedException();
 }

@@ -168,7 +168,8 @@ public class CDReader : VfsFileSystemFacade, IClusterBasedFileSystem,
     {
         return GetRealFileSystem<VfsCDReader>().GetUnixFileInfo(path);
     }
-
+	public override IAbstractRecord GetAbstractRecord(string path) => GetRealFileSystem<VfsCDReader>().GetAbstractRecord(path);
+	public override string GetSymlinkTarget(IAbstractRecord dirEntry) => GetRealFileSystem<VfsCDReader>().GetSymlinkTarget(dirEntry);
     /// <summary>
     /// Detects if a stream contains a valid ISO file system.
     /// </summary>

@@ -521,9 +521,8 @@ public abstract class DiscFileSystem :
         }
     }
 
-	public virtual IAbstractRecord GetAbstractRecord(string path) => throw new NotImplementedException();
-	public virtual string GetSymlinkTarget(IAbstractRecord dirEntry) => throw new NotImplementedException();
-
+	public abstract IAbstractRecord GetAbstractRecord(string path);
+	public abstract string GetSymlinkTarget(IAbstractRecord dirEntry);
 
     public event EventHandler Disposed;
 

@@ -783,7 +783,85 @@ public class NativeFileSystem : DiscFileSystem
     {
         return dirtyItems.Substring(BasePath.Length - 1);
     }
+	internal class NativeAbstractDirectory : NativeAbstractRecord, IAbstractDirectory {
+		private DirectoryInfo di;
 
-	public override IAbstractRecord GetAbstractRecord(string path) => throw new NotImplementedException();
-	public override string GetSymlinkTarget(IAbstractRecord dirEntry) => throw new NotImplementedException();
+		public NativeAbstractDirectory(NativeFileSystem fs, DirectoryInfo di) : base(fs,di,true){
+			this.di = di;
+		}
+
+		public NativeAbstractDirectory(NativeFileSystem fs, String path) : this(fs,new DirectoryInfo(path)) {
+			
+		}
+
+		public IEnumerable<IAbstractRecord> AllEntries {
+			get{
+				foreach(var d in di.GetDirectories())
+					yield return new NativeAbstractDirectory(fs,d);
+				foreach(var d in di.GetFiles())
+					yield return new NativeAbstractRecord(fs,d,false);
+			}
+		}
+
+		
+	}
+	internal class NativeAbstractRecord : IAbstractRecord {
+		public NativeAbstractRecord(NativeFileSystem fs, String path){
+			info = new FileInfo(Path.Combine(fs.BasePath,path));
+			IsDirectory = false;
+			FileName = fs.CleanItems(info.FullName);
+			this.fs  = fs;
+		}
+		internal NativeAbstractRecord(NativeFileSystem fs, System.IO.FileSystemInfo info, bool isDirectory){
+			this.info = info;
+			IsDirectory = true;
+			FileName = fs.CleanItems(info.FullName);
+			this.fs  = fs;
+		}
+		protected System.IO.FileSystemInfo info;
+
+		public DateTime CreationTimeUtc => info.CreationTimeUtc;
+		public FileAttributes FileAttributes  => info.Attributes;
+		public string FileName {get; }
+
+		protected NativeFileSystem fs;
+
+		public virtual bool IsDirectory {get; }
+		public bool IsSymlink => info.LinkTarget != null;
+		public DateTime LastAccessTimeUtc => info.LastAccessTimeUtc;
+		public DateTime LastWriteTimeUtc => info.LastWriteTimeUtc;
+		public long FileId => throw new NotImplementedException(); // need native call for it or inode
+		public long FileSize => (info is FileInfo fi) ? fi.Length : 0;
+		public SparseStream FileContent => (info is FileInfo fi) ? fs.OpenFile(FileName, FileMode.Open, FileAccess.Read) : null;
+
+		public VfsDirEntry GetAsDirEntry() => throw new NotImplementedException();
+		public IVfsFile GetAsFile() => throw new NotImplementedException();
+		public IAbstractDirectory GetAsAbstractDirectory() => this as IAbstractDirectory;
+	}
+	public override IAbstractRecord GetAbstractRecord(string path) {
+		var truePath = Path.Combine(BasePath,path);
+		if (Directory.Exists(truePath)){
+			var di = new DirectoryInfo(truePath);
+			return new NativeAbstractRecord(this,di,true);
+		}
+		else if (File.Exists(truePath)){
+			return new NativeAbstractRecord(this,path);
+		}
+		else
+			return null;
+	}
+	public override string GetSymlinkTarget(IAbstractRecord dirEntry) {
+		if (! dirEntry.IsSymlink)
+			throw new ArgumentException("Not a symlink", nameof(dirEntry));
+		string target;
+		var ourPath = Path.Combine(BasePath, dirEntry.FileName);
+		if (dirEntry.IsDirectory)
+			target = Directory.ResolveLinkTarget(ourPath, false).FullName;
+		else {
+			target = File.ResolveLinkTarget(ourPath, false).FullName;
+		}
+		if (target.StartsWith(BasePath, StringComparison.CurrentCultureIgnoreCase) == false)
+			return null;
+		return CleanItems(target);
+	}
 }

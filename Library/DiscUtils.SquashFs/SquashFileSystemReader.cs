@@ -59,7 +59,8 @@ public class SquashFileSystemReader : VfsFileSystemFacade, IUnixFileSystem
     {
         return GetRealFileSystem<VfsSquashFileSystemReader>().GetUnixFileInfo(path);
     }
-
+	public override IAbstractRecord GetAbstractRecord(string path) => GetRealFileSystem<VfsSquashFileSystemReader>().GetAbstractRecord(path);
+	public override string GetSymlinkTarget(IAbstractRecord dirEntry) => GetRealFileSystem<VfsSquashFileSystemReader>().GetSymlinkTarget(dirEntry);
     /// <summary>
     /// Detects if the stream contains a SquashFs file system.
     /// </summary>

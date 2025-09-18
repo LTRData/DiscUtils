@@ -119,10 +119,12 @@ internal sealed class HfsPlusFileSystemImpl : VfsFileSystem<DirEntry, File, Dire
         return fileBuffer.EnumerateAllocationExtents();
     }
 
-    /// <summary>
-    /// Size of the Filesystem in bytes
-    /// </summary>
-    public override long Size => throw new NotSupportedException("Filesystem size is not (yet) supported");
+	protected override Directory ConvertDirEntryToDirectory(DirEntry dirEntry) => ConvertDirEntryToFile(dirEntry) as Directory;
+
+	/// <summary>
+	/// Size of the Filesystem in bytes
+	/// </summary>
+	public override long Size => throw new NotSupportedException("Filesystem size is not (yet) supported");
 
     /// <summary>
     /// Used space of the Filesystem in bytes

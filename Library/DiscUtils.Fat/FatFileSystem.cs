@@ -29,6 +29,7 @@ using DiscUtils.CoreCompat;
 using DiscUtils.Internal;
 using DiscUtils.Streams;
 using DiscUtils.Streams.Compatibility;
+using DiscUtils.Vfs;
 using LTRData.Extensions.Split;
 
 namespace DiscUtils.Fat;
@@ -2109,6 +2110,53 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
         stream.Position = pos;
         return new FatFileSystem(stream);
     }
+	internal class FatAbstractDirectory : FatAbstractRecord, IAbstractDirectory {
+		public FatAbstractDirectory(FatFileSystem fs, DirectoryEntry entry) : base(fs,entry) {
+			this.IsDirectory = true;
+		}
 
-#endregion
+		public IEnumerable<IAbstractRecord> AllEntries {
+			get{
+				var dir = fs.GetDirectory(FileName);
+				foreach (var di in dir.GetDirectories())
+					yield return new FatAbstractDirectory(fs,di);
+				foreach (var fi in dir.GetFiles())
+					yield return new FatAbstractRecord(fs,fi);
+			}
+		}
+	}
+	internal class FatAbstractRecord : IAbstractRecord {
+		protected FatFileSystem fs;
+		protected DirectoryEntry entry;
+
+		public FatAbstractRecord(FatFileSystem fs, DirectoryEntry entry) {
+			this.fs = fs;
+			this.entry  = entry;
+		}
+		public DateTime CreationTimeUtc => entry.CreationTime.ToUniversalTime();
+		public FileAttributes FileAttributes => IsDirectory ? FileAttributes.Directory :  (FileAttributes)entry.Attributes;
+		public string FileName => entry.Name.FullName;
+		public bool IsDirectory { get;protected set; }
+		public bool IsSymlink { get; } = false;
+		public DateTime LastAccessTimeUtc => entry.LastAccessTime.ToUniversalTime();
+		public DateTime LastWriteTimeUtc => entry.LastWriteTime.ToUniversalTime();
+		public long FileId => entry.FirstCluster;
+		public long FileSize => entry.FileSize;
+		public SparseStream FileContent => fs.OpenFile(FileName,FileMode.Open,FileAccess.Read);
+
+		public IAbstractDirectory GetAsAbstractDirectory() => this as IAbstractDirectory;
+		public VfsDirEntry GetAsDirEntry() => throw new NotImplementedException();
+		public IVfsFile GetAsFile() => throw new NotImplementedException();
+	}
+	public override IAbstractRecord GetAbstractRecord(string path) {
+		var dirEntry = GetDirectoryEntry(path)
+            ?? throw new FileNotFoundException("No such file", path);
+		if (dirEntry.Attributes.HasFlag(FatAttributes.Directory))
+			return new FatAbstractDirectory(this,dirEntry);
+		return new FatAbstractRecord(this,dirEntry);
+	}
+	public override string GetSymlinkTarget(IAbstractRecord dirEntry) => null;
+
+	#endregion
 }
+
