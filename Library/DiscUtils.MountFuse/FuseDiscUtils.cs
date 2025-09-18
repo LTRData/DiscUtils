@@ -7,9 +7,14 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Versioning;
 
 namespace DiscUtils.MountFuse;
 
+#if NET5_0_OR_GREATER
+[SupportedOSPlatform("linux")]
+[SupportedOSPlatform("freebsd")]
+#endif
 public class FuseDiscUtils : IFuseOperations
 {
     public IFileSystem FileSystem { get; }
