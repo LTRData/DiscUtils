@@ -8,6 +8,9 @@ namespace DiscUtils.Vfs;
 public interface IAbstractRecord {
 		DateTime CreationTimeUtc { get; }
 		FileAttributes FileAttributes { get; }
+	/// <summary>
+	/// the SubPath relative to the IAbstractDirectory that returned it
+	/// </summary>
 		string FileName { get; }
 		bool IsDirectory { get; }
 		bool IsSymlink { get; }

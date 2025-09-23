@@ -2111,17 +2111,18 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
         return new FatFileSystem(stream);
     }
 	internal class FatAbstractDirectory : FatAbstractRecord, IAbstractDirectory {
-		public FatAbstractDirectory(FatFileSystem fs, DirectoryEntry entry) : base(fs,entry) {
+		public FatAbstractDirectory(FatFileSystem fs, DirectoryEntry entry, String FullPath) : base(fs,entry,FullPath) {
 			this.IsDirectory = true;
 		}
+		public override string FileName => entry.Name.IsEndMarker() ? "" : entry.Name.FullName; //IsEndMarker is only true for us on the fake root dir, otherwise we would return nulls here.
 
 		public IEnumerable<IAbstractRecord> AllEntries {
 			get{
-				var dir = fs.GetDirectory(FileName);
+				var dir = fs.GetDirectory(FullPath);
 				foreach (var di in dir.GetDirectories())
-					yield return new FatAbstractDirectory(fs,di);
+					yield return new FatAbstractDirectory(fs,di,Path.Combine(FullPath,di.Name.FullName));
 				foreach (var fi in dir.GetFiles())
-					yield return new FatAbstractRecord(fs,fi);
+					yield return new FatAbstractRecord(fs,fi, Path.Combine(FullPath,fi.Name.FullName));
 			}
 		}
 	}
@@ -2129,31 +2130,38 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
 		protected FatFileSystem fs;
 		protected DirectoryEntry entry;
 
-		public FatAbstractRecord(FatFileSystem fs, DirectoryEntry entry) {
+		public FatAbstractRecord(FatFileSystem fs, DirectoryEntry entry, String FullPath) {
 			this.fs = fs;
 			this.entry  = entry;
+			this.FullPath = FullPath;
 		}
 		public DateTime CreationTimeUtc => entry.CreationTime.ToUniversalTime();
 		public FileAttributes FileAttributes => IsDirectory ? FileAttributes.Directory :  (FileAttributes)entry.Attributes;
-		public string FileName => entry.Name.FullName;
-		public bool IsDirectory { get;protected set; }
+		public virtual string FileName => entry.Name.FullName;
+		protected string FullPath;
+		public bool IsDirectory { get; protected set; }
 		public bool IsSymlink { get; } = false;
 		public DateTime LastAccessTimeUtc => entry.LastAccessTime.ToUniversalTime();
 		public DateTime LastWriteTimeUtc => entry.LastWriteTime.ToUniversalTime();
 		public long FileId => entry.FirstCluster;
 		public long FileSize => entry.FileSize;
-		public SparseStream FileContent => fs.OpenFile(FileName,FileMode.Open,FileAccess.Read);
+		public SparseStream FileContent => fs.OpenFile(FullPath,FileMode.Open,FileAccess.Read);
 
 		public IAbstractDirectory GetAsAbstractDirectory() => this as IAbstractDirectory;
 		public VfsDirEntry GetAsDirEntry() => throw new NotImplementedException();
 		public IVfsFile GetAsFile() => throw new NotImplementedException();
 	}
 	public override IAbstractRecord GetAbstractRecord(string path) {
-		var dirEntry = GetDirectoryEntry(path)
-            ?? throw new FileNotFoundException("No such file", path);
+		var dirEntry = GetDirectoryEntry(path);
+		if (dirEntry == null && IsRootPath(path)){
+			var dir = GetDirectory(path);
+			dirEntry = dir.SelfEntry;//directory will create a fake one for us for root			
+		}
+		if (dirEntry == null)
+            throw new FileNotFoundException("No such file", path);
 		if (dirEntry.Attributes.HasFlag(FatAttributes.Directory))
-			return new FatAbstractDirectory(this,dirEntry);
-		return new FatAbstractRecord(this,dirEntry);
+			return new FatAbstractDirectory(this,dirEntry,path);
+		return new FatAbstractRecord(this,dirEntry,path);
 	}
 	public override string GetSymlinkTarget(IAbstractRecord dirEntry) => null;
 
