@@ -451,7 +451,7 @@ public class DokanDiscUtils : IDokanOperations2, IDisposable
         FileOptions options, FileAttributes attributes, ref DokanFileInfo info)
     {
         if (mode == FileMode.Open
-            && Utilities.GetFileName(fileNamePtr.Span).IndexOfAny("*?") >= 0)
+            && Utilities.GetFileName(fileNamePtr.Span).IndexOfAny('*', '?') >= 0)
         {
             return Trace(nameof(CreateFile), fileNamePtr, info, access, share, mode, options, attributes,
                 DokanResult.InvalidName);
