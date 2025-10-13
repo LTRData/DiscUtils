@@ -1,4 +1,5 @@
-﻿using DiscUtils.Streams.Compatibility;
+﻿using DiscUtils.Internal;
+using DiscUtils.Streams.Compatibility;
 using DokanNet;
 using DokanNet.Logging;
 using LTRData.Extensions.Buffers;
@@ -449,6 +450,13 @@ public class DokanDiscUtils : IDokanOperations2, IDisposable
     public NtStatus CreateFile(ReadOnlyNativeMemory<char> fileNamePtr, NativeFileAccess access, FileShare share, FileMode mode,
         FileOptions options, FileAttributes attributes, ref DokanFileInfo info)
     {
+        if (mode == FileMode.Open
+            && Utilities.GetFileName(fileNamePtr.Span).IndexOfAny("*?") >= 0)
+        {
+            return Trace(nameof(CreateFile), fileNamePtr, info, access, share, mode, options, attributes,
+                DokanResult.InvalidName);
+        }
+
         var fileName = TranslatePath(fileNamePtr);
 
         if (AccessCheck is not null)
