@@ -208,7 +208,8 @@ public static class Utilities
         => GetFileFromPath(path.AsSpan()).ToString();
 
     /// <summary>
-    /// Extracts the file part of a path.
+    /// Extracts the file part of a path that optionally
+    /// ends with a path separator.
     /// </summary>
     /// <param name="path">The path to process.</param>
     /// <returns>The file part of the path.</returns>
@@ -216,13 +217,24 @@ public static class Utilities
     {
         var trimmed = path.TrimEndAny(PathSeparators);
 
-        var index = trimmed.LastIndexOfAny(PathSeparators);
+        return GetFileName(trimmed);
+    }
+
+    /// <summary>
+    /// Extracts the file part of a path.
+    /// </summary>
+    /// <param name="path">The path to process.</param>
+    /// <returns>The file part of the path.</returns>
+    public static ReadOnlySpan<char> GetFileName(ReadOnlySpan<char> path)
+    {
+        var index = path.LastIndexOfAny(PathSeparators);
+        
         if (index < 0)
         {
-            return trimmed; // No directory, just a file name
+            return path; // No directory, just a file name
         }
 
-        return trimmed.Slice(index + 1);
+        return path.Slice(index + 1);
     }
 
     /// <summary>
