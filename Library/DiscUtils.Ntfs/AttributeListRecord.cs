@@ -47,9 +47,11 @@ internal class AttributeListRecord : IDiagnosticTraceable, IByteArraySerializabl
         RecordLength = EndianUtilities.ToUInt16LittleEndian(data.Slice(0x04));
         NameLength = data[0x06];
         NameOffset = data[0x07];
-        StartVcn = EndianUtilities.ToUInt64LittleEndian(data.Slice(0x08));
-        BaseFileReference = new FileRecordReference(EndianUtilities.ToUInt64LittleEndian(data.Slice(0x10)));
-        AttributeId = EndianUtilities.ToUInt16LittleEndian(data.Slice(0x18));
+
+        if (RecordLength < 0x18 || (NameLength > 0 && NameOffset == 0))
+        {
+            throw new InvalidDataException("Malformed AttributeList record");
+        }
 
         if (NameLength > 0)
         {
@@ -60,10 +62,9 @@ internal class AttributeListRecord : IDiagnosticTraceable, IByteArraySerializabl
             Name = null;
         }
 
-        if (RecordLength < 0x18)
-        {
-            throw new InvalidDataException("Malformed AttributeList record");
-        }
+        StartVcn = EndianUtilities.ToUInt64LittleEndian(data.Slice(0x08));
+        BaseFileReference = new FileRecordReference(EndianUtilities.ToUInt64LittleEndian(data.Slice(0x10)));
+        AttributeId = EndianUtilities.ToUInt16LittleEndian(data.Slice(0x18));
 
         return RecordLength;
     }

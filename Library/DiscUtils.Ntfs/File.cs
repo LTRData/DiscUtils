@@ -851,9 +851,13 @@ internal class File
                             lastAttr = NtfsAttribute.FromRecord(this, record.BaseFileReference, attrRec);
                             _attributes.Add(lastAttr);
                         }
-                        else
+                        else if (lastAttr != null)
                         {
                             lastAttr.AddExtent(record.BaseFileReference, attrRec);
+                        }
+                        else
+                        {
+                            throw new InvalidDataException("Attribute listed in AttributeList not found");
                         }
                     }
                 }
