@@ -409,7 +409,7 @@ internal class VfsCDReader : VfsReadOnlyFileSystem<ReaderDirEntry, File, ReaderD
         Span<byte> bytes = stackalloc byte[512];
         stream.ReadExactly(bytes);
 
-        var disk = new BiosPartitionTable(stream, Geometry.Null);
+        var disk = new BiosPartitionTable(stream);
 
         try
         {

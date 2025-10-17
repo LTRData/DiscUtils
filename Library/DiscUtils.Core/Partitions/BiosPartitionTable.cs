@@ -60,6 +60,15 @@ public sealed class BiosPartitionTable : PartitionTable
         Init(disk, diskGeometry);
     }
 
+    /// <summary>
+    /// Initializes a new instance of the BiosPartitionTable class.
+    /// </summary>
+    /// <param name="disk">The stream containing the disk data.</param>
+    public BiosPartitionTable(Stream disk)
+    {
+        Init(disk, Geometry.MakeBiosSafe(geometry: null, disk.Length));
+    }
+
     public Geometry DiskGeometry => _diskGeometry;
 
     /// <summary>

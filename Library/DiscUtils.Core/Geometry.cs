@@ -40,6 +40,22 @@ public readonly struct Geometry : IEquatable<Geometry>
     /// <param name="sectorsPerTrack">The number of sectors per track/cylinder of the disk.</param>
     public Geometry(int cylinders, int headsPerCylinder, int sectorsPerTrack)
     {
+#if NET8_0_OR_GREATER
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(headsPerCylinder);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(sectorsPerTrack);
+#else
+        if (headsPerCylinder <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(headsPerCylinder), headsPerCylinder,
+                "heads per cylinder is zero or negative");
+        }
+        if (sectorsPerTrack <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(sectorsPerTrack), sectorsPerTrack,
+                "sectors per track is zero or negative");
+        }
+#endif
+
         Cylinders = cylinders;
         HeadsPerCylinder = headsPerCylinder;
         SectorsPerTrack = sectorsPerTrack;
@@ -55,6 +71,28 @@ public readonly struct Geometry : IEquatable<Geometry>
     /// <param name="bytesPerSector">The number of bytes per sector of the disk.</param>
     public Geometry(int cylinders, int headsPerCylinder, int sectorsPerTrack, int bytesPerSector)
     {
+#if NET8_0_OR_GREATER
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(headsPerCylinder);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(sectorsPerTrack);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(bytesPerSector);
+#else
+        if (headsPerCylinder <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(headsPerCylinder), headsPerCylinder,
+                "heads per cylinder is zero or negative");
+        }
+        if (sectorsPerTrack <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(sectorsPerTrack), sectorsPerTrack,
+                "sectors per track is zero or negative");
+        }
+        if (bytesPerSector <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(bytesPerSector), bytesPerSector,
+                "bytes per sector is zero or negative");
+        }
+#endif
+
         Cylinders = cylinders;
         HeadsPerCylinder = headsPerCylinder;
         SectorsPerTrack = sectorsPerTrack;
@@ -70,6 +108,28 @@ public readonly struct Geometry : IEquatable<Geometry>
     /// <param name="bytesPerSector">The number of bytes per sector of the disk.</param>
     public Geometry(long capacity, int headsPerCylinder, int sectorsPerTrack, int bytesPerSector)
     {
+#if NET8_0_OR_GREATER
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(headsPerCylinder);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(sectorsPerTrack);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(bytesPerSector);
+#else
+        if (headsPerCylinder <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(headsPerCylinder), headsPerCylinder,
+                "heads per cylinder is zero or negative");
+        }
+        if (sectorsPerTrack <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(sectorsPerTrack), sectorsPerTrack,
+                "sectors per track is zero or negative");
+        }
+        if (bytesPerSector <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(bytesPerSector), bytesPerSector,
+                "bytes per sector is zero or negative");
+        }
+#endif
+
         Cylinders = (int)(capacity / (headsPerCylinder * (long)sectorsPerTrack * bytesPerSector));
         HeadsPerCylinder = headsPerCylinder;
         SectorsPerTrack = sectorsPerTrack;
@@ -117,11 +177,6 @@ public readonly struct Geometry : IEquatable<Geometry>
     public ChsAddress LastSector => new(Cylinders - 1, HeadsPerCylinder - 1, SectorsPerTrack);
 
     /// <summary>
-    /// Gets a null geometry, which has 512-byte sectors but zero sectors, tracks or cylinders.
-    /// </summary>
-    public static Geometry Null => new(0, 0, 0, 512);
-
-    /// <summary>
     /// Gets the number of sectors per track.
     /// </summary>
     public int SectorsPerTrack { get; }
@@ -165,6 +220,16 @@ public readonly struct Geometry : IEquatable<Geometry>
     /// <returns>The geometry a BIOS using the 'LBA Assisted' method for calculating disk geometry will indicate for the disk.</returns>
     public static Geometry LbaAssistedBiosGeometry(long capacity, int bytesPerSector)
     {
+#if NET8_0_OR_GREATER
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(bytesPerSector);
+#else
+        if (bytesPerSector <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(bytesPerSector), bytesPerSector,
+                "bytes per sector is zero or negative");
+        }
+#endif
+
         int heads;
         if (capacity <= 504 * Sizes.OneMiB)
         {
@@ -313,19 +378,24 @@ public readonly struct Geometry : IEquatable<Geometry>
     /// <returns>The Logical Block Address (in sectors).</returns>
     public long ToLogicalBlockAddress(int cylinder, int head, int sector)
     {
+#if NET8_0_OR_GREATER
+        ArgumentOutOfRangeException.ThrowIfNegative(cylinder);
+        ArgumentOutOfRangeException.ThrowIfNegative(head);
+#else
         if (cylinder < 0)
         {
             throw new ArgumentOutOfRangeException(nameof(cylinder), cylinder, "cylinder number is negative");
         }
 
-        if (head >= HeadsPerCylinder)
-        {
-            throw new ArgumentOutOfRangeException(nameof(head), head, "head number is larger than disk geometry");
-        }
-
         if (head < 0)
         {
             throw new ArgumentOutOfRangeException(nameof(head), head, "head number is negative");
+        }
+#endif
+
+        if (head >= HeadsPerCylinder)
+        {
+            throw new ArgumentOutOfRangeException(nameof(head), head, "head number is larger than disk geometry");
         }
 
         if (sector > SectorsPerTrack)

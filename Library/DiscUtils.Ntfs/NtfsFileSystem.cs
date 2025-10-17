@@ -1758,7 +1758,7 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
         var formatter = new NtfsFormatter
         {
             Label = label,
-            DiskGeometry = volume.BiosGeometry != default ? volume.BiosGeometry : Geometry.Null,
+            DiskGeometry = volume.BiosGeometry ?? Geometry.MakeBiosSafe(volume.PhysicalGeometry, volume.Length),
             FirstSector = volume.PhysicalStartSector,
             SectorCount = volume.Length / Sizes.Sector
         };
@@ -1780,7 +1780,7 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
         var formatter = new NtfsFormatter
         {
             Label = label,
-            DiskGeometry = volume.BiosGeometry != default ? volume.BiosGeometry : Geometry.Null,
+            DiskGeometry = volume.BiosGeometry ?? Geometry.MakeBiosSafe(volume.PhysicalGeometry, volume.Length),
             FirstSector = volume.PhysicalStartSector,
             SectorCount = volume.Length / Sizes.Sector,
             BootCode = bootCode
@@ -1803,7 +1803,7 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
         var formatter = new NtfsFormatter
         {
             Label = label,
-            DiskGeometry = volume.BiosGeometry != default ? volume.BiosGeometry : Geometry.Null,
+            DiskGeometry = volume.BiosGeometry ?? Geometry.MakeBiosSafe(volume.PhysicalGeometry, volume.Length),
             FirstSector = volume.PhysicalStartSector,
             SectorCount = volume.Length / Sizes.Sector,
             BootCode = options.BootCode,

@@ -105,7 +105,7 @@ class Program : ProgramBase
             var ssStream = new SnapshotStream(contentStream, Ownership.None);
             ssStream.Snapshot();
 
-            UpdateBiosGeometry(ssStream, inDisk.BiosGeometry, diskParams.BiosGeometry);
+            UpdateBiosGeometry(ssStream, inDisk.BiosGeometry, diskParams.BiosGeometry.Value);
 
             contentStream = ssStream;
         }

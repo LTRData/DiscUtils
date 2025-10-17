@@ -40,7 +40,7 @@ public sealed class VirtualDiskParameters
     /// <summary>
     /// Gets or sets the logical (aka BIOS) geometry of the disk.
     /// </summary>
-    public Geometry BiosGeometry { get; set; }
+    public Geometry? BiosGeometry { get; set; }
 
     /// <summary>
     /// Gets or sets the disk capacity.

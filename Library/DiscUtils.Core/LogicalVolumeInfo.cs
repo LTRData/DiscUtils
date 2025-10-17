@@ -49,7 +49,7 @@ public sealed class LogicalVolumeInfo : VolumeInfo
     /// <summary>
     /// Gets the disk geometry of the underlying storage medium (as used in BIOS calls), may be null.
     /// </summary>
-    public override Geometry BiosGeometry => _physicalVol == null ? Geometry.Null : _physicalVol.BiosGeometry;
+    public override Geometry? BiosGeometry => _physicalVol?.BiosGeometry;
 
     /// <summary>
     /// Gets the one-byte BIOS type for this volume, which indicates the content.
@@ -84,7 +84,7 @@ public sealed class LogicalVolumeInfo : VolumeInfo
     /// <summary>
     /// Gets the disk geometry of the underlying storage medium, if any (may be Geometry.Null).
     /// </summary>
-    public override Geometry? PhysicalGeometry => _physicalVol == null ? Geometry.Null : _physicalVol.PhysicalGeometry;
+    public override Geometry? PhysicalGeometry => _physicalVol?.PhysicalGeometry;
 
     /// <summary>
     /// Gets the offset of this volume in the underlying storage medium, if any (may be Zero).
