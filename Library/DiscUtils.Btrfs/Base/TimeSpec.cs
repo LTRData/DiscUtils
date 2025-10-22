@@ -39,11 +39,11 @@ internal class TimeSpec : IByteArraySerializable
     /// </summary>
     public uint Nanoseconds { get; internal set; }
 
-    public DateTimeOffset Value => DateTimeOffset.FromUnixTimeSeconds(Seconds).AddTicks(Nanoseconds / 100);
+    public DateTimeOffset Value => DateTimeOffset.FromUnixTimeSeconds(Seconds).AddTicks(Nanoseconds / 100).UtcDateTime;
 
     public int Size => Length;
 
-    public DateTimeOffset DateTime => DateTimeOffset.FromUnixTimeSeconds(Seconds).AddTicks(Nanoseconds / 100);
+    public DateTimeOffset DateTime => DateTimeOffset.FromUnixTimeSeconds(Seconds).AddTicks(Nanoseconds / 100).UtcDateTime;
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

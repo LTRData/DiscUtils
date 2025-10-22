@@ -51,7 +51,7 @@ internal abstract class Inode : IByteArraySerializable
         Mode = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(2));
         UidKey = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(4));
         GidKey = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(6));
-        ModificationTime = DateTimeOffset.FromUnixTimeSeconds(EndianUtilities.ToUInt32LittleEndian(buffer.Slice(8))).DateTime;
+        ModificationTime = DateTimeOffset.FromUnixTimeSeconds(EndianUtilities.ToUInt32LittleEndian(buffer.Slice(8))).UtcDateTime;
         InodeNumber = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(12));
         return 16;
     }
