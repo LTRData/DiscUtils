@@ -36,8 +36,8 @@ public sealed class TarHeader
     public long FileLength { get; }
     public DateTimeOffset ModificationTime { get; }
     public int CheckSum { get; }
-    public UnixFileType FileType { get; }
-    public string LinkName { get; }
+    public TarFileType FileType { get; }
+    public string LinkName { get; internal set; }
     public string Magic { get; }
     public int Version { get; }
     public string OwnerName { get; }
@@ -77,7 +77,7 @@ public sealed class TarHeader
         FileLength = ParseFileLength(buffer.Slice(124, 12));
         ModificationTime = DateTimeOffset.FromUnixTimeSeconds((uint)OctalToLong(ReadNullTerminatedString(buffer.Slice(136, 12))));
         CheckSum = (int)OctalToLong(ReadNullTerminatedString(buffer.Slice(148, 8)));
-        FileType = (UnixFileType)buffer[156];
+        FileType = (TarFileType)buffer[156];
         LinkName = latin1Encoding.GetString(ReadNullTerminatedString(buffer.Slice(157, 100)));
         Magic = latin1Encoding.GetString(ReadNullTerminatedString(buffer.Slice(257, 6)));
         Version = (int)OctalToLong(ReadNullTerminatedString(buffer.Slice(263, 2)));

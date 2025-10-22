@@ -176,7 +176,25 @@ public sealed class VirtualFileSystemDirectory : VirtualFileSystemDirectoryEntry
     public override long FileId => _entries.GetHashCode();
 
     public override VirtualFileSystemDirectoryEntry AddLink(VirtualFileSystemDirectory new_parent, string new_name)
-        => new VirtualFileSystemDirectory(new_parent, new_name, this);
+    {
+        if (new_parent.GetEntry(new_name) is VirtualFileSystemDirectory existing_target)
+        {
+            if (existing_target._entries == _entries)
+            {
+                return existing_target;
+            }
+
+            throw new IOException($"File or directory '{new_name}' already exists in directory '{new_parent}'");
+        }
+
+        return new VirtualFileSystemDirectory(new_parent, new_name, this);
+    }
 
     public override string Name => $@"{base.Name}\";
+
+    public override bool Equals(object obj)
+        => obj is VirtualFileSystemDirectory other
+        && other._entries == _entries;
+
+    public override int GetHashCode() => _entries.GetHashCode();
 }

@@ -53,5 +53,23 @@ public sealed class VirtualFileSystemFile : VirtualFileSystemDirectoryEntry
     public override long FileId => OpenFunc?.GetHashCode() ?? -1;
 
     public override VirtualFileSystemDirectoryEntry AddLink(VirtualFileSystemDirectory new_parent, string new_name)
-        => new VirtualFileSystemFile(new_parent, new_name, this);
+    {
+        if (new_parent.GetEntry(new_name) is VirtualFileSystemFile existing_target)
+        {
+            if (existing_target.OpenFunc == OpenFunc)
+            {
+                return existing_target;
+            }
+
+            throw new IOException($"File or directory '{new_name}' already exists in directory '{new_parent}'");
+        }
+
+        return new VirtualFileSystemFile(new_parent, new_name, this);
+    }
+
+    public override bool Equals(object obj)
+        => obj is VirtualFileSystemFile other
+        && other.OpenFunc == OpenFunc;
+
+    public override int GetHashCode() => OpenFunc?.GetHashCode() ?? 0;
 }

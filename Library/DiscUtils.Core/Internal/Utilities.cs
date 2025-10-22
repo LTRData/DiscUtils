@@ -20,6 +20,7 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
+using DiscUtils.Archives;
 using LTRData.Extensions.Buffers;
 using LTRData.Extensions.Split;
 using System;
@@ -27,6 +28,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -662,5 +664,40 @@ public static class Utilities
     public static bool EndsWithDirectorySeparator(this string path) =>
         path is not null && path.Length > 0 && (path[path.Length - 1] is '/' or '\\');
 
-#endregion
+    public static UnixFileType ToUnixFileType(this FileAttributes attributes)
+    {
+        if (attributes.HasFlag(FileAttributes.Directory))
+        {
+            return UnixFileType.Directory;
+        }
+        else if (attributes.HasFlag(FileAttributes.ReparsePoint))
+        {
+            return UnixFileType.Link;
+        }
+        else if (attributes.HasFlag(FileAttributes.Device))
+        {
+            // Could be block, char, fifo, socket - no way to distinguish
+            return UnixFileType.Block;
+        }
+        else
+        {
+            return UnixFileType.Regular;
+        }
+    }
+
+    public static UnixFileType ToUnixFileType(this TarFileType entryType)
+    {
+        return entryType switch
+        {
+            TarFileType.TarEntryRegularFile or TarFileType.TarEntryContiguous => UnixFileType.Regular,
+            TarFileType.TarEntryDirectory => UnixFileType.Directory,
+            TarFileType.TarEntryLink or TarFileType.TarEntrySymbolicLink or TarFileType.TarEntryLongLinkTarget => UnixFileType.Link,
+            TarFileType.TarEntryCharacter => UnixFileType.Character,
+            TarFileType.TarEntryBlock => UnixFileType.Block,
+            TarFileType.TarEntryFifo => UnixFileType.Fifo,
+            _ => UnixFileType.None,
+        };
+    }
+
+    #endregion
 }

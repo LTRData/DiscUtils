@@ -70,7 +70,7 @@ public class TarFile : IDisposable
             }
 
             var record = new TarFileRecord(hdr, _fileStream.Position);
-            if (hdr.FileType == UnixFileType.TarEntryLongLink &&
+            if (hdr.FileType == TarFileType.TarEntryLongLink &&
                 hdr.FileName == "././@LongLink")
             {
                 var buffer = ArrayPool<byte>.Shared.Rent(checked((int)hdr.FileLength));
@@ -199,6 +199,7 @@ public class TarFile : IDisposable
         var hdrBuf = StreamUtilities.GetUninitializedArray<byte>(512);
 
         string long_path = null;
+        string long_link_path = null;
 
         for (;;)
         {
@@ -209,10 +210,18 @@ public class TarFile : IDisposable
 
             var hdr = new TarHeader(hdrBuf);
 
-            if (long_path is not null)
+            if (long_path is not null
+                && hdr.FileType is not TarFileType.TarEntryLongLink and not TarFileType.TarEntryLongLinkTarget)
             {
                 hdr.FileName = long_path;
                 long_path = null;
+            }
+
+            if (long_link_path is not null
+                && hdr.FileType is not TarFileType.TarEntryLongLink and not TarFileType.TarEntryLongLinkTarget)
+            {
+                hdr.LinkName = long_link_path;
+                long_link_path = null;
             }
 
             if (hdr.FileLength == 0 && string.IsNullOrEmpty(hdr.FileName))
@@ -224,7 +233,7 @@ public class TarFile : IDisposable
             {
                 yield return new(hdr, source: null);
             }
-            else if (hdr.FileType == UnixFileType.TarEntryLongLink &&
+            else if (hdr.FileType == TarFileType.TarEntryLongLink &&
                 hdr.FileName == "././@LongLink")
             {
                 var data = ArrayPool<byte>.Shared.Rent(checked((int)hdr.FileLength));
@@ -233,6 +242,30 @@ public class TarFile : IDisposable
                     archive.ReadExactly(data, 0, (int)hdr.FileLength);
 
                     long_path = EncodingUtilities
+                        .GetLatin1Encoding()
+                        .GetString(TarHeader.ReadNullTerminatedString(data.AsSpan(0, (int)hdr.FileLength)));
+                }
+                finally
+                {
+                    ArrayPool<byte>.Shared.Return(data);
+                }
+
+                var moveForward = (int)(-(hdr.FileLength & 511) & 511);
+
+                if (archive.ReadMaximum(hdrBuf, 0, moveForward) < moveForward)
+                {
+                    break;
+                }
+            }
+            else if (hdr.FileType == TarFileType.TarEntryLongLinkTarget &&
+                hdr.FileName == "././@LongLink")
+            {
+                var data = ArrayPool<byte>.Shared.Rent(checked((int)hdr.FileLength));
+                try
+                {
+                    archive.ReadExactly(data, 0, (int)hdr.FileLength);
+
+                    long_link_path = EncodingUtilities
                         .GetLatin1Encoding()
                         .GetString(TarHeader.ReadNullTerminatedString(data.AsSpan(0, (int)hdr.FileLength)));
                 }
@@ -300,9 +333,12 @@ public class TarFile : IDisposable
         var hdrBuf = StreamUtilities.GetUninitializedArray<byte>(512);
 
         string long_path = null;
+        string long_link_path = null;
 
         for (; ; )
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             if (await archive.ReadMaximumAsync(hdrBuf.AsMemory(0, 512), cancellationToken).ConfigureAwait(false) < 512)
             {
                 break;
@@ -310,10 +346,18 @@ public class TarFile : IDisposable
 
             var hdr = new TarHeader(hdrBuf);
 
-            if (long_path is not null)
+            if (long_path is not null
+                && hdr.FileType is not TarFileType.TarEntryLongLink and not TarFileType.TarEntryLongLinkTarget)
             {
                 hdr.FileName = long_path;
                 long_path = null;
+            }
+
+            if (long_link_path is not null
+                && hdr.FileType is not TarFileType.TarEntryLongLink and not TarFileType.TarEntryLongLinkTarget)
+            {
+                hdr.LinkName = long_link_path;
+                long_link_path = null;
             }
 
             if (hdr.FileLength == 0 && string.IsNullOrEmpty(hdr.FileName))
@@ -325,7 +369,7 @@ public class TarFile : IDisposable
             {
                 yield return new(hdr, source: null);
             }
-            else if (hdr.FileType == UnixFileType.TarEntryLongLink &&
+            else if (hdr.FileType == TarFileType.TarEntryLongLink &&
                 hdr.FileName == "././@LongLink")
             {
                 var data = ArrayPool<byte>.Shared.Rent(checked((int)hdr.FileLength));
@@ -334,6 +378,30 @@ public class TarFile : IDisposable
                     await archive.ReadExactlyAsync(data.AsMemory(0, (int)hdr.FileLength), cancellationToken).ConfigureAwait(false);
 
                     long_path = EncodingUtilities
+                        .GetLatin1Encoding()
+                        .GetString(TarHeader.ReadNullTerminatedString(data.AsSpan(0, (int)hdr.FileLength)));
+                }
+                finally
+                {
+                    ArrayPool<byte>.Shared.Return(data);
+                }
+
+                var moveForward = (int)(-(hdr.FileLength & 511) & 511);
+
+                if (await archive.ReadMaximumAsync(hdrBuf.AsMemory(0, moveForward), cancellationToken).ConfigureAwait(false) < moveForward)
+                {
+                    break;
+                }
+            }
+            else if (hdr.FileType == TarFileType.TarEntryLongLinkTarget &&
+                hdr.FileName == "././@LongLink")
+            {
+                var data = ArrayPool<byte>.Shared.Rent(checked((int)hdr.FileLength));
+                try
+                {
+                    await archive.ReadExactlyAsync(data.AsMemory(0, (int)hdr.FileLength), cancellationToken).ConfigureAwait(false);
+
+                    long_link_path = EncodingUtilities
                         .GetLatin1Encoding()
                         .GetString(TarHeader.ReadNullTerminatedString(data.AsSpan(0, (int)hdr.FileLength)));
                 }
@@ -378,7 +446,7 @@ public class TarFile : IDisposable
                 {
                     var data = StreamUtilities.GetUninitializedArray<byte>((int)hdr.FileLength);
 
-                    await archive.ReadExactlyAsync(data, cancellationToken).ConfigureAwait(false);
+                    await archive.ReadExactlyAsync(data.AsMemory(0, data.Length), cancellationToken).ConfigureAwait(false);
 
                     datastream = new MemoryStream(data, writable: false);
                 }
