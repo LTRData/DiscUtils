@@ -128,7 +128,7 @@ internal class Metadata
             return DateTime.MaxValue;
         }
 
-        return DateTimeOffset.FromUnixTimeSeconds((long)numeric).DateTime;
+        return DateTimeOffset.FromUnixTimeSeconds((long)numeric).UtcDateTime;
     }
 
     internal static ulong ParseNumericValue(ReadOnlySpan<char> value)

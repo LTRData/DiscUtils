@@ -265,7 +265,7 @@ internal struct Inode : IByteArraySerializable
     {
         var seconds = EndianUtilities.ToUInt32BigEndian(buffer);
         var nanoSeconds = EndianUtilities.ToUInt32BigEndian(buffer.Slice(4));
-        return DateTimeOffset.FromUnixTimeSeconds(seconds).AddTicks(nanoSeconds / 100).LocalDateTime;
+        return DateTimeOffset.FromUnixTimeSeconds(seconds).AddTicks(nanoSeconds / 100).UtcDateTime;
     }
 
     void IByteArraySerializable.WriteTo(Span<byte> buffer)

@@ -48,21 +48,21 @@ internal class File : IVfsFile
 
     public DateTime LastAccessTimeUtc
     {
-        get => DateTimeOffset.FromUnixTimeSeconds(Inode.AccessTime).DateTime;
+        get => DateTimeOffset.FromUnixTimeSeconds(Inode.AccessTime).UtcDateTime;
 
         set => throw new NotImplementedException();
     }
 
     public DateTime LastWriteTimeUtc
     {
-        get => DateTimeOffset.FromUnixTimeSeconds(Inode.ModificationTime).DateTime;
+        get => DateTimeOffset.FromUnixTimeSeconds(Inode.ModificationTime).UtcDateTime;
 
         set => throw new NotImplementedException();
     }
 
     public DateTime CreationTimeUtc
     {
-        get => DateTimeOffset.FromUnixTimeSeconds(Inode.CreationTime).DateTime;
+        get => DateTimeOffset.FromUnixTimeSeconds(Inode.CreationTime).UtcDateTime;
 
         set => throw new NotImplementedException();
     }

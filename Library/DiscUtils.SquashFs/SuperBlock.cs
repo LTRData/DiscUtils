@@ -78,7 +78,7 @@ internal class SuperBlock : IByteArraySerializable
         }
 
         InodesCount = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(4));
-        CreationTime = DateTimeOffset.FromUnixTimeSeconds(EndianUtilities.ToUInt32LittleEndian(buffer.Slice(8))).DateTime;
+        CreationTime = DateTimeOffset.FromUnixTimeSeconds(EndianUtilities.ToUInt32LittleEndian(buffer.Slice(8))).UtcDateTime;
         BlockSize = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(12));
         FragmentsCount = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(16));
         Compression = (SquashFileSystemCompressionKind)EndianUtilities.ToUInt16LittleEndian(buffer.Slice(20));

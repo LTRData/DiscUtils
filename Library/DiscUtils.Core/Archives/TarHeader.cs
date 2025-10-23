@@ -75,7 +75,7 @@ public sealed class TarHeader
         OwnerId = (int)OctalToLong(ReadNullTerminatedString(buffer.Slice(108, 8)));
         GroupId = (int)OctalToLong(ReadNullTerminatedString(buffer.Slice(116, 8)));
         FileLength = ParseFileLength(buffer.Slice(124, 12));
-        ModificationTime = DateTimeOffset.FromUnixTimeSeconds((uint)OctalToLong(ReadNullTerminatedString(buffer.Slice(136, 12))));
+        ModificationTime = DateTimeOffset.FromUnixTimeSeconds((uint)OctalToLong(ReadNullTerminatedString(buffer.Slice(136, 12)))).UtcDateTime;
         CheckSum = (int)OctalToLong(ReadNullTerminatedString(buffer.Slice(148, 8)));
         FileType = (TarFileType)buffer[156];
         LinkName = latin1Encoding.GetString(ReadNullTerminatedString(buffer.Slice(157, 100)));
@@ -93,8 +93,8 @@ public sealed class TarHeader
             FileName = $"{latin1Encoding.GetString(prefix)}/{FileName}";
         }
 
-        LastAccessTime = DateTimeOffset.FromUnixTimeSeconds((uint)OctalToLong(ReadNullTerminatedString(buffer.Slice(476, 12))));
-        CreationTime = DateTimeOffset.FromUnixTimeSeconds((uint)OctalToLong(ReadNullTerminatedString(buffer.Slice(488, 12))));
+        LastAccessTime = DateTimeOffset.FromUnixTimeSeconds((uint)OctalToLong(ReadNullTerminatedString(buffer.Slice(476, 12)))).UtcDateTime;
+        CreationTime = DateTimeOffset.FromUnixTimeSeconds((uint)OctalToLong(ReadNullTerminatedString(buffer.Slice(488, 12)))).UtcDateTime;
     }
 
     public static bool IsValid(ReadOnlySpan<byte> buffer)
