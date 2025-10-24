@@ -39,6 +39,8 @@ public class SubStream : MappedStream
     private readonly Stream _parent;
     private long _position;
 
+    public Stream Parent => _parent;
+
     public SubStream(Stream parent, long first, long length)
     {
         _parent = parent;
