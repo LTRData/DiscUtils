@@ -14,9 +14,10 @@ internal class NtfsAbstractRecord(NtfsFileSystem fileSystem, FileNameRecord Reco
 
 	public DateTime CreationTimeUtc => Record.CreationTime;
 	public FileAttributes FileAttributes => Record.FileAttributes;
-	public string FileName => FilePath;
+	public string FileName => Record.FileName;
 	public bool IsDirectory => Record.Flags.HasFlag(NtfsFileAttributes.Directory);
-	public bool IsSymlink => Record.Flags.HasFlag(NtfsFileAttributes.ReparsePoint);
+	public bool IsSymlink => Record.Flags.HasFlag(NtfsFileAttributes.ReparsePoint) && ReparsePoint.IsValidSymlinkTag(Record.EASizeOrReparsePointTag);
+	
 	public DateTime LastAccessTimeUtc => Record.LastAccessTime;
 	public DateTime LastWriteTimeUtc => Record.ModificationTime;
 	public long FileId => (long)FileIndex.Value;
@@ -26,6 +27,7 @@ internal class NtfsAbstractRecord(NtfsFileSystem fileSystem, FileNameRecord Reco
 
 	protected NtfsFileSystem FileSystem { get; } = fileSystem;
 	protected FileNameRecord Record { get; } = Record;
+	public String FullPath => FilePath;
 	protected FileRecordReference FileIndex { get; } = FileIndex;
 	DateTime IVfsFile.CreationTimeUtc { get; set; }
 	FileAttributes IVfsFile.FileAttributes { get; set; }
@@ -35,7 +37,7 @@ internal class NtfsAbstractRecord(NtfsFileSystem fileSystem, FileNameRecord Reco
 	DateTime IVfsFile.LastWriteTimeUtc { get; set; }
 
 	public IAbstractDirectory GetAsAbstractDirectory() {
-
+		
 		if (!IsDirectory)
 			throw new InvalidOperationException("Not a directory");
 		var file = AsFile();

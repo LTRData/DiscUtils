@@ -1426,7 +1426,7 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
 
                 using var contentStream = stream.Value.Open(FileAccess.Read);
                 var rp = contentStream.ReadStruct<ReparsePointRecord>((int)contentStream.Length);
-                return new ReparsePoint((int)rp.Tag, rp.Content);
+                return new ReparsePoint(rp.Tag, rp.Content);
             }
         }
 
@@ -2674,12 +2674,15 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
      public override string GetSymlinkTarget(IAbstractRecord dirEntry) {
          if (!dirEntry.IsSymlink)
              throw new ArgumentException($"dirEntry is not a symlink");
+		 if (dirEntry is not NtfsAbstractRecord ntfsDirEntry)
+			throw new ArgumentException($"dirEntry is not an NtfsAbstractRecord");
+		
 
-         var reparsePoint = GetReparsePoint(dirEntry.FileName);
+		var reparsePoint = GetReparsePoint(ntfsDirEntry.FullPath);
          if (reparsePoint == null)
-             throw new IOException($"Unable to read reparse point for {dirEntry.FileName}");
+             throw new IOException($"Unable to read reparse point for {ntfsDirEntry.FullPath}");
 
-         return reparsePoint.ParseSymlink(dirEntry.FileName);
+         return reparsePoint.ParseSymlink(ntfsDirEntry.FullPath);
      }
     /// <summary>
     /// A plugin system for handling reparse points. Handlers for specific tags can register here

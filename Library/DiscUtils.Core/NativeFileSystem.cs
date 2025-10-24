@@ -806,15 +806,11 @@ public class NativeFileSystem : DiscFileSystem
 		
 	}
 	internal class NativeAbstractRecord : IAbstractRecord {
-		public NativeAbstractRecord(NativeFileSystem fs, String path){
-			info = new FileInfo(Path.Combine(fs.BasePath,path));
-			IsDirectory = false;
-			FileName = fs.CleanItems(info.FullName);
-			this.fs  = fs;
+		public NativeAbstractRecord(NativeFileSystem fs, String path) : this (fs, new FileInfo(Path.Combine(fs.BasePath, path)), false) {
 		}
 		internal NativeAbstractRecord(NativeFileSystem fs, System.IO.FileSystemInfo info, bool isDirectory){
 			this.info = info;
-			IsDirectory = true;
+			IsDirectory = isDirectory;
 			FileName = fs.CleanItems(info.FullName);
 			this.fs  = fs;
 		}

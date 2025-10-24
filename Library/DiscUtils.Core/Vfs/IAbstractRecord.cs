@@ -9,7 +9,7 @@ public interface IAbstractRecord {
 		DateTime CreationTimeUtc { get; }
 		FileAttributes FileAttributes { get; }
 	/// <summary>
-	/// the SubPath relative to the IAbstractDirectory that returned it
+	/// the SubPath relative to the parent IAbstractDirectory
 	/// </summary>
 		string FileName { get; }
 		bool IsDirectory { get; }
