@@ -115,6 +115,7 @@ internal class DirectoryEntry
         if (result.StreamCount > 0)
         {
             result.AlternateStreams = new FastDictionary<AlternateStreamEntry>(StringComparer.OrdinalIgnoreCase, entry => entry.Name);
+            
             for (var i = 0; i < result.StreamCount; ++i)
             {
                 var stream = AlternateStreamEntry.ReadFrom(reader);
@@ -124,6 +125,11 @@ internal class DirectoryEntry
                 if (!result.AlternateStreams.Contains(stream.Name))
                 {
                     result.AlternateStreams.Add(stream);
+
+                    if (stream.Name == "" && Utilities.IsAllZeros(result.Hash))
+                    {
+                        result.Hash = stream.Hash;
+                    }
                 }
             }
         }
