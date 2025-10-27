@@ -954,6 +954,12 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
                 currentPath = Utilities.CombinePaths(Utilities.GetDirectoryFromPath(currentPath.AsSpan()), targetPath.AsSpan());
             }
 
+            if (path == currentPath)
+            {
+                Trace.WriteLine($"Symbolic link '{path}' points to itself");
+                return default;
+            }
+
             currentEntry = GetDirectoryEntry(currentPath);
 
             if (currentEntry == null)
