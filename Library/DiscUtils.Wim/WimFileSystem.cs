@@ -114,7 +114,6 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
             ?? throw new IOException("No reparse point");
 
         using var s = _file.OpenResourceStream(hdr);
-        var buffer = new byte[s.Length];
         var buffer = s.ReadExactly((int)s.Length);
         return new ReparsePoint((int)dirEntry.ReparseTag, buffer);
     }
