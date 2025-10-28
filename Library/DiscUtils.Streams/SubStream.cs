@@ -91,7 +91,16 @@ public class SubStream : MappedStream
         return _first + virtualPosition;
     }
 
-    public override long Length => _length;
+    /// <summary>
+    /// Current length of the stream. This may be less than the maximum length
+    /// if the underlying stream is shorter than the defined substream.
+    /// </summary>
+    public override long Length => Math.Min(_length, _parent.Length - _first);
+
+    /// <summary>
+    /// Gets the maximum length allowed for the current stream.
+    /// </summary>
+    public long MaximumLength => _length;
 
     public override long Position { get; set; }
 
