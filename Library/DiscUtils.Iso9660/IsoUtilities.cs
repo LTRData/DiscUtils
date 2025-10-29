@@ -230,9 +230,7 @@ internal static class IsoUtilities
     {
         for (var i = 0; i < str.Length; ++i)
         {
-            if (
-str[i] is not (>= '0' and <= '9' or >= 'A' and <= 'Z' or '_' or
-                  '.' or ';'))
+            if (str[i] is not (>= '0' and <= '9' or >= 'A' and <= 'Z' or '_' or '.' or ';'))
             {
                 return false;
             }
@@ -253,28 +251,46 @@ str[i] is not (>= '0' and <= '9' or >= 'A' and <= 'Z' or '_' or
 
     internal static string NormalizeFileName(ReadOnlySpan<char> name)
     {
-        var parts = SplitFileName(name);
-        return $"{parts[0]}.{parts[1]};{parts[2]}";
+        var (namePart, extension, version) = SplitFileName(name);
+#if NET6_0_OR_GREATER
+        return $"{namePart}.{extension};{version}";
+#else
+        return $"{namePart.ToString()}.{extension.ToString()};{version.ToString()}";
+#endif
     }
 
-    internal static string[] SplitFileName(ReadOnlySpan<char> name)
+    internal ref struct IsoFileNameParts
     {
-        var parts = new string[3];
+        public ReadOnlySpan<char> Name;
+        public ReadOnlySpan<char> Extension;
+        public ReadOnlySpan<char> Version;
+
+        public void Deconstruct(out ReadOnlySpan<char> namePart, out ReadOnlySpan<char> extension, out ReadOnlySpan<char> version)
+        {
+            namePart = Name;
+            extension = Extension;
+            version = Version;
+        }
+    }
+
+    internal static IsoFileNameParts SplitFileName(ReadOnlySpan<char> name)
+    {
+        IsoFileNameParts parts = default;
 
         if (name.Contains('.'))
         {
             var endOfFilePart = name.IndexOf('.');
-            parts[0] = name.Slice(0, endOfFilePart).ToString();
+            parts.Name = name.Slice(0, endOfFilePart);
             if (name.Contains(';'))
             {
                 var verSep = name.Slice(endOfFilePart + 1).IndexOf(';');
-                parts[1] = name.Slice(endOfFilePart + 1, verSep).ToString();
-                parts[2] = name.Slice(endOfFilePart + 1 + verSep + 1).ToString();
+                parts.Extension = name.Slice(endOfFilePart + 1, verSep);
+                parts.Version = name.Slice(endOfFilePart + 1 + verSep + 1);
             }
             else
             {
-                parts[1] = name.Slice(endOfFilePart + 1).ToString();
-                parts[2] = "1";
+                parts.Extension = name.Slice(endOfFilePart + 1);
+                parts.Version = "1";
             }
         }
         else
@@ -282,24 +298,29 @@ str[i] is not (>= '0' and <= '9' or >= 'A' and <= 'Z' or '_' or
             if (name.Contains(';'))
             {
                 var verSep = name.IndexOf(';');
-                parts[0] = name.Slice(0, verSep).ToString();
-                parts[1] = "";
-                parts[2] = name.Slice(verSep + 1).ToString();
+                parts.Name = name.Slice(0, verSep);
+                parts.Extension = "";
+                parts.Version = name.Slice(verSep + 1);
             }
             else
             {
-                parts[0] = name.ToString();
-                parts[1] = "";
-                parts[2] = "1";
+                parts.Name = name;
+                parts.Extension = "";
+                parts.Version = "1";
             }
         }
 
-        if (!ushort.TryParse(parts[2], out var ver) || ver > 32767 || ver < 1)
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP
+        if (!ushort.TryParse(parts.Version, out var ver) || ver > 32767 || ver < 1)
         {
-            ver = 1;
-
-            parts[2] = ver.ToString(NumberFormatInfo.InvariantInfo);
+            parts.Version = "1";
         }
+#else
+        if (!ushort.TryParse(parts.Version.ToString(), out var ver) || ver > 32767 || ver < 1)
+        {
+            parts.Version = "1";
+        }
+#endif
 
         return parts;
     }

@@ -32,9 +32,9 @@ using DiscUtils.Vfs;
 namespace DiscUtils.Iso9660;
 
 internal class VfsCDReader : VfsReadOnlyFileSystem<ReaderDirEntry, File, ReaderDirectory, IsoContext>,
-                             IClusterBasedFileSystem, IUnixFileSystem, IFileSystemWithClusterMap
+                             IClusterBasedFileSystem, IUnixFileSystem, IFileSystemWithClusterMap, IDosFileSystem
 {
-    public override bool IsCaseSensitive => false;
+    public override bool IsCaseSensitive => Context.IsCaseSensitive;
 
     private static readonly Iso9660Variant[] DefaultVariantsNoJoliet = [Iso9660Variant.RockRidge, Iso9660Variant.Iso9660];
 
@@ -42,7 +42,6 @@ internal class VfsCDReader : VfsReadOnlyFileSystem<ReaderDirEntry, File, ReaderD
 
     private byte[] _bootCatalog;
     private readonly BootVolumeDescriptor _bootVolDesc;
-
     private readonly Stream _data;
     private readonly bool _hideVersions;
 
@@ -143,7 +142,7 @@ internal class VfsCDReader : VfsReadOnlyFileSystem<ReaderDirEntry, File, ReaderD
                         data.ReadExactly(buffer, 0, IsoUtilities.SectorSize);
                         var volDesc = new SupplementaryVolumeDescriptor(buffer);
 
-                        Context = new IsoContext { VolumeDescriptor = volDesc, RawStream = _data };
+                        Context = new IsoContext { VolumeDescriptor = volDesc, RawStream = _data, HideVersions = hideVersions };
                         RootDirectory = new ReaderDirectory(Context,
                             new ReaderDirEntry(Context, volDesc.RootDirectory));
                         ActiveVariant = Iso9660Variant.Joliet;
@@ -159,7 +158,7 @@ internal class VfsCDReader : VfsReadOnlyFileSystem<ReaderDirEntry, File, ReaderD
                         data.ReadExactly(buffer, 0, IsoUtilities.SectorSize);
                         var volDesc = new PrimaryVolumeDescriptor(buffer);
 
-                        var context = new IsoContext { VolumeDescriptor = volDesc, RawStream = _data };
+                        var context = new IsoContext { VolumeDescriptor = volDesc, RawStream = _data, HideVersions = hideVersions };
                         var rootSelfRecord = ReadRootSelfRecord(context);
 
                         InitializeSusp(context, rootSelfRecord);
@@ -661,5 +660,29 @@ internal class VfsCDReader : VfsReadOnlyFileSystem<ReaderDirEntry, File, ReaderD
         }
 
         return _bootCatalog;
+    }
+
+    public string GetShortName(string path)
+    {
+        var file = GetFile(path);
+        return file.ShortName;
+    }
+
+    public void SetShortName(string path, string shortName)
+        => throw new NotImplementedException();
+
+    public WindowsFileInformation GetFileStandardInformation(string path)
+    {
+        var file = GetFile(path);
+        return file.WindowsFileInformation;
+    }
+
+    public void SetFileStandardInformation(string path, WindowsFileInformation info)
+        => throw new NotImplementedException();
+
+    public long GetFileId(string path)
+    {
+        var file = GetFile(path);
+        return file.Inode;
     }
 }

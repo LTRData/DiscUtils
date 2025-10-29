@@ -38,12 +38,48 @@ internal sealed class ReaderDirEntry : VfsDirEntry
 {
     private readonly IsoContext _context;
     private readonly string _fileName;
+    private readonly string _shortName;
+    private readonly uint _version;
     internal readonly List<DirectoryRecord> _records = [];
+    internal List<ReaderDirEntry> _versions;
+
+    internal static string NameWithoutVersion(string name)
+    {
+        var semicolonIndex = name.LastIndexOf(';');
+        if (semicolonIndex >= 0)
+        {
+            return name.Substring(0, semicolonIndex);
+        }
+
+        return name;
+    }
 
     public ReaderDirEntry(IsoContext context, DirectoryRecord dirRecord)
     {
         _context = context;
-        _fileName = dirRecord.FileIdentifier;
+        _shortName = dirRecord.FileIdentifier;
+        _version = 1;
+
+        var versionDelimiter = _shortName.LastIndexOf(';');
+
+        if (versionDelimiter >= 0)
+        {
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP
+            if (!uint.TryParse(_shortName.AsSpan(versionDelimiter + 1), out _version))
+#else
+            if (!uint.TryParse(_shortName.Substring(versionDelimiter + 1), out _version))
+#endif
+            {
+                throw new IOException($"Invalid version number in file entry '{dirRecord.FileIdentifier}'");
+            }
+
+            if (context.HideVersions)
+            {
+                _shortName = _shortName.Substring(0, versionDelimiter);
+            }
+        }
+
+        _fileName = _shortName;
 
         var rockRidge = !string.IsNullOrEmpty(_context.RockRidgeIdentifier);
 
@@ -56,30 +92,35 @@ internal sealed class ReaderDirEntry : VfsDirEntry
         {
             // The full name is taken from this record, even if it's a child-link record
             var nameEntries = SuspRecords.GetEntries(_context.RockRidgeIdentifier, "NM");
-            var rrName = new StringBuilder();
+
             if (nameEntries?.Count > 0)
             {
-                foreach (PosixNameSystemUseEntry nameEntry in nameEntries)
-                {
-                    rrName.Append(nameEntry.NameData);
-                }
+                _fileName = string.Concat(nameEntries
+                    .OfType<PosixNameSystemUseEntry>()
+                    .Select(nameEntry => nameEntry.NameData));
 
-                _fileName = rrName.ToString();
+                if (context.HideVersions)
+                {
+                    _fileName = NameWithoutVersion(_fileName);
+                }
             }
 
             // If this is a Rock Ridge child link, replace the dir record with that from the 'self' record
             // in the child directory.
             var clEntry = SuspRecords.GetEntry<ChildLinkSystemUseEntry>(_context.RockRidgeIdentifier, "CL");
+
             if (clEntry != null)
             {
                 _context.RawStream.Position = clEntry.ChildDirLocation * _context.VolumeDescriptor.LogicalBlockSize;
 
                 var firstSector = ArrayPool<byte>.Shared.Rent(_context.VolumeDescriptor.LogicalBlockSize);
+
                 try
                 {
                     _context.RawStream.ReadExactly(firstSector, 0, _context.VolumeDescriptor.LogicalBlockSize);
 
                     DirectoryRecord.ReadFrom(firstSector, _context.VolumeDescriptor.CharacterEncoding, out dirRecord);
+
                     if (dirRecord.SystemUseData != null)
                     {
                         SuspRecords = new SuspRecords(_context, dirRecord.SystemUseData);
@@ -92,14 +133,13 @@ internal sealed class ReaderDirEntry : VfsDirEntry
             }
         }
 
-        LastAccessTimeUtc =dirRecord.RecordingDateAndTime;
+        LastAccessTimeUtc = dirRecord.RecordingDateAndTime;
         LastWriteTimeUtc = dirRecord.RecordingDateAndTime;
         CreationTimeUtc = dirRecord.RecordingDateAndTime;
 
         if (rockRidge && SuspRecords != null)
         {
-            var tfEntry =
-                SuspRecords.GetEntry<FileTimeSystemUseEntry>(_context.RockRidgeIdentifier, "TF");
+            var tfEntry = SuspRecords.GetEntry<FileTimeSystemUseEntry>(_context.RockRidgeIdentifier, "TF");
 
             if (tfEntry != null)
             {
@@ -134,8 +174,8 @@ internal sealed class ReaderDirEntry : VfsDirEntry
             if (!string.IsNullOrEmpty(_context.RockRidgeIdentifier))
             {
                 // If Rock Ridge PX info is present, derive the attributes from the RR info.
-                var pfi =
-                    SuspRecords.GetEntry<PosixFileInfoSystemUseEntry>(_context.RockRidgeIdentifier, "PX");
+                var pfi = SuspRecords.GetEntry<PosixFileInfoSystemUseEntry>(_context.RockRidgeIdentifier, "PX");
+                
                 if (pfi != null)
                 {
                     attrs = Utilities.FileAttributesFromUnixFileType((UnixFileType)((pfi.FileMode >> 12) & 0xF));
@@ -163,7 +203,19 @@ internal sealed class ReaderDirEntry : VfsDirEntry
         }
     }
 
+    public void AddVersion(ReaderDirEntry versionEntry)
+    {
+        _versions ??= new List<ReaderDirEntry>(1);
+        _versions.Add(versionEntry);
+    }
+
     public override string FileName => _fileName;
+
+    public string ShortName => _shortName;
+
+    public uint Version => _version;
+
+    public IEnumerable<ReaderDirEntry> Versions => _versions?.Prepend(this) ?? [this];
 
     public override bool HasVfsFileAttributes => true;
 
@@ -185,4 +237,6 @@ internal sealed class ReaderDirEntry : VfsDirEntry
     public SuspRecords SuspRecords { get; }
 
     public override long UniqueCacheId => ((long)_records[0].LocationOfExtent << 32) | _records[0].DataLength;
+
+    public override string ToString() => $"{FileName};{Version}";
 }

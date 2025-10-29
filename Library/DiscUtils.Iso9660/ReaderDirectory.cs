@@ -23,17 +23,22 @@
 using DiscUtils.Internal;
 using DiscUtils.Streams;
 using DiscUtils.Vfs;
+using LTRData.Extensions.Split;
+using LTRData.Extensions.Buffers;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 
 namespace DiscUtils.Iso9660;
 
 internal class ReaderDirectory : File, IVfsDirectory<ReaderDirEntry, File>
 {
-    private readonly FastDictionary<ReaderDirEntry> _records;
+    private readonly FastDictionary<ReaderDirEntry> _entries;
+
+    private readonly FastDictionary<ReaderDirEntry> _shortNames;
 
     public ReaderDirectory(IsoContext context, ReaderDirEntry dirEntry)
         : base(context, dirEntry)
@@ -48,8 +53,12 @@ internal class ReaderDirectory : File, IVfsDirectory<ReaderDirEntry, File>
 
             Array.Clear(buffer, 0, buffer.Length);
             Stream extent = new ExtentStream(_context.RawStream, dirExtent.LocationOfExtent, uint.MaxValue, 0, 0);
+            
+            var isCaseSensitive = false;
 
-            _records = new(StringComparer.OrdinalIgnoreCase, entry => entry.FileName);
+            _entries = new(StringComparer.OrdinalIgnoreCase, entry => entry.FileName);
+
+            _shortNames = new(StringComparer.OrdinalIgnoreCase, entry => entry.ShortName);
 
             var totalLength = dirExtent.DataLength;
             uint totalRead = 0;
@@ -69,23 +78,51 @@ internal class ReaderDirectory : File, IVfsDirectory<ReaderDirEntry, File>
                     {
                         var childDirEntry = new ReaderDirEntry(_context, dr);
 
-                        if (context.SuspDetected && !string.IsNullOrEmpty(context.RockRidgeIdentifier))
+                        if (_shortNames.TryGetValue(childDirEntry.ShortName, out var existingEntry))
                         {
-                            if (childDirEntry.SuspRecords == null || !childDirEntry.SuspRecords.HasEntry(context.RockRidgeIdentifier, "RE"))
+                            if (existingEntry.Versions.FirstOrDefault(v => v.Version == childDirEntry.Version) is { } existingVersion)
                             {
-                                _records.Add(childDirEntry);
+                                existingVersion._records.Add(dr);
+                            }
+                            else
+                            {
+                                existingEntry.AddVersion(childDirEntry);
                             }
                         }
                         else
                         {
-                            if (_records.TryGetValue(childDirEntry.FileName, out var existingEntry))
+                            _shortNames.Add(childDirEntry);
+
+                            if (context.SuspDetected && !string.IsNullOrEmpty(context.RockRidgeIdentifier))
                             {
-                                existingEntry._records.Add(dr);
+                                if (childDirEntry.SuspRecords == null || !childDirEntry.SuspRecords.HasEntry(context.RockRidgeIdentifier, "RE"))
+                                {
+                                    // If there's already an entry with the same name but different case, we need to
+                                    // switch to a case-sensitive dictionary
+
+                                    if (!isCaseSensitive
+                                        && _entries.TryGetValue(childDirEntry.FileName, out var existing)
+                                        && existing.FileName != childDirEntry.FileName)
+                                    {
+                                        var newDict = new FastDictionary<ReaderDirEntry>(StringComparer.Ordinal, entry => entry.FileName);
+
+                                        foreach (var entry in _entries)
+                                        {
+                                            newDict.Add(entry);
+                                        }
+
+                                        _entries.Clear();
+
+                                        _entries = newDict;
+
+                                        isCaseSensitive = true;
+
+                                        _context.IsCaseSensitive = true;
+                                    }
+                                }
                             }
-                            else
-                            {
-                                _records.Add(childDirEntry);
-                            }
+
+                            _entries.Add(childDirEntry);
                         }
                     }
                     else if (dr.FileIdentifier == "\0")
@@ -105,31 +142,57 @@ internal class ReaderDirectory : File, IVfsDirectory<ReaderDirEntry, File>
 
     public override byte[] SystemUseData => Self.RecordExtents[0].SystemUseData;
 
-    public IReadOnlyDictionary<string, ReaderDirEntry> AllEntries => _records;
+    public IReadOnlyDictionary<string, ReaderDirEntry> AllEntries => _entries;
 
     public ReaderDirEntry Self { get; }
 
     public ReaderDirEntry GetEntryByName(string name)
     {
-        var anyVerMatch = name.IndexOf(';') < 0;
-        var normName = IsoUtilities.NormalizeFileName(name.AsSpan()).ToUpper(CultureInfo.InvariantCulture).AsSpan();
-        if (anyVerMatch)
+        if (!_context.HideVersions)
         {
-            normName = normName.Slice(0, normName.LastIndexOf(';') + 1);
+            return _entries.GetValueOrDefault(name)
+                ?? _shortNames.GetValueOrDefault(name);
         }
 
-        foreach (var r in _records.Values)
+        var verDelimiter = name.LastIndexOf(';');
+
+        var namePart = name;
+        uint? version = null;
+
+        if (verDelimiter >= 0)
         {
-            var toComp = IsoUtilities.NormalizeFileName(r.FileName.AsSpan()).ToUpper(CultureInfo.InvariantCulture);
-            if (!anyVerMatch && toComp.AsSpan().Equals(normName, StringComparison.CurrentCultureIgnoreCase))
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP
+            if (!uint.TryParse(name.AsSpan(verDelimiter + 1), out var v))
+#else
+            if (!uint.TryParse(name.Substring(verDelimiter + 1), out var v))
+#endif
             {
-                return r;
+                throw new IOException($"Invalid version number in file name '{name}'");
             }
 
-            if (anyVerMatch && toComp.AsSpan().StartsWith(normName, StringComparison.CurrentCultureIgnoreCase))
+            version = v;
+
+            namePart = name.Substring(0, verDelimiter);
+        }
+
+        if (_entries.TryGetValue(namePart, out var directEntry))
+        {
+            if (version.HasValue)
             {
-                return r;
+                return directEntry.Versions.FirstOrDefault(v => v.Version == version);
             }
+
+            return directEntry.Versions.MaxBy(v => v.Version);
+        }
+
+        if (_shortNames.TryGetValue(namePart, out var shortNameEntry))
+        {
+            if (version.HasValue)
+            {
+                return shortNameEntry.Versions.FirstOrDefault(v => v.Version == version);
+            }
+
+            return shortNameEntry.Versions.MaxBy(v => v.Version);
         }
 
         return null;

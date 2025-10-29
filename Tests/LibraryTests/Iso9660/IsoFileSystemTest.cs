@@ -122,11 +122,11 @@ public class IsoFileSystemTest
 
         var sep = Path.DirectorySeparatorChar;
 
-        var reader = new CDReader(ms, true, false);
+        var reader = new CDReader(ms, joliet: true, hideVersions: false);
         Assert.Equal($"{sep}FILE.TXT;1", reader.GetFiles("").First());
         Assert.Equal($"{sep}FILE.TXT;1", reader.GetFileSystemEntries("").First());
 
-        reader = new CDReader(ms, true, true);
+        reader = new CDReader(ms, joliet: true, hideVersions: true);
         Assert.Equal($"{sep}FILE.TXT", reader.GetFiles("").First());
         Assert.Equal($"{sep}FILE.TXT", reader.GetFileSystemEntries("").First());
     }

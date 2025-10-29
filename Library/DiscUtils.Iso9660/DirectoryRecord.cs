@@ -111,4 +111,6 @@ internal class DirectoryRecord
         buffer[32] = lengthOfFileIdentifier;
         return (int)length;
     }
+
+    public override string ToString() => FileIdentifier;
 }

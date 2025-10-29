@@ -32,7 +32,7 @@ namespace DiscUtils.Iso9660;
 /// Class for reading existing ISO images.
 /// </summary>
 public class CDReader : VfsFileSystemFacade, IClusterBasedFileSystem,
-    IUnixFileSystem, IFileSystemWithClusterMap
+    IUnixFileSystem, IFileSystemWithClusterMap, IDosFileSystem
 {
     /// <summary>
     /// Initializes a new instance of the CDReader class.
@@ -40,7 +40,7 @@ public class CDReader : VfsFileSystemFacade, IClusterBasedFileSystem,
     /// <param name="data">The stream to read the ISO image from.</param>
     /// <param name="joliet">Whether to read Joliet extensions.</param>
     public CDReader(Stream data, bool joliet)
-        : base(new VfsCDReader(data, joliet, false)) {}
+        : base(new VfsCDReader(data, joliet, hideVersions: true)) { }
 
     /// <summary>
     /// Initializes a new instance of the CDReader class.
@@ -209,4 +209,19 @@ public class CDReader : VfsFileSystemFacade, IClusterBasedFileSystem,
     {
         return GetRealFileSystem<VfsCDReader>().OpenBootImage();
     }
+
+    public string GetShortName(string path)
+        => GetRealFileSystem<VfsCDReader>().GetShortName(path);
+
+    public void SetShortName(string path, string shortName)
+        => GetRealFileSystem<VfsCDReader>().SetShortName(path, shortName);
+    
+    public WindowsFileInformation GetFileStandardInformation(string path)
+        => GetRealFileSystem<VfsCDReader>().GetFileStandardInformation(path);
+    
+    public void SetFileStandardInformation(string path, WindowsFileInformation info)
+        => GetRealFileSystem<VfsCDReader>().SetFileStandardInformation(path, info);
+    
+    public long GetFileId(string path)
+        => GetRealFileSystem<VfsCDReader>().GetFileId(path);
 }

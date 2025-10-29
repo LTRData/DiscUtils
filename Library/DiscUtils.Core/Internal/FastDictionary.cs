@@ -37,6 +37,18 @@ internal sealed class FastDictionary<T> : KeyedCollection<string, T>, IReadOnlyD
             return false;
         }
     }
+
+    public T GetValueOrDefault(string key)
+    {
+        if (Contains(key))
+        {
+            return this[key];
+        }
+        else
+        {
+            return default;
+        }
+    }
 #endif
 
     IEnumerator<KeyValuePair<string, T>> IEnumerable<KeyValuePair<string, T>>.GetEnumerator()

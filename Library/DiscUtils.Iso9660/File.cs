@@ -40,36 +40,55 @@ internal class File : IVfsFile
         _dirEntry = dirEntry;
     }
 
+    private PosixFileInfoSystemUseEntry GetRockridgeData()
+    {
+        if (!_context.SuspDetected || string.IsNullOrEmpty(_context.RockRidgeIdentifier))
+        {
+            return null;
+        }
+
+        var suspRecords = new SuspRecords(_context, SystemUseData);
+
+        var pfi = suspRecords.GetEntry<PosixFileInfoSystemUseEntry>(_context.RockRidgeIdentifier, "PX");
+        
+        return pfi;
+    }
+
     public virtual byte[] SystemUseData => _dirEntry.RecordExtents[0].SystemUseData;
 
     public UnixFileSystemInfo UnixFileInfo
     {
         get
         {
-            if (!_context.SuspDetected || string.IsNullOrEmpty(_context.RockRidgeIdentifier))
+            var pfi = GetRockridgeData()
+                ?? throw new InvalidOperationException("No RockRidge file information available for this file");
+
+            return new UnixFileSystemInfo
             {
-                throw new InvalidOperationException("No RockRidge file information available");
-            }
-
-            var suspRecords = new SuspRecords(_context, SystemUseData);
-
-            var pfi = suspRecords.GetEntry<PosixFileInfoSystemUseEntry>(_context.RockRidgeIdentifier, "PX");
-            if (pfi != null)
-            {
-                return new UnixFileSystemInfo
-                {
-                    FileType = (UnixFileType)((pfi.FileMode >> 12) & 0xff),
-                    Permissions = (UnixFilePermissions)(pfi.FileMode & 0xfff),
-                    UserId = (int)pfi.UserId,
-                    GroupId = (int)pfi.GroupId,
-                    Inode = pfi.Inode,
-                    LinkCount = (int)pfi.NumLinks
-                };
-            }
-
-            throw new InvalidOperationException("No RockRidge file information available for this file");
+                FileType = (UnixFileType)((pfi.FileMode >> 12) & 0xff),
+                Permissions = (UnixFilePermissions)(pfi.FileMode & 0xfff),
+                UserId = (int)pfi.UserId,
+                GroupId = (int)pfi.GroupId,
+                Inode = pfi.Inode,
+                LinkCount = (int)pfi.NumLinks
+            };
         }
     }
+
+    public WindowsFileInformation WindowsFileInformation
+        => new WindowsFileInformation
+        {
+            ChangeTime = _dirEntry.LastWriteTimeUtc,
+            CreationTime = _dirEntry.CreationTimeUtc,
+            FileAttributes = _dirEntry.FileAttributes,
+            LastAccessTime = _dirEntry.LastAccessTimeUtc,
+            LastWriteTime = _dirEntry.LastWriteTimeUtc
+        };
+
+    public uint Inode => GetRockridgeData()?.Inode
+        ?? throw new InvalidOperationException("No RockRidge file information available for this file");
+
+    public string ShortName => _dirEntry.ShortName;
 
     public DateTime LastAccessTimeUtc
     {

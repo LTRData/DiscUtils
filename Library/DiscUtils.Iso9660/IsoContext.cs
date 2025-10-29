@@ -30,6 +30,8 @@ internal class IsoContext : VfsContext
 {
     public override Stream RawStream { get; set; }
 
+    public bool HideVersions { get; set; }
+
     public string RockRidgeIdentifier { get; set; }
 
     public bool SuspDetected { get; set; }
@@ -37,5 +39,8 @@ internal class IsoContext : VfsContext
     public List<SuspExtension> SuspExtensions { get; set; }
 
     public int SuspSkipBytes { get; set; }
+
     public CommonVolumeDescriptor VolumeDescriptor { get; set; }
+    
+    public bool IsCaseSensitive { get; set; }
 }

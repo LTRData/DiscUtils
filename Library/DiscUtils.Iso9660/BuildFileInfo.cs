@@ -142,16 +142,16 @@ public sealed class BuildFileInfo : BuildDirectoryMember, IEquatable<BuildFileIn
             }
         }
 
-        var parts = IsoUtilities.SplitFileName(shortNameChars);
+        var (name, extension, version) = IsoUtilities.SplitFileName(shortNameChars);
 
-        if (parts[0].Length + parts[1].Length > 30)
+        if (name.Length + extension.Length > 30)
         {
-            parts[1] = parts[1].Substring(0, Math.Min(parts[1].Length, 3));
+            extension = extension.Slice(0, Math.Min(extension.Length, 3));
         }
 
-        if (parts[0].Length + parts[1].Length > 30)
+        if (name.Length + extension.Length > 30)
         {
-            parts[0] = parts[0].Substring(0, 30 - parts[1].Length);
+            name = name.Slice(0, 30 - extension.Length);
         }
 
         for (var attempt = 0; attempt < int.MaxValue; attempt++)
@@ -160,15 +160,23 @@ public sealed class BuildFileInfo : BuildDirectoryMember, IEquatable<BuildFileIn
             {
                 var attemptStr = attempt.ToString(CultureInfo.InvariantCulture);
 
-                if (parts[0].Length + attemptStr.Length >= 30)
+                if (name.Length + attemptStr.Length >= 30)
                 {
-                    parts[0] = parts[0].Remove(parts[0].Length - attemptStr.Length - 1);
+                    name = name.Slice(0, name.Length - attemptStr.Length - 1);
                 }
 
-                parts[0] = $"{parts[0]}_{attemptStr}";
+#if NET6_0_OR_GREATER
+                name = $"{name}_{attemptStr}";
+#else
+                name = $"{name.ToString()}_{attemptStr}";
+#endif
             }
 
-            var candidate = $"{parts[0]}.{parts[1]};{parts[2]}";
+#if NET6_0_OR_GREATER
+            var candidate = $"{name}.{extension};{version}";
+#else
+            var candidate = $"{name.ToString()}.{extension.ToString()};{version.ToString()}";
+#endif
 
             if (!parent.TryGetMemberByShortName(candidate.AsMemory(), out _))
             {
