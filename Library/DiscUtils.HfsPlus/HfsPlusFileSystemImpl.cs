@@ -56,6 +56,11 @@ internal sealed class HfsPlusFileSystemImpl : VfsFileSystem<DirEntry, File, Dire
         Context.ExtentsOverflow = new BTree<ExtentKey>(extentsBuffer);
 
         var attributesBuffer = new FileBuffer(Context, hdr.AttributesFile, CatalogNodeId.AttributesFileId);
+        if (attributesBuffer.Capacity == 0)
+        {
+            throw new NotSupportedException("Unsupported HFS+ file system");
+        }
+
         Context.Attributes = new BTree<AttributeKey>(attributesBuffer);
 
         // Establish Root directory
