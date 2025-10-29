@@ -285,7 +285,7 @@ internal class VfsCDReader : VfsReadOnlyFileSystem<ReaderDirEntry, File, ReaderD
     /// <summary>
     /// Size of the Filesystem in bytes
     /// </summary>
-    public override long Size => throw new NotSupportedException("Filesystem size is not (yet) supported");
+    public override long Size => SectorSize * TotalSectors;
 
     /// <summary>
     /// Used space of the Filesystem in bytes
