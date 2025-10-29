@@ -291,12 +291,12 @@ internal class Directory : IDisposable
             throw new IOException("File already exists");
         }
 
-        if ((mode == FileMode.Open || mode == FileMode.Truncate || mode == FileMode.Append) && !exists)
+        if ((mode is FileMode.Open or FileMode.Truncate or FileMode.Append) && !exists)
         {
             throw new FileNotFoundException("File not found", name);
         }
 
-        if ((mode == FileMode.Open || mode == FileMode.OpenOrCreate || mode == FileMode.Create || mode == FileMode.Truncate || mode == FileMode.Append) && exists)
+        if ((mode is FileMode.Open or FileMode.OpenOrCreate or FileMode.Create or FileMode.Truncate or FileMode.Append) && exists)
         {
             var stream = new FatFileStream(FileSystem, this, fileId, fileAccess);
             if (mode == FileMode.Create || mode == FileMode.Truncate)
@@ -313,7 +313,7 @@ internal class Directory : IDisposable
             return stream;
         }
 
-        if ((mode == FileMode.OpenOrCreate || mode == FileMode.CreateNew || mode == FileMode.Create) && !exists)
+        if ((mode is FileMode.OpenOrCreate or FileMode.CreateNew or FileMode.Create) && !exists)
         {
             FatFileName fatFileName;
             try
