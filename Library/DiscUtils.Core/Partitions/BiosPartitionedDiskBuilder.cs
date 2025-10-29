@@ -155,7 +155,7 @@ public class BiosPartitionedDiskBuilder : StreamBuilder
     /// <param name="stream">The stream with the contents of the partition.</param>
     public void SetPartitionContent(int index, SparseStream stream)
     {
-        _partitionContents[index] = new BuilderSparseStreamExtent(PartitionTable[index].FirstSector * PartitionTable.DiskGeometry.BytesPerSector,
+        _partitionContents[index] = new BuilderSparseStreamExtent(PartitionTable[index].FirstSector * PartitionTable.DiskGeometry.Value.BytesPerSector,
             stream);
     }
 

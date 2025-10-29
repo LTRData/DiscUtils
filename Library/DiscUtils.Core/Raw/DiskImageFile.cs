@@ -200,7 +200,8 @@ public sealed class DiskImageFile : VirtualDiskLayer
     /// <returns>The disk type.</returns>
     private static VirtualDiskClass DetectDiskType(long capacity)
     {
-        if (capacity is (Sizes.Sector * 1440)
+        if (capacity
+            is (Sizes.Sector * 1440)
             or (Sizes.Sector * 2880)
             or (Sizes.Sector * 5760))
         {

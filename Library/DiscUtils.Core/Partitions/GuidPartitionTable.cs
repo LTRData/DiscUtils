@@ -42,6 +42,9 @@ public sealed class GuidPartitionTable : PartitionTable
     private GptHeader _primaryHeader;
     private GptHeader _secondaryHeader;
 
+    /// <inheritdoc/>
+    public override Geometry? DiskGeometry => _diskGeometry;
+
     /// <summary>
     /// Initializes a new instance of the GuidPartitionTable class.
     /// </summary>
@@ -344,7 +347,7 @@ public sealed class GuidPartitionTable : PartitionTable
             throw new IOException("Invalid GPT disk, protective MBR table not present or invalid", ioe);
         }
 
-        if (bpt.Count != 1 || bpt[0].BiosType != BiosPartitionTypes.GptProtective)
+        if (bpt.Count < 1 || bpt[0].BiosType != BiosPartitionTypes.GptProtective)
         {
             throw new IOException("Invalid GPT disk, protective MBR table is not valid");
         }

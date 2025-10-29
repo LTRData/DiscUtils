@@ -304,15 +304,12 @@ public sealed class VolumeManager
             var disk = _disks[i];
             var diskId = GetDiskId(i);
 
-            if (PartitionTable.IsPartitioned(disk.Content))
+            if (disk.IsPartitioned)
             {
-                foreach (var table in PartitionTable.GetPartitionTables(disk))
+                foreach (var part in disk.Partitions.Partitions)
                 {
-                    foreach (var part in table.Partitions)
-                    {
-                        var pvi = new PhysicalVolumeInfo(diskId, disk, part);
-                        result.Add(pvi.Identity, pvi);
-                    }
+                    var pvi = new PhysicalVolumeInfo(diskId, disk, part);
+                    result.Add(pvi.Identity, pvi);
                 }
             }
             else

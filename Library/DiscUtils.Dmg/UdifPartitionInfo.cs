@@ -30,12 +30,16 @@ internal class UdifPartitionInfo : PartitionInfo
 {
     private readonly CompressedBlock _block;
     private readonly Disk _disk;
+    private readonly UdifPartitionTable _table;
 
-    public UdifPartitionInfo(Disk disk, CompressedBlock block)
+    public UdifPartitionInfo(Disk disk, CompressedBlock block, UdifPartitionTable table)
     {
         _block = block;
         _disk = disk;
+        _table = table;
     }
+
+    public override PartitionTable Table => _table;
 
     public override byte BiosType => 0;
 

@@ -40,10 +40,12 @@ internal class UdifPartitionTable : PartitionTable
 
         foreach (var block in _buffer.Blocks)
         {
-            var partition = new UdifPartitionInfo(_disk, block);
+            var partition = new UdifPartitionInfo(_disk, block, this);
             _partitions.Add(partition);
         }
     }
+
+    public override Geometry? DiskGeometry => null;
 
     public override Guid DiskGuid => Guid.Empty;
 

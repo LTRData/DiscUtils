@@ -50,6 +50,11 @@ public abstract class PartitionTable
     /// </summary>
     public abstract Guid DiskGuid { get; }
 
+    /// <summary>
+    /// Disk geometry as understood by the partition table.
+    /// </summary>
+    public abstract Geometry? DiskGeometry { get; }
+
     private static List<PartitionTableFactory> Factories
     {
         get

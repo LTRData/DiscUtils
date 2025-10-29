@@ -39,6 +39,9 @@ public sealed class BiosPartitionInfo : PartitionInfo
         _record = record;
     }
 
+    /// <inheritdoc/>
+    public override PartitionTable Table => _table;
+
     /// <summary>
     /// Gets the type of the partition.
     /// </summary>

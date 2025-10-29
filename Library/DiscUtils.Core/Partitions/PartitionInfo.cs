@@ -77,6 +77,11 @@ public abstract class PartitionInfo
     public abstract SparseStream Open();
 
     /// <summary>
+    /// The partition table that this partition belongs to.
+    /// </summary>
+    public abstract PartitionTable Table { get; }
+
+    /// <summary>
     /// Gets a summary of the partition information as 'first - last (type)'.
     /// </summary>
     /// <returns>A string representation of the partition information.</returns>

@@ -51,7 +51,7 @@ public sealed class PartitionMap : PartitionTable
         var b0 = new BlockZero();
         b0.ReadFrom(initialBytes);
 
-        var initialPart = new PartitionMapEntry(_stream);
+        var initialPart = new PartitionMapEntry(_stream, this);
         initialPart.ReadFrom(initialBytes.Slice(512));
 
         var partTableData = stream.ReadExactly((int)(initialPart.MapEntries - 1) * 512);
@@ -59,10 +59,13 @@ public sealed class PartitionMap : PartitionTable
         _partitions = new PartitionMapEntry[initialPart.MapEntries - 1];
         for (uint i = 0; i < initialPart.MapEntries - 1; ++i)
         {
-            _partitions[i] = new PartitionMapEntry(_stream);
+            _partitions[i] = new PartitionMapEntry(_stream, this);
             _partitions[i].ReadFrom(partTableData.AsSpan((int)(512 * i)));
         }
     }
+
+    /// <inheritdoc/>
+    public override Geometry? DiskGeometry => null;
 
     /// <summary>
     /// Gets the GUID of the disk, always returns Guid.Empty.

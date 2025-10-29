@@ -74,7 +74,7 @@ public sealed class PhysicalVolumeInfo : VolumeInfo
     /// <summary>
     /// Gets the disk geometry of the underlying storage medium (as used in BIOS calls), may be null.
     /// </summary>
-    public override Geometry? BiosGeometry => _disk.BiosGeometry;
+    public override Geometry? BiosGeometry => Partition.Table?.DiskGeometry ?? _disk.BiosGeometry;
 
     /// <summary>
     /// Gets the one-byte BIOS type for this volume, which indicates the content.

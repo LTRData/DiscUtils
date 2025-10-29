@@ -39,6 +39,9 @@ public sealed class GuidPartitionInfo : PartitionInfo
         _entry = entry;
     }
 
+    /// <inheritdoc/>
+    public override PartitionTable Table => _table;
+
     /// <summary>
     /// Gets the attributes of the partition.
     /// </summary>

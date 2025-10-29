@@ -23,7 +23,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using DiscUtils.Internal;
+using DiscUtils.Partitions;
 using DiscUtils.Streams;
 using LTRData.Extensions.Buffers;
 
@@ -166,6 +168,38 @@ public sealed class Disc : VirtualDisk
     public override VirtualDisk CreateDifferencingDisk(string path, bool useAsync = false)
     {
         throw new NotSupportedException("Differencing disks not supported for optical disks");
+    }
+
+    private PartitionTable _partitions;
+
+    public override PartitionTable Partitions
+    {
+        get
+        {
+            if (_partitions == null)
+            {
+                if (BiosPartitionTable.IsValid(_file.Content))
+                {
+                    var biosTable = new BiosPartitionTable(_file.Content);
+
+                    if (biosTable.Partitions.Count >= 1 &&
+                        biosTable.Partitions[0].BiosType == BiosPartitionTypes.GptProtective)
+                    {
+                        _partitions = new GuidPartitionTable(_file.Content, biosTable.DiskGeometry.Value);
+                    }
+                    else
+                    {
+                        _partitions = biosTable;
+                    }
+                }
+                else
+                {
+                    _partitions = base.Partitions;
+                }
+            }
+
+            return _partitions;
+        }
     }
 
     /// <summary>

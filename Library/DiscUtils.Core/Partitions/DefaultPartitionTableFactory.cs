@@ -38,7 +38,7 @@ internal sealed class DefaultPartitionTableFactory : PartitionTableFactory
         {
             var table = new BiosPartitionTable(disk);
             var partitions = table.Partitions;
-            if (partitions.Count == 1 && partitions[0].BiosType == BiosPartitionTypes.GptProtective)
+            if (partitions.Count >= 1 && partitions[0].BiosType == BiosPartitionTypes.GptProtective)
             {
                 return new GuidPartitionTable(disk);
             }

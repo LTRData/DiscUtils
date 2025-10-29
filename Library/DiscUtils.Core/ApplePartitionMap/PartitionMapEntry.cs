@@ -30,6 +30,8 @@ namespace DiscUtils.ApplePartitionMap;
 internal sealed class PartitionMapEntry : PartitionInfo, IByteArraySerializable
 {
     private readonly Stream _diskStream;
+    private readonly PartitionMap _map;
+
     public uint BootBlock;
     public uint BootBytes;
     public uint Flags;
@@ -42,10 +44,13 @@ internal sealed class PartitionMapEntry : PartitionInfo, IByteArraySerializable
     public ushort Signature;
     public string Type;
 
-    public PartitionMapEntry(Stream diskStream)
+    public PartitionMapEntry(Stream diskStream, PartitionMap map)
     {
         _diskStream = diskStream;
+        _map = map;
     }
+
+    public override PartitionTable Table => _map;
 
     public override byte BiosType => 0xAF;
 

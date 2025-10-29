@@ -49,7 +49,7 @@ internal sealed class PartitionMapFactory : PartitionTableFactory
             return false;
         }
 
-        var initialPart = new PartitionMapEntry(s);
+        var initialPart = new PartitionMapEntry(s, map: null);
         initialPart.ReadFrom(initialBytes.Slice(512));
 
         return initialPart.Signature == 0x504d;

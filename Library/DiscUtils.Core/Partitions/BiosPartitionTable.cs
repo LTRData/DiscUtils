@@ -38,8 +38,12 @@ namespace DiscUtils.Partitions;
 /// </summary>
 public sealed class BiosPartitionTable : PartitionTable
 {
+    private const int MinGPTDiskSize = 128 << 10;
     private Stream _diskData;
     private Geometry _diskGeometry;
+
+    /// <inheritdoc/>
+    public override Geometry? DiskGeometry => _diskGeometry;
 
     /// <summary>
     /// Initializes a new instance of the BiosPartitionTable class.
@@ -66,10 +70,8 @@ public sealed class BiosPartitionTable : PartitionTable
     /// <param name="disk">The stream containing the disk data.</param>
     public BiosPartitionTable(Stream disk)
     {
-        Init(disk, Geometry.MakeBiosSafe(geometry: null, disk.Length));
+        Init(disk, Geometry.MakeBiosSafe(DetectGeometry(disk), disk.Length));
     }
-
-    public Geometry DiskGeometry => _diskGeometry;
 
     /// <summary>
     /// Gets a collection of the partitions for storing Operating System file-systems.
@@ -159,11 +161,43 @@ public sealed class BiosPartitionTable : PartitionTable
             disk.Position = 0;
             Span<byte> bootSector = stackalloc byte[Sizes.Sector];
             disk.ReadExactly(bootSector);
+            
             if (bootSector[510] == 0x55 && bootSector[511] == 0xAA)
             {
                 byte maxHead = 0;
                 byte maxSector = 0;
-                foreach (var record in ReadPrimaryRecords(bootSector))
+
+                var primaryRecords = ReadPrimaryRecords(bootSector);
+
+                if (primaryRecords.Length == 0)
+                {
+                    return Geometry.LbaAssistedBiosGeometry(disk.Length, Sizes.Sector);
+                }
+
+                if (primaryRecords[0].PartitionType == BiosPartitionTypes.GptProtective
+                    && disk.Length >= MinGPTDiskSize)
+                {
+                    disk.Position = 0;
+
+                    var buffer = ArrayPool<byte>.Shared.Rent(MinGPTDiskSize);
+
+                    try
+                    {
+                        disk.ReadExactly(buffer, 0, MinGPTDiskSize);
+
+                        var gptOffset = buffer.AsSpan(0, MinGPTDiskSize).IndexOf("EFI PART"u8);
+
+                        var bytesPerSector = Math.Max(gptOffset, Sizes.Sector);
+
+                        return Geometry.LbaAssistedBiosGeometry(disk.Length, bytesPerSector);
+                    }
+                    finally
+                    {
+                        ArrayPool<byte>.Shared.Return(buffer);
+                    }
+                }
+
+                foreach (var record in primaryRecords)
                 {
                     maxHead = Math.Max(maxHead, record.EndHead);
                     maxSector = Math.Max(maxSector, record.EndSector);
