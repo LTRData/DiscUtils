@@ -119,9 +119,14 @@ public class SubStream : MappedStream
             throw new ArgumentOutOfRangeException(nameof(count), "Attempt to read negative bytes");
         }
 
-        if (Position < 0 || Position > _length)
+        if (Position < 0 || Position == _length)
         {
             return 0;
+        }
+
+        if (Position > _length)
+        {
+            throw new EndOfStreamException("Attempt to read beyond end of substream");
         }
 
         _parent.Position = _first + Position;
@@ -133,9 +138,14 @@ public class SubStream : MappedStream
 
     public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken)
     {
-        if (Position < 0 || Position > _length)
+        if (Position < 0 || Position == _length)
         {
             return 0;
+        }
+
+        if (Position > _length)
+        {
+            throw new EndOfStreamException("Attempt to read beyond end of substream");
         }
 
         _parent.Position = _first + Position;
@@ -146,9 +156,14 @@ public class SubStream : MappedStream
 
     public override int Read(Span<byte> buffer)
     {
-        if (Position < 0 || Position > _length)
+        if (Position < 0 || Position == _length)
         {
             return 0;
+        }
+
+        if (Position > _length)
+        {
+            throw new EndOfStreamException("Attempt to read beyond end of substream");
         }
 
         _parent.Position = _first + Position;

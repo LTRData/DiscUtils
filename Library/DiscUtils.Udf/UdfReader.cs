@@ -56,11 +56,6 @@ public sealed class UdfReader : VfsFileSystemFacade
     /// <returns><c>true</c> if the stream contains a UDF file system, else false.</returns>
     public static bool Detect(Stream data)
     {
-        if (data.Length < IsoUtilities.SectorSize)
-        {
-            return false;
-        }
-
         long vdpos = 0x8000; // Skip lead-in
 
         Span<byte> buffer = stackalloc byte[IsoUtilities.SectorSize];
@@ -71,6 +66,11 @@ public sealed class UdfReader : VfsFileSystemFacade
         BaseVolumeDescriptor bvd;
         while (validDescriptor)
         {
+            if (vdpos + IsoUtilities.SectorSize > data.Length)
+            {
+                return false;
+            }
+
             data.Position = vdpos;
             var numRead = data.ReadMaximum(buffer);
             if (numRead != IsoUtilities.SectorSize)

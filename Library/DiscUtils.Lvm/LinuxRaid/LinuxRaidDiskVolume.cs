@@ -91,7 +91,13 @@ internal class LinuxRaidDiskVolume : IDiagnosticTraceable
         {
             try
             {
+                if (offset > volumeStream.Length)
+                {
+                    continue;
+                }
+
                 volumeStream.Position = offset;
+
                 var bytesRead = volumeStream.Read(buffer);
                 if (bytesRead >= 512) // Minimum superblock size
                 {

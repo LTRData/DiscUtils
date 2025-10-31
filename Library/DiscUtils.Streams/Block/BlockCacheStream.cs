@@ -33,7 +33,6 @@ namespace DiscUtils.Streams;
 /// </summary>
 public sealed class BlockCacheStream : SparseStream
 {
-    private bool _atEof;
     private readonly int _blocksInReadBuffer;
 
     private readonly BlockCache<Block> _cache;
@@ -186,14 +185,13 @@ public sealed class BlockCacheStream : SparseStream
     {
         CheckDisposed();
 
-        if (_position >= Length)
+        if (_position > Length)
         {
-            if (_atEof)
-            {
-                throw new IOException("Attempt to read beyond end of stream");
-            }
+            throw new IOException("Attempt to read beyond end of stream");
+        }
 
-            _atEof = true;
+        if (_position == Length)
+        {
             return 0;
         }
 
@@ -206,11 +204,6 @@ public sealed class BlockCacheStream : SparseStream
             _wrappedStream.Position = _position;
             var numRead = _wrappedStream.Read(buffer, offset, count);
             _position = _wrappedStream.Position;
-
-            if (_position >= Length)
-            {
-                _atEof = true;
-            }
 
             return numRead;
         }
@@ -297,11 +290,6 @@ public sealed class BlockCacheStream : SparseStream
             }
         }
 
-        if (_position >= Length && totalBytesRead == 0)
-        {
-            _atEof = true;
-        }
-
         if (servicedFromCache)
         {
             _stats.ReadCacheHits++;
@@ -324,14 +312,13 @@ public sealed class BlockCacheStream : SparseStream
     {
         CheckDisposed();
 
-        if (_position >= Length)
+        if (_position > Length)
         {
-            if (_atEof)
-            {
-                throw new IOException("Attempt to read beyond end of stream");
-            }
+            throw new IOException("Attempt to read beyond end of stream");
+        }
 
-            _atEof = true;
+        if (_position == Length)
+        {
             return 0;
         }
 
@@ -344,11 +331,6 @@ public sealed class BlockCacheStream : SparseStream
             _wrappedStream.Position = _position;
             var numRead = _wrappedStream.Read(buffer);
             _position = _wrappedStream.Position;
-
-            if (_position >= Length)
-            {
-                _atEof = true;
-            }
 
             return numRead;
         }
@@ -435,11 +417,6 @@ public sealed class BlockCacheStream : SparseStream
             }
         }
 
-        if (_position >= Length && totalBytesRead == 0)
-        {
-            _atEof = true;
-        }
-
         if (servicedFromCache)
         {
             _stats.ReadCacheHits++;
@@ -463,14 +440,13 @@ public sealed class BlockCacheStream : SparseStream
     {
         CheckDisposed();
 
-        if (_position >= Length)
+        if (_position > Length)
         {
-            if (_atEof)
-            {
-                throw new IOException("Attempt to read beyond end of stream");
-            }
+            throw new IOException("Attempt to read beyond end of stream");
+        }
 
-            _atEof = true;
+        if (_position == Length)
+        {
             return 0;
         }
 
@@ -483,11 +459,6 @@ public sealed class BlockCacheStream : SparseStream
             _wrappedStream.Position = _position;
             var numRead = await _wrappedStream.ReadAsync(buffer, cancellationToken).ConfigureAwait(false);
             _position = _wrappedStream.Position;
-
-            if (_position >= Length)
-            {
-                _atEof = true;
-            }
 
             return numRead;
         }
@@ -574,11 +545,6 @@ public sealed class BlockCacheStream : SparseStream
             }
         }
 
-        if (_position >= Length && totalBytesRead == 0)
-        {
-            _atEof = true;
-        }
-
         if (servicedFromCache)
         {
             _stats.ReadCacheHits++;
@@ -620,8 +586,6 @@ public sealed class BlockCacheStream : SparseStream
         {
             effectiveOffset += Length;
         }
-
-        _atEof = false;
 
         if (effectiveOffset < 0)
         {

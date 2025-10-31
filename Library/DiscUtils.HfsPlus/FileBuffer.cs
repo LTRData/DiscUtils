@@ -105,7 +105,18 @@ internal sealed class FileBuffer : Buffer
 
             var volStream = _context.RawStream;
             volStream.Position = extentStreamStart + extentOffset;
+
+            if (volStream.Position + toRead > volStream.Length)
+            {
+                throw new NotSupportedException("Unsupported HFS+ file system: Cannot find allocation for file");
+            }
+
             var numRead = volStream.Read(buffer, offset + totalRead, toRead);
+
+            if (numRead < toRead)
+            {
+                throw new NotSupportedException("Unsupported HFS+ file system: Cannot find allocation for file");
+            }
 
             totalRead += numRead;
         }
@@ -137,7 +148,18 @@ internal sealed class FileBuffer : Buffer
 
             var volStream = _context.RawStream;
             volStream.Position = extentStreamStart + extentOffset;
+
+            if (volStream.Position + toRead > volStream.Length)
+            {
+                throw new NotSupportedException("Unsupported HFS+ file system: Cannot find allocation for file");
+            }
+
             var numRead = await volStream.ReadAsync(buffer.Slice(totalRead, toRead), cancellationToken).ConfigureAwait(false);
+
+            if (numRead < toRead)
+            {
+                throw new NotSupportedException("Unsupported HFS+ file system: Cannot find allocation for file");
+            }
 
             totalRead += numRead;
         }
@@ -169,7 +191,18 @@ internal sealed class FileBuffer : Buffer
 
             var volStream = _context.RawStream;
             volStream.Position = extentStreamStart + extentOffset;
+
+            if (volStream.Position + toRead > volStream.Length)
+            {
+                throw new NotSupportedException("Unsupported HFS+ file system: Cannot find allocation for file");
+            }
+
             var numRead = volStream.Read(buffer.Slice(totalRead, toRead));
+
+            if (numRead < toRead)
+            {
+                throw new NotSupportedException("Unsupported HFS+ file system: Cannot find allocation for file");
+            }
 
             totalRead += numRead;
         }
