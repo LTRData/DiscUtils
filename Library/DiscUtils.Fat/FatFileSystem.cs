@@ -348,7 +348,8 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
         Span<byte> bytes = stackalloc byte[512];
         stream.ReadExactly(bytes);
         var bpbBytesPerSec = EndianUtilities.ToUInt16LittleEndian(bytes.Slice(11));
-        if (bpbBytesPerSec != 512)
+        
+        if (bpbBytesPerSec < 512 || !MathUtilities.IsPowerOfTwo(bpbBytesPerSec))
         {
             return false;
         }
@@ -1449,7 +1450,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
         uint volId,
         string label)
     {
-        var fatSectors = CalcFatSize(sectors, fatType, sectorsPerCluster);
+        var fatSectors = CalcFatSize(sectors, fatType, sectorsPerCluster, (uint)diskGeometry.BytesPerSector);
 
         bootSector[0] = 0xEB;
         bootSector[1] = 0x3C;
@@ -1459,8 +1460,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
         "DISCUTIL"u8.CopyTo(bootSector.Slice(3, 8));
 
         // Bytes Per Sector (512)
-        bootSector[11] = 0;
-        bootSector[12] = 2;
+        EndianUtilities.WriteBytesLittleEndian((ushort)diskGeometry.BytesPerSector, bootSector.Slice(11));
 
         // Sectors Per Cluster
         bootSector[13] = sectorsPerCluster;
@@ -1531,11 +1531,11 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
         bootSector[511] = 0xAA;
     }
 
-    private static uint CalcFatSize(uint sectors, FatType fatType, byte sectorsPerCluster)
+    private static uint CalcFatSize(uint sectors, FatType fatType, byte sectorsPerCluster, uint bytesPerSector)
     {
         var numClusters = sectors / sectorsPerCluster;
         var fatBytes = numClusters * (ushort)fatType / 8;
-        return (fatBytes + Sizes.Sector - 1) / Sizes.Sector;
+        return (fatBytes + bytesPerSector - 1) / bytesPerSector;
     }
 
     private static void WriteBS(Span<byte> bootSector, bool isFloppy, uint volId, string label,
@@ -1692,7 +1692,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
 
     private void LoadFAT()
     {
-        Fat = new FileAllocationTable(FatVariant, _data, _bpbRsvdSecCnt, (uint)FatSize, FatCount, ActiveFat);
+        Fat = new FileAllocationTable(FatVariant, _data, _bpbRsvdSecCnt, (uint)FatSize, FatCount, ActiveFat, _bpbBytesPerSec);
     }
 
     private void ReadBPB()
@@ -1912,7 +1912,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
         stream.Write(bpb);
 
         // Write both FAT copies
-        var fatSize = CalcFatSize(sectors, FatType.Fat12, 1);
+        var fatSize = CalcFatSize(sectors, FatType.Fat12, 1, Sizes.Sector);
         var fat = new byte[fatSize * Sizes.Sector];
         var fatBuffer = new FatBuffer(FatType.Fat12, fat);
         fatBuffer.SetNext(0, 0xFFFFFFF0);
@@ -2056,13 +2056,15 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
          * Skip the reserved sectors
          */
 
-        stream.Position = pos + (ushort)reservedSectors * Sizes.Sector;
+        var bytesPerSector = diskGeometry.BytesPerSector;
+
+        stream.Position = pos + (ushort)reservedSectors * bytesPerSector;
 
         /*
          * Write both FAT copies
          */
 
-        var fat = new byte[CalcFatSize((uint)sectorCount, fatType, sectorsPerCluster) * Sizes.Sector];
+        var fat = new byte[CalcFatSize((uint)sectorCount, fatType, sectorsPerCluster, (uint)bytesPerSector) * bytesPerSector];
         var fatBuffer = new FatBuffer(fatType, fat);
         fatBuffer.SetNext(0, 0xFFFFFFF8);
         fatBuffer.SetEndOfChain(1);
@@ -2083,23 +2085,23 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
         uint rootDirSectors;
         if (fatType < FatType.Fat32)
         {
-            rootDirSectors = (uint)((maxRootEntries * 32 + Sizes.Sector - 1) / Sizes.Sector);
+            rootDirSectors = (uint)((maxRootEntries * 32 + bytesPerSector - 1) / bytesPerSector);
         }
         else
         {
             rootDirSectors = sectorsPerCluster;
         }
 
-        var rootDir = new byte[rootDirSectors * Sizes.Sector];
+        var rootDir = new byte[rootDirSectors * bytesPerSector];
         stream.Write(rootDir, 0, rootDir.Length);
 
         /*
          * Make sure the stream is at least as large as the partition requires.
          */
 
-        if (stream.Length < pos + sectorCount * Sizes.Sector)
+        if (stream.Length < pos + sectorCount * bytesPerSector)
         {
-            stream.SetLength(pos + sectorCount * Sizes.Sector);
+            stream.SetLength(pos + sectorCount * bytesPerSector);
         }
 
         /*

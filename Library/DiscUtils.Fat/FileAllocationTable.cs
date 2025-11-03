@@ -30,19 +30,21 @@ namespace DiscUtils.Fat;
 internal class FileAllocationTable
 {
     private readonly FatBuffer _buffer;
+    private readonly int _bytesPerSector;
     private readonly ushort _firstFatSector;
     private readonly byte _numFats;
     private readonly Stream _stream;
 
     public FileAllocationTable(FatType type, Stream stream, ushort firstFatSector, uint fatSize, byte numFats,
-                               byte activeFat)
+                               byte activeFat, int bytesPerSector)
     {
         _stream = stream;
         _firstFatSector = firstFatSector;
         _numFats = numFats;
+        _bytesPerSector = bytesPerSector;
 
-        _stream.Position = (firstFatSector + fatSize * activeFat) * Sizes.Sector;
-        _buffer = new FatBuffer(type, _stream.ReadExactly((int)(fatSize * Sizes.Sector)));
+        _stream.Position = (firstFatSector + fatSize * activeFat) * bytesPerSector;
+        _buffer = new FatBuffer(type, _stream.ReadExactly((int)(fatSize * bytesPerSector)));
     }
 
     internal static bool IsFree(uint val)
@@ -84,7 +86,7 @@ internal class FileAllocationTable
     {
         for (var i = 0; i < _numFats; ++i)
         {
-            _buffer.WriteDirtyRegions(_stream, _firstFatSector * Sizes.Sector + _buffer.Size * i);
+            _buffer.WriteDirtyRegions(_stream, _firstFatSector * _bytesPerSector + _buffer.Size * i);
         }
 
         _buffer.ClearDirtyRegions();
@@ -94,7 +96,7 @@ internal class FileAllocationTable
     {
         for (var i = 0; i < _numFats; ++i)
         {
-            await _buffer.WriteDirtyRegionsAsync(_stream, _firstFatSector * Sizes.Sector + _buffer.Size * i, cancellationToken).ConfigureAwait(false);
+            await _buffer.WriteDirtyRegionsAsync(_stream, _firstFatSector * _bytesPerSector + _buffer.Size * i, cancellationToken).ConfigureAwait(false);
         }
 
         _buffer.ClearDirtyRegions();

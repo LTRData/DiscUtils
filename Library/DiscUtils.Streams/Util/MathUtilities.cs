@@ -135,4 +135,16 @@ public static class MathUtilities
 
         throw new ArgumentException("Input is not a power of Two", nameof(val));
     }
+
+    public static bool IsPowerOfTwo(int bpbBytesPerSec) =>
+        // A number is a power of two if it is greater than 0 and the bitwise AND of the number and its predecessor is 0.
+        bpbBytesPerSec > 0 && (bpbBytesPerSec & bpbBytesPerSec - 1) == 0;
+
+    public static bool IsPowerOfTwo(long bpbBytesPerSec) =>
+        // A number is a power of two if it is greater than 0 and the bitwise AND of the number and its predecessor is 0.
+        bpbBytesPerSec > 0 && (bpbBytesPerSec & bpbBytesPerSec - 1) == 0;
+
+    public static bool IsPowerOfTwo(ulong bpbBytesPerSec) =>
+        // A number is a power of two if it is greater than 0 and the bitwise AND of the number and its predecessor is 0.
+        (bpbBytesPerSec & bpbBytesPerSec - 1) == 0;
 }
