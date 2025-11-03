@@ -32,7 +32,7 @@ public class BuiltStream : SparseStream
 {
     private ZeroStream _baseStream;
 
-    private BuilderExtent _currentExtent;
+    private BuilderExtent? _currentExtent;
     private readonly List<BuilderExtent> _extents;
     private readonly long _length;
     private long _position;
@@ -334,7 +334,7 @@ public class BuiltStream : SparseStream
                 if (_baseStream != null)
                 {
                     _baseStream.Dispose();
-                    _baseStream = null;
+                    _baseStream = null!;
                 }
             }
         }
@@ -344,7 +344,7 @@ public class BuiltStream : SparseStream
         }
     }
 
-    private BuilderExtent FindNext(long pos)
+    private BuilderExtent? FindNext(long pos)
     {
         var min = 0;
         var max = _extents.Count - 1;
@@ -414,7 +414,7 @@ public class BuiltStream : SparseStream
 
     private struct ExtentRangeComparer : IComparer<BuilderExtent>
     {
-        public int Compare(BuilderExtent x, BuilderExtent y)
+        public int Compare(BuilderExtent? x, BuilderExtent? y)
         {
 #if NET6_0_OR_GREATER
             ArgumentNullException.ThrowIfNull(x);
@@ -450,7 +450,7 @@ public class BuiltStream : SparseStream
 
     private struct ExtentStartComparer : IComparer<BuilderExtent>
     {
-        public int Compare(BuilderExtent x, BuilderExtent y)
+        public int Compare(BuilderExtent? x, BuilderExtent? y)
         {
 #if NET6_0_OR_GREATER
             ArgumentNullException.ThrowIfNull(x);

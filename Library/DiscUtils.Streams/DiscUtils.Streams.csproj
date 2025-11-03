@@ -4,6 +4,7 @@
     <Description>DiscUtils Streams</Description>
     <Authors>Kenneth Bell;LordMike;Bianco Veigel;Olof Lagerkvist</Authors>
     <PackageTags>DiscUtils;Streams</PackageTags>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.Security.Cryptography.Algorithms" Version="4.*" />

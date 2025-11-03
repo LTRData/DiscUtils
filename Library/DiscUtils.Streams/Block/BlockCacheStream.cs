@@ -226,7 +226,7 @@ public sealed class BlockCacheStream : SparseStream
         var blocksRead = 0;
         while (blocksRead < numBlocks)
         {
-            Block block;
+            Block? block;
 
             // Read from the cache as much as possible
             while (blocksRead < numBlocks && _cache.TryGetBlock(firstBlock + blocksRead, out block))
@@ -353,7 +353,7 @@ public sealed class BlockCacheStream : SparseStream
         var blocksRead = 0;
         while (blocksRead < numBlocks)
         {
-            Block block;
+            Block? block;
 
             // Read from the cache as much as possible
             while (blocksRead < numBlocks && _cache.TryGetBlock(firstBlock + blocksRead, out block))
@@ -481,7 +481,7 @@ public sealed class BlockCacheStream : SparseStream
         var blocksRead = 0;
         while (blocksRead < numBlocks)
         {
-            Block block;
+            Block? block;
 
             // Read from the cache as much as possible
             while (blocksRead < numBlocks && _cache.TryGetBlock(firstBlock + blocksRead, out block))
@@ -778,7 +778,7 @@ public sealed class BlockCacheStream : SparseStream
                 _wrappedStream.Dispose();
             }
 
-            _wrappedStream = null;
+            _wrappedStream = null!;
         }
 
         base.Dispose(disposing);

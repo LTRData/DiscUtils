@@ -371,7 +371,7 @@ public class ConcatStream : SparseStream
                     stream.Dispose();
                 }
 
-                _streams = null;
+                _streams = null!;
             }
         }
         finally

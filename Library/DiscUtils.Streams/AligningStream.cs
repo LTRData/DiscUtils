@@ -39,7 +39,7 @@ public sealed class AligningStream : WrappingMappedStream<SparseStream>
     private long _position;
 
     public AligningStream(SparseStream toWrap, Ownership ownership, int blockSize)
-        : base(toWrap, ownership, null)
+        : base(toWrap, ownership, extents: null)
     {
         _blockSize = blockSize;
         _alignmentBuffer = StreamUtilities.GetUninitializedArray<byte>(blockSize);

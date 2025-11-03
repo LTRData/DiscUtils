@@ -342,7 +342,7 @@ public class StripedStream : SparseStream
                     stream.Dispose();
                 }
 
-                _wrapped = null;
+                _wrapped = null!;
             }
         }
         finally

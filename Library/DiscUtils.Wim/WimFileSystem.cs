@@ -368,7 +368,7 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
         var hdr = _file.LocateResource(streamHash);
         if (hdr == null)
         {
-            if (Utilities.IsAllZeros(streamHash, 0, streamHash.Length))
+            if (BufferUtilities.IsAllZeros(streamHash, 0, streamHash.Length))
             {
                 return new ZeroStream(0);
             }
@@ -442,7 +442,7 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
         var hdr = _file.LocateResource(streamHash);
         if (hdr == null)
         {
-            if (Utilities.IsAllZeros(streamHash, 0, streamHash.Length))
+            if (BufferUtilities.IsAllZeros(streamHash, 0, streamHash.Length))
             {
                 return 0;
             }
@@ -474,7 +474,7 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
 
         if (hdr == null)
         {
-            if (Utilities.IsAllZeros(streamHash, 0, streamHash.Length))
+            if (BufferUtilities.IsAllZeros(streamHash, 0, streamHash.Length))
             {
                 fileSize = 0;
             }
@@ -505,7 +505,7 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
 
         if (hdr == null)
         {
-            if (Utilities.IsAllZeros(streamHash, 0, streamHash.Length))
+            if (BufferUtilities.IsAllZeros(streamHash, 0, streamHash.Length))
             {
                 fileSize = 0;
             }

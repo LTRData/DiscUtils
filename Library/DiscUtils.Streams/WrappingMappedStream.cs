@@ -41,10 +41,10 @@ namespace DiscUtils.Streams;
 public class WrappingMappedStream<T> : MappedStream
     where T : Stream
 {
-    private readonly List<StreamExtent> _extents;
+    private readonly List<StreamExtent>? _extents;
     private readonly Ownership _ownership;
 
-    public WrappingMappedStream(T toWrap, Ownership ownership, IEnumerable<StreamExtent> extents)
+    public WrappingMappedStream(T toWrap, Ownership ownership, IEnumerable<StreamExtent>? extents)
     {
         WrappedStream = toWrap;
         _ownership = ownership;
@@ -190,7 +190,7 @@ public class WrappingMappedStream<T> : MappedStream
                     WrappedStream.Dispose();
                 }
 
-                WrappedStream = null;
+                WrappedStream = null!;
             }
         }
         finally

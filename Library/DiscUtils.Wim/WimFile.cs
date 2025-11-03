@@ -146,7 +146,7 @@ public class WimFile
 
         foreach (var header in headers)
         {
-            if (Utilities.AreEqual(header.Hash, hash))
+            if (BufferUtilities.AreEqual(header.Hash, hash))
             {
                 return header.Header;
             }

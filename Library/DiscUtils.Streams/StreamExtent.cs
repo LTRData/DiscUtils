@@ -454,7 +454,7 @@ public readonly struct StreamExtent : IEquatable<StreamExtent>, IComparable<Stre
     /// </summary>
     /// <param name="obj">The object to test.</param>
     /// <returns><c>true</c> if <c>obj</c> is equivalent, else <c>false</c>.</returns>
-    public override bool Equals(object obj) => obj is StreamExtent extent && Equals(extent);
+    public override bool Equals(object? obj) => obj is StreamExtent extent && Equals(extent);
 
     /// <summary>
     /// Gets a hash code for this extent.

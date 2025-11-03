@@ -16,6 +16,6 @@ public static class EncodingUtilities
     public static Encoding GetLatin1Encoding()
         => latin1 ??= Encoding.GetEncoding("Latin1");
 
-    private static Encoding latin1;
+    private static Encoding? latin1;
 #endif
 }

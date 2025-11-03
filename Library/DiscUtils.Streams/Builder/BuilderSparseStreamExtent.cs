@@ -53,7 +53,7 @@ public class BuilderSparseStreamExtent : BuilderExtent
                 _stream.Dispose();
             }
 
-            _stream = null;
+            _stream = null!;
         }
     }
 

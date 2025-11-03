@@ -70,8 +70,8 @@ internal class CommonVolumeDescriptor : BaseVolumeDescriptor
         PathTableSize = IsoUtilities.ToUInt32FromBoth(src.Slice(132));
         TypeLPathTableLocation = EndianUtilities.ToUInt32LittleEndian(src.Slice(140));
         OptionalTypeLPathTableLocation = EndianUtilities.ToUInt32LittleEndian(src.Slice(144));
-        TypeMPathTableLocation = Utilities.BitSwap(EndianUtilities.ToUInt32LittleEndian(src.Slice(148)));
-        OptionalTypeMPathTableLocation = Utilities.BitSwap(EndianUtilities.ToUInt32LittleEndian(src.Slice(152)));
+        TypeMPathTableLocation = EndianUtilities.ToUInt32BigEndian(src.Slice(148));
+        OptionalTypeMPathTableLocation = EndianUtilities.ToUInt32BigEndian(src.Slice(152));
         DirectoryRecord.ReadFrom(src.Slice(156), CharacterEncoding, out RootDirectory);
         VolumeSetIdentifier = IsoUtilities.ReadChars(src.Slice(190, 318 - 190), CharacterEncoding);
         PublisherIdentifier = IsoUtilities.ReadChars(src.Slice(318, 446 - 318), CharacterEncoding);

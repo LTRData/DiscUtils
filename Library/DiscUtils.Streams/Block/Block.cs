@@ -22,11 +22,11 @@
 
 namespace DiscUtils.Streams;
 
-public class Block
+public class Block()
 {
     public int Available { get; set; }
 
-    public byte[] Data { get; set; }
+    public byte[] Data { get; set; } = null!;
 
     public long Position { get; set; }
 

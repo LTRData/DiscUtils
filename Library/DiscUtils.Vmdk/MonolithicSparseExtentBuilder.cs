@@ -90,7 +90,7 @@ internal sealed class MonolithicSparseExtentBuilder : StreamBuilder
             Overhead = dataStart
         };
 
-        extents.Add(new BuilderBytesExtent(0, header.GetBytes()));
+        extents.Add(new BuilderBufferExtent(0, header.GetBytes()));
 
         // The descriptor extent
         if (descriptorLength > 0)
@@ -137,7 +137,7 @@ internal sealed class MonolithicSparseExtentBuilder : StreamBuilder
         return grainTablesStart * Sizes.Sector + grainTable * MathUtilities.RoundUp(gtesPerGt * 4, Sizes.Sector);
     }
 
-    private class GrainDirectoryExtent : BuilderBytesExtent
+    private class GrainDirectoryExtent : BuilderBufferExtent
     {
         private readonly long _grainTablesStart;
         private readonly int _gtesPerGt;
@@ -151,23 +151,21 @@ internal sealed class MonolithicSparseExtentBuilder : StreamBuilder
             _gtesPerGt = gtesPerGt;
         }
 
-        public override void PrepareForRead()
+        protected override byte[] GetBuffer()
         {
-            _data = new byte[Length];
+            var data = new byte[Length];
+
             for (var i = 0; i < _numGrainTables; ++i)
             {
                 EndianUtilities.WriteBytesLittleEndian(
-                    (uint)(_grainTablesStart + i * MathUtilities.Ceil(_gtesPerGt * 4, Sizes.Sector)), _data, i * 4);
+                    (uint)(_grainTablesStart + i * MathUtilities.Ceil(_gtesPerGt * 4, Sizes.Sector)), data, i * 4);
             }
-        }
 
-        public override void DisposeReadState()
-        {
-            _data = null;
+            return data;
         }
     }
 
-    private class GrainTableExtent : BuilderBytesExtent
+    private class GrainTableExtent : BuilderBufferExtent
     {
         private readonly SparseStream _content;
         private readonly long _dataStart;
@@ -183,9 +181,9 @@ internal sealed class MonolithicSparseExtentBuilder : StreamBuilder
             _dataStart = dataStart;
         }
 
-        public override void PrepareForRead()
+        protected override byte[] GetBuffer()
         {
-            _data = new byte[_gtesPerGt * 4];
+            var data = new byte[_gtesPerGt * 4];
 
             var gtSpan = _gtesPerGt * _grainSize * Sizes.Sector;
             long sectorsAllocated = 0;
@@ -194,16 +192,13 @@ internal sealed class MonolithicSparseExtentBuilder : StreamBuilder
             {
                 for (var i = 0; i < block.Count; ++i)
                 {
-                    EndianUtilities.WriteBytesLittleEndian((uint)(_dataStart + sectorsAllocated), _data,
+                    EndianUtilities.WriteBytesLittleEndian((uint)(_dataStart + sectorsAllocated), data,
                         (int)((block.Offset + i) * 4));
                     sectorsAllocated += _grainSize;
                 }
             }
-        }
 
-        public override void DisposeReadState()
-        {
-            _data = null;
+            return data;
         }
     }
 

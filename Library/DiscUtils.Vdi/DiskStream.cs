@@ -375,7 +375,7 @@ internal class DiskStream : SparseStream
             if (_blockTable[block] == BlockZero
                 || (_blockTable[block] == BlockFree && toWrite == _fileHeader.BlockSize))
             {
-                if (Utilities.IsAllZeros(buffer, offset + numWritten, toWrite))
+                if (BufferUtilities.IsAllZeros(buffer, offset + numWritten, toWrite))
                 {
                     numWritten += toWrite;
                     _position += toWrite;
@@ -484,7 +484,7 @@ internal class DiskStream : SparseStream
             if (_blockTable[block] == BlockZero
                 || (_blockTable[block] == BlockFree && toWrite == _fileHeader.BlockSize))
             {
-                if (Utilities.IsAllZeros(buffer.Slice(numWritten, toWrite)))
+                if (BufferUtilities.IsAllZeros(buffer.Slice(numWritten, toWrite)))
                 {
                     numWritten += toWrite;
                     _position += toWrite;
@@ -594,7 +594,7 @@ internal class DiskStream : SparseStream
             if (_blockTable[block] == BlockZero
                 || (_blockTable[block] == BlockFree && toWrite == _fileHeader.BlockSize))
             {
-                if (Utilities.IsAllZeros(buffer.Slice(numWritten, toWrite).Span))
+                if (BufferUtilities.IsAllZeros(buffer.Slice(numWritten, toWrite).Span))
                 {
                     numWritten += toWrite;
                     _position += toWrite;

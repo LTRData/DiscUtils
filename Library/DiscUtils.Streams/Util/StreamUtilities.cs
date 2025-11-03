@@ -535,7 +535,7 @@ public static class StreamUtilities
     {
         var result = new T();
 
-        byte[] allocated = null;
+        byte[]? allocated = null;
 
         var buffer = result.Size <= 1024
             ? stackalloc byte[result.Size]
@@ -620,7 +620,7 @@ public static class StreamUtilities
     public static void ReadFrom<T>(this T result, Stream stream)
         where T : class, IByteArraySerializable
     {
-        byte[] allocated = null;
+        byte[]? allocated = null;
 
         var buffer = result.Size <= 1024
             ? stackalloc byte[result.Size]
@@ -651,7 +651,7 @@ public static class StreamUtilities
     public static void ReadFrom<T>(this T result, Stream stream, int length)
         where T : class, IByteArraySerializable
     {
-        byte[] allocated = null;
+        byte[]? allocated = null;
 
         var buffer = length <= 1024
             ? stackalloc byte[length]
@@ -681,7 +681,7 @@ public static class StreamUtilities
     public static void ReadFrom<T>(this ref T result, Stream stream)
         where T : struct, IByteArraySerializable
     {
-        byte[] allocated = null;
+        byte[]? allocated = null;
 
         var buffer = result.Size <= 1024
             ? stackalloc byte[result.Size]
@@ -712,7 +712,7 @@ public static class StreamUtilities
     public static void ReadFrom<T>(this ref T result, Stream stream, int length)
         where T : struct, IByteArraySerializable
     {
-        byte[] allocated = null;
+        byte[]? allocated = null;
 
         var buffer = length <= 1024
             ? stackalloc byte[length]
@@ -742,7 +742,7 @@ public static class StreamUtilities
     public static T ReadStruct<T>(this Stream stream, int length)
         where T : IByteArraySerializable, new()
     {
-        byte[] allocated = null;
+        byte[]? allocated = null;
 
         var buffer = length <= 1024
             ? stackalloc byte[length]
@@ -773,7 +773,7 @@ public static class StreamUtilities
     public static void WriteStruct<T>(this Stream stream, T obj)
         where T : IByteArraySerializable
     {
-        byte[] allocated = null;
+        byte[]? allocated = null;
 
         var objSize = obj.Size;
 

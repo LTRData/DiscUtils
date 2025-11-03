@@ -359,7 +359,7 @@ public class ThreadSafeStream : SparseStream
                 {
                     if (_common.WrappedStreamOwnership == Ownership.Dispose)
                     {
-                        _common.WrappedStream.Dispose();
+                        _common.WrappedStream?.Dispose();
                     }
 
                     _common.Dispose();
@@ -367,12 +367,12 @@ public class ThreadSafeStream : SparseStream
             }
         }
 
-        _common = null;
+        _common = null!;
     }
 
     private sealed class CommonState : IDisposable
     {
-        public SparseStream WrappedStream;
+        public SparseStream? WrappedStream;
         public Ownership WrappedStreamOwnership;
 
 #region IDisposable Members

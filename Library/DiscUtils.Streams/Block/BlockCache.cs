@@ -20,7 +20,9 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
+using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DiscUtils.Streams;
 
@@ -54,7 +56,7 @@ public class BlockCache<T>
         return _blocks.ContainsKey(position);
     }
 
-    public bool TryGetBlock(long position, out T block)
+    public bool TryGetBlock(long position, [NotNullWhen(true)] out T? block)
     {
         if (_blocks.TryGetValue(position, out block))
         {
@@ -119,11 +121,15 @@ public class BlockCache<T>
             _blocksCreated++;
             FreeBlockCount--;
         }
-        else
+        else if (_lru.Last is { } last)
         {
-            block = _lru.Last.Value;
+            block = last.Value;
             _lru.RemoveLast();
             _blocks.Remove(block.Position);
+        }
+        else
+        {
+            throw new InvalidOperationException("No blocks available in cache");
         }
 
         return block;

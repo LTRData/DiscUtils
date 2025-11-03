@@ -805,7 +805,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
 
     private static void InitializeDynamicInternal(Stream stream, long capacity, Geometry? geometry, long blockSize)
     {
-        if (blockSize < Sizes.OneMiB || blockSize > Sizes.OneMiB * 256 || !Utilities.IsPowerOfTwo(blockSize))
+        if (blockSize < Sizes.OneMiB || blockSize > Sizes.OneMiB * 256 || !MathUtilities.IsPowerOfTwo(blockSize))
         {
             throw new ArgumentOutOfRangeException(nameof(blockSize), blockSize,
                 "BlockSize must be a power of 2 between 1MB and 256MB");
@@ -910,7 +910,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
         {
             blockSize = FileParameters.DefaultDynamicBlockSize;
         }
-        else if (blockSize.Value < Sizes.OneMiB || blockSize.Value > Sizes.OneMiB * 256 || !Utilities.IsPowerOfTwo(blockSize.Value))
+        else if (blockSize.Value < Sizes.OneMiB || blockSize.Value > Sizes.OneMiB * 256 || !MathUtilities.IsPowerOfTwo(blockSize.Value))
         {
             throw new ArgumentOutOfRangeException(nameof(blockSize), blockSize.Value,
                 "BlockSize must be a power of 2 between 1MB and 256MB");

@@ -38,9 +38,9 @@ namespace DiscUtils.Streams;
 /// aren't stored.  The unstored parts are implicitly zero-byte ranges.</remarks>
 public abstract class SparseStream : CompatibilityStream
 {
-    public event EventHandler Disposing;
+    public event EventHandler? Disposing;
 
-    public event EventHandler Disposed;
+    public event EventHandler? Disposed;
 
     /// <summary>
     /// Gets the parts of the stream that are stored.
@@ -59,7 +59,7 @@ public abstract class SparseStream : CompatibilityStream
     /// single extent.</remarks>
     public static SparseStream FromStream(Stream stream, Ownership takeOwnership)
     {
-        return new SparseWrapperStream(stream, takeOwnership, null);
+        return new SparseWrapperStream(stream, takeOwnership, extents: null);
     }
 
     /// <summary>
@@ -132,7 +132,7 @@ public abstract class SparseStream : CompatibilityStream
     /// </remarks>
     public virtual void Clear(int count)
     {
-        byte[] array = null;
+        byte[]? array = null;
 
         var buffer = count <= 512
             ? stackalloc byte[count]
@@ -349,7 +349,7 @@ public abstract class SparseStream : CompatibilityStream
                     _wrapped.Dispose();
                 }
 
-                _wrapped = null;
+                _wrapped = null!;
             }
             finally
             {
@@ -365,11 +365,11 @@ public abstract class SparseStream : CompatibilityStream
 
     private class SparseWrapperStream : SparseStream
     {
-        private readonly List<StreamExtent> _extents;
+        private readonly List<StreamExtent>? _extents;
         private readonly Ownership _ownsWrapped;
         private Stream _wrapped;
 
-        public SparseWrapperStream(Stream wrapped, Ownership ownsWrapped, IEnumerable<StreamExtent> extents)
+        public SparseWrapperStream(Stream wrapped, Ownership ownsWrapped, IEnumerable<StreamExtent>? extents)
         {
 #if NET6_0_OR_GREATER
             ArgumentNullException.ThrowIfNull(wrapped);
@@ -601,7 +601,7 @@ public abstract class SparseStream : CompatibilityStream
                     _wrapped.Dispose();
                 }
 
-                _wrapped = null;
+                _wrapped = null!;
             }
             finally
             {

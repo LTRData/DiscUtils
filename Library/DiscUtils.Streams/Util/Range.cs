@@ -65,7 +65,7 @@ public readonly struct Range<TOffset, TCount> : IEquatable<Range<TOffset, TCount
     /// <returns><c>true</c> if the ranges are equivalent, else <c>false</c>.</returns>
     public bool Equals(Range<TOffset, TCount> other) => Offset.Equals(other.Offset) && Count.Equals(other.Count);
 
-    public override bool Equals(object obj) => obj is Range<TOffset, TCount> other && Equals(other);
+    public override bool Equals(object? obj) => obj is Range<TOffset, TCount> other && Equals(other);
 
     public override int GetHashCode() => HashCode.Combine(Offset, Count);
 

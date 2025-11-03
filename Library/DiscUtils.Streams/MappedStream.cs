@@ -46,7 +46,7 @@ public abstract class MappedStream : SparseStream
     /// maps directly onto the parent stream).</remarks>
     public static new MappedStream FromStream(Stream stream, Ownership takeOwnership)
     {
-        return new WrappingMappedStream<Stream>(stream, takeOwnership, null);
+        return new WrappingMappedStream<Stream>(stream, takeOwnership, extents: null);
     }
 
     /// <summary>

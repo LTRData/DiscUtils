@@ -482,7 +482,7 @@ public sealed class GuidPartitionTable : PartitionTable
         foreach (var entry in list)
         {
             if (
-                !Utilities.RangesOverlap(startSector, startSector + numSectors - 1, entry.FirstUsedLogicalBlock,
+                !BufferUtilities.RangesOverlap(startSector, startSector + numSectors - 1, entry.FirstUsedLogicalBlock,
                     entry.LastUsedLogicalBlock))
             {
                 break;

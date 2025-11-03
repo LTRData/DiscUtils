@@ -539,7 +539,7 @@ public sealed class BiosPartitionTable : PartitionTable
         // First check for overlap with existing partition...
         foreach (var r in existing)
         {
-            if (Utilities.RangesOverlap((uint)first, (uint)last + 1, r.LBAStartAbsolute,
+            if (BufferUtilities.RangesOverlap((uint)first, (uint)last + 1, r.LBAStartAbsolute,
                 r.LBAStartAbsolute + r.LBALength))
             {
                 throw new IOException("New partition overlaps with existing partition");
@@ -824,7 +824,7 @@ public sealed class BiosPartitionTable : PartitionTable
             }
 
             if (
-                !Utilities.RangesOverlap(startCylinder, startCylinder + numCylinders - 1, existingStart, existingEnd))
+                !BufferUtilities.RangesOverlap(startCylinder, startCylinder + numCylinders - 1, existingStart, existingEnd))
             {
                 break;
             }
@@ -852,7 +852,7 @@ public sealed class BiosPartitionTable : PartitionTable
                 entry = list[idx];
             }
 
-            if (Utilities.RangesOverlap(startSector, startSector + numSectors, entry.LBAStartAbsolute,
+            if (BufferUtilities.RangesOverlap(startSector, startSector + numSectors, entry.LBAStartAbsolute,
                 entry.LBAStartAbsolute + entry.LBALength))
             {
                 startSector = MathUtilities.RoundUp(entry.LBAStartAbsolute + entry.LBALength, alignmentSectors);

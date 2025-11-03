@@ -281,7 +281,7 @@ public class BufferStream : SparseStream
             {
                 IsDisposed = true;
 
-                _buffer = null;
+                _buffer = null!;
                 _access = 0;
             }
         }

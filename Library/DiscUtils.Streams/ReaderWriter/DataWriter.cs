@@ -22,6 +22,7 @@
 
 using DiscUtils.Streams.Compatibility;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -34,7 +35,7 @@ public abstract class DataWriter
 
     protected readonly Stream _stream;
 
-    protected byte[] _buffer;
+    protected byte[]? _buffer;
 
     public DataWriter(Stream stream)
     {
@@ -81,6 +82,7 @@ public abstract class DataWriter
         return new(_stream.FlushAsync());
     }
 
+    [MemberNotNull(nameof(_buffer))]
     protected void EnsureBuffer()
     {
         _buffer ??= StreamUtilities.GetUninitializedArray<byte>(_bufferSize);
@@ -88,6 +90,9 @@ public abstract class DataWriter
 
     protected void FlushBuffer(int count)
     {
-        _stream.Write(_buffer, 0, count);
+        if (_buffer is not null)
+        {
+            _stream.Write(_buffer, 0, count);
+        }
     }
 }

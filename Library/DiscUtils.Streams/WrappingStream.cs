@@ -146,7 +146,7 @@ public class WrappingStream : SparseStream
                     _wrapped.Dispose();
                 }
 
-                _wrapped = null;
+                _wrapped = null!;
             }
         }
         finally

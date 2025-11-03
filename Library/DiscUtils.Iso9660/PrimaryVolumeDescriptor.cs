@@ -23,6 +23,7 @@
 using System;
 using System.Text;
 using DiscUtils.Internal;
+using DiscUtils.Streams;
 
 namespace DiscUtils.Iso9660;
 
@@ -55,8 +56,8 @@ internal class PrimaryVolumeDescriptor : CommonVolumeDescriptor
         IsoUtilities.ToBothFromUInt32(buffer.Slice(132), PathTableSize);
         IsoUtilities.ToBytesFromUInt32(buffer.Slice(140), TypeLPathTableLocation);
         IsoUtilities.ToBytesFromUInt32(buffer.Slice(144), OptionalTypeLPathTableLocation);
-        IsoUtilities.ToBytesFromUInt32(buffer.Slice(148), Utilities.BitSwap(TypeMPathTableLocation));
-        IsoUtilities.ToBytesFromUInt32(buffer.Slice(152), Utilities.BitSwap(OptionalTypeMPathTableLocation));
+        EndianUtilities.WriteBytesBigEndian(TypeMPathTableLocation, buffer.Slice(148));
+        EndianUtilities.WriteBytesBigEndian(OptionalTypeMPathTableLocation, buffer.Slice(152));
         RootDirectory.WriteTo(buffer.Slice(156), Encoding.ASCII);
         IsoUtilities.WriteDChars(buffer.Slice(190, 129), VolumeSetIdentifier.AsSpan());
         IsoUtilities.WriteAChars(buffer.Slice(318, 129), PublisherIdentifier.AsSpan());

@@ -257,7 +257,7 @@ public class FileChecker
             ReportWarning($"DynHeader: Using non-standard block size '{_dynamicHeader.BlockSize}'");
         }
 
-        if (!Utilities.IsPowerOfTwo(_dynamicHeader.BlockSize))
+        if (!MathUtilities.IsPowerOfTwo(_dynamicHeader.BlockSize))
         {
             ReportError("DynHeader: Block size is not a power of 2");
         }

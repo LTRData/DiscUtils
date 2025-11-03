@@ -20,6 +20,7 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 
 namespace DiscUtils.Streams;
@@ -33,7 +34,7 @@ public abstract class DataReader
 
     protected readonly Stream _stream;
 
-    protected byte[] _buffer;
+    protected byte[]? _buffer;
 
     public DataReader(Stream stream)
     {
@@ -64,6 +65,7 @@ public abstract class DataReader
         return _stream.ReadExactly(count);
     }
 
+    [MemberNotNull(nameof(_buffer))]
     protected void ReadToBuffer(int count)
     {
         _buffer ??= StreamUtilities.GetUninitializedArray<byte>(_bufferSize);

@@ -22,6 +22,7 @@
 
 using System;
 using System.Buffers;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 
 namespace DiscUtils.Streams;
@@ -79,12 +80,12 @@ public sealed class StreamPump
     /// <summary>
     /// Gets or sets the stream that will be read from.
     /// </summary>
-    public Stream InputStream { get; set; }
+    public Stream? InputStream { get; set; }
 
     /// <summary>
     /// Gets or sets the stream that will be written to.
     /// </summary>
-    public Stream OutputStream { get; set; }
+    public Stream? OutputStream { get; set; }
 
     /// <summary>
     /// Gets or sets, for sparse transfers, the size of each chunk.
@@ -108,7 +109,7 @@ public sealed class StreamPump
     /// This event is signalled synchronously, so to avoid slowing the pumping activity
     /// implementations should return quickly.
     /// </remarks>
-    public event EventHandler<PumpProgressEventArgs> ProgressEvent;
+    public event EventHandler<PumpProgressEventArgs>? ProgressEvent;
 
     /// <summary>
     /// Performs the pump activity, blocking until complete.
@@ -145,27 +146,14 @@ public sealed class StreamPump
         }
     }
 
-    private static bool IsAllZeros(byte[] buffer, int offset, int count)
-    {
-        for (var j = 0; j < count; j++)
-        {
-            if (buffer[offset + j] != 0)
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
     private void RunNonSparse()
     {
         var copyBuffer = ArrayPool<byte>.Shared.Rent(BufferSize);
 
         try
         {
-            InputStream.Position = 0;
-            OutputStream.Position = 0;
+            InputStream!.Position = 0;
+            OutputStream!.Position = 0;
 
             var numRead = InputStream.Read(copyBuffer, 0, BufferSize);
             while (numRead > 0)
@@ -190,7 +178,7 @@ public sealed class StreamPump
     {
         if (InputStream is not SparseStream inStream)
         {
-            inStream = SparseStream.FromStream(InputStream, Ownership.None);
+            inStream = SparseStream.FromStream(InputStream!, Ownership.None);
         }
 
         if (BufferSize > SparseChunkSize && BufferSize % SparseChunkSize != 0)
@@ -221,11 +209,11 @@ public sealed class StreamPump
                     var copyBufferOffset = 0;
                     for (var i = 0; i < numRead; i += SparseChunkSize)
                     {
-                        if (IsAllZeros(copyBuffer, i, Math.Min(SparseChunkSize, numRead - i)))
+                        if (BufferUtilities.IsAllZeros(copyBuffer, i, Math.Min(SparseChunkSize, numRead - i)))
                         {
                             if (copyBufferOffset < i)
                             {
-                                OutputStream.Position = extent.Start + extentOffset + copyBufferOffset;
+                                OutputStream!.Position = extent.Start + extentOffset + copyBufferOffset;
                                 OutputStream.Write(copyBuffer, copyBufferOffset, i - copyBufferOffset);
                                 BytesWritten += i - copyBufferOffset;
                             }
@@ -236,7 +224,7 @@ public sealed class StreamPump
 
                     if (copyBufferOffset < numRead)
                     {
-                        OutputStream.Position = extent.Start + extentOffset + copyBufferOffset;
+                        OutputStream!.Position = extent.Start + extentOffset + copyBufferOffset;
                         OutputStream.Write(copyBuffer, copyBufferOffset, numRead - copyBufferOffset);
                         BytesWritten += numRead - copyBufferOffset;
                     }
@@ -257,7 +245,7 @@ public sealed class StreamPump
         // explicitly resized.  Side-effect of this, is that if outStream is an NTFS
         // file stream, then actual clusters will be allocated out to at least the
         // length of the input stream.
-        if (OutputStream.Length < inStream.Length)
+        if (OutputStream!.Length < inStream.Length)
         {
             inStream.Position = inStream.Length - 1;
             var b = inStream.ReadByte();
@@ -278,8 +266,8 @@ public sealed class StreamPump
             {
                 BytesRead = BytesRead,
                 BytesWritten = BytesWritten,
-                SourcePosition = InputStream.Position,
-                DestinationPosition = OutputStream.Position
+                SourcePosition = InputStream!.Position,
+                DestinationPosition = OutputStream!.Position
             };
             ProgressEvent(this, args);
         }

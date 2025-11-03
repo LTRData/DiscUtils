@@ -21,6 +21,7 @@
 //
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -28,7 +29,7 @@ namespace DiscUtils.Streams;
 
 public class BuilderBufferExtent : BuilderExtent
 {
-    private byte[] _buffer;
+    private byte[]? _buffer;
     private readonly bool _fixedBuffer;
 
     public BuilderBufferExtent(long start, long length)
@@ -43,16 +44,16 @@ public class BuilderBufferExtent : BuilderExtent
 
     protected override void Dispose(bool disposing) {}
 
-    public override void PrepareForRead()
+    [MemberNotNull(nameof(_buffer))]
+    public sealed override void PrepareForRead()
     {
-        if (!_fixedBuffer)
-        {
-            _buffer = GetBuffer();
-        }
+        _buffer ??= GetBuffer();
     }
 
     public override int Read(long diskOffset, byte[] block, int offset, int count)
     {
+        PrepareForRead();
+
         var startOffset = (int)(diskOffset - Start);
         var numBytes = (int)Math.Min(Length - startOffset, count);
         System.Buffer.BlockCopy(_buffer, startOffset, block, offset, numBytes);
@@ -61,6 +62,8 @@ public class BuilderBufferExtent : BuilderExtent
 
     public override ValueTask<int> ReadAsync(long diskOffset, byte[] block, int offset, int count, CancellationToken cancellationToken)
     {
+        PrepareForRead();
+
         var startOffset = (int)(diskOffset - Start);
         var numBytes = (int)Math.Min(Length - startOffset, count);
         System.Buffer.BlockCopy(_buffer, startOffset, block, offset, numBytes);
@@ -69,6 +72,8 @@ public class BuilderBufferExtent : BuilderExtent
 
     public override ValueTask<int> ReadAsync(long diskOffset, Memory<byte> block, CancellationToken cancellationToken)
     {
+        PrepareForRead();
+
         var startOffset = (int)(diskOffset - Start);
         var numBytes = (int)Math.Min(Length - startOffset, block.Length);
         _buffer.AsMemory().Slice(startOffset, numBytes).CopyTo(block);
@@ -77,6 +82,8 @@ public class BuilderBufferExtent : BuilderExtent
 
     public override int Read(long diskOffset, Span<byte> block)
     {
+        PrepareForRead();
+
         var startOffset = (int)(diskOffset - Start);
         var numBytes = (int)Math.Min(Length - startOffset, block.Length);
         _buffer.AsSpan().Slice(startOffset, numBytes).CopyTo(block);

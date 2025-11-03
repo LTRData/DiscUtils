@@ -52,16 +52,17 @@ public sealed class StreamBuffer : Buffer
         }
 #endif
 
-        _stream = stream as SparseStream;
-        if (_stream == null)
+        if (stream is not SparseStream sparseStream)
         {
-            _stream = SparseStream.FromStream(stream, ownership);
+            sparseStream = SparseStream.FromStream(stream, ownership);
             _ownership = Ownership.Dispose;
         }
         else
         {
             _ownership = ownership;
         }
+
+        _stream = sparseStream;
     }
 
     /// <summary>
@@ -95,7 +96,7 @@ public sealed class StreamBuffer : Buffer
             if (_stream != null)
             {
                 _stream.Dispose();
-                _stream = null;
+                _stream = null!;
             }
         }
     }

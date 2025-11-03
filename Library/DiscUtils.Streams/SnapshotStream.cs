@@ -47,12 +47,12 @@ public sealed class SnapshotStream : SparseStream
     /// </summary>
     /// <remarks>Can't use _diffStream's own tracking because that's based on it's
     /// internal block size, not on the _actual_ bytes stored.</remarks>
-    private List<StreamExtent> _diffExtents;
+    private List<StreamExtent>? _diffExtents;
 
     /// <summary>
     /// Captures changes to the base stream (when enabled).
     /// </summary>
-    private SparseMemoryStream _diffStream;
+    private SparseMemoryStream? _diffStream;
 
     /// <summary>
     /// Indicates that no writes should be permitted.
@@ -75,7 +75,6 @@ public sealed class SnapshotStream : SparseStream
     {
         _baseStream = baseStream;
         _baseStreamOwnership = owns;
-        _diffExtents = [];
     }
 
     public override long? GetPositionInBaseStream(Stream baseStream, long virtualPosition)
@@ -117,6 +116,11 @@ public sealed class SnapshotStream : SparseStream
             if (_baseStream is not SparseStream sparseBase)
             {
                 return SingleValueEnumerable.Get(new StreamExtent(0, Length));
+            }
+
+            if (_diffExtents is null)
+            {
+                return sparseBase.Extents;
             }
 
             return StreamExtent.Union(sparseBase.Extents, _diffExtents);
@@ -188,7 +192,7 @@ public sealed class SnapshotStream : SparseStream
     /// </summary>
     public void RevertToSnapshot()
     {
-        if (_diffStream == null)
+        if (_diffStream is null || _diffExtents is null)
         {
             throw new InvalidOperationException("No snapshot");
         }
@@ -204,7 +208,7 @@ public sealed class SnapshotStream : SparseStream
     /// </summary>
     public void ForgetSnapshot()
     {
-        if (_diffStream == null)
+        if (_diffStream is null || _diffExtents is null)
         {
             throw new InvalidOperationException("No snapshot");
         }
@@ -270,7 +274,7 @@ public sealed class SnapshotStream : SparseStream
     {
         int numRead;
 
-        if (_diffStream == null)
+        if (_diffStream is null || _diffExtents is null)
         {
             _baseStream.Position = _position;
             numRead = _baseStream.Read(buffer, offset, count);
@@ -332,7 +336,7 @@ public sealed class SnapshotStream : SparseStream
     {
         int numRead;
 
-        if (_diffStream == null)
+        if (_diffStream is null || _diffExtents is null)
         {
             _baseStream.Position = _position;
             numRead = await _baseStream.ReadAsync(buffer, cancellationToken).ConfigureAwait(false);
@@ -393,7 +397,7 @@ public sealed class SnapshotStream : SparseStream
     {
         int numRead;
 
-        if (_diffStream == null)
+        if (_diffStream is null || _diffExtents is null)
         {
             _baseStream.Position = _position;
             numRead = _baseStream.Read(buffer);
@@ -502,7 +506,7 @@ public sealed class SnapshotStream : SparseStream
     {
         CheckFrozen();
 
-        if (_diffStream != null)
+        if (_diffStream is not null && _diffExtents is not null)
         {
             _diffStream.Position = _position;
             _diffStream.Write(buffer, offset, count);
@@ -531,7 +535,7 @@ public sealed class SnapshotStream : SparseStream
     {
         CheckFrozen();
 
-        if (_diffStream != null)
+        if (_diffStream is not null && _diffExtents is not null)
         {
             _diffStream.Position = _position;
             await _diffStream.WriteAsync(buffer, cancellationToken).ConfigureAwait(false);
@@ -559,7 +563,7 @@ public sealed class SnapshotStream : SparseStream
     {
         CheckFrozen();
 
-        if (_diffStream != null)
+        if (_diffStream is not null && _diffExtents is not null)
         {
             _diffStream.Position = _position;
             _diffStream.Write(buffer);
@@ -592,11 +596,13 @@ public sealed class SnapshotStream : SparseStream
                 _baseStream.Dispose();
             }
 
-            _baseStream = null;
+            _baseStream = null!;
 
             _diffStream?.Dispose();
 
             _diffStream = null;
+
+            _diffExtents = null;
         }
 
         base.Dispose(disposing);

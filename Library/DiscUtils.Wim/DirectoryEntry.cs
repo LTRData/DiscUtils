@@ -126,7 +126,7 @@ internal class DirectoryEntry
                 {
                     result.AlternateStreams.Add(stream);
 
-                    if (stream.Name == "" && Utilities.IsAllZeros(result.Hash))
+                    if (stream.Name == "" && BufferUtilities.IsAllZeros(result.Hash))
                     {
                         result.Hash = stream.Hash;
                     }
@@ -141,7 +141,7 @@ internal class DirectoryEntry
     {
         if (string.IsNullOrEmpty(streamName))
         {
-            if (!Utilities.IsAllZeros(Hash, 0, 20))
+            if (!BufferUtilities.IsAllZeros(Hash, 0, 20))
             {
                 return Hash;
             }

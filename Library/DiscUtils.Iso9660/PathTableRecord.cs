@@ -22,7 +22,7 @@
 
 using System;
 using System.Text;
-using DiscUtils.Internal;
+using DiscUtils.Streams;
 
 namespace DiscUtils.Iso9660;
 
@@ -64,9 +64,9 @@ internal struct PathTableRecord
             buffer[0] = (byte)nameBytes;
             buffer[1] = 0; // ExtendedAttributeRecordLength;
             IsoUtilities.ToBytesFromUInt32(buffer.Slice(2),
-                byteSwap ? Utilities.BitSwap(LocationOfExtent) : LocationOfExtent);
+                byteSwap ? BufferUtilities.BitSwap(LocationOfExtent) : LocationOfExtent);
             IsoUtilities.ToBytesFromUInt16(buffer.Slice(6),
-                byteSwap ? Utilities.BitSwap(ParentDirectoryNumber) : ParentDirectoryNumber);
+                byteSwap ? BufferUtilities.BitSwap(ParentDirectoryNumber) : ParentDirectoryNumber);
             IsoUtilities.WriteString(buffer.Slice(8, nameBytes), pad: false, DirectoryIdentifier.AsSpan(), enc);
             if ((nameBytes & 1) == 1)
             {

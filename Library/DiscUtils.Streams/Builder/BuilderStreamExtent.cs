@@ -52,7 +52,7 @@ public class BuilderStreamExtent : BuilderExtent
                 _source.Dispose();
             }
 
-            _source = null;
+            _source = null!;
         }
     }
 
