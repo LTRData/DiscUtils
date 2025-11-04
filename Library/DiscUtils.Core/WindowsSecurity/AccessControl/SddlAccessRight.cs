@@ -5,11 +5,11 @@ namespace DiscUtils.Core.WindowsSecurity.AccessControl;
 
 internal class SddlAccessRight
 {
-    public string Name { get; set; }
+    public string? Name { get; set; }
     public int Value { get; set; }
     public int ObjectType { get; set; }
 
-    public static SddlAccessRight LookupByName(ReadOnlySpan<char> s)
+    public static SddlAccessRight? LookupByName(ReadOnlySpan<char> s)
     {
         foreach (var right in rights)
         {
@@ -22,7 +22,7 @@ internal class SddlAccessRight
         return null;
     }
 
-    public static SddlAccessRight[] Decompose(int mask)
+    public static SddlAccessRight[]? Decompose(int mask)
     {
         foreach (var right in rights)
         {

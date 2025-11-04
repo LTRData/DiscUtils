@@ -43,7 +43,7 @@ public static class VirtualDiskManager
             var diskFactoryAttribute = type.GetCustomAttribute<VirtualDiskFactoryAttribute>(false);
             if (diskFactoryAttribute != null)
             {
-                var factory = (VirtualDiskFactory)Activator.CreateInstance(type);
+                var factory = (VirtualDiskFactory)Activator.CreateInstance(type)!;
                 TypeMap.Add(diskFactoryAttribute.Type, factory);
 
                 foreach (var extension in diskFactoryAttribute.FileExtensions)

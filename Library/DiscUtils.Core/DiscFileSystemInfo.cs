@@ -152,12 +152,12 @@ public class DiscFileSystemInfo
     /// </summary>
     public virtual string Name => Utilities.GetFileFromPath(Path);
 
-    private DiscDirectoryInfo _parent;
+    private DiscDirectoryInfo? _parent;
 
     /// <summary>
     /// Gets the <see cref="DiscDirectoryInfo"/> of the directory containing the current <see cref="DiscFileSystemInfo"/> object.
     /// </summary>
-    public virtual DiscDirectoryInfo Parent
+    public virtual DiscDirectoryInfo? Parent
     {
         get
         {
@@ -195,10 +195,9 @@ public class DiscFileSystemInfo
     /// </summary>
     /// <param name="obj">The object to compare.</param>
     /// <returns><c>true</c> if <paramref name="obj"/> is equivalent, else <c>false</c>.</returns>
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
-        var asInfo = obj as DiscFileSystemInfo;
-        if (obj == null)
+        if (obj is not DiscFileSystemInfo asInfo)
         {
             return false;
         }

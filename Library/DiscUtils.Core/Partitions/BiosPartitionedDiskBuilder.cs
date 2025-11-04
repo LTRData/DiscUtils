@@ -113,7 +113,7 @@ public class BiosPartitionedDiskBuilder : StreamBuilder
         _bootSectors = new SparseMemoryStream();
         _bootSectors.SetLength(_capacity);
 
-        byte[] allocated = null;
+        byte[]? allocated = null;
 
         var sector = _biosGeometry.BytesPerSector <= 1024
             ? stackalloc byte[_biosGeometry.BytesPerSector]

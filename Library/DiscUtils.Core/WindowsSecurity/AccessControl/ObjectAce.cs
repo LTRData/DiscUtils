@@ -26,7 +26,7 @@ public sealed class ObjectAce : QualifiedAce
 
     internal ObjectAce(AceType type, AceFlags flags, int accessMask,
                        SecurityIdentifier sid, ObjectAceFlags objFlags,
-                       Guid objType, Guid inheritedType, byte[] opaque)
+                       Guid objType, Guid inheritedType, byte[]? opaque)
         : base(type, flags, opaque)
     {
         AccessMask = accessMask;
@@ -103,7 +103,7 @@ public sealed class ObjectAce : QualifiedAce
     {
         get
         {
-            var length = 12 + SecurityIdentifier.BinaryLength + OpaqueLength;
+            var length = 12 + SecurityIdentifier!.BinaryLength + OpaqueLength;
             if (ObjectAceTypePresent)
             {
                 length += 16;
@@ -159,7 +159,7 @@ public sealed class ObjectAce : QualifiedAce
             offset += 16;
         }
 
-        SecurityIdentifier.GetBinaryForm(binaryForm.Slice(offset));
+        SecurityIdentifier!.GetBinaryForm(binaryForm.Slice(offset));
         offset += SecurityIdentifier.BinaryLength;
 
         var opaque = GetOpaque();
@@ -194,7 +194,7 @@ public sealed class ObjectAce : QualifiedAce
             inhObjType = _inheritedObjectType.ToString("D");
         }
 
-        return $"({GetSddlAceType(AceType)};{GetSddlAceFlags(AceFlags)};{GetSddlAccessRights(AccessMask)};{objType};{inhObjType};{SecurityIdentifier.GetSddlForm()})";
+        return $"({GetSddlAceType(AceType)};{GetSddlAceFlags(AceFlags)};{GetSddlAccessRights(AccessMask)};{objType};{inhObjType};{SecurityIdentifier!.GetSddlForm()})";
     }
 
     private static AceType ConvertType(AceQualifier qualifier, bool isCallback)

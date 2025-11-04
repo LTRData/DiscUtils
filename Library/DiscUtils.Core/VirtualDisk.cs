@@ -40,11 +40,11 @@ public abstract class VirtualDisk :
     MarshalByRefObject,
     IDisposable
 {
-    private VirtualDiskTransport _transport;
+    private VirtualDiskTransport? _transport;
 
-    public event EventHandler Disposing;
+    public event EventHandler? Disposing;
 
-    public event EventHandler Disposed;
+    public event EventHandler? Disposed;
 
     /// <summary>
     /// Finalizes an instance of the VirtualDisk class.

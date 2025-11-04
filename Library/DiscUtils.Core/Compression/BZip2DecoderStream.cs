@@ -25,6 +25,7 @@
 //
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -44,7 +45,7 @@ public sealed class BZip2DecoderStream : ReadOnlyCompatibilityStream
     private readonly byte[] _blockBuffer;
     private uint _blockCrc;
     private readonly BZip2BlockDecoder _blockDecoder;
-    private Crc32 _calcBlockCrc;
+    private Crc32? _calcBlockCrc;
     private uint _calcCompoundCrc;
     private uint _compoundCrc;
     private Stream _compressedStream;
@@ -173,7 +174,7 @@ public sealed class BZip2DecoderStream : ReadOnlyCompatibilityStream
             numRead = _rleStream.Read(buffer);
         }
 
-        _calcBlockCrc.Process(buffer.Slice(0, numRead));
+        _calcBlockCrc?.Process(buffer.Slice(0, numRead));
 
         // Pre-read next block, so a client that knows the decompressed length will still
         // have the overall CRC calculated.
@@ -241,7 +242,7 @@ public sealed class BZip2DecoderStream : ReadOnlyCompatibilityStream
             numRead = await _rleStream.ReadAsync(buffer, cancellationToken).ConfigureAwait(false);
         }
 
-        _calcBlockCrc.Process(buffer.Span.Slice(0, numRead));
+        _calcBlockCrc?.Process(buffer.Span.Slice(0, numRead));
 
         // Pre-read next block, so a client that knows the decompressed length will still
         // have the overall CRC calculated.
@@ -299,12 +300,12 @@ public sealed class BZip2DecoderStream : ReadOnlyCompatibilityStream
                     _compressedStream.Dispose();
                 }
 
-                _compressedStream = null;
+                _compressedStream = null!;
 
                 if (_rleStream != null)
                 {
                     _rleStream.Dispose();
-                    _rleStream = null;
+                    _rleStream = null!;
                 }
             }
         }

@@ -20,6 +20,8 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace DiscUtils.LogicalDiskManager;
 
 internal sealed class ComponentRecord : DatabaseRecord
@@ -27,7 +29,7 @@ internal sealed class ComponentRecord : DatabaseRecord
     public uint LinkId; // Identical on mirrors
     public ExtentMergeType MergeType; // (02 Spanned, Simple, Mirrored)  (01 on striped)
     public ulong NumExtents; // Could be num disks
-    public string StatusString;
+    public string? StatusString;
     public long StripeSizeSectors;
     public long StripeStride; // aka num partitions
     public uint Unknown1; // Zero
@@ -36,6 +38,7 @@ internal sealed class ComponentRecord : DatabaseRecord
     public ulong Unknown4; // ??
     public ulong VolumeId;
 
+    [MemberNotNull(nameof(StatusString))]
     protected override void DoReadFrom(byte[] buffer, int offset)
     {
         base.DoReadFrom(buffer, offset);

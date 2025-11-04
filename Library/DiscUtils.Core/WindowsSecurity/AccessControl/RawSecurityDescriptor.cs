@@ -1,5 +1,6 @@
 using DiscUtils.Streams;
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DiscUtils.Core.WindowsSecurity.AccessControl;
 
@@ -7,17 +8,17 @@ public class RawSecurityDescriptor : GenericSecurityDescriptor
 {
     private ControlFlags _controlFlags;
 
-    internal override GenericAcl InternalDacl => DiscretionaryAcl;
-    internal override GenericAcl InternalSacl => SystemAcl;
+    internal override GenericAcl? InternalDacl => DiscretionaryAcl;
+    internal override GenericAcl? InternalSacl => SystemAcl;
     internal override byte InternalReservedField => ResourceManagerControl;
     
     public override ControlFlags ControlFlags => _controlFlags;
 
-    public RawAcl DiscretionaryAcl { get; set; }
-    public override SecurityIdentifier Group { get; set; }
-    public override SecurityIdentifier Owner { get; set; }
+    public RawAcl? DiscretionaryAcl { get; set; }
+    public override SecurityIdentifier? Group { get; set; }
+    public override SecurityIdentifier? Owner { get; set; }
     public byte ResourceManagerControl { get; set; }
-    public RawAcl SystemAcl { get; set; }
+    public RawAcl? SystemAcl { get; set; }
     
     public RawSecurityDescriptor(string sddlForm)
     {
@@ -42,7 +43,7 @@ public class RawSecurityDescriptor : GenericSecurityDescriptor
 
     private RawSecurityDescriptor() { }
 
-    public static bool TryParse(byte[] binaryForm, int offset, out RawSecurityDescriptor securityDescriptor) =>
+    public static bool TryParse(byte[] binaryForm, int offset, [NotNullWhen(true)] out RawSecurityDescriptor? securityDescriptor) =>
         TryParse(binaryForm.AsSpan(offset), out securityDescriptor);
 
     public RawSecurityDescriptor(ReadOnlySpan<byte> binaryForm)
@@ -86,7 +87,7 @@ public class RawSecurityDescriptor : GenericSecurityDescriptor
         }
     }
 
-    public static bool TryParse(ReadOnlySpan<byte> binaryForm, out RawSecurityDescriptor securityDescriptor)
+    public static bool TryParse(ReadOnlySpan<byte> binaryForm, [NotNullWhen(true)] out RawSecurityDescriptor? securityDescriptor)
     {
         securityDescriptor = null;
 

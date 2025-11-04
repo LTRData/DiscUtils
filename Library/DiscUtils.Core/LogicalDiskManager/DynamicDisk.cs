@@ -36,9 +36,11 @@ internal class DynamicDisk : IDiagnosticTraceable
     internal DynamicDisk(VirtualDisk disk)
     {
         _disk = disk;
-        _header = GetPrivateHeader(_disk);
+        _header = GetPrivateHeader(_disk)
+            ?? throw new InvalidDataException("Private header not found");
 
-        var toc = GetTableOfContents();
+        var toc = GetTableOfContents()
+            ?? throw new InvalidDataException("Table of contents not found");
 
         var dbStart = _header.ConfigurationStartLba * 512 + toc.Item1Start * 512;
         _disk.Content.Position = dbStart;
@@ -76,7 +78,7 @@ internal class DynamicDisk : IDiagnosticTraceable
         writer.WriteLine($"{linePrefix}              Log Size: {_header.LogSizeLba} (Sectors)");
     }
 
-    internal static PrivateHeader GetPrivateHeader(VirtualDisk disk)
+    internal static PrivateHeader? GetPrivateHeader(VirtualDisk disk)
     {
         if (disk.IsPartitioned)
         {
@@ -112,7 +114,7 @@ internal class DynamicDisk : IDiagnosticTraceable
         return null;
     }
 
-    private TocBlock GetTableOfContents()
+    private TocBlock? GetTableOfContents()
     {
         var tocSize = (int)(_header.TocSizeLba * 512);
 

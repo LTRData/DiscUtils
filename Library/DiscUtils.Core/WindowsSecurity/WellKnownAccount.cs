@@ -1,35 +1,51 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DiscUtils.Core.WindowsSecurity;
 
-internal class WellKnownAccount
+public class WellKnownAccount
 {
-    public WellKnownSidType WellKnownValue { get; private set; }
-    public bool IsAbsolute { get; private set; }
-    public SecurityIdentifier Sid { get; private set; }
+    private WellKnownAccount()
+    {
+    }
+
+    public WellKnownSidType WellKnownValue { get; init; }
+    
+    public bool IsAbsolute { get; init; }
+    
+    public SecurityIdentifier? Sid { get; init; }
+    
     public string SidStr
     {
-        get => sidStr;
-        private set
+        get => sidStr!;
+
+        [MemberNotNull(nameof(Sid), nameof(sidStr))]
+        init
         {
             sidStr = value;
             Sid = new(sidStr);
         }
     }
-    public uint Rid { get; private set; }
+    
+    public uint Rid { get; init; }
+
     public string RidStr
     {
-        get => ridStr;
-        private set
+        get => ridStr!;
+
+        [MemberNotNull(nameof(Rid), nameof(ridStr))]
+        init
         {
             ridStr = value;
             Rid = uint.Parse(ridStr);
         }
     }
-    public string Name { get; private set; }
-    public string SddlForm { get; private set; }
 
-    public static WellKnownAccount LookupByType(WellKnownSidType sidType)
+    public string? Name { get; init; }
+
+    public string? SddlForm { get; init; }
+
+    public static WellKnownAccount? LookupByType(WellKnownSidType sidType)
     {
         foreach (var acct in accounts)
         {
@@ -42,7 +58,7 @@ internal class WellKnownAccount
         return null;
     }
 
-    public static WellKnownAccount LookupBySid(string s)
+    public static WellKnownAccount? LookupBySid(string s)
     {
         foreach (var acct in accounts)
         {
@@ -55,7 +71,7 @@ internal class WellKnownAccount
         return null;
     }
 
-    public static WellKnownAccount LookupByName(string s)
+    public static WellKnownAccount? LookupByName(string s)
     {
         foreach (var acct in accounts)
         {
@@ -68,7 +84,7 @@ internal class WellKnownAccount
         return null;
     }
 
-    public static WellKnownAccount LookupBySddlForm(string s)
+    public static WellKnownAccount? LookupBySddlForm(string s)
     {
         foreach (var acct in accounts)
         {
@@ -81,7 +97,7 @@ internal class WellKnownAccount
         return null;
     }
 
-    public static WellKnownAccount LookupBySddlForm(ReadOnlySpan<char> s)
+    public static WellKnownAccount? LookupBySddlForm(ReadOnlySpan<char> s)
     {
         foreach (var acct in accounts)
         {
@@ -163,6 +179,8 @@ internal class WellKnownAccount
         new() { WellKnownValue = (WellKnownSidType)74, IsAbsolute = false, RidStr = "521", SddlForm = "RO" },
         new() { WellKnownValue = (WellKnownSidType)78, IsAbsolute = false, RidStr = "574", SddlForm = "CD" },
     ];
-    private string sidStr;
-    private string ridStr;
+    
+    private string? sidStr;
+    
+    private string? ridStr;
 }

@@ -26,6 +26,7 @@
 
 using DiscUtils.Streams.Compatibility;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -34,7 +35,7 @@ namespace DiscUtils.Compression;
 
 internal class BZip2RleStream : ReadOnlyCompatibilityStream
 {
-    private byte[] _blockBuffer;
+    private byte[]? _blockBuffer;
     private int _blockOffset;
     private int _blockRemaining;
     private byte _lastByte;
@@ -57,6 +58,7 @@ internal class BZip2RleStream : ReadOnlyCompatibilityStream
         set => throw new NotSupportedException();
     }
 
+    [MemberNotNull(nameof(_blockBuffer))]
     public void Reset(byte[] buffer, int offset, int count)
     {
         _position = 0;
@@ -79,6 +81,11 @@ internal class BZip2RleStream : ReadOnlyCompatibilityStream
 
     public override int Read(Span<byte> buffer)
     {
+        if (_blockBuffer == null)
+        {
+            throw new InvalidOperationException("Stream not initialized");
+        }
+
         var numRead = 0;
 
         while (numRead < buffer.Length && _runBytesOutstanding > 0)

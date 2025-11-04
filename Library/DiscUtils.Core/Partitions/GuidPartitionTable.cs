@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using DiscUtils.Internal;
@@ -335,6 +336,7 @@ public sealed class GuidPartitionTable : PartitionTable
         return count;
     }
 
+    [MemberNotNull(nameof(_diskData), nameof(_diskGeometry), nameof(_primaryHeader), nameof(_secondaryHeader), nameof(_entryBuffer))]
     private void Init(Stream disk, Geometry diskGeometry)
     {
         BiosPartitionTable bpt;
@@ -565,6 +567,7 @@ public sealed class GuidPartitionTable : PartitionTable
         _diskData.Write(_entryBuffer, 0, _entryBuffer.Length);
     }
 
+    [MemberNotNullWhen(true, nameof(_entryBuffer))]
     private bool ReadEntries(GptHeader header)
     {
         _diskData.Position = header.PartitionEntriesLba * _diskGeometry.BytesPerSector;

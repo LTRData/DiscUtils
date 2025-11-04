@@ -4,7 +4,7 @@ namespace DiscUtils.Core.WindowsSecurity.AccessControl;
 
 public sealed class CommonAce : QualifiedAce
 {
-    public override int BinaryLength => 8 + SecurityIdentifier.BinaryLength
+    public override int BinaryLength => 8 + SecurityIdentifier!.BinaryLength
                                           + OpaqueLength;
     
     public CommonAce(AceFlags flags, AceQualifier qualifier,
@@ -19,7 +19,7 @@ public sealed class CommonAce : QualifiedAce
     }
 
     internal CommonAce(AceType type, AceFlags flags, int accessMask,
-                       SecurityIdentifier sid, byte[] opaque)
+                       SecurityIdentifier sid, byte[]? opaque)
         : base(type, flags, opaque)
     {
         AccessMask = accessMask;
@@ -64,7 +64,7 @@ public sealed class CommonAce : QualifiedAce
         WriteUShort((ushort)len, binaryForm.Slice(2));
         WriteInt(AccessMask, binaryForm.Slice(4));
 
-        SecurityIdentifier.GetBinaryForm(binaryForm.Slice(8));
+        SecurityIdentifier!.GetBinaryForm(binaryForm.Slice(8));
 
         var opaque = GetOpaque();
         opaque?.CopyTo(binaryForm.Slice(8 + SecurityIdentifier.BinaryLength));
@@ -80,11 +80,10 @@ public sealed class CommonAce : QualifiedAce
     {
         if (OpaqueLength != 0)
         {
-            throw new NotImplementedException(
-                "Unable to convert conditional ACEs to SDDL");
+            throw new NotImplementedException("Unable to convert conditional ACEs to SDDL");
         }
 
-        return $"({GetSddlAceType(AceType)};{GetSddlAceFlags(AceFlags)};{GetSddlAccessRights(AccessMask)};;;{SecurityIdentifier.GetSddlForm()})";
+        return $"({GetSddlAceType(AceType)};{GetSddlAceFlags(AceFlags)};{GetSddlAccessRights(AccessMask)};;;{SecurityIdentifier!.GetSddlForm()})";
     }
 
     private static AceType ConvertType(AceQualifier qualifier,

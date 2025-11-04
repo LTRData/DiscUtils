@@ -61,5 +61,5 @@ public abstract class VfsFileSystemFactory
     /// <param name="stream">The stream to inspect.</param>
     /// <param name="volumeInfo">Optionally, information about the volume.</param>
     /// <returns>A list of file systems detected (may be empty).</returns>
-    public abstract IEnumerable<FileSystemInfo> Detect(Stream stream, VolumeInfo volumeInfo);
+    public abstract IEnumerable<FileSystemInfo> Detect(Stream stream, VolumeInfo? volumeInfo);
 }

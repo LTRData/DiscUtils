@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace DiscUtils.Core.WindowsSecurity.AccessControl;
@@ -20,9 +21,7 @@ public sealed class RawAcl : GenericAcl
     {
     }
 
-    private RawAcl() { }
-
-    public static bool TryParse(byte[] binaryForm, int offset, out RawAcl rawAcl) =>
+    public static bool TryParse(byte[] binaryForm, int offset, [NotNullWhen(true)] out RawAcl? rawAcl) =>
         TryParse(binaryForm.AsSpan(offset), out rawAcl);
 
     public RawAcl(ReadOnlySpan<byte> binaryForm)
@@ -60,7 +59,7 @@ public sealed class RawAcl : GenericAcl
         }
     }
 
-    public static bool TryParse(ReadOnlySpan<byte> binaryForm, out RawAcl rawAcl)
+    public static bool TryParse(ReadOnlySpan<byte> binaryForm, [NotNullWhen(true)] out RawAcl? rawAcl)
     {
         rawAcl = null;
 

@@ -62,7 +62,7 @@ internal sealed class LocalFileLocator : FileLocator
         return Path.GetFullPath(combinedPath);
     }
 
-    public override string GetDirectoryFromPath(string path)
+    public override string? GetDirectoryFromPath(string path)
     {
         return Path.GetDirectoryName(path);
     }

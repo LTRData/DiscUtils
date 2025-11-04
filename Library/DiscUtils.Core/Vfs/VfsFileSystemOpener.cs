@@ -10,4 +10,4 @@ namespace DiscUtils.Vfs;
 /// <param name="parameters">Parameters for the file system.</param>
 /// <returns>A file system implementation.</returns>
 public delegate DiscFileSystem VfsFileSystemOpener(
-    Stream stream, VolumeInfo volumeInfo, FileSystemParameters parameters);
+    Stream stream, VolumeInfo? volumeInfo, FileSystemParameters? parameters);

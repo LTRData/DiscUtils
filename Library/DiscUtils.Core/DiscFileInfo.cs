@@ -35,12 +35,12 @@ public class DiscFileInfo : DiscFileSystemInfo
     /// <summary>
     /// Gets an instance of the parent directory.
     /// </summary>
-    public DiscDirectoryInfo Directory => Parent;
+    public DiscDirectoryInfo? Directory => Parent;
 
     /// <summary>
     /// Gets a string representing the directory's full path.
     /// </summary>
-    public string DirectoryName => Directory.FullName;
+    public string? DirectoryName => Directory?.FullName;
 
     /// <summary>
     /// Gets a value indicating whether the file exists.

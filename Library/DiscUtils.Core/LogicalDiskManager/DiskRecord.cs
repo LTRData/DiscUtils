@@ -20,11 +20,13 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace DiscUtils.LogicalDiskManager;
 
 internal sealed class DiskRecord : DatabaseRecord
 {
-    public string DiskGuidString;
+    public string DiskGuidString = null!;
 
     protected override void DoReadFrom(byte[] buffer, int offset)
     {

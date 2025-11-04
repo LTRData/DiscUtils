@@ -21,6 +21,7 @@
 //
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using DiscUtils.Internal;
 
@@ -29,11 +30,12 @@ namespace DiscUtils;
 [VirtualDiskTransport("file")]
 internal sealed class FileTransport : VirtualDiskTransport
 {
-    private string _extraInfo;
-    private string _path;
+    private string? _extraInfo;
+    private string? _path;
 
     public override bool IsRawDisk => false;
 
+    [MemberNotNull(nameof(_path), nameof(_extraInfo))]
     public override void Connect(Uri uri, string username, string password)
     {
         _path = uri.LocalPath;
@@ -57,11 +59,21 @@ internal sealed class FileTransport : VirtualDiskTransport
 
     public override string GetFileName()
     {
+        if (_path == null)
+        {
+            throw new InvalidOperationException("Transport not connected");
+        }
+
         return Path.GetFileName(_path);
     }
 
     public override string GetExtraInfo()
     {
+        if (_extraInfo == null)
+        {
+            throw new InvalidOperationException("Transport not connected");
+        }
+
         return _extraInfo;
     }
 }

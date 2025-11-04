@@ -4,9 +4,9 @@ namespace DiscUtils.Core.WindowsSecurity.AccessControl;
 
 public abstract class QualifiedAce : KnownAce
 {
-    private byte[] _opaque;
+    private byte[]? _opaque;
 
-    internal QualifiedAce(AceType type, AceFlags flags, byte[] opaque)
+    internal QualifiedAce(AceType type, AceFlags flags, byte[]? opaque)
         : base(type, flags)
     {
         SetOpaque(opaque);
@@ -45,7 +45,7 @@ public abstract class QualifiedAce : KnownAce
 
     public int OpaqueLength => _opaque == null ? 0 : _opaque.Length;
 
-    public byte[] GetOpaque() => (byte[])_opaque?.Clone();
+    public byte[]? GetOpaque() => (byte[]?)_opaque?.Clone();
 
     public void SetOpaque(ReadOnlySpan<byte> opaque) => _opaque = opaque.IsEmpty ? null : opaque.ToArray();
 }

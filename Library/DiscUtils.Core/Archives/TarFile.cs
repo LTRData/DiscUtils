@@ -25,6 +25,7 @@ using LTRData.Extensions.Buffers;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -53,7 +54,7 @@ public class TarFile : IDisposable
 
         Span<byte> hdrBuf = stackalloc byte[512];
 
-        string long_path = null;
+        string? long_path = null;
 
         for (;;)
         {                
@@ -109,7 +110,7 @@ public class TarFile : IDisposable
     /// <param name="path">The path to the file within the archive.</param>
     /// <param name="stream">A stream containing the file contents, or null.</param>
     /// <returns><c>true</c> if the file could be opened, else <c>false</c>.</returns>
-    public bool TryOpenFile(string path, out Stream stream)
+    public bool TryOpenFile(string path, [NotNullWhen(true)] out Stream? stream)
     {
         if (_files.TryGetValue(path, out var file))
         {
@@ -198,8 +199,8 @@ public class TarFile : IDisposable
     {
         var hdrBuf = StreamUtilities.GetUninitializedArray<byte>(512);
 
-        string long_path = null;
-        string long_link_path = null;
+        string? long_path = null;
+        string? long_link_path = null;
 
         for (;;)
         {
@@ -332,8 +333,8 @@ public class TarFile : IDisposable
     {
         var hdrBuf = StreamUtilities.GetUninitializedArray<byte>(512);
 
-        string long_path = null;
-        string long_link_path = null;
+        string? long_path = null;
+        string? long_link_path = null;
 
         for (; ; )
         {

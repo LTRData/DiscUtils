@@ -76,7 +76,7 @@ public abstract class VirtualDiskLayer : IDisposable
     /// <remarks>
     /// Typically used to locate parent disks.
     /// </remarks>
-    public abstract FileLocator RelativeFileLocator { get; }
+    public abstract FileLocator? RelativeFileLocator { get; }
 
     /// <summary>
     /// Disposes of this instance, freeing underlying resources.

@@ -103,7 +103,7 @@ internal class Database
         }
     }
 
-    internal DiskGroupRecord GetDiskGroup(Guid guid)
+    internal DiskGroupRecord? GetDiskGroup(Guid guid)
     {
         foreach (var record in _records.Values)
         {
@@ -162,7 +162,8 @@ internal class Database
 
     internal VolumeRecord GetVolume(Guid id)
     {
-        return FindRecord<VolumeRecord>(r => r.VolumeGuid == id, RecordType.Volume);
+        return FindRecord<VolumeRecord>(r => r.VolumeGuid == id, RecordType.Volume)
+            ?? throw new DriveNotFoundException($"Volume {id} not found");
     }
 
     internal IEnumerable<VolumeRecord> GetVolumes()
@@ -176,7 +177,7 @@ internal class Database
         }
     }
 
-    internal T FindRecord<T>(Predicate<T> pred, RecordType typeId)
+    internal T? FindRecord<T>(Predicate<T> pred, RecordType typeId)
         where T : DatabaseRecord
     {
         foreach (var record in _records.Values)

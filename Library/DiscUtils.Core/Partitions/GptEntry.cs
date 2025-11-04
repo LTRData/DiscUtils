@@ -102,9 +102,9 @@ internal class GptEntry : IComparable<GptEntry>
         ? name
         : type.ToString().ToUpperInvariant();
 
-    public int CompareTo(GptEntry other)
+    public int CompareTo(GptEntry? other)
     {
-        return FirstUsedLogicalBlock.CompareTo(other.FirstUsedLogicalBlock);
+        return FirstUsedLogicalBlock.CompareTo(other?.FirstUsedLogicalBlock ?? 0);
     }
 
     public void ReadFrom(ReadOnlySpan<byte> buffer)

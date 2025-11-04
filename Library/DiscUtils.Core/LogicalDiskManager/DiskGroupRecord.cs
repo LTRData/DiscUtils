@@ -20,13 +20,16 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace DiscUtils.LogicalDiskManager;
 
 internal sealed class DiskGroupRecord : DatabaseRecord
 {
-    public string GroupGuidString;
+    public string GroupGuidString = null!;
     public uint Unknown1;
 
+    [MemberNotNull(nameof(GroupGuidString))]
     protected override void DoReadFrom(byte[] buffer, int offset)
     {
         base.DoReadFrom(buffer, offset);

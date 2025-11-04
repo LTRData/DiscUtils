@@ -2,6 +2,7 @@ using DiscUtils.Streams.Compatibility;
 using LTRData.Extensions.Buffers;
 using LTRData.Extensions.Split;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -112,7 +113,7 @@ public abstract class GenericAce
     public static GenericAce CreateFromBinaryForm(byte[] binaryForm, int offset) =>
         CreateFromBinaryForm(binaryForm.AsSpan(offset));
 
-    public static bool TryCreateFromBinaryForm(byte[] binaryForm, int offset, out GenericAce genericAce) =>
+    public static bool TryCreateFromBinaryForm(byte[] binaryForm, int offset, [NotNullWhen(true)] out GenericAce? genericAce) =>
         TryCreateFromBinaryForm(binaryForm.AsSpan(offset), out genericAce);
 
     public static GenericAce CreateFromBinaryForm(ReadOnlySpan<byte> binaryForm)
@@ -138,7 +139,7 @@ public abstract class GenericAce
         }
     }
 
-    public static bool TryCreateFromBinaryForm(ReadOnlySpan<byte> binaryForm, out GenericAce genericAce)
+    public static bool TryCreateFromBinaryForm(ReadOnlySpan<byte> binaryForm, [NotNullWhen(true)] out GenericAce? genericAce)
     {
         genericAce = null;
 
@@ -167,7 +168,7 @@ public abstract class GenericAce
         }
     }
 
-    public sealed override bool Equals(object o) => this == (o as GenericAce);
+    public sealed override bool Equals(object? o) => this == (o as GenericAce);
 
     public void GetBinaryForm(byte[] binaryForm, int offset) => GetBinaryForm(binaryForm.AsSpan(offset));
 
@@ -188,7 +189,7 @@ public abstract class GenericAce
         return code.ToHashCode();
     }
 
-    public static bool Equals(GenericAce left, GenericAce right)
+    public static bool Equals(GenericAce? left, GenericAce? right)
     {
         if (left is null)
         {
@@ -216,9 +217,9 @@ public abstract class GenericAce
         return leftBuffer.SequenceEqual(rightBuffer);
     }
 
-    public static bool operator ==(GenericAce left, GenericAce right) => Equals(left, right);
+    public static bool operator ==(GenericAce? left, GenericAce? right) => Equals(left, right);
 
-    public static bool operator !=(GenericAce left, GenericAce right) => !Equals(left, right);
+    public static bool operator !=(GenericAce? left, GenericAce? right) => !Equals(left, right);
 
     internal abstract string GetSddlForm();
 
@@ -289,7 +290,7 @@ public abstract class GenericAce
 
         if (IsObjectType(type))
         {
-            return new ObjectAce(type, flags, accessMask, sid, objFlags, objectType, inhObjectType, null);
+            return new ObjectAce(type, flags, accessMask, sid, objFlags, objectType, inhObjectType, opaque: null);
         }
         else
         {
@@ -298,7 +299,7 @@ public abstract class GenericAce
                 throw new ArgumentException("Invalid SDDL string.", nameof(sddlForm));
             }
 
-            return new CommonAce(type, flags, accessMask, sid, null);
+            return new CommonAce(type, flags, accessMask, sid, opaque: null);
         }
     }
 

@@ -21,19 +21,20 @@
 //
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using DiscUtils.Streams;
 
 namespace DiscUtils.LogicalDiskManager;
 
 internal sealed class VolumeRecord : DatabaseRecord
 {
-    public string ActiveString;
+    public string? ActiveString;
     public byte BiosType;
     public ulong ComponentCount;
     public ulong DupCount; // ??Seen once after adding 'foreign disk', from broken mirror (identical links(P/V/C))
-    public string GenString;
-    public string MountHint;
-    public string NumberString; // 8000000000000000 sometimes...
+    public string? GenString;
+    public string? MountHint;
+    public string? NumberString; // 8000000000000000 sometimes...
     public uint PartitionComponentLink;
     public long Size;
     public ulong Unknown1; // Zero
@@ -44,6 +45,7 @@ internal sealed class VolumeRecord : DatabaseRecord
     public uint UnknownD; // Zero
     public Guid VolumeGuid;
 
+    [MemberNotNull(nameof(GenString), nameof(NumberString), nameof(ActiveString))]
     protected override void DoReadFrom(byte[] buffer, int offset)
     {
         base.DoReadFrom(buffer, offset);

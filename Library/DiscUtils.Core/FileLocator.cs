@@ -49,7 +49,7 @@ public abstract class FileLocator
 
     public abstract string GetFullPath(string path);
 
-    public abstract string GetDirectoryFromPath(string path);
+    public abstract string? GetDirectoryFromPath(string path);
 
     public abstract string GetFileFromPath(string path);
 
@@ -59,7 +59,7 @@ public abstract class FileLocator
 
     public abstract string ResolveRelativePath(string path);
 
-    internal string MakeRelativePath(FileLocator fileLocator, string path)
+    internal string? MakeRelativePath(FileLocator fileLocator, string path)
     {
         if (!HasCommonRoot(fileLocator))
         {

@@ -54,5 +54,5 @@ public abstract class VirtualDiskFactory
         return OpenDisk(new DiscFileLocator(fileSystem, Utilities.DirectorySeparatorString), path, access);
     }
 
-    public abstract VirtualDiskLayer OpenDiskLayer(FileLocator locator, string path, FileAccess access);
+    public abstract VirtualDiskLayer? OpenDiskLayer(FileLocator locator, string path, FileAccess access);
 }

@@ -60,7 +60,7 @@ internal sealed class DiskFactory : VirtualDiskFactory
         return new Disk(locator.Open(path, FileMode.Open, access, share), Ownership.Dispose);
     }
 
-    public override VirtualDiskLayer OpenDiskLayer(FileLocator locator, string path, FileAccess access)
+    public override VirtualDiskLayer? OpenDiskLayer(FileLocator locator, string path, FileAccess access)
     {
         return null;
     }

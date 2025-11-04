@@ -34,7 +34,7 @@ namespace DiscUtils.Internal;
 /// Can be use for two purposes - to ensure there is only one instance of a given object,
 /// and to prevent the need to recreate objects that are expensive to create.
 /// </remarks>
-internal class ObjectCache<K, V> where V : class
+internal class ObjectCache<K, V> where V : class where K : notnull
 {
     private const int MostRecentListSize = 20;
     private const int PruneGap = 500;
@@ -55,13 +55,14 @@ internal class ObjectCache<K, V> where V : class
         _recent = [];
     }
 
-    public V this[K key]
+    public V? this[K key]
     {
         get
         {
             for (var i = 0; i < _recent.Count; ++i)
             {
                 var recentEntry = _recent[i];
+                
                 if (recentEntry.Key.Equals(key))
                 {
                     MakeMostRecent(i);
@@ -79,11 +80,17 @@ internal class ObjectCache<K, V> where V : class
                 return val;
             }
 
-            return default;
+            return null;
         }
 
         set
         {
+            if (value is null)
+            {
+                Remove(key);
+                return;
+            }
+
             _entries[key] = new WeakReference<V>(value);
             MakeMostRecent(key, value);
             PruneEntries();

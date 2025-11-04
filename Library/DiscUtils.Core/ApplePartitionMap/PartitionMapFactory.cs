@@ -55,7 +55,7 @@ internal sealed class PartitionMapFactory : PartitionTableFactory
         return initialPart.Signature == 0x504d;
     }
 
-    public override PartitionTable DetectPartitionTable(VirtualDisk disk)
+    public override PartitionTable? DetectPartitionTable(VirtualDisk disk)
     {
         if (!DetectIsPartitioned(disk.Content))
         {

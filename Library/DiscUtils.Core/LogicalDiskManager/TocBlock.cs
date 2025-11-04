@@ -21,6 +21,7 @@
 //
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using DiscUtils.Streams;
 
 namespace DiscUtils.LogicalDiskManager;
@@ -30,12 +31,12 @@ internal class TocBlock
     public uint Checksum; // 00 00 08 B6
     public long Item1Size; // Unit?
     public long Item1Start; // Sector Offset from ConfigurationStart
-    public string Item1Str; // 'config', length 10
+    public string? Item1Str; // 'config', length 10
     public long Item2Size; // Unit?
     public long Item2Start; // Sector Offset from ConfigurationStart
-    public string Item2Str; // 'log', length 10
+    public string? Item2Str; // 'log', length 10
     public long SequenceNumber; // 00 .. 01
-    public string Signature; // TOCBLOCK
+    public string? Signature; // TOCBLOCK
     public long Unknown1; // 0
     public long Unknown2; // 00
     public uint Unknown3; // 00 06 00 01  (may be two values?)
@@ -43,6 +44,7 @@ internal class TocBlock
     public uint Unknown5; // 00 06 00 01  (may be two values?)
     public uint Unknown6; // 00 00 00 00
 
+    [MemberNotNull(nameof(Signature), nameof(Item1Str), nameof(Item2Str))]
     public void ReadFrom(ReadOnlySpan<byte> buffer)
     {
         var latin1Encoding = EncodingUtilities.GetLatin1Encoding();

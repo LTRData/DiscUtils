@@ -21,6 +21,7 @@
 //
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using DiscUtils.Streams;
 
 namespace DiscUtils.LogicalDiskManager;
@@ -29,12 +30,12 @@ internal class DatabaseHeader
 {
     public uint BlockSize; // 00 00 00 80
     public long CommittedSequence; // 0xA
-    public string DiskGroupId;
-    public string GroupName;
+    public string? DiskGroupId;
+    public string? GroupName;
     public uint HeaderSize; // 00 00 02 00
     public uint NumVBlks; // 00 00 17 24
     public long PendingSequence; // 0xA
-    public string Signature; // VMDB
+    public string? Signature; // VMDB
     public DateTime Timestamp;
     public ushort Unknown1; // 00 01
     public uint Unknown2; // 1
@@ -51,6 +52,7 @@ internal class DatabaseHeader
     public ushort VersionDenom; // 00 0a
     public ushort VersionNum; // 00 04
 
+    [MemberNotNull(nameof(Signature), nameof(GroupName), nameof(DiskGroupId))]
     public void ReadFrom(ReadOnlySpan<byte> buffer)
     {
         var latin1Encoding = EncodingUtilities.GetLatin1Encoding();

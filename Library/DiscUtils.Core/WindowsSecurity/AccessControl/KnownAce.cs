@@ -6,7 +6,8 @@ namespace DiscUtils.Core.WindowsSecurity.AccessControl;
 public abstract class KnownAce : GenericAce
 {
     public int AccessMask { get; set; }
-    public SecurityIdentifier SecurityIdentifier { get; set; }
+    
+    public SecurityIdentifier? SecurityIdentifier { get; set; }
     
     internal KnownAce(AceType type, AceFlags flags)
         : base(type, flags) { }
@@ -17,12 +18,12 @@ public abstract class KnownAce : GenericAce
     internal static string GetSddlAccessRights(int accessMask)
     {
         var ret = GetSddlAliasRights(accessMask);
-        return !string.IsNullOrEmpty(ret)
-            ? ret
-            : $"0x{accessMask:x}";
+        return ret is null || string.IsNullOrWhiteSpace(ret)
+            ? $"0x{accessMask:x}"
+            : ret;
     }
 
-    private static string GetSddlAliasRights(int accessMask)
+    private static string? GetSddlAliasRights(int accessMask)
     {
         var rights = SddlAccessRight.Decompose(accessMask);
         if (rights == null)

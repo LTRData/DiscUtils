@@ -38,7 +38,7 @@ public abstract class VfsFileSystemFacade : DiscFileSystem
 {
     private readonly DiscFileSystem _wrapped;
 
-    public override Stream RawStream => _wrapped.RawStream;
+    public override Stream? RawStream => _wrapped.RawStream;
 
     /// <summary>
     /// Initializes a new instance of the VfsFileSystemFacade class.
@@ -70,7 +70,7 @@ public abstract class VfsFileSystemFacade : DiscFileSystem
     /// </summary>
     public override DiscFileSystemOptions Options => _wrapped.Options;
 
-    private DiscDirectoryInfo _root;
+    private DiscDirectoryInfo? _root;
 
     /// <summary>
     /// Gets the root directory of the file system.
@@ -513,7 +513,7 @@ public abstract class VfsFileSystemFacade : DiscFileSystem
     /// </summary>
     public override long AvailableSpace => _wrapped.AvailableSpace;
 
-    public override byte[] ReadBootCode() => _wrapped.ReadBootCode();
+    public override byte[]? ReadBootCode() => _wrapped.ReadBootCode();
 
     public override uint VolumeId => _wrapped.VolumeId;
 

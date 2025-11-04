@@ -44,7 +44,7 @@ internal class DynamicVolume
 
     private VolumeRecord Record => _group.GetVolume(Identity);
 
-    public LogicalVolumeStatus Status => _group.GetVolumeStatus(Record.Id);
+    public LogicalVolumeStatus Status => _group.GetVolumeStatus(Record);
 
     public SparseStream Open()
     {

@@ -69,7 +69,7 @@ public class FileOpenEventArgs:EventArgs
     /// <remarks>
     /// If this is set to a non null value, this stream is used instead of opening the supplied <see cref="FileName"/>
     /// </remarks>
-    public Stream Result { get; set; }
+    public Stream? Result { get; set; }
 
     /// <summary>
     /// returns the result from the builtin FileLocator

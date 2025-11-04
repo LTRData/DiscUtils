@@ -289,7 +289,7 @@ public abstract class VfsReadOnlyFileSystem<TDirEntry, TFile, TDirectory, TConte
 
     ObjectCache<string, TDirEntry> _lookupCache = new(StringComparer.Ordinal);
 
-    protected override TDirEntry GetDirectoryEntry(string path)
+    protected override TDirEntry? GetDirectoryEntry(string path)
     {
         if (string.IsNullOrWhiteSpace(path))
         {

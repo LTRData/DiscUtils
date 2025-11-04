@@ -27,7 +27,7 @@ public static class SetupHelper
     {
         lock (_alreadyLoaded)
         {
-            if (!_alreadyLoaded.Add(assembly.FullName))
+            if (!_alreadyLoaded.Add(assembly.FullName ?? assembly.GetName().FullName))
             {
                 return;
             }
@@ -46,7 +46,7 @@ public static class SetupHelper
     /// modify the parameters for opening files, validate file names 
     /// and many more.
     /// </remarks>
-    public static event EventHandler<FileOpenEventArgs> OpeningFile;
+    public static event EventHandler<FileOpenEventArgs>? OpeningFile;
 
     internal static void OnOpeningFile(object sender, FileOpenEventArgs e)
     {

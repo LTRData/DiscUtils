@@ -80,9 +80,9 @@ public abstract class DiscFileSystem :
     /// Gets underlying raw volume stream, if available.
     /// </summary>
     /// <returns>Underlying raw volume stream, or null if not available.</returns>
-    public abstract Stream RawStream { get; }
+    public abstract Stream? RawStream { get; }
 
-    private DiscDirectoryInfo _root;
+    private DiscDirectoryInfo? _root;
 
     /// <summary>
     /// Gets the root directory of the file system.
@@ -471,7 +471,7 @@ public abstract class DiscFileSystem :
     /// Reads the boot code of the file system into a byte array.
     /// </summary>
     /// <returns>The boot code, or <c>null</c> if not available.</returns>
-    public virtual byte[] ReadBootCode()
+    public virtual byte[]? ReadBootCode()
     {
         return null;
     }
@@ -520,7 +520,7 @@ public abstract class DiscFileSystem :
         }
     }
 
-    public event EventHandler Disposed;
+    public event EventHandler? Disposed;
 
     #endregion
 }

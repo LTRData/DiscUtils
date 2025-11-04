@@ -24,6 +24,7 @@ using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using DiscUtils.Internal;
@@ -43,6 +44,7 @@ public sealed class BiosPartitionTable : PartitionTable
     private Geometry _diskGeometry;
 
     /// <inheritdoc/>
+    [NotNull]
     public override Geometry? DiskGeometry => _diskGeometry;
 
     /// <summary>
@@ -104,7 +106,7 @@ public sealed class BiosPartitionTable : PartitionTable
         {
             _diskData.Position = 0;
 
-            byte[] allocated = null;
+            byte[]? allocated = null;
 
             var bootSector = _diskGeometry.BytesPerSector <= 1024
                 ? stackalloc byte[_diskGeometry.BytesPerSector]
@@ -298,7 +300,7 @@ public sealed class BiosPartitionTable : PartitionTable
     {
         var data = disk;
 
-        byte[] allocated = null;
+        byte[]? allocated = null;
 
         var bootSector = diskGeometry.BytesPerSector <= 1024
             ? stackalloc byte[diskGeometry.BytesPerSector]
@@ -612,7 +614,7 @@ public sealed class BiosPartitionTable : PartitionTable
     {
         _diskData.Position = 0;
 
-        byte[] allocated = null;
+        byte[]? allocated = null;
 
         var bootSector = _diskGeometry.BytesPerSector <= 1024
             ? stackalloc byte[_diskGeometry.BytesPerSector]
@@ -746,7 +748,7 @@ public sealed class BiosPartitionTable : PartitionTable
     {
         _diskData.Position = 0;
 
-        byte[] allocated = null;
+        byte[]? allocated = null;
 
         var bootSector = _diskGeometry.BytesPerSector <= 1024
             ? stackalloc byte[_diskGeometry.BytesPerSector]
@@ -776,7 +778,7 @@ public sealed class BiosPartitionTable : PartitionTable
     {
         _diskData.Position = 0;
 
-        byte[] allocated = null;
+        byte[]? allocated = null;
 
         var bootSector = _diskGeometry.BytesPerSector <= 1024
             ? stackalloc byte[_diskGeometry.BytesPerSector]
@@ -869,6 +871,7 @@ public sealed class BiosPartitionTable : PartitionTable
         return startSector;
     }
 
+    [MemberNotNull(nameof(_diskData), nameof(_diskGeometry))]
     private void Init(Stream disk, Geometry diskGeometry)
     {
         _diskData = disk;
@@ -876,7 +879,7 @@ public sealed class BiosPartitionTable : PartitionTable
 
         _diskData.Position = 0;
 
-        byte[] allocated = null;
+        byte[]? allocated = null;
 
         var bootSector = _diskGeometry.BytesPerSector <= 1024
             ? stackalloc byte[_diskGeometry.BytesPerSector]

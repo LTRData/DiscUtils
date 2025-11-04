@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DiscUtils.Core.WindowsSecurity.AccessControl;
 
@@ -12,8 +13,9 @@ public sealed class AceEnumerator : IEnumerator
         _owner = owner;
     }
 
-    public GenericAce Current => _current < 0 ? null : _owner[_current];
-    object IEnumerator.Current => Current;
+    public GenericAce? Current => _current < 0 ? null : _owner[_current];
+    
+    object? IEnumerator.Current => Current;
 
     public bool MoveNext()
     {

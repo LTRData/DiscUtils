@@ -50,10 +50,12 @@ public sealed class DiskImageFile : VirtualDiskLayer
     /// <param name="geometry">The emulated geometry of the disk.</param>
     public DiskImageFile(Stream stream, Ownership ownsStream, Geometry? geometry = null)
     {
-        Content = stream as SparseStream;
-        _ownsContent = ownsStream;
-
-        if (Content == null)
+        if (stream is SparseStream sparseStream)
+        {
+            Content = sparseStream;
+            _ownsContent = ownsStream;
+        }
+        else
         {
             Content = SparseStream.FromStream(stream, ownsStream);
             _ownsContent = Ownership.Dispose;
@@ -86,7 +88,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
     /// </summary>
     public override bool NeedsParent => false;
 
-    public override FileLocator RelativeFileLocator => null;
+    public override FileLocator? RelativeFileLocator => null;
 
     /// <summary>
     /// Initializes a stream as a raw disk image.
@@ -154,7 +156,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
                     Content.Dispose();
                 }
 
-                Content = null;
+                Content = null!;
             }
         }
         finally

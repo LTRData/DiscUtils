@@ -32,7 +32,7 @@ internal sealed class DefaultPartitionTableFactory : PartitionTableFactory
         return BiosPartitionTable.IsValid(s);
     }
 
-    public override PartitionTable DetectPartitionTable(VirtualDisk disk)
+    public override PartitionTable? DetectPartitionTable(VirtualDisk disk)
     {
         if (BiosPartitionTable.IsValid(disk.Content))
         {

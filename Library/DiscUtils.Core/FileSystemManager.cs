@@ -94,24 +94,24 @@ public static class FileSystemManager
     /// <returns>The list of file systems detected.</returns>
     public static ReadOnlyCollection<FileSystemInfo> DetectFileSystems(Stream stream)
     {
-        return DoDetect(stream, null);
+        return DoDetect(stream, volume: null);
     }
 
     private static IEnumerable<VfsFileSystemFactory> DetectFactories(Assembly assembly)
     {
         foreach (var type in assembly.GetTypes())
         {
-            Attribute attrib = type.GetCustomAttribute<VfsFileSystemFactoryAttribute>(false);
+            var attrib = type.GetCustomAttribute<VfsFileSystemFactoryAttribute>(false);
             if (attrib == null)
             {
                 continue;
             }
 
-            yield return (VfsFileSystemFactory)Activator.CreateInstance(type);
+            yield return (VfsFileSystemFactory)Activator.CreateInstance(type)!;
         }
     }
 
-    private static ReadOnlyCollection<FileSystemInfo> DoDetect(Stream stream, VolumeInfo volume)
+    private static ReadOnlyCollection<FileSystemInfo> DoDetect(Stream stream, VolumeInfo? volume)
     {
         var detectStream = new BufferedStream(stream);
         var detected = new List<FileSystemInfo>();

@@ -49,7 +49,7 @@ public abstract class FileSystemInfo
     /// <returns>A file system instance.</returns>
     public DiscFileSystem Open(VolumeInfo volume)
     {
-        return Open(volume, null);
+        return Open(volume, parameters: null);
     }
 
     /// <summary>
@@ -59,7 +59,7 @@ public abstract class FileSystemInfo
     /// <returns>A file system instance.</returns>
     public DiscFileSystem Open(Stream stream)
     {
-        return Open(stream, null);
+        return Open(stream, parameters: null);
     }
 
     /// <summary>
@@ -68,7 +68,7 @@ public abstract class FileSystemInfo
     /// <param name="volume">The volume to access.</param>
     /// <param name="parameters">Parameters for the file system.</param>
     /// <returns>A file system instance.</returns>
-    public abstract DiscFileSystem Open(VolumeInfo volume, FileSystemParameters parameters);
+    public abstract DiscFileSystem Open(VolumeInfo volume, FileSystemParameters? parameters);
 
     /// <summary>
     /// Opens a stream using the file system.
@@ -76,7 +76,7 @@ public abstract class FileSystemInfo
     /// <param name="stream">The stream to access.</param>
     /// <param name="parameters">Parameters for the file system.</param>
     /// <returns>A file system instance.</returns>
-    public abstract DiscFileSystem Open(Stream stream, FileSystemParameters parameters);
+    public abstract DiscFileSystem Open(Stream stream, FileSystemParameters? parameters);
 
     /// <summary>
     /// Gets the name of the file system.

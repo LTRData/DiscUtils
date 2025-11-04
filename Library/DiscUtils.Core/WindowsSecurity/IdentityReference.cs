@@ -8,7 +8,7 @@ public abstract class IdentityReference
 
     public abstract string Value { get; }
 
-    public abstract override bool Equals(object o);
+    public abstract override bool Equals(object? o);
 
     public abstract override int GetHashCode();
 

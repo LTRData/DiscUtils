@@ -51,21 +51,9 @@ public sealed class NTAccount : IdentityReference
         }
     }
 
-    public override bool Equals(object o)
-    {
-        var nt = (o as NTAccount);
-        if (nt == null)
-        {
-            return false;
-        }
+    public override bool Equals(object? o) => o is NTAccount nt && nt.Value == Value;
 
-        return (nt.Value == Value);
-    }
-
-    public override int GetHashCode()
-    {
-        return Value.GetHashCode();
-    }
+    public override int GetHashCode() => Value.GetHashCode();
 
     public override bool IsValidTargetType(Type targetType)
     {

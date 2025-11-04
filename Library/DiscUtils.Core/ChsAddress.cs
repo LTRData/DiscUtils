@@ -72,7 +72,7 @@ public readonly struct ChsAddress : IEquatable<ChsAddress>
     public bool Equals(ChsAddress other)
         => Cylinder == other.Cylinder && Head == other.Head && Sector == other.Sector;
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
         => obj is ChsAddress other && Equals(other);
 
     public static bool operator ==(ChsAddress a, ChsAddress b) => a.Equals(b);

@@ -60,7 +60,7 @@ public sealed class VfsFileSystemInfo : FileSystemInfo
     /// <param name="volume">The volume to access.</param>
     /// <param name="parameters">Parameters for the file system.</param>
     /// <returns>A file system instance.</returns>
-    public override DiscFileSystem Open(VolumeInfo volume, FileSystemParameters parameters)
+    public override DiscFileSystem Open(VolumeInfo volume, FileSystemParameters? parameters)
     {
         return _openDelegate(volume.Open(), volume, parameters);
     }
@@ -71,8 +71,8 @@ public sealed class VfsFileSystemInfo : FileSystemInfo
     /// <param name="stream">The stream to access.</param>
     /// <param name="parameters">Parameters for the file system.</param>
     /// <returns>A file system instance.</returns>
-    public override DiscFileSystem Open(Stream stream, FileSystemParameters parameters)
+    public override DiscFileSystem Open(Stream stream, FileSystemParameters? parameters)
     {
-        return _openDelegate(stream, null, parameters);
+        return _openDelegate(stream, volumeInfo: null, parameters);
     }
 }

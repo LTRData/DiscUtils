@@ -21,6 +21,7 @@
 //
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using DiscUtils.Streams;
 
 namespace DiscUtils.LogicalDiskManager;
@@ -33,15 +34,15 @@ internal class PrivateHeader
     public long ConfigurationStartLba; // 03 FF F8 00
     public long DataSizeLba; // 03 FF F7 C1
     public long DataStartLba; // 3F
-    public string DiskGroupId; // GUID string
-    public string DiskGroupName; // MAX_COMPUTER_NAME_LENGTH?
-    public string DiskId; // GUID string
-    public string HostId; // GUID string
+    public string DiskGroupId = null!; // GUID string
+    public string DiskGroupName = null!; // MAX_COMPUTER_NAME_LENGTH?
+    public string DiskId = null!; // GUID string
+    public string HostId = null!; // GUID string
     public long LogSizeLba;
     public long NextTocLba;
     public long NumberOfConfigs;
     public long NumberOfLogs;
-    public string Signature; // PRIVHEAD
+    public string Signature = null!; // PRIVHEAD
     public DateTime Timestamp;
     public long TocSizeLba;
     public long Unknown2; // Active TOC? 00 .. 00 01
@@ -50,6 +51,7 @@ internal class PrivateHeader
     public uint Unknown5; // Sector Size?
     public uint Version; // 2.12
 
+    [MemberNotNull(nameof(Signature), nameof(DiskId), nameof(HostId), nameof(DiskGroupId), nameof(DiskGroupName))]
     public void ReadFrom(ReadOnlySpan<byte> buffer)
     {
         var latin1Encoding = EncodingUtilities.GetLatin1Encoding();

@@ -504,7 +504,7 @@ public readonly struct Geometry : IEquatable<Geometry>
     /// </summary>
     /// <param name="obj">The object to test against.</param>
     /// <returns><c>true</c> if the <paramref name="obj"/> is equivalent, else <c>false</c>.</returns>
-    public override bool Equals(object obj) => obj is Geometry other && Equals(other);
+    public override bool Equals(object? obj) => obj is Geometry other && Equals(other);
 
     public static bool operator ==(Geometry a, Geometry b) => Equals(a, b);
 

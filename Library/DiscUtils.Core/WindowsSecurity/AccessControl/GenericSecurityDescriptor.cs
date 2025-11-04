@@ -1,5 +1,6 @@
 using DiscUtils.Streams;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text;
 
@@ -38,15 +39,15 @@ public abstract class GenericSecurityDescriptor
 
     public abstract ControlFlags ControlFlags { get; }
 
-    public abstract SecurityIdentifier Group { get; set; }
+    public abstract SecurityIdentifier? Group { get; set; }
 
-    public abstract SecurityIdentifier Owner { get; set; }
+    public abstract SecurityIdentifier? Owner { get; set; }
 
     public static byte Revision => 1;
 
-    internal virtual GenericAcl InternalDacl => null;
+    internal virtual GenericAcl? InternalDacl => null;
 
-    internal virtual GenericAcl InternalSacl => null;
+    internal virtual GenericAcl? InternalSacl => null;
 
     internal virtual byte InternalReservedField => 0;
 
@@ -103,11 +104,10 @@ public abstract class GenericSecurityDescriptor
             WriteInt(0, binaryForm, offset + 0x08);
         }
 
-        var sysAcl = InternalSacl;
         if (SaclPresent)
         {
             WriteInt(pos, binaryForm, offset + 0x0C);
-            sysAcl.GetBinaryForm(binaryForm, offset + pos);
+            InternalSacl.GetBinaryForm(binaryForm, offset + pos);
             pos += InternalSacl.BinaryLength;
         }
         else
@@ -115,11 +115,10 @@ public abstract class GenericSecurityDescriptor
             WriteInt(0, binaryForm, offset + 0x0C);
         }
 
-        var discAcl = InternalDacl;
         if (DaclPresent && !DaclIsUnmodifiedAefa)
         {
             WriteInt(pos, binaryForm, offset + 0x10);
-            discAcl.GetBinaryForm(binaryForm, offset + pos);
+            InternalDacl.GetBinaryForm(binaryForm, offset + pos);
             pos += InternalDacl.BinaryLength;
         }
         else
@@ -179,10 +178,12 @@ public abstract class GenericSecurityDescriptor
     // See CommonSecurityDescriptor constructor regarding this persistence detail.
     internal virtual bool DaclIsUnmodifiedAefa => false;
 
+    [MemberNotNullWhen(true, nameof(InternalDacl))]
     bool DaclPresent =>
         InternalDacl != null
         && (ControlFlags & ControlFlags.DiscretionaryAclPresent) != 0;
 
+    [MemberNotNullWhen(true, nameof(InternalSacl))]
     bool SaclPresent =>
         InternalSacl != null
         && (ControlFlags & ControlFlags.SystemAclPresent) != 0;

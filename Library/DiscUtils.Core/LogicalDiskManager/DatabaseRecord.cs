@@ -33,16 +33,16 @@ internal abstract class DatabaseRecord
 
     public ulong Id;
     public uint Label;
-    public string Name;
+    public string? Name;
     public RecordType RecordType;
-    public string Signature; // VBLK
+    public string? Signature; // VBLK
     public uint Valid;
 
-    public static DatabaseRecord ReadFrom(byte[] buffer, int offset) => ReadFrom(buffer.AsSpan(offset));
+    public static DatabaseRecord? ReadFrom(byte[] buffer, int offset) => ReadFrom(buffer.AsSpan(offset));
 
-    public static DatabaseRecord ReadFrom(ReadOnlySpan<byte> buffer)
+    public static DatabaseRecord? ReadFrom(ReadOnlySpan<byte> buffer)
     {
-        DatabaseRecord result = null;
+        DatabaseRecord? result = null;
 
         if (EndianUtilities.ToInt32BigEndian(buffer.Slice(0xC)) != 0)
         {

@@ -44,7 +44,7 @@ namespace DiscUtils;
 public sealed class VolumeManager
     : MarshalByRefObject
 {
-    private static ConcurrentBag<LogicalVolumeFactory> s_logicalVolumeFactories;
+    private static ConcurrentBag<LogicalVolumeFactory>? s_logicalVolumeFactories;
     private readonly List<VirtualDisk> _disks;
     private bool _needScan;
 
@@ -110,7 +110,7 @@ public sealed class VolumeManager
         {
             foreach (var attr in type.GetCustomAttributes<LogicalVolumeFactoryAttribute>(false))
             {
-                yield return (LogicalVolumeFactory)Activator.CreateInstance(type);
+                yield return (LogicalVolumeFactory)Activator.CreateInstance(type)!;
             }
         }
     }
@@ -215,7 +215,7 @@ public sealed class VolumeManager
     /// </summary>
     /// <param name="identity">The volume's identity.</param>
     /// <returns>The volume information for the volume, or returns <c>null</c>.</returns>
-    public VolumeInfo GetVolume(string identity)
+    public VolumeInfo? GetVolume(string identity)
     {
         if (_needScan)
         {

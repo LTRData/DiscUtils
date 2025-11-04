@@ -1,5 +1,6 @@
 using DiscUtils.Streams;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -41,7 +42,7 @@ public sealed class SecurityIdentifier : IdentityReference, IComparable<Security
 
     private SecurityIdentifier() { }
 
-    public static bool TryParse(byte[] binaryForm, int offset, out SecurityIdentifier securityIdentifier) =>
+    public static bool TryParse(byte[] binaryForm, int offset, [NotNullWhen(true)] out SecurityIdentifier? securityIdentifier) =>
         TryParse(binaryForm.AsSpan(offset), out securityIdentifier);
 
     public bool TryCreateFromBinaryForm(byte[] binaryForm, int offset) =>
@@ -65,7 +66,7 @@ public sealed class SecurityIdentifier : IdentityReference, IComparable<Security
         }
     }
 
-    public static bool TryParse(ReadOnlySpan<byte> binaryForm, out SecurityIdentifier securityIdentifier)
+    public static bool TryParse(ReadOnlySpan<byte> binaryForm, [NotNullWhen(true)] out SecurityIdentifier? securityIdentifier)
     {
         securityIdentifier = null;
 
@@ -84,7 +85,8 @@ public sealed class SecurityIdentifier : IdentityReference, IComparable<Security
         return true;
     }
 
-    bool TryCreateFromBinaryForm(ReadOnlySpan<byte> binaryForm)
+    [MemberNotNullWhen(true, nameof(buffer))]
+    private bool TryCreateFromBinaryForm(ReadOnlySpan<byte> binaryForm)
     {
         int revision = binaryForm[0];
         int numSubAuthorities = binaryForm[1];
@@ -136,7 +138,7 @@ public sealed class SecurityIdentifier : IdentityReference, IComparable<Security
         }
     }
 
-    public SecurityIdentifier AccountDomainSid
+    public SecurityIdentifier? AccountDomainSid
     {
         get
         {
@@ -334,7 +336,7 @@ public sealed class SecurityIdentifier : IdentityReference, IComparable<Security
         throw new ArgumentException("Unknown type.", nameof(targetType));
     }
 
-    public static bool operator ==(SecurityIdentifier left, SecurityIdentifier right)
+    public static bool operator ==(SecurityIdentifier? left, SecurityIdentifier? right)
     {
         if (left is null)
         {
@@ -350,7 +352,7 @@ public sealed class SecurityIdentifier : IdentityReference, IComparable<Security
             && left.buffer.SequenceEqual(right.buffer);
     }
 
-    public static bool operator !=(SecurityIdentifier left, SecurityIdentifier right)
+    public static bool operator !=(SecurityIdentifier? left, SecurityIdentifier? right)
         => !(left == right);
 
     internal string GetSddlForm()

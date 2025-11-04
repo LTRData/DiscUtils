@@ -218,7 +218,7 @@ public sealed class Disk : VirtualDisk
             {
                 _file?.Dispose();
 
-                _file = null;
+                _file = null!;
             }
         }
         finally

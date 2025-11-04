@@ -79,7 +79,7 @@ public abstract class PartitionInfo
     /// <summary>
     /// The partition table that this partition belongs to.
     /// </summary>
-    public abstract PartitionTable Table { get; }
+    public abstract PartitionTable? Table { get; }
 
     /// <summary>
     /// Gets a summary of the partition information as 'first - last (type)'.

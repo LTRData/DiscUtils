@@ -36,5 +36,5 @@ public class DiscFileSystemOptions
     /// <remarks>This option is normally <c>null</c>, which is fine for most purposes.
     /// Use this option when you need to finely control the filesystem for
     /// reproducibility of behaviour (for example in a test harness).</remarks>
-    public Random RandomNumberGenerator { get; set; }
+    public Random? RandomNumberGenerator { get; set; }
 }

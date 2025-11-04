@@ -21,6 +21,7 @@
 //
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -39,17 +40,17 @@ internal class LzxStream : ReadOnlyCompatibilityStream
 {
     private static readonly uint[] _positionSlots;
     private static readonly uint[] _extraBits;
-    private HuffmanTree _alignedOffsetTree;
+    private HuffmanTree? _alignedOffsetTree;
 
     private readonly LzxBitStream _bitStream;
 
     private byte[] _buffer;
     private int _bufferCount;
     private readonly int _fileSize;
-    private HuffmanTree _lengthTree;
+    private HuffmanTree? _lengthTree;
 
     // Block state
-    private HuffmanTree _mainTree;
+    private HuffmanTree? _mainTree;
     private readonly int _numPositionSlots;
 
     private long _position;
@@ -162,7 +163,6 @@ internal class LzxStream : ReadOnlyCompatibilityStream
     {
         var blockType = (BlockType)_bitStream.Read(3);
 
-        _buffer = new byte[32768];
         _bufferCount = 0;
 
         while (blockType != BlockType.None)
@@ -240,6 +240,7 @@ internal class LzxStream : ReadOnlyCompatibilityStream
         }
     }
 
+    [MemberNotNull(nameof(_mainTree), nameof(_lengthTree))]
     private void DecodeCompressedBlock(BlockType blockType, int blockSize)
     {
         if (blockType == BlockType.AlignedOffset)
@@ -296,7 +297,7 @@ internal class LzxStream : ReadOnlyCompatibilityStream
                         if (extra >= 3)
                         {
                             verbatimBits = _bitStream.Read(extra - 3) << 3;
-                            alignedBits = _alignedOffsetTree.NextSymbol(_bitStream);
+                            alignedBits = _alignedOffsetTree!.NextSymbol(_bitStream);
                         }
                         else if (extra > 0)
                         {
@@ -331,6 +332,7 @@ internal class LzxStream : ReadOnlyCompatibilityStream
         }
     }
 
+    [MemberNotNull(nameof(_mainTree))]
     private void ReadMainTree()
     {
         uint[] lengths;
@@ -352,6 +354,7 @@ internal class LzxStream : ReadOnlyCompatibilityStream
         _mainTree = new HuffmanTree(lengths);
     }
 
+    [MemberNotNull(nameof(_lengthTree))]
     private void ReadLengthTree()
     {
         var preTree = ReadFixedHuffmanTree(20, 4);
@@ -369,7 +372,7 @@ internal class LzxStream : ReadOnlyCompatibilityStream
         return new HuffmanTree(treeLengths);
     }
 
-    private HuffmanTree ReadDynamicHuffmanTree(int count, HuffmanTree preTree, HuffmanTree oldTree)
+    private HuffmanTree ReadDynamicHuffmanTree(int count, HuffmanTree preTree, HuffmanTree? oldTree)
     {
         uint[] lengths;
 

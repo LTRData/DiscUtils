@@ -348,7 +348,7 @@ public interface IFileSystem
     /// Reads the boot code of the file system into a byte array.
     /// </summary>
     /// <returns>The boot code, or <c>null</c> if not available.</returns>
-    byte[] ReadBootCode();
+    byte[]? ReadBootCode();
 
     /// <summary>
     /// Size of the Filesystem in bytes

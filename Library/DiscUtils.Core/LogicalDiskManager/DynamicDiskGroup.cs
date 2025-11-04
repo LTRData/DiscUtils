@@ -33,7 +33,7 @@ internal class DynamicDiskGroup : IDiagnosticTraceable
 {
     private readonly Database _database;
     private readonly Dictionary<Guid, DynamicDisk> _disks;
-    private readonly DiskGroupRecord _record;
+    private readonly DiskGroupRecord? _record;
 
     internal DynamicDiskGroup(VirtualDisk disk)
     {
@@ -49,11 +49,19 @@ internal class DynamicDiskGroup : IDiagnosticTraceable
 
     public void Dump(TextWriter writer, string linePrefix)
     {
-        writer.WriteLine($"{linePrefix}DISK GROUP ({_record.Name})");
-        writer.WriteLine($"{linePrefix}  Name: {_record.Name}");
-        writer.WriteLine($"{linePrefix}  Flags: 0x{_record.Flags & 0xFFF0:X4}");
-        writer.WriteLine($"{linePrefix}  Database Id: {_record.Id}");
-        writer.WriteLine($"{linePrefix}  Guid: {_record.GroupGuidString}");
+        if (_record == null)
+        {
+            writer.WriteLine($"{linePrefix}No Disk Group present");
+        }
+        else
+        {
+            writer.WriteLine($"{linePrefix}DISK GROUP ({_record.Name})");
+            writer.WriteLine($"{linePrefix}  Name: {_record.Name}");
+            writer.WriteLine($"{linePrefix}  Flags: 0x{_record.Flags & 0xFFF0:X4}");
+            writer.WriteLine($"{linePrefix}  Database Id: {_record.Id}");
+            writer.WriteLine($"{linePrefix}  Guid: {_record.GroupGuidString}");
+        }
+
         writer.WriteLine();
 
         writer.WriteLine($"{linePrefix}  DISKS");
@@ -170,7 +178,7 @@ internal class DynamicDiskGroup : IDiagnosticTraceable
         return (LogicalVolumeStatus)Math.Max((int)x, (int)y);
     }
 
-    private LogicalVolumeStatus GetVolumeStatus(VolumeRecord volume)
+    internal LogicalVolumeStatus GetVolumeStatus(VolumeRecord volume)
     {
         var numFailed = 0;
         ulong numOK = 0;
@@ -210,6 +218,7 @@ internal class DynamicDiskGroup : IDiagnosticTraceable
         foreach (var extent in _database.GetComponentExtents(cmpnt.Id))
         {
             var disk = _database.GetDisk(extent.DiskId);
+            
             if (!_disks.ContainsKey(new Guid(disk.DiskGuidString)))
             {
                 status = LogicalVolumeStatus.Failed;

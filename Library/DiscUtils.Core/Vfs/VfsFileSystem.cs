@@ -27,6 +27,7 @@ using LTRData.Extensions.Split;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 
@@ -62,12 +63,12 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
     /// <summary>
     /// Gets or sets the global shared state.
     /// </summary>
-    protected TContext Context { get; set; }
+    protected TContext Context { get; set; } = null!;
 
     /// <summary>
     /// Gets or sets the object representing the root directory.
     /// </summary>
-    protected TDirectory RootDirectory { get; set; }
+    protected TDirectory RootDirectory { get; set; } = null!;
 
     /// <summary>
     /// Gets the volume label.
@@ -469,7 +470,7 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
 
         var file = GetFile(entry);
 
-        string attributeName = null;
+        string? attributeName = null;
 
         var streamSepPos = fileName.IndexOf(':');
         if (streamSepPos >= 0)
@@ -691,7 +692,7 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
         return (TDirectory)GetFile(dirEntry);
     }
 
-    protected virtual TDirEntry GetDirectoryEntry(string path)
+    protected virtual TDirEntry? GetDirectoryEntry(string path)
     {
         return GetDirectoryEntry(RootDirectory, path);
     }
@@ -703,7 +704,7 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
     /// <param name="handler">Delegate invoked for each directory entry.</param>
     protected void ForAllDirEntries(string path, DirEntryHandler handler)
     {
-        TDirectory dir = null;
+        TDirectory? dir = null;
         var self = GetDirectoryEntry(path);
 
         if (self != null)
@@ -733,24 +734,24 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
     /// </summary>
     /// <param name="path">The path to query.</param>
     /// <returns>The file object corresponding to the path.</returns>
-    protected TFile GetFile(string path)
+    protected TFile GetFile(string? path)
     {
         if (IsRoot(path))
         {
             return RootDirectory;
         }
 
-        if (path == null)
-        {
-            return default;
-        }
-
         var dirEntry = GetDirectoryEntry(path)
             ?? throw new FileNotFoundException("No such file or directory", path);
 
-        if (dirEntry != null && dirEntry.IsSymlink)
+        if (dirEntry.IsSymlink)
         {
-            dirEntry = ResolveSymlink(dirEntry, path).TargetEntry;
+            var entry = ResolveSymlink(dirEntry, path).TargetEntry;
+
+            if (entry == null)
+            {
+                throw new FileNotFoundException("Unable to resolve symlink", path);
+            }
         }
 
         return GetFile(dirEntry);
@@ -777,27 +778,26 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
         return name;
     }
 
-    protected static bool IsRoot(string path)
+    protected static bool IsRoot([NotNullWhen(false)] string? path)
     {
         return string.IsNullOrWhiteSpace(path) || path is @"\" or "/";
     }
 
-    protected TDirEntry GetDirectoryEntry(TDirectory dir, string path)
+    protected TDirEntry? GetDirectoryEntry(TDirectory dir, string path)
     {
         var pathElements = path.Split(Utilities.PathSeparators, StringSplitOptions.RemoveEmptyEntries);
         return GetDirectoryEntry(dir, pathElements, 0);
     }
 
-    private TDirEntry GetDirectoryEntry(TDirectory dir, string[] pathEntries, int pathOffset)
+    private TDirEntry? GetDirectoryEntry(TDirectory? dir, string[] pathEntries, int pathOffset)
     {
-        TDirEntry entry;
-
         if (pathEntries.Length == 0)
         {
             return dir?.Self;
         }
 
-        entry = dir?.GetEntryByName(pathEntries[pathOffset]);
+        var entry = dir?.GetEntryByName(pathEntries[pathOffset]);
+
         if (entry != null)
         {
             if (entry.IsSymlink)
@@ -882,7 +882,7 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
         }
     }
 
-    private IEnumerable<string> DoSearch(string path, Func<string, bool> filter, bool subFolders, bool dirs, bool files)
+    private IEnumerable<string> DoSearch(string path, Func<string, bool>? filter, bool subFolders, bool dirs, bool files)
     {
         var parentDir = GetDirectory(path)
             ?? throw new DirectoryNotFoundException($"The directory '{path}' was not found");
@@ -929,7 +929,7 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
         }
     }
 
-    protected virtual (TDirEntry TargetEntry, string TargetPath) ResolveSymlink(TDirEntry entry, string path)
+    protected virtual (TDirEntry? TargetEntry, string TargetPath) ResolveSymlink(TDirEntry entry, string path)
     {
         var currentEntry = entry;
 

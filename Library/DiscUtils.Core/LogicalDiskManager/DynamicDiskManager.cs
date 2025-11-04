@@ -104,7 +104,8 @@ public class DynamicDiskManager : IDiagnosticTraceable
     /// <param name="disk">The disk to manage.</param>
     public void Add(VirtualDisk disk)
     {
-        var header = DynamicDisk.GetPrivateHeader(disk);
+        var header = DynamicDisk.GetPrivateHeader(disk)
+            ?? throw new InvalidDataException("Private header not found");
 
         if (_groups.TryGetValue(header.DiskGroupId, out var group))
         {
@@ -129,7 +130,7 @@ public class DynamicDiskManager : IDiagnosticTraceable
             {
                 var lvi = new LogicalVolumeInfo(
                     volume.Identity,
-                    null,
+                    physicalVolume: null,
                     volume.Open,
                     volume.Length,
                     volume.BiosType,

@@ -37,19 +37,15 @@ public sealed class TarHeader
     public DateTimeOffset ModificationTime { get; }
     public int CheckSum { get; }
     public TarFileType FileType { get; }
-    public string LinkName { get; internal set; }
-    public string Magic { get; }
+    public string? LinkName { get; internal set; }
+    public string? Magic { get; }
     public int Version { get; }
-    public string OwnerName { get; }
-    public string GroupName { get; }
+    public string? OwnerName { get; }
+    public string? GroupName { get; }
     public int DevMajor { get; }
     public int DevMinor { get; }
     public DateTimeOffset LastAccessTime { get; }
     public DateTimeOffset CreationTime { get; }
-
-    public TarHeader()
-    {
-    }
 
     public TarHeader(string fileName, long fileLength, UnixFilePermissions fileMode, int ownerId, int groupId, DateTime modificationTime)
     {

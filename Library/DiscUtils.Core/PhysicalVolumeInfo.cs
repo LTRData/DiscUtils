@@ -74,7 +74,7 @@ public sealed class PhysicalVolumeInfo : VolumeInfo
     /// <summary>
     /// Gets the disk geometry of the underlying storage medium (as used in BIOS calls), may be null.
     /// </summary>
-    public override Geometry? BiosGeometry => Partition.Table?.DiskGeometry ?? _disk.BiosGeometry;
+    public override Geometry? BiosGeometry => Partition?.Table?.DiskGeometry ?? _disk.BiosGeometry;
 
     /// <summary>
     /// Gets the one-byte BIOS type for this volume, which indicates the content.
@@ -110,11 +110,10 @@ public sealed class PhysicalVolumeInfo : VolumeInfo
             var partId = VolumeType switch
             {
                 PhysicalVolumeType.EntireDisk => "PD",
-                PhysicalVolumeType.BiosPartition or PhysicalVolumeType.ApplePartition => "PO" +
-                                             (Partition.FirstSector * _disk.SectorSize).ToString("X",
-                                                 CultureInfo.InvariantCulture),
+                PhysicalVolumeType.BiosPartition or PhysicalVolumeType.ApplePartition => $"PO{Partition?.FirstSector * _disk.SectorSize:X}",
                 _ => "P*",
             };
+
             return $"VPD:{_diskId}:{partId}";
         }
     }
@@ -127,7 +126,7 @@ public sealed class PhysicalVolumeInfo : VolumeInfo
     /// <summary>
     /// Gets the underlying partition (if any).
     /// </summary>
-    public PartitionInfo Partition { get; }
+    public PartitionInfo? Partition { get; }
 
     /// <summary>
     /// Gets the unique identity of the physical partition, if known.
@@ -153,7 +152,7 @@ public sealed class PhysicalVolumeInfo : VolumeInfo
     /// <summary>
     /// Gets the offset of this volume in the underlying storage medium, if any (may be Zero).
     /// </summary>
-    public override long PhysicalStartSector => VolumeType == PhysicalVolumeType.EntireDisk ? 0 : Partition.FirstSector;
+    public override long PhysicalStartSector => VolumeType == PhysicalVolumeType.EntireDisk ? 0 : Partition?.FirstSector ?? 0;
 
     /// <summary>
     /// Gets the type of the volume.

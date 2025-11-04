@@ -32,10 +32,10 @@ public sealed class LogicalVolumeInfo : VolumeInfo
 {
     private Guid _guid;
     private readonly SparseStreamOpenDelegate _opener;
-    private readonly PhysicalVolumeInfo _physicalVol;
+    private readonly PhysicalVolumeInfo? _physicalVol;
 
-    internal LogicalVolumeInfo(Guid guid, PhysicalVolumeInfo physicalVolume, SparseStreamOpenDelegate opener,
-                               long length, byte biosType, LogicalVolumeStatus status, string typeAsString)
+    internal LogicalVolumeInfo(Guid guid, PhysicalVolumeInfo? physicalVolume, SparseStreamOpenDelegate opener,
+                               long length, byte biosType, LogicalVolumeStatus status, string? typeAsString)
     {
         _guid = guid;
         _physicalVol = physicalVolume;
@@ -72,7 +72,7 @@ public sealed class LogicalVolumeInfo : VolumeInfo
                 return $"VLG{_guid:B}";
             }
 
-            return $"VLP:{_physicalVol.Identity}";
+            return $"VLP:{_physicalVol?.Identity}";
         }
     }
 
@@ -99,12 +99,12 @@ public sealed class LogicalVolumeInfo : VolumeInfo
     /// <summary>
     /// Type of volume
     /// </summary>
-    public string TypeAsString { get; }
+    public string? TypeAsString { get; }
 
     /// <summary>
     /// Gets the underlying physical volume info
     /// </summary>
-    public PhysicalVolumeInfo PhysicalVolume => _physicalVol;
+    public PhysicalVolumeInfo? PhysicalVolume => _physicalVol;
 
     /// <summary>
     /// Opens a stream with access to the content of the logical volume.

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace DiscUtils.Internal;
@@ -24,7 +25,9 @@ internal sealed class FastDictionary<T> : KeyedCollection<string, T>, IReadOnlyD
     public bool ContainsKey(string key) => Contains(key);
 
 #if !NETSTANDARD2_1_OR_GREATER && !NETCOREAPP
-    public bool TryGetValue(string key, out T value)
+#pragma warning disable CS8767 // Nullability of reference types in type of parameter doesn't match implicitly implemented member
+    public bool TryGetValue(string key, [MaybeNullWhen(false)] out T value)
+#pragma warning restore CS8767
     {
         if (Contains(key))
         {
@@ -38,6 +41,7 @@ internal sealed class FastDictionary<T> : KeyedCollection<string, T>, IReadOnlyD
         }
     }
 
+    [return: MaybeNull]
     public T GetValueOrDefault(string key)
     {
         if (Contains(key))

@@ -25,6 +25,7 @@
 //
 
 using DiscUtils.Streams;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 
 namespace DiscUtils.Compression;
@@ -35,7 +36,7 @@ namespace DiscUtils.Compression;
 /// </summary>
 internal class BZip2CombinedHuffmanTrees
 {
-    private HuffmanTree _activeTree;
+    private HuffmanTree? _activeTree;
     private readonly BitStream _bitstream;
     private int _nextSelector;
     private byte[] _selectors;
@@ -51,7 +52,7 @@ internal class BZip2CombinedHuffmanTrees
 
     public uint NextSymbol()
     {
-        if (_symbolsToNextSelector == 0)
+        if (_symbolsToNextSelector == 0 || _activeTree is null)
         {
             _symbolsToNextSelector = 50;
             _activeTree = _trees[_selectors[_nextSelector]];
@@ -63,6 +64,7 @@ internal class BZip2CombinedHuffmanTrees
         return _activeTree.NextSymbol(_bitstream);
     }
 
+    [MemberNotNull(nameof(_selectors), nameof(_trees))]
     private void Initialize(int maxSymbols)
     {
         var numTrees = (int)_bitstream.Read(3);

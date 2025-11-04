@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using DiscUtils.Internal;
 using DiscUtils.Streams;
@@ -33,7 +34,7 @@ namespace DiscUtils;
 /// </summary>
 public abstract class DiskImageBuilder
 {
-    private static Dictionary<string, VirtualDiskFactory> _typeMap;
+    private static Dictionary<string, VirtualDiskFactory>? _typeMap;
 
     /// <summary>
     /// Gets or sets the geometry of this disk, as reported by the BIOS, will be implied from the content stream if not set.
@@ -43,7 +44,7 @@ public abstract class DiskImageBuilder
     /// <summary>
     /// Gets or sets the content for this disk, implying the size of the disk.
     /// </summary>
-    public SparseStream Content { get; set; }
+    public SparseStream? Content { get; set; }
 
     /// <summary>
     /// Gets or sets the adapter type for created virtual disk, for file formats that encode this information.
@@ -101,6 +102,7 @@ public abstract class DiskImageBuilder
     /// 'foo', the files 'foo.vmdk' and 'foo-flat.vmdk' could be returned.</remarks>
     public abstract IEnumerable<DiskImageFileSpecification> Build(string baseName);
 
+    [MemberNotNull(nameof(_typeMap))]
     private static void InitializeMaps()
     {
         var typeMap = new Dictionary<string, VirtualDiskFactory>();

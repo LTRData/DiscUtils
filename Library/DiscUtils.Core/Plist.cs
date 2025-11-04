@@ -51,13 +51,12 @@ internal static class Plist
             xmlDoc.Load(reader);
         }
 
-        var root = xmlDoc.DocumentElement;
-        if (root.Name != "plist")
+        if (xmlDoc.DocumentElement is not { Name: "plist", FirstChild: { } firstChild })
         {
             throw new InvalidDataException("XML document is not a plist");
         }
 
-        return ParseDictionary(root.FirstChild);
+        return ParseDictionary(firstChild);
     }
 
     internal static void Write(Stream stream, Dictionary<string, object> plist)
@@ -77,7 +76,7 @@ internal static class Plist
         rootElement.SetAttribute("Version", "1.0");
         xmlDoc.AppendChild(rootElement);
 
-        xmlDoc.DocumentElement.SetAttribute("Version", "1.0");
+        xmlDoc.DocumentElement!.SetAttribute("Version", "1.0");
 
         rootElement.AppendChild(CreateNode(xmlDoc, plist));
 
@@ -157,7 +156,7 @@ internal static class Plist
 
             var key = focusNode.InnerText;
 
-            focusNode = focusNode.NextSibling;
+            focusNode = focusNode.NextSibling!;
 
             result.Add(key, ParseNode(focusNode));
 

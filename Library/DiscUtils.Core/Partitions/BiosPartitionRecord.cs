@@ -76,9 +76,9 @@ internal class BiosPartitionRecord : IComparable<BiosPartitionRecord>
 
     public byte Status { get; set; }
 
-    public int CompareTo(BiosPartitionRecord other)
+    public int CompareTo(BiosPartitionRecord? other)
     {
-        return LBAStartAbsolute.CompareTo(other.LBAStartAbsolute);
+        return LBAStartAbsolute.CompareTo(other?.LBAStartAbsolute ?? 0);
     }
 
     internal void WriteTo(Span<byte> buffer)

@@ -39,7 +39,7 @@ public class NativeFileSystem : DiscFileSystem
 {
     private readonly bool _readOnly;
 
-    public override Stream RawStream { get; }
+    public override Stream? RawStream { get; }
 
     /// <summary>
     /// Initializes a new instance of the NativeFileSystem class.
@@ -79,7 +79,7 @@ public class NativeFileSystem : DiscFileSystem
     /// <remarks>The Native File System is thread safe.</remarks>
     public override bool IsThreadSafe => true;
 
-    private DiscDirectoryInfo _root;
+    private DiscDirectoryInfo? _root;
 
     /// <summary>
     /// Gets the root directory of the file system.
