@@ -26,6 +26,7 @@ using LTRData.Extensions.Split;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -563,4 +564,12 @@ public static class Utilities
     }
 
     #endregion
+
+#if NETFRAMEWORK && !NET462_OR_GREATER
+    public static ImmutableArray<T> ToImmutableArray<T>(this ReadOnlySpan<T> source)
+        => ImmutableArray.Create(source.ToArray());
+
+    public static ImmutableArray<T> ToImmutableArray<T>(this Span<T> source)
+        => ImmutableArray.Create(source.ToArray());
+#endif
 }

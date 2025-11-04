@@ -34,14 +34,14 @@ internal sealed class Crc32BigEndian : Crc32
 
     static Crc32BigEndian()
     {
-        var tables = ImmutableArray.CreateBuilder<ImmutableArray<uint>>(4);
+        var tables = new ImmutableArray<uint>[4];
 
         tables[(int)Crc32Algorithm.Common] = CalcTable(0x04C11DB7);
         tables[(int)Crc32Algorithm.Castagnoli] = CalcTable(0x1EDC6F41);
         tables[(int)Crc32Algorithm.Koopman] = CalcTable(0x741B8CD7);
         tables[(int)Crc32Algorithm.Aeronautical] = CalcTable(0x814141AB);
 
-        Tables = tables.ToImmutable();
+        Tables = tables.ToImmutableArray();
     }
 
     public Crc32BigEndian(Crc32Algorithm algorithm)
@@ -64,7 +64,7 @@ internal sealed class Crc32BigEndian : Crc32
 
     private static ImmutableArray<uint> CalcTable(uint polynomial)
     {
-        var table = ImmutableArray.CreateBuilder<uint>(256);
+        Span<uint> table = stackalloc uint[256];
 
         for (uint i = 0; i < 256; ++i)
         {
@@ -85,7 +85,7 @@ internal sealed class Crc32BigEndian : Crc32
             table[(int)i] = crc;
         }
 
-        return table.ToImmutable();
+        return table.ToImmutableArray();
     }
 
     private static uint Process(ImmutableArray<uint> table, uint accumulator, ReadOnlySpan<byte> buffer)

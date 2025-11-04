@@ -33,7 +33,7 @@ namespace DiscUtils.Compression;
 /// </summary>
 /// <remarks>This class is optimized for the case where the entire stream contents
 /// fit into memory, it is not suitable for unbounded streams.</remarks>
-internal class XpressStream : ReadOnlyCompatibilityStream
+public class XpressStream : ReadOnlyCompatibilityStream
 {
     private readonly byte[] _buffer;
     private readonly BufferedStream _compressedStream;

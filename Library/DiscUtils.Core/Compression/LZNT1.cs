@@ -29,6 +29,7 @@
 //
 
 using System;
+using System.Buffers;
 using System.Collections.Immutable;
 using DiscUtils.Streams;
 
@@ -41,7 +42,7 @@ namespace DiscUtils.Compression;
 /// Due to apparent bugs in Window's LZNT1 decompressor, it is <b>strongly</b> recommended that
 /// only the block size of 4096 is used.  Other block sizes corrupt data on decompression.
 /// </remarks>
-internal sealed class LZNT1 : BlockCompressor
+public sealed class LZNT1 : BlockCompressor
 {
     private const ushort SubBlockIsCompressedFlag = 0x8000;
     private const ushort SubBlockSizeMask = 0x0fff;
@@ -301,20 +302,28 @@ internal sealed class LZNT1 : BlockCompressor
 
     private static ImmutableArray<byte> CalcCompressionBits()
     {
-        var result = ImmutableArray.CreateBuilder<byte>(4096);
-        byte offsetBits = 0;
+        var result = ArrayPool<byte>.Shared.Rent(4096);
 
-        var y = 0x10;
-        for (var x = 0; x < 4096; x++)
+        try
         {
-            result[x] = (byte)(4 + offsetBits);
-            if (x == y)
-            {
-                y <<= 1;
-                offsetBits++;
-            }
-        }
+            byte offsetBits = 0;
 
-        return result.ToImmutable();
+            var y = 0x10;
+            for (var x = 0; x < 4096; x++)
+            {
+                result[x] = (byte)(4 + offsetBits);
+                if (x == y)
+                {
+                    y <<= 1;
+                    offsetBits++;
+                }
+            }
+
+            return ImmutableArray.Create(result, 0, 4096);
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(result);
+        }
     }
 }

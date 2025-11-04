@@ -34,14 +34,14 @@ internal sealed class Crc32LittleEndian : Crc32
 
     static Crc32LittleEndian()
     {
-        var tables = ImmutableArray.CreateBuilder<ImmutableArray<uint>>(4);
+        var tables = new ImmutableArray<uint>[4];
 
         tables[(int)Crc32Algorithm.Common] = CalcTable(0xEDB88320);
         tables[(int)Crc32Algorithm.Castagnoli] = CalcTable(0x82F63B78);
         tables[(int)Crc32Algorithm.Koopman] = CalcTable(0xEB31D82E);
         tables[(int)Crc32Algorithm.Aeronautical] = CalcTable(0xD5828281);
 
-        Tables = tables.ToImmutable();
+        Tables = tables.ToImmutableArray();
     }
 
     public Crc32LittleEndian(Crc32Algorithm algorithm)
@@ -64,9 +64,8 @@ internal sealed class Crc32LittleEndian : Crc32
 
     private static ImmutableArray<uint> CalcTable(uint polynomial)
     {
-        var table = ImmutableArray.CreateBuilder<uint>(256);
+        Span<uint> table = stackalloc uint[256];
 
-        table[0] = 0;
         for (uint i = 0; i <= 255; ++i)
         {
             var crc = i;
@@ -86,7 +85,7 @@ internal sealed class Crc32LittleEndian : Crc32
             table[(int)i] = crc;
         }
 
-        return table.ToImmutable();
+        return table.ToImmutableArray();
     }
 
     private static uint Process(ImmutableArray<uint> table, uint accumulator, ReadOnlySpan<byte> buffer)

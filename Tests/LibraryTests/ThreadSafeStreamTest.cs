@@ -134,14 +134,7 @@ public class ThreadSafeStreamTest
         var altView = tss.OpenView();
         tss.Dispose();
 
-        try
-        {
-            altView.ReadByte();
-            Assert.Fail("Disposed stream didn't stop view");
-        }
-        catch (ObjectDisposedException)
-        {
-        }
+        Assert.Throws<ObjectDisposedException>(() => altView.ReadByte());
     }
 
     [Fact]
