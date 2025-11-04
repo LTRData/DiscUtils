@@ -40,7 +40,10 @@ public sealed class SecurityIdentifier : IdentityReference, IComparable<Security
     {
     }
 
-    private SecurityIdentifier() { }
+    private SecurityIdentifier()
+    {
+        buffer = null!;
+    }
 
     public static bool TryParse(byte[] binaryForm, int offset, [NotNullWhen(true)] out SecurityIdentifier? securityIdentifier) =>
         TryParse(binaryForm.AsSpan(offset), out securityIdentifier);
@@ -212,7 +215,7 @@ public sealed class SecurityIdentifier : IdentityReference, IComparable<Security
     // necessary because the CompareTo has no details in its documentation.
     // (See MonoTests.System.Security.AccessControl.DiscretionaryAclTest.)
     // The comparison was determined to be: authority, then subauthority count, then subauthority.
-    public int CompareTo(SecurityIdentifier sid)
+    public int CompareTo(SecurityIdentifier? sid)
     {
 #if NET6_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(sid);
@@ -245,9 +248,9 @@ public sealed class SecurityIdentifier : IdentityReference, IComparable<Security
         return 0;
     }
 
-    public override bool Equals(object o) => Equals(o as SecurityIdentifier);
+    public override bool Equals(object? o) => Equals(o as SecurityIdentifier);
 
-    public bool Equals(SecurityIdentifier sid)
+    public bool Equals(SecurityIdentifier? sid)
     {
         if (sid is null)
         {

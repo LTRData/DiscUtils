@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -141,6 +142,7 @@ public abstract class VirtualDisk :
     /// <remarks>There is no reliable way to determine whether a disk has a valid partition
     /// table.  The 'guess' consists of checking for basic indicators and looking for obviously
     /// invalid data, such as overlapping partitions.</remarks>
+    [MemberNotNullWhen(true, nameof(Partitions))]
     public virtual bool IsPartitioned => PartitionTable.IsPartitioned(Content);
 
     /// <summary>
@@ -151,7 +153,7 @@ public abstract class VirtualDisk :
     /// a GUID partition table, a BIOS partition table, then in undefined preference one of any other partition
     /// tables found.  See PartitionTable.GetPartitionTables to gain access to all the discovered partition
     /// tables on a disk.</remarks>
-    public virtual PartitionTable Partitions
+    public virtual PartitionTable? Partitions
     {
         get
         {
@@ -166,7 +168,7 @@ public abstract class VirtualDisk :
                 return tables[0];
             }
 
-            PartitionTable best = null;
+            PartitionTable? best = null;
             var bestScore = -1;
             for (var i = 0; i < tables.Count; ++i)
             {
@@ -275,9 +277,9 @@ public abstract class VirtualDisk :
     /// <param name="geometry">The geometry of the new disk (or null).</param>
     /// <param name="parameters">Untyped parameters controlling the creation process (TBD).</param>
     /// <returns>The newly created disk.</returns>
-    public static VirtualDisk CreateDisk(string type, string variant, string path, long capacity, Geometry? geometry, Dictionary<string, string> parameters)
+    public static VirtualDisk? CreateDisk(string type, string variant, string path, long capacity, Geometry? geometry, Dictionary<string, string> parameters)
     {
-        return CreateDisk(type, variant, path, capacity, geometry, null, null, parameters);
+        return CreateDisk(type, variant, path, capacity, geometry, user: null, password: null, parameters);
     }
 
     /// <summary>
@@ -291,9 +293,9 @@ public abstract class VirtualDisk :
     /// <param name="parameters">Untyped parameters controlling the creation process (TBD).</param>
     /// <param name="useAsync">Underlying files will be opened optimized for async use.</param>
     /// <returns>The newly created disk.</returns>
-    public static VirtualDisk CreateDisk(string type, string variant, string path, long capacity, Geometry? geometry, Dictionary<string, string> parameters, bool useAsync)
+    public static VirtualDisk? CreateDisk(string type, string variant, string path, long capacity, Geometry? geometry, Dictionary<string, string> parameters, bool useAsync)
     {
-        return CreateDisk(type, variant, path, capacity, geometry, null, null, parameters, useAsync);
+        return CreateDisk(type, variant, path, capacity, geometry, user: null, password: null, parameters, useAsync);
     }
 
     /// <summary>
@@ -308,7 +310,7 @@ public abstract class VirtualDisk :
     /// <param name="password">The password to use when accessing the <c>path</c> (or null).</param>
     /// <param name="parameters">Untyped parameters controlling the creation process (TBD).</param>
     /// <returns>The newly created disk.</returns>
-    public static VirtualDisk CreateDisk(string type, string variant, string path, long capacity, Geometry? geometry, string user, string password, Dictionary<string, string> parameters)
+    public static VirtualDisk? CreateDisk(string type, string variant, string path, long capacity, Geometry? geometry, string? user, string? password, Dictionary<string, string> parameters)
         => CreateDisk(type, variant, path, capacity, geometry, user, password, parameters, useAsync: false);
 
     /// <summary>
@@ -324,7 +326,7 @@ public abstract class VirtualDisk :
     /// <param name="parameters">Untyped parameters controlling the creation process (TBD).</param>
     /// <param name="useAsync">Underlying files will be opened optimized for async use.</param>
     /// <returns>The newly created disk.</returns>
-    public static VirtualDisk CreateDisk(string type, string variant, string path, long capacity, Geometry? geometry, string user, string password, Dictionary<string, string> parameters, bool useAsync)
+    public static VirtualDisk? CreateDisk(string type, string variant, string path, long capacity, Geometry? geometry, string? user, string? password, Dictionary<string, string> parameters, bool useAsync)
     {
         var diskParams = new VirtualDiskParameters
         {
@@ -354,7 +356,7 @@ public abstract class VirtualDisk :
     /// <param name="user">The user identity to use when accessing the <c>path</c> (or null).</param>
     /// <param name="password">The password to use when accessing the <c>path</c> (or null).</param>
     /// <returns>The newly created disk.</returns>
-    public static VirtualDisk CreateDisk(string type, string variant, string path, VirtualDiskParameters diskParameters, string user, string password)
+    public static VirtualDisk? CreateDisk(string type, string variant, string path, VirtualDiskParameters diskParameters, string user, string password)
         => CreateDisk(type, variant, path, diskParameters, user, password, useAsync: false);
 
     /// <summary>
@@ -368,7 +370,7 @@ public abstract class VirtualDisk :
     /// <param name="password">The password to use when accessing the <c>path</c> (or null).</param>
     /// <param name="useAsync">Underlying files will be opened optimized for async use.</param>
     /// <returns>The newly created disk.</returns>
-    public static VirtualDisk CreateDisk(string type, string variant, string path, VirtualDiskParameters diskParameters, string user, string password, bool useAsync)
+    public static VirtualDisk? CreateDisk(string type, string variant, string path, VirtualDiskParameters diskParameters, string? user, string? password, bool useAsync)
     {
         var uri = PathToUri(path);
         VirtualDisk result;
@@ -378,7 +380,7 @@ public abstract class VirtualDisk :
             throw new FileNotFoundException($"Unable to parse path '{path}'", path);
         }
 
-        var transport = (VirtualDiskTransport)Activator.CreateInstance(transportType);
+        var transport = (VirtualDiskTransport)Activator.CreateInstance(transportType)!;
 
         try
         {
@@ -418,9 +420,9 @@ public abstract class VirtualDisk :
     /// <param name="path">The path of the virtual disk to open, can be a URI.</param>
     /// <param name="access">The desired access to the disk.</param>
     /// <returns>The Virtual Disk, or <c>null</c> if an unknown disk format.</returns>
-    public static VirtualDisk OpenDisk(string path, FileAccess access)
+    public static VirtualDisk? OpenDisk(string path, FileAccess access)
     {
-        return OpenDisk(path, null, access, null, null);
+        return OpenDisk(path, forceType: null, access, user: null, password: null);
     }
 
     /// <summary>
@@ -430,9 +432,9 @@ public abstract class VirtualDisk :
     /// <param name="access">The desired access to the disk.</param>
     /// <param name="useAsync">Underlying files will be opened optimized for async use.</param>
     /// <returns>The Virtual Disk, or <c>null</c> if an unknown disk format.</returns>
-    public static VirtualDisk OpenDisk(string path, FileAccess access, bool useAsync)
+    public static VirtualDisk? OpenDisk(string path, FileAccess access, bool useAsync)
     {
-        return OpenDisk(path, null, access, null, null, useAsync);
+        return OpenDisk(path, forceType: null, access, user: null, password: null, useAsync);
     }
 
     /// <summary>
@@ -443,7 +445,7 @@ public abstract class VirtualDisk :
     /// <param name="user">The user name to use for authentication (if necessary).</param>
     /// <param name="password">The password to use for authentication (if necessary).</param>
     /// <returns>The Virtual Disk, or <c>null</c> if an unknown disk format.</returns>
-    public static VirtualDisk OpenDisk(string path, FileAccess access, string user, string password)
+    public static VirtualDisk? OpenDisk(string path, FileAccess access, string user, string password)
     {
         return OpenDisk(path, null, access, user, password);
     }
@@ -457,7 +459,7 @@ public abstract class VirtualDisk :
     /// <param name="password">The password to use for authentication (if necessary).</param>
     /// <param name="useAsync">Underlying files will be opened optimized for async use.</param>
     /// <returns>The Virtual Disk, or <c>null</c> if an unknown disk format.</returns>
-    public static VirtualDisk OpenDisk(string path, FileAccess access, string user, string password, bool useAsync)
+    public static VirtualDisk? OpenDisk(string path, FileAccess access, string user, string password, bool useAsync)
     {
         return OpenDisk(path, null, access, user, password, useAsync);
     }
@@ -475,7 +477,7 @@ public abstract class VirtualDisk :
     /// The detected disk type can be forced by specifying a known disk type: 
     /// RAW, VHD, VMDK, etc.
     /// </remarks>
-    public static VirtualDisk OpenDisk(string path, string forceType, FileAccess access, string user, string password)
+    public static VirtualDisk? OpenDisk(string path, string? forceType, FileAccess access, string? user, string? password)
         => OpenDisk(path, forceType, access, user, password, useAsync: false);
 
     /// <summary>
@@ -492,17 +494,17 @@ public abstract class VirtualDisk :
     /// The detected disk type can be forced by specifying a known disk type: 
     /// RAW, VHD, VMDK, etc.
     /// </remarks>
-    public static VirtualDisk OpenDisk(string path, string forceType, FileAccess access, string user, string password, bool useAsync)
+    public static VirtualDisk? OpenDisk(string path, string? forceType, FileAccess access, string? user, string? password, bool useAsync)
     {
         var uri = PathToUri(path);
-        VirtualDisk result = null;
+        VirtualDisk? result = null;
 
         if (!VirtualDiskManager.DiskTransports.TryGetValue(uri.Scheme, out var transportType))
         {
             throw new FileNotFoundException($"Unable to parse path '{uri}'", path);
         }
 
-        var transport = (VirtualDiskTransport)Activator.CreateInstance(transportType);
+        var transport = (VirtualDiskTransport)Activator.CreateInstance(transportType)!;
 
         try
         {
@@ -515,9 +517,9 @@ public abstract class VirtualDisk :
             else
             {
                 bool foundFactory;
-                VirtualDiskFactory factory;
+                VirtualDiskFactory? factory;
 
-                if (!string.IsNullOrEmpty(forceType))
+                if (forceType is not null && !string.IsNullOrEmpty(forceType))
                 {
                     foundFactory = VirtualDiskManager.TypeMap.TryGetValue(forceType, out factory);
                 }
@@ -534,7 +536,7 @@ public abstract class VirtualDisk :
 
                 if (foundFactory)
                 {
-                    result = factory.OpenDisk(transport.GetFileLocator(useAsync), transport.GetFileName(), access);
+                    result = factory!.OpenDisk(transport.GetFileLocator(useAsync), transport.GetFileName(), access);
                 }
             }
 
@@ -559,7 +561,7 @@ public abstract class VirtualDisk :
     /// <param name="path">The path of the virtual disk to open.</param>
     /// <param name="access">The desired access to the disk.</param>
     /// <returns>The Virtual Disk, or <c>null</c> if an unknown disk format.</returns>
-    public static VirtualDisk OpenDisk(DiscFileSystem fs, string path, FileAccess access)
+    public static VirtualDisk? OpenDisk(DiscFileSystem fs, string path, FileAccess access)
     {
         if (fs is null)
         {
@@ -685,7 +687,7 @@ public abstract class VirtualDisk :
     /// <returns>The newly created disk.</returns>
     public abstract VirtualDisk CreateDifferencingDisk(string path, bool useAsync);
 
-    internal static VirtualDiskLayer OpenDiskLayer(FileLocator locator, string path, FileAccess access)
+    internal static VirtualDiskLayer? OpenDiskLayer(FileLocator locator, string path, FileAccess access)
     {
         var extension = Path.GetExtension(path);
         if (extension.StartsWith('.'))

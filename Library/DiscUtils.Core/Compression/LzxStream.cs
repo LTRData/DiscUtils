@@ -21,6 +21,7 @@
 //
 
 using System;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Threading;
@@ -36,10 +37,10 @@ namespace DiscUtils.Compression;
 /// <remarks>This is not a general purpose LZX decompressor - it makes
 /// simplifying assumptions, such as being able to load the entire stream
 /// contents into memory..</remarks>
-internal class LzxStream : ReadOnlyCompatibilityStream
+public class LzxStream : ReadOnlyCompatibilityStream
 {
-    private static readonly uint[] _positionSlots;
-    private static readonly uint[] _extraBits;
+    private static readonly ImmutableArray<uint> _positionSlots;
+    private static readonly ImmutableArray<uint> _extraBits;
     private HuffmanTree? _alignedOffsetTree;
 
     private readonly LzxBitStream _bitStream;
@@ -59,23 +60,27 @@ internal class LzxStream : ReadOnlyCompatibilityStream
 
     static LzxStream()
     {
-        _positionSlots = new uint[50];
-        _extraBits = new uint[50];
+        var positionSlots = ImmutableArray.CreateBuilder<uint>(50);
+        var extraBits = ImmutableArray.CreateBuilder<uint>(50);
 
         uint numBits = 0;
-        _positionSlots[1] = 1;
+        positionSlots[1] = 1;
+        
         for (var i = 2; i < 50; i += 2)
         {
-            _extraBits[i] = numBits;
-            _extraBits[i + 1] = numBits;
-            _positionSlots[i] = _positionSlots[i - 1] + (uint)(1 << (int)_extraBits[i - 1]);
-            _positionSlots[i + 1] = _positionSlots[i] + (uint)(1 << (int)numBits);
+            extraBits[i] = numBits;
+            extraBits[i + 1] = numBits;
+            positionSlots[i] = positionSlots[i - 1] + (uint)(1 << (int)extraBits[i - 1]);
+            positionSlots[i + 1] = positionSlots[i] + (uint)(1 << (int)numBits);
 
             if (numBits < 17)
             {
                 numBits++;
             }
         }
+
+        _positionSlots = positionSlots.ToImmutable();
+        _extraBits = extraBits.ToImmutable();
     }
 
     public LzxStream(Stream stream, int windowBits, int fileSize)
@@ -285,7 +290,7 @@ internal class LzxStream : ReadOnlyCompatibilityStream
                 }
                 else
                 {
-                    var extra = (int)_extraBits[positionSlot];
+                    var extra = (int)_extraBits[(int)positionSlot];
 
                     uint formattedOffset;
 
@@ -304,13 +309,13 @@ internal class LzxStream : ReadOnlyCompatibilityStream
                             verbatimBits = _bitStream.Read(extra);
                         }
 
-                        formattedOffset = _positionSlots[positionSlot] + verbatimBits + alignedBits;
+                        formattedOffset = _positionSlots[(int)positionSlot] + verbatimBits + alignedBits;
                     }
                     else
                     {
                         var verbatimBits = extra > 0 ? _bitStream.Read(extra) : 0;
 
-                        formattedOffset = _positionSlots[positionSlot] + verbatimBits;
+                        formattedOffset = _positionSlots[(int)positionSlot] + verbatimBits;
                     }
 
                     matchOffset = formattedOffset - 2;

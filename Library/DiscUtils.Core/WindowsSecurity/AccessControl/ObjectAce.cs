@@ -170,10 +170,6 @@ public sealed class ObjectAce : QualifiedAce
         }
     }
 
-    public static int MaxOpaqueLength(bool isCallback) =>
-        // Varies by platform?
-        65423;
-
     internal override string GetSddlForm()
     {
         if (OpaqueLength != 0)

@@ -12,6 +12,10 @@
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework.CompareTo(`net461`))' &lt; 0">
     <PackageReference Include="System.ValueTuple" Version="4.5.*" />
+    <PackageReference Include="System.Collections.Immutable" Version="1.*" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework.CompareTo(`net461`))' &gt;= 0">
+    <PackageReference Include="System.Collections.Immutable" Version="*" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework.CompareTo(`net5`))' &gt;= 0">
     <PackageReference Include="System.Text.Encoding.CodePages" Version="9.0.*" />

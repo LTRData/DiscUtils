@@ -21,6 +21,7 @@
 //
 
 using System;
+using System.Collections.Immutable;
 
 namespace DiscUtils.Internal;
 
@@ -29,16 +30,18 @@ namespace DiscUtils.Internal;
 /// </summary>
 internal sealed class Crc32LittleEndian : Crc32
 {
-    private static readonly uint[][] Tables;
+    private static readonly ImmutableArray<ImmutableArray<uint>> Tables;
 
     static Crc32LittleEndian()
     {
-        Tables = new uint[4][];
+        var tables = ImmutableArray.CreateBuilder<ImmutableArray<uint>>(4);
 
-        Tables[(int)Crc32Algorithm.Common] = CalcTable(0xEDB88320);
-        Tables[(int)Crc32Algorithm.Castagnoli] = CalcTable(0x82F63B78);
-        Tables[(int)Crc32Algorithm.Koopman] = CalcTable(0xEB31D82E);
-        Tables[(int)Crc32Algorithm.Aeronautical] = CalcTable(0xD5828281);
+        tables[(int)Crc32Algorithm.Common] = CalcTable(0xEDB88320);
+        tables[(int)Crc32Algorithm.Castagnoli] = CalcTable(0x82F63B78);
+        tables[(int)Crc32Algorithm.Koopman] = CalcTable(0xEB31D82E);
+        tables[(int)Crc32Algorithm.Aeronautical] = CalcTable(0xD5828281);
+
+        Tables = tables.ToImmutable();
     }
 
     public Crc32LittleEndian(Crc32Algorithm algorithm)
@@ -59,9 +62,9 @@ internal sealed class Crc32LittleEndian : Crc32
         _value = Process(Table, _value, buffer);
     }
 
-    private static uint[] CalcTable(uint polynomial)
+    private static ImmutableArray<uint> CalcTable(uint polynomial)
     {
-        var table = new uint[256];
+        var table = ImmutableArray.CreateBuilder<uint>(256);
 
         table[0] = 0;
         for (uint i = 0; i <= 255; ++i)
@@ -80,13 +83,13 @@ internal sealed class Crc32LittleEndian : Crc32
                 }
             }
 
-            table[i] = crc;
+            table[(int)i] = crc;
         }
 
-        return table;
+        return table.ToImmutable();
     }
 
-    private static uint Process(uint[] table, uint accumulator, ReadOnlySpan<byte> buffer)
+    private static uint Process(ImmutableArray<uint> table, uint accumulator, ReadOnlySpan<byte> buffer)
     {
         var value = accumulator;
 
@@ -95,7 +98,7 @@ internal sealed class Crc32LittleEndian : Crc32
             var b = buffer[i];
 
             var temp1 = (value >> 8) & 0x00FFFFFF;
-            var temp2 = table[(value ^ b) & 0xFF];
+            var temp2 = table[(int)((value ^ b) & 0xFF)];
             value = temp1 ^ temp2;
         }
 

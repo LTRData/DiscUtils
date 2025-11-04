@@ -84,7 +84,7 @@ public sealed class PhysicalVolumeInfo : VolumeInfo
     /// <summary>
     /// Gets the unique identity of the disk containing the volume, if known.
     /// </summary>
-    public Guid DiskIdentity => VolumeType != PhysicalVolumeType.EntireDisk ? _disk.Partitions.DiskGuid : Guid.Empty;
+    public Guid DiskIdentity => (VolumeType != PhysicalVolumeType.EntireDisk ? _disk.Partitions?.DiskGuid : Guid.Empty) ?? Guid.Empty;
 
     /// <summary>
     /// Gets the signature of the disk containing the volume (only valid for partition-type volumes).

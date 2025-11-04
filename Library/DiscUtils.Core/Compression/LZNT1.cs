@@ -29,6 +29,7 @@
 //
 
 using System;
+using System.Collections.Immutable;
 using DiscUtils.Streams;
 
 namespace DiscUtils.Compression;
@@ -50,7 +51,7 @@ internal sealed class LZNT1 : BlockCompressor
     // we assume each block is 4KB on decode also.
     private const int FixedBlockSize = 0x1000;
 
-    private static readonly byte[] _compressionBits = CalcCompressionBits();
+    private static readonly ImmutableArray<byte> _compressionBits = CalcCompressionBits();
 
     public LZNT1()
     {
@@ -298,13 +299,13 @@ internal sealed class LZNT1 : BlockCompressor
         return destIdx;
     }
 
-    private static byte[] CalcCompressionBits()
+    private static ImmutableArray<byte> CalcCompressionBits()
     {
-        var result = StreamUtilities.GetUninitializedArray<byte>(4096);
+        var result = ImmutableArray.CreateBuilder<byte>(4096);
         byte offsetBits = 0;
 
         var y = 0x10;
-        for (var x = 0; x < result.Length; x++)
+        for (var x = 0; x < 4096; x++)
         {
             result[x] = (byte)(4 + offsetBits);
             if (x == y)
@@ -314,6 +315,6 @@ internal sealed class LZNT1 : BlockCompressor
             }
         }
 
-        return result;
+        return result.ToImmutable();
     }
 }

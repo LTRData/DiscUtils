@@ -35,7 +35,7 @@ internal abstract class VirtualDiskTransport : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    public abstract void Connect(Uri uri, string username, string password);
+    public abstract void Connect(Uri uri, string? username, string? password);
 
     public abstract VirtualDisk OpenDisk(FileAccess access);
 

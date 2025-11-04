@@ -25,12 +25,13 @@
 //
 
 using System;
+using System.Collections.Immutable;
 
 namespace DiscUtils.Compression;
 
 internal class BZip2Randomizer : DataBlockTransform
 {
-    private static readonly int[] RandomVals =
+    private static readonly ImmutableArray<int> RandomVals = ImmutableArray.Create(
     [
         619, 720, 127, 481, 931, 816, 813, 233, 566, 247,
         985, 724, 205, 454, 863, 491, 741, 242, 949, 214,
@@ -84,7 +85,7 @@ internal class BZip2Randomizer : DataBlockTransform
         920, 176, 193, 713, 857, 265, 203, 50, 668, 108,
         645, 990, 626, 197, 510, 357, 358, 850, 858, 364,
         936, 638
-    ];
+    ]);
 
     protected override bool BuffersMustNotOverlap => false;
 

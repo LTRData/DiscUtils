@@ -36,7 +36,7 @@ internal sealed class FileTransport : VirtualDiskTransport
     public override bool IsRawDisk => false;
 
     [MemberNotNull(nameof(_path), nameof(_extraInfo))]
-    public override void Connect(Uri uri, string username, string password)
+    public override void Connect(Uri uri, string? username, string? password)
     {
         _path = uri.LocalPath;
         _extraInfo = uri.Fragment.TrimStart('#');

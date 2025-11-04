@@ -21,15 +21,16 @@
 //
 
 using System;
+using System.Collections.Immutable;
 
 namespace DiscUtils.Internal;
 
 internal abstract class Crc32
 {
-    protected readonly uint[] Table;
+    protected readonly ImmutableArray<uint> Table;
     protected uint _value;
 
-    protected Crc32(uint[] table)
+    protected Crc32(ImmutableArray<uint> table)
     {
         Table = table;
         _value = 0xFFFFFFFF;

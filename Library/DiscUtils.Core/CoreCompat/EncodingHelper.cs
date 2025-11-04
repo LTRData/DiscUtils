@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 
 namespace DiscUtils.CoreCompat;
 
@@ -20,11 +21,9 @@ internal static class EncodingHelper
 #endif
     }
 
-    private static readonly char[] _invalidFileNameChars = ['\\', '/', '*', '?', ':'];
-
     public static string SanitizeFileName(this string fileName)
     {
-        foreach (var c in _invalidFileNameChars)
+        foreach (var c in stackalloc char[] { '\\', '/', '*', '?', ':' })
         {
             fileName = fileName.Replace(c, '_');
         }

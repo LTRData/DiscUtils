@@ -10,7 +10,8 @@ public class WellKnownAccount
     }
 
     public WellKnownSidType WellKnownValue { get; init; }
-    
+
+    [MemberNotNullWhen(true, nameof(Sid))]
     public bool IsAbsolute { get; init; }
     
     public SecurityIdentifier? Sid { get; init; }

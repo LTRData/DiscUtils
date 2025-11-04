@@ -112,7 +112,7 @@ public abstract class DiskImageBuilder
             var attr = type.GetCustomAttribute<VirtualDiskFactoryAttribute>(false);
             if (attr != null)
             {
-                var factory = (VirtualDiskFactory)Activator.CreateInstance(type);
+                var factory = (VirtualDiskFactory)Activator.CreateInstance(type)!;
                 typeMap.Add(attr.Type, factory);
             }
         }

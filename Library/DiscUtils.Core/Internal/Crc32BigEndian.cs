@@ -21,6 +21,7 @@
 //
 
 using System;
+using System.Collections.Immutable;
 
 namespace DiscUtils.Internal;
 
@@ -29,16 +30,18 @@ namespace DiscUtils.Internal;
 /// </summary>
 internal sealed class Crc32BigEndian : Crc32
 {
-    private static readonly uint[][] Tables;
+    private static readonly ImmutableArray<ImmutableArray<uint>> Tables;
 
     static Crc32BigEndian()
     {
-        Tables = new uint[4][];
+        var tables = ImmutableArray.CreateBuilder<ImmutableArray<uint>>(4);
 
-        Tables[(int)Crc32Algorithm.Common] = CalcTable(0x04C11DB7);
-        Tables[(int)Crc32Algorithm.Castagnoli] = CalcTable(0x1EDC6F41);
-        Tables[(int)Crc32Algorithm.Koopman] = CalcTable(0x741B8CD7);
-        Tables[(int)Crc32Algorithm.Aeronautical] = CalcTable(0x814141AB);
+        tables[(int)Crc32Algorithm.Common] = CalcTable(0x04C11DB7);
+        tables[(int)Crc32Algorithm.Castagnoli] = CalcTable(0x1EDC6F41);
+        tables[(int)Crc32Algorithm.Koopman] = CalcTable(0x741B8CD7);
+        tables[(int)Crc32Algorithm.Aeronautical] = CalcTable(0x814141AB);
+
+        Tables = tables.ToImmutable();
     }
 
     public Crc32BigEndian(Crc32Algorithm algorithm)
@@ -59,9 +62,9 @@ internal sealed class Crc32BigEndian : Crc32
         _value = Process(Table, _value, buffer);
     }
 
-    private static uint[] CalcTable(uint polynomial)
+    private static ImmutableArray<uint> CalcTable(uint polynomial)
     {
-        var table = new uint[256];
+        var table = ImmutableArray.CreateBuilder<uint>(256);
 
         for (uint i = 0; i < 256; ++i)
         {
@@ -79,20 +82,20 @@ internal sealed class Crc32BigEndian : Crc32
                 }
             }
 
-            table[i] = crc;
+            table[(int)i] = crc;
         }
 
-        return table;
+        return table.ToImmutable();
     }
 
-    private static uint Process(uint[] table, uint accumulator, ReadOnlySpan<byte> buffer)
+    private static uint Process(ImmutableArray<uint> table, uint accumulator, ReadOnlySpan<byte> buffer)
     {
         var value = accumulator;
 
         for (var i = 0; i < buffer.Length; ++i)
         {
             var b = buffer[i];
-            value = table[(value >> 24) ^ b] ^ (value << 8);
+            value = table[(int)((value >> 24) ^ b)] ^ (value << 8);
         }
 
         return value;

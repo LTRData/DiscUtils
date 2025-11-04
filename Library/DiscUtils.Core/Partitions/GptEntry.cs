@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Text;
 using DiscUtils.Streams;
 
@@ -45,7 +46,7 @@ internal class GptEntry : IComparable<GptEntry>
 
     public string FriendlyPartitionType => GetFriendlyPartitionType(PartitionType);
 
-    private static readonly Dictionary<Guid, string> _friendlyPartitionTypeNames = new()
+    private static readonly ImmutableDictionary<Guid, string> _friendlyPartitionTypeNames = new Dictionary<Guid, string>
     {
         { new Guid("00000000-0000-0000-0000-000000000000"), "Unused" },
         { new Guid("024DEE41-33E7-11D3-9D69-0008C781F39F"), "MBR Partition Scheme" },
@@ -95,7 +96,7 @@ internal class GptEntry : IComparable<GptEntry>
         { new Guid("2E0A753D-9E48-43B0-8337-B15192CB1B5E"), "ChromeOS" },
         { new Guid("09845860-705F-4BB5-B16C-8A8A099CAF52"), "ChromeOS miniOS" },
         { new Guid("3F0F8318-F146-4E6B-8222-C28C8F02E0D5"), "ChromeOS hibernate" }
-    };
+    }.ToImmutableDictionary();
 
     public static string GetFriendlyPartitionType(Guid type)
         => _friendlyPartitionTypeNames.TryGetValue(type, out var name)
