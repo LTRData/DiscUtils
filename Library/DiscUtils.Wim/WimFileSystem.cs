@@ -26,10 +26,11 @@ using System.IO;
 using DiscUtils.Core.WindowsSecurity.AccessControl;
 using DiscUtils.Internal;
 using DiscUtils.Streams;
-using System.Xml.Linq;
-using System.Xml.XPath;
 using System.Linq;
 using LTRData.Extensions.Split;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.InteropServices;
+using System.Collections.Immutable;
 
 namespace DiscUtils.Wim;
 
@@ -44,24 +45,21 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
     private long _rootDirPos;
     private List<RawSecurityDescriptor> _securityDescriptors;
 
-    internal WimFileSystem(WimFile file, int index)
+    internal WimFileSystem(WimFile file, SparseStream metaDataStream, string? volumeLabel)
     {
         _file = file;
+        _metaDataStream = metaDataStream;
 
-        var metaDataFileInfo = _file.LocateImage(index)
-            ?? throw new ArgumentException($"No such image: {index}", nameof(index));
-
-        _metaDataStream = _file.OpenResourceStream(metaDataFileInfo);
         ReadSecurityDescriptors();
 
-        _dirCache = new ObjectCache<long, List<DirectoryEntry>>();
+        _dirCache = new();
 
-        VolumeLabel = XDocument.Parse(_file.Manifest)?.XPathSelectElement($"WIM/IMAGE[@INDEX=\"{index + 1}\"]/NAME")?.Value;
+        VolumeLabel = volumeLabel;
     }
 
     public override Stream RawStream => _file.FileStream;
 
-    public override string VolumeLabel { get; }
+    public override string? VolumeLabel { get; }
 
     /// <summary>
     /// Provides a friendly description of the file system type.
@@ -73,9 +71,10 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
     /// </summary>
     /// <param name="path">The file or directory to inspect.</param>
     /// <returns>The security descriptor.</returns>
-    public RawSecurityDescriptor GetSecurity(string path)
+    public RawSecurityDescriptor? GetSecurity(string path)
     {
-        var id = GetEntry(path).SecurityId;
+        var id = GetEntry(path)?.SecurityId
+            ?? throw new FileNotFoundException("File or directory not found", path);
 
         if (id == uint.MaxValue)
         {
@@ -108,7 +107,8 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
     /// <returns>The reparse point information.</returns>
     public ReparsePoint GetReparsePoint(string path)
     {
-        var dirEntry = GetEntry(path);
+        var dirEntry = GetEntry(path)
+            ?? throw new FileNotFoundException("File or directory not found", path);
 
         var hdr = _file.LocateResource(dirEntry.Hash)
             ?? throw new IOException("No reparse point");
@@ -148,9 +148,11 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
     /// segment.  If there is no short name for the given path,<c>null</c> is
     /// returned.
     /// </remarks>
-    public string GetShortName(string path)
+    public string? GetShortName(string path)
     {
-        var dirEntry = GetEntry(path);
+        var dirEntry = GetEntry(path)
+            ?? throw new FileNotFoundException("File or directory not found", path);
+
         return dirEntry.ShortName;
     }
 
@@ -171,7 +173,8 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
     /// <returns>The standard file information.</returns>
     public WindowsFileInformation GetFileStandardInformation(string path)
     {
-        var dirEntry = GetEntry(path);
+        var dirEntry = GetEntry(path)
+            ?? throw new FileNotFoundException("File or directory not found", path);
 
         return new WindowsFileInformation
         {
@@ -205,7 +208,8 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
     /// </returns>
     public IEnumerable<string> GetAlternateDataStreams(string path)
     {
-        var dirEntry = GetEntry(path);
+        var dirEntry = GetEntry(path)
+            ?? throw new FileNotFoundException("File or directory not found", path);
 
         if (dirEntry.AlternateStreams != null)
         {
@@ -231,10 +235,12 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
     /// </remarks>
     public long GetFileId(string path)
     {
-        var dirEntry = GetEntry(path);
-        return BitConverter.ToInt64(dirEntry.Hash, 0)
-            ^ BitConverter.ToInt64(dirEntry.Hash, 8)
-            ^ BitConverter.ToInt32(dirEntry.Hash, 16);
+        var dirEntry = GetEntry(path)
+            ?? throw new FileNotFoundException("File or directory not found", path);
+
+        return MemoryMarshal.Read<long>(dirEntry.Hash.AsSpan())
+            ^ MemoryMarshal.Read<long>(dirEntry.Hash.AsSpan().Slice(8))
+            ^ MemoryMarshal.Read<int>(dirEntry.Hash.AsSpan().Slice(16));
     }
 
     /// <summary>
@@ -244,7 +250,9 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
     /// <returns><c>true</c> if the file has other names, else <c>false</c>.</returns>
     public bool HasHardLinks(string path)
     {
-        var dirEntry = GetEntry(path);
+        var dirEntry = GetEntry(path)
+            ?? throw new FileNotFoundException("File or directory not found", path);
+
         return dirEntry.HardLink != 0u;
     }
 
@@ -368,7 +376,7 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
         var hdr = _file.LocateResource(streamHash);
         if (hdr == null)
         {
-            if (BufferUtilities.IsAllZeros(streamHash, 0, streamHash.Length))
+            if (BufferUtilities.IsAllZeros(streamHash.AsSpan()))
             {
                 return new ZeroStream(0);
             }
@@ -442,7 +450,7 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
         var hdr = _file.LocateResource(streamHash);
         if (hdr == null)
         {
-            if (BufferUtilities.IsAllZeros(streamHash, 0, streamHash.Length))
+            if (BufferUtilities.IsAllZeros(streamHash.AsSpan()))
             {
                 return 0;
             }
@@ -474,7 +482,7 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
 
         if (hdr == null)
         {
-            if (BufferUtilities.IsAllZeros(streamHash, 0, streamHash.Length))
+            if (BufferUtilities.IsAllZeros(streamHash.AsSpan()))
             {
                 fileSize = 0;
             }
@@ -505,11 +513,6 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
 
         if (hdr == null)
         {
-            if (BufferUtilities.IsAllZeros(streamHash, 0, streamHash.Length))
-            {
-                fileSize = 0;
-            }
-
             return new(this, path);
         }
         else
@@ -544,7 +547,7 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
     /// This method provides access to the stored hash.  Callers can use this
     /// value to compare against the actual hash of the byte stream to validate
     /// the integrity of the file contents.</remarks>
-    public byte[] GetFileHash(string path)
+    public ImmutableArray<byte> GetFileHash(string path)
     {
         SplitFileName(path, out var filePart, out var altStreamPart);
 
@@ -582,10 +585,10 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
             if (_metaDataStream != null)
             {
                 _metaDataStream.Dispose();
-                _metaDataStream = null;
+                _metaDataStream = null!;
             }
 
-            _file = null;
+            _file = null!;
         }
 
         base.Dispose(disposing);
@@ -632,6 +635,7 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
         return dir;
     }
 
+    [MemberNotNull(nameof(_securityDescriptors))]
     private void ReadSecurityDescriptors()
     {
         var reader = new LittleEndianDataReader(_metaDataStream);
@@ -661,7 +665,7 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
         _rootDirPos = MathUtilities.RoundUp(startPos + totalLength, 8);
     }
 
-    private DirectoryEntry GetEntry(string path)
+    private DirectoryEntry? GetEntry(string path)
     {
         if (path.EndsWithDirectorySeparator())
         {
@@ -676,10 +680,10 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
         return GetEntry(GetDirectory(0), path.AsMemory().TokenEnum('/', '\\').ToArray());
     }
 
-    private DirectoryEntry GetEntry(List<DirectoryEntry> dir, ReadOnlyMemory<char>[] path)
+    private DirectoryEntry? GetEntry(List<DirectoryEntry> dir, ReadOnlyMemory<char>[] path)
     {
         var currentDir = dir;
-        DirectoryEntry nextEntry = null;
+        DirectoryEntry? nextEntry = null;
 
         for (var i = 0; i < path.Length; ++i)
         {
@@ -711,7 +715,7 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
         return nextEntry;
     }
 
-    private IEnumerable<string> DoSearch(string path, Func<string, bool> filter, bool subFolders, bool dirs, bool files)
+    private IEnumerable<string> DoSearch(string path, Func<string, bool>? filter, bool subFolders, bool dirs, bool files)
     {
         var parentDirEntry = GetEntry(path)
             ?? throw new DirectoryNotFoundException($"Directory '{path}' not found");

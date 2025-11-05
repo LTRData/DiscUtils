@@ -20,11 +20,16 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-using System;
-using System.Collections.Generic;
-using System.IO;
 using DiscUtils.Internal;
 using DiscUtils.Streams;
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Xml.Linq;
+using System.Xml.XPath;
+using static System.Net.WebRequestMethods;
 
 namespace DiscUtils.Wim;
 
@@ -103,10 +108,45 @@ public class WimFile
     /// method is zero-based.</remarks>
     public WimFileSystem GetImage(int index)
     {
-        return new WimFileSystem(this, index);
+        var metaDataFileInfo = LocateImage(index)
+            ?? throw new ArgumentException($"No such image: {index}", nameof(index));
+
+        var metaDataStream = OpenResourceStream(metaDataFileInfo);
+
+        var volumeLabel = XDocument.Parse(Manifest)?.XPathSelectElement($"WIM/IMAGE[@INDEX=\"{index + 1}\"]/NAME")?.Value;
+
+        return new WimFileSystem(this, metaDataStream, volumeLabel);
     }
 
-    internal ShortResourceHeader LocateImage(int index)
+    /// <summary>
+    /// Gets a particular image within the file (zero-based index).
+    /// </summary>
+    /// <param name="index">The index of the image to retrieve.</param>
+    /// <param name="wimFileSystem">The image as a file system.</param>
+    /// <returns>True if index was found in the image and a file system
+    /// was returned in <paramref name="wimFileSystem"/>, otherwise false.</returns>
+    /// <remarks>The XML manifest file uses a one-based index, whereas this
+    /// method is zero-based.</remarks>
+    public bool TryGetImage(int index, [NotNullWhen(true)] out WimFileSystem? wimFileSystem)
+    {
+        var metaDataFileInfo = LocateImage(index);
+
+        if (metaDataFileInfo is null)
+        {
+            wimFileSystem = null;
+            return false;
+        }
+
+        var metaDataStream = OpenResourceStream(metaDataFileInfo);
+
+        var volumeLabel = XDocument.Parse(Manifest)?.XPathSelectElement($"WIM/IMAGE[@INDEX=\"{index + 1}\"]/NAME")?.Value;
+
+        wimFileSystem = new WimFileSystem(this, metaDataStream, volumeLabel);
+
+        return true;
+    }
+
+    internal ShortResourceHeader? LocateImage(int index)
     {
         var i = 0;
 
@@ -135,9 +175,9 @@ public class WimFile
         return null;
     }
 
-    internal ShortResourceHeader LocateResource(byte[] hash)
+    internal ShortResourceHeader? LocateResource(ImmutableArray<byte> hash)
     {
-        var hashHash = EndianUtilities.ToUInt32LittleEndian(hash, 0);
+        var hashHash = EndianUtilities.ToUInt32LittleEndian(hash.AsSpan());
 
         if (!_resources.TryGetValue(hashHash, out var headers))
         {
@@ -168,6 +208,7 @@ public class WimFile
             _fileHeader.CompressionSize);
     }
 
+    [MemberNotNull(nameof(_resources))]
     private void ReadResourceTable()
     {
         _resources = [];
@@ -182,7 +223,7 @@ public class WimFile
             var info = new ResourceInfo();
             info.Read(resBuffer);
 
-            var hashHash = EndianUtilities.ToUInt32LittleEndian(info.Hash, 0);
+            var hashHash = EndianUtilities.ToUInt32LittleEndian(info.Hash.AsSpan());
 
             if (!_resources.TryGetValue(hashHash, out var res))
             {

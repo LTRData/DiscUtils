@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>DiscUtils WIM</Description>
-    
+    <Description>DiscUtils WIM</Description>    
     <PackageTags>DiscUtils;WIM</PackageTags>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

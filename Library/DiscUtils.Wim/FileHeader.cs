@@ -21,34 +21,37 @@
 //
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using DiscUtils.Streams;
+using LTRData.Extensions.Buffers;
 
 namespace DiscUtils.Wim;
 
 internal class FileHeader : IByteArraySerializable
 {
     public uint BootIndex;
-    public ShortResourceHeader BootMetaData;
+    public ShortResourceHeader? BootMetaData;
     public int CompressionSize;
     public FileFlags Flags;
     public uint HeaderSize;
     public uint ImageCount;
-    public ShortResourceHeader IntegrityHeader;
-    public ShortResourceHeader OffsetTableHeader;
+    public ShortResourceHeader? IntegrityHeader;
+    public ShortResourceHeader OffsetTableHeader = null!;
     public ushort PartNumber;
-    public string Tag;
+    public string? Tag;
     public ushort TotalParts;
     public uint Version;
     public Guid WimGuid;
-    public ShortResourceHeader XmlDataHeader;
+    public ShortResourceHeader XmlDataHeader = null!;
 
     public int Size => 512;
 
+    [MemberNotNull(nameof(Tag), nameof(BootMetaData), nameof(IntegrityHeader), nameof(OffsetTableHeader), nameof(XmlDataHeader))]
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
 
-        Tag = latin1Encoding.GetString(buffer.Slice(0, 8));
+        Tag = buffer.Slice(0, 8).ReadNullTerminatedAsciiString();
         HeaderSize = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(8));
         Version = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(12));
         Flags = (FileFlags)EndianUtilities.ToUInt32LittleEndian(buffer.Slice(16));
@@ -77,7 +80,7 @@ internal class FileHeader : IByteArraySerializable
 
     public bool IsValid()
     {
-        return Tag == "MSWIM\0\0\0" && HeaderSize >= 148;
+        return Tag == "MSWIM" && HeaderSize >= 148;
     }
 
     void IByteArraySerializable.WriteTo(Span<byte> buffer) => throw new NotImplementedException();

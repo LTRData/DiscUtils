@@ -21,6 +21,7 @@
 //
 
 using System;
+using System.Collections.Immutable;
 using System.IO;
 using System.Text;
 using DiscUtils.Internal;
@@ -31,18 +32,18 @@ namespace DiscUtils.Wim;
 
 internal class DirectoryEntry
 {
-    public FastDictionary<AlternateStreamEntry> AlternateStreams;
+    public FastDictionary<AlternateStreamEntry>? AlternateStreams;
     public FileAttributes Attributes;
     public long CreationTime;
-    public string FileName;
+    public string FileName = null!;
     public uint HardLink;
-    public byte[] Hash;
+    public ImmutableArray<byte> Hash;
     public long LastAccessTime;
     public long LastWriteTime;
     public long Length;
     public uint ReparseTag;
     public uint SecurityId;
-    public string ShortName;
+    public string? ShortName;
     public ushort StreamCount;
     public long SubdirOffset;
 
@@ -59,7 +60,7 @@ internal class DirectoryEntry
         }
     }
 
-    public static DirectoryEntry ReadFrom(DataReader reader)
+    public static DirectoryEntry? ReadFrom(DataReader reader)
     {
         var startPos = reader.Position;
 
@@ -80,7 +81,7 @@ internal class DirectoryEntry
         result.CreationTime = reader.ReadInt64();
         result.LastAccessTime = reader.ReadInt64();
         result.LastWriteTime = reader.ReadInt64();
-        result.Hash = reader.ReadBytes(20);
+        result.Hash = reader.ReadBytes(20).ToImmutableArray();
         reader.Skip(4);
         result.ReparseTag = reader.ReadUInt32();
         result.HardLink = reader.ReadUInt32();
@@ -122,11 +123,11 @@ internal class DirectoryEntry
 
                 // Avoid crashes on badly built WIM files with multiple streams without
                 // a stream name
-                if (!result.AlternateStreams.Contains(stream.Name))
+                if (stream is not null && !result.AlternateStreams.Contains(stream.Name))
                 {
                     result.AlternateStreams.Add(stream);
 
-                    if (stream.Name == "" && BufferUtilities.IsAllZeros(result.Hash))
+                    if (stream.Name == "" && BufferUtilities.IsAllZeros(result.Hash.AsSpan()))
                     {
                         result.Hash = stream.Hash;
                     }
@@ -137,11 +138,11 @@ internal class DirectoryEntry
         return result;
     }
 
-    public byte[] GetStreamHash(string streamName)
+    public ImmutableArray<byte> GetStreamHash(string streamName)
     {
         if (string.IsNullOrEmpty(streamName))
         {
-            if (!BufferUtilities.IsAllZeros(Hash, 0, 20))
+            if (!BufferUtilities.IsAllZeros(Hash.AsSpan()))
             {
                 return Hash;
             }
@@ -152,7 +153,7 @@ internal class DirectoryEntry
             return streamEntry.Hash;
         }
 
-        return new byte[20];
+        return default;
     }
 
     internal long GetHeaderLength(string streamName)

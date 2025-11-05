@@ -21,6 +21,9 @@
 //
 
 using System;
+using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
+using DiscUtils.Internal;
 using DiscUtils.Streams;
 
 namespace DiscUtils.Wim;
@@ -28,18 +31,19 @@ namespace DiscUtils.Wim;
 internal class ResourceInfo
 {
     public const int Size = ShortResourceHeader.Size + 26;
-    public byte[] Hash;
+    public ImmutableArray<byte> Hash;
 
-    public ShortResourceHeader Header;
+    public ShortResourceHeader Header = null!;
     public ushort PartNumber;
     public uint RefCount;
 
+    [MemberNotNull(nameof(Header))]
     public void Read(ReadOnlySpan<byte> buffer)
     {
         Header = new ShortResourceHeader();
         Header.Read(buffer);
         PartNumber = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(ShortResourceHeader.Size));
         RefCount = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(ShortResourceHeader.Size + 2));
-        Hash = buffer.Slice(ShortResourceHeader.Size + 6, 20).ToArray();
+        Hash = buffer.Slice(ShortResourceHeader.Size + 6, 20).ToImmutableArray();
     }
 }

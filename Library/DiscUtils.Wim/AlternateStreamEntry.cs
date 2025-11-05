@@ -20,22 +20,27 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
+using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using DiscUtils.Streams;
+using LTRData.Extensions.Buffers;
 
 namespace DiscUtils.Wim;
 
 internal class AlternateStreamEntry
 {
-    public byte[] Hash;
+    public ImmutableArray<byte> Hash;
     public long Length;
-    public string Name;
+    public string Name = null!;
 
-    public static AlternateStreamEntry ReadFrom(DataReader reader)
+    [MemberNotNull(nameof(Name))]
+    public static AlternateStreamEntry? ReadFrom(DataReader reader)
     {
         var startPos = reader.Position;
 
         var length = reader.ReadInt64();
+
         if (length == 0)
         {
             return null;
@@ -46,12 +51,12 @@ internal class AlternateStreamEntry
         var result = new AlternateStreamEntry
         {
             Length = length,
-            Hash = reader.ReadBytes(20)
+            Hash = reader.ReadBytes(20).ToImmutableArray()
         };
         int nameLength = reader.ReadUInt16();
         if (nameLength > 0)
         {
-            result.Name = Encoding.Unicode.GetString(reader.ReadBytes(nameLength + 2)).TrimEnd('\0');
+            result.Name = reader.ReadBytes(nameLength + 2).ReadNullTerminatedUnicodeString();
         }
         else
         {

@@ -47,7 +47,7 @@ internal class FileResourceStream : SparseStream.ReadOnlySparseStream
     private readonly int _chunkSize;
 
     private int _currentChunk;
-    private Stream _currentChunkStream;
+    private Stream? _currentChunkStream;
     private readonly ShortResourceHeader _header;
     private readonly bool _lzxCompression;
     private readonly long _offsetDelta;
@@ -116,7 +116,7 @@ internal class FileResourceStream : SparseStream.ReadOnlySparseStream
             var chunkOffset = (int)(_position % _chunkSize);
             var numToRead = Math.Min(maxToRead - totalRead, _chunkSize - chunkOffset);
 
-            if (_currentChunk != chunk)
+            if (_currentChunk != chunk || _currentChunkStream is null)
             {
                 _currentChunkStream = OpenChunkStream(chunk);
                 _currentChunk = chunk;
@@ -152,7 +152,7 @@ internal class FileResourceStream : SparseStream.ReadOnlySparseStream
             var chunkOffset = (int)(_position % _chunkSize);
             var numToRead = Math.Min(maxToRead - totalRead, _chunkSize - chunkOffset);
 
-            if (_currentChunk != chunk)
+            if (_currentChunk != chunk || _currentChunkStream is null)
             {
                 _currentChunkStream = OpenChunkStream(chunk);
                 _currentChunk = chunk;
@@ -188,7 +188,7 @@ internal class FileResourceStream : SparseStream.ReadOnlySparseStream
             var chunkOffset = (int)(_position % _chunkSize);
             var numToRead = Math.Min(maxToRead - totalRead, _chunkSize - chunkOffset);
 
-            if (_currentChunk != chunk)
+            if (_currentChunk != chunk || _currentChunkStream is null)
             {
                 _currentChunkStream = OpenChunkStream(chunk);
                 _currentChunk = chunk;
