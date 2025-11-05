@@ -92,7 +92,7 @@ public abstract class DiscFileSystem :
     /// <summary>
     /// Gets the volume label.
     /// </summary>
-    public virtual string VolumeLabel => string.Empty;
+    public virtual string? VolumeLabel => string.Empty;
 
     /// <summary>
     /// Volume Serial Number

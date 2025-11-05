@@ -13,7 +13,7 @@ public interface IDosFileSystem : IFileSystem
     /// segment.  If there is no short name for the given path,<c>null</c> is
     /// returned.
     /// </remarks>
-    string GetShortName(string path);
+    string? GetShortName(string path);
 
     /// <summary>
     /// Sets the short name for a given file or directory.

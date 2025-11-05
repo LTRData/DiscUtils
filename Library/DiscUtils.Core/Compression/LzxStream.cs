@@ -26,6 +26,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using DiscUtils.Internal;
 using DiscUtils.Streams;
 using DiscUtils.Streams.Compatibility;
 
@@ -60,8 +61,8 @@ public class LzxStream : ReadOnlyCompatibilityStream
 
     static LzxStream()
     {
-        var positionSlots = ImmutableArray.CreateBuilder<uint>(50);
-        var extraBits = ImmutableArray.CreateBuilder<uint>(50);
+        Span<uint> positionSlots = stackalloc uint[50];
+        Span<uint> extraBits = stackalloc uint[50];
 
         uint numBits = 0;
         positionSlots[1] = 1;
@@ -79,8 +80,8 @@ public class LzxStream : ReadOnlyCompatibilityStream
             }
         }
 
-        _positionSlots = positionSlots.ToImmutable();
-        _extraBits = extraBits.ToImmutable();
+        _positionSlots = positionSlots.ToImmutableArray();
+        _extraBits = extraBits.ToImmutableArray();
     }
 
     public LzxStream(Stream stream, int windowBits, int fileSize)

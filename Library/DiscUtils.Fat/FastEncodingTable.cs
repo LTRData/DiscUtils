@@ -21,9 +21,6 @@
 using System;
 #if NET8_0_OR_GREATER
 using System.Collections.Frozen;
-using System.Collections.Immutable;
-#elif NET462_OR_GREATER || NETSTANDARD || NETCOREAPP
-using System.Collections.Immutable;
 #endif
 using DiscUtils.Streams;
 using System.Collections.Generic;
@@ -31,6 +28,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Collections.Concurrent;
+using System.Collections.Immutable;
 
 namespace DiscUtils.Fat;
 
@@ -44,16 +42,11 @@ internal sealed class FastEncodingTable
     private readonly ImmutableArray<char> _mapByteToChar;
 
     private static readonly ConcurrentDictionary<Encoding, (FrozenDictionary<char, byte> mapUpperCharToByte, ImmutableArray<char> mapByteToChar)> _mappingCache = new();
-#elif NET462_OR_GREATER || NETSTANDARD || NETCOREAPP
+#else
     private readonly ImmutableDictionary<char, byte> _mapUpperCharToByte;
     private readonly ImmutableArray<char> _mapByteToChar;
 
     private static readonly ConcurrentDictionary<Encoding, (ImmutableDictionary<char, byte> mapUpperCharToByte, ImmutableArray<char> mapByteToChar)> _mappingCache = new();
-#else
-    private readonly Dictionary<char, byte> _mapUpperCharToByte;
-    private readonly char[] _mapByteToChar;
-
-    private static readonly ConcurrentDictionary<Encoding, (Dictionary<char, byte> mapUpperCharToByte, char[] mapByteToChar)> _mappingCache = new();
 #endif
 
 #if !NETFRAMEWORK
@@ -122,12 +115,9 @@ internal sealed class FastEncodingTable
 #if NET8_0_OR_GREATER
                 var frozenMapUpperCharToByte = mapUpperCharToByte.ToFrozenDictionary();
                 var frozenMapByteToChar = mapByteToChar.ToImmutableArray();
-#elif NET462_OR_GREATER || NETSTANDARD || NETCOREAPP
+#else
                 var frozenMapUpperCharToByte = mapUpperCharToByte.ToImmutableDictionary();
                 var frozenMapByteToChar = mapByteToChar.ToImmutableArray();
-#else
-                var frozenMapUpperCharToByte = mapUpperCharToByte;
-                var frozenMapByteToChar = mapByteToChar;
 #endif
 
                 return (frozenMapUpperCharToByte, frozenMapByteToChar);

@@ -35,7 +35,7 @@ public interface IWindowsFileSystem : IDosFileSystem
     /// </summary>
     /// <param name="path">The file or directory to inspect.</param>
     /// <returns>The security descriptor.</returns>
-    RawSecurityDescriptor GetSecurity(string path);
+    RawSecurityDescriptor? GetSecurity(string path);
 
     /// <summary>
     /// Sets the security descriptor associated with the file or directory.
@@ -49,7 +49,7 @@ public interface IWindowsFileSystem : IDosFileSystem
     /// </summary>
     /// <param name="path">The file to query.</param>
     /// <returns>The reparse point information.</returns>
-    ReparsePoint GetReparsePoint(string path);
+    ReparsePoint? GetReparsePoint(string path);
 
     /// <summary>
     /// Sets the reparse point data on a file or directory.

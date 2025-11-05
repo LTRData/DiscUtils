@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Immutable;
 
 namespace DiscUtils.Streams;
 
@@ -61,6 +62,21 @@ public static class BufferUtilities
         }
 
         if (ReferenceEquals(a, b) || a.SequenceEqual(b))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    public static bool AreEqual(ImmutableArray<byte> a, ImmutableArray<byte> b)
+    {
+        if (a.Length != b.Length)
+        {
+            return false;
+        }
+
+        if (a.Equals(b) || a.AsSpan().SequenceEqual(b.AsSpan()))
         {
             return true;
         }

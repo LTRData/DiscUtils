@@ -80,7 +80,7 @@ public abstract class VfsFileSystemFacade : DiscFileSystem
     /// <summary>
     /// Gets the volume label.
     /// </summary>
-    public override string VolumeLabel => _wrapped.VolumeLabel;
+    public override string? VolumeLabel => _wrapped.VolumeLabel;
 
     /// <summary>
     /// Copies an existing file to a new file.
