@@ -504,6 +504,43 @@ public static class StreamUtilities
     }
 
     /// <summary>
+    /// Reads remaining data of a stream from current position to end of stream
+    /// into a new byte array. Booth seeking and nonseeking streams are supported.
+    /// </summary>
+    /// <param name="stream">Stream to read from</param>
+    /// <returns>Byte array with data read from <paramref name="stream"/></returns>
+    public static byte[] ReadToEnd(this Stream stream)
+    {
+        if (stream.CanSeek)
+        {
+            return stream.ReadExactly((int)(stream.Length - stream.Position));
+        }
+
+        using var ms = new MemoryStream();
+        stream.CopyTo(ms);
+        return ms.ToArray();
+    }
+
+    /// <summary>
+    /// Reads remaining data of a stream from current position to end of stream
+    /// into a new byte array. Booth seeking and nonseeking streams are supported.
+    /// </summary>
+    /// <param name="stream">Stream to read from</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>Byte array with data read from <paramref name="stream"/></returns>
+    public static async Task<byte[]> ReadToEndAsync(this Stream stream, CancellationToken cancellationToken)
+    {
+        if (stream.CanSeek)
+        {
+            return await stream.ReadExactlyAsync((int)(stream.Length - stream.Position), cancellationToken).ConfigureAwait(false);
+        }
+
+        using var ms = new MemoryStream();
+        await stream.CopyToAsync(ms, cancellationToken).ConfigureAwait(false);
+        return ms.ToArray();
+    }
+
+    /// <summary>
     /// Reads a disk sector (512 bytes).
     /// </summary>
     /// <param name="stream">The stream to read.</param>

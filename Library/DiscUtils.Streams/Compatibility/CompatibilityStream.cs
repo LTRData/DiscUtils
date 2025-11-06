@@ -74,31 +74,48 @@ public abstract class CompatibilityStream : Stream
         return b[0];
     }
 
-    public override void WriteByte(byte value) =>
-        Write([value]);
+    public override void WriteByte(byte value)
+        => Write([value]);
 
-    public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback? callback, object? state) =>
-        ReadAsync(buffer, offset, count, CancellationToken.None).AsAsyncResult(callback, state);
+    public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback? callback, object? state)
+        => ReadAsync(buffer, offset, count, CancellationToken.None).AsAsyncResult(callback, state);
 
-    public override int EndRead(IAsyncResult asyncResult) => ((Task<int>)asyncResult).GetAwaiter().GetResult();
+    public override int EndRead(IAsyncResult asyncResult)
+        => ((Task<int>)asyncResult).GetAwaiter().GetResult();
 
-    public override IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback? callback, object? state) =>
-        WriteAsync(buffer, offset, count, CancellationToken.None).AsAsyncResult(callback, state);
+    public override IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback? callback, object? state)
+        => WriteAsync(buffer, offset, count, CancellationToken.None).AsAsyncResult(callback, state);
 
-    public override void EndWrite(IAsyncResult asyncResult) => ((Task)asyncResult).GetAwaiter().GetResult();
-
+    public override void EndWrite(IAsyncResult asyncResult)
+        => ((Task)asyncResult).GetAwaiter().GetResult();
 }
 
 public abstract class ReadOnlyCompatibilityStream : CompatibilityStream
 {
-    public sealed override bool CanWrite => false;
-    public sealed override void Write(byte[] buffer, int offset, int count) => throw new InvalidOperationException("Attempt to write to read-only stream");
-    public sealed override void Write(ReadOnlySpan<byte> buffer) => throw new InvalidOperationException("Attempt to write to read-only stream");
-    public sealed override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken) => throw new InvalidOperationException("Attempt to write to read-only stream");
-    public sealed override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default) => throw new InvalidOperationException("Attempt to write to read-only stream");
-    public sealed override void WriteByte(byte value) => throw new InvalidOperationException("Attempt to write to read-only stream");
+    public sealed override bool CanWrite
+        => false;
+    
+    public sealed override void Write(byte[] buffer, int offset, int count)
+        => throw new InvalidOperationException("Attempt to write to read-only stream");
+    
+    public sealed override void Write(ReadOnlySpan<byte> buffer)
+        => throw new InvalidOperationException("Attempt to write to read-only stream");
+    
+    public sealed override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        => throw new InvalidOperationException("Attempt to write to read-only stream");
+    
+    public sealed override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
+        => throw new InvalidOperationException("Attempt to write to read-only stream");
+    
+    public sealed override void WriteByte(byte value)
+        => throw new InvalidOperationException("Attempt to write to read-only stream");
+    
     public sealed override void Flush() { }
-    public sealed override Task FlushAsync(CancellationToken cancellationToken) => Task.CompletedTask;
-    public sealed override void SetLength(long value) => throw new InvalidOperationException("Attempt to change length of read-only stream");
+    
+    public sealed override Task FlushAsync(CancellationToken cancellationToken)
+        => Task.CompletedTask;
+    
+    public sealed override void SetLength(long value)
+        => throw new InvalidOperationException("Attempt to change length of read-only stream");
 }
 

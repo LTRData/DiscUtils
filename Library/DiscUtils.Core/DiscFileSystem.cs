@@ -24,7 +24,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using DiscUtils.Streams;
+using DiscUtils.Streams.Compatibility;
 
 namespace DiscUtils;
 
@@ -310,6 +313,79 @@ public abstract class DiscFileSystem :
     /// <param name="access">The access permissions for the created stream.</param>
     /// <returns>The new stream.</returns>
     public abstract SparseStream OpenFile(string path, FileMode mode, FileAccess access);
+
+    /// <summary>
+    /// Read entire contents of a file into a byte array.
+    /// </summary>
+    /// <param name="path">Path to file.</param>
+    /// <returns>Byte array with contents of file.</returns>
+    public virtual byte[] ReadAllBytes(string path)
+    {
+        using var file = OpenFile(path, FileMode.Open, FileAccess.Read);
+        return file.ReadToEnd();
+    }
+
+    /// <summary>
+    /// Read entire contents of a file into a byte array.
+    /// </summary>
+    /// <param name="path">Path to file.</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>Byte array with contents of file.</returns>
+    public virtual async ValueTask<byte[]> ReadAllBytesAsync(string path, CancellationToken cancellationToken)
+    {
+        using var file = OpenFile(path, FileMode.Open, FileAccess.Read);
+        return await file.ReadToEndAsync(cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Writes all bytes from a buffer to a file. If file already exists,
+    /// it is overwritten.
+    /// </summary>
+    /// <param name="path">Path to file.</param>
+    /// <param name="buffer">Bytes to write to file</param>
+    public virtual void WriteAllBytes(string path, ReadOnlySpan<byte> buffer)
+    {
+        using var file = OpenFile(path, FileMode.Create, FileAccess.ReadWrite);
+        file.Write(buffer);
+    }
+
+    /// <summary>
+    /// Writes all bytes from a buffer to a file. If file already exists,
+    /// it is overwritten.
+    /// </summary>
+    /// <param name="path">Path to file.</param>
+    /// <param name="buffer">Bytes to write to file</param>
+    /// <param name="cancellationToken"></param>
+    public virtual async ValueTask WriteAllBytesAsync(string path, ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken)
+    {
+        using var file = OpenFile(path, FileMode.Create, FileAccess.ReadWrite);
+        await file.WriteAsync(buffer, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Appends all bytes from a buffer to end of a file. If file does not already
+    /// exists, it is created.
+    /// </summary>
+    /// <param name="path">Path to file.</param>
+    /// <param name="buffer">Bytes to write to file</param>
+    public virtual void AppendAllBytes(string path, ReadOnlySpan<byte> buffer)
+    {
+        using var file = OpenFile(path, FileMode.Append, FileAccess.ReadWrite);
+        file.Write(buffer);
+    }
+
+    /// <summary>
+    /// Appends all bytes from a buffer to end of a file. If file does not already
+    /// exists, it is created.
+    /// </summary>
+    /// <param name="path">Path to file.</param>
+    /// <param name="buffer">Bytes to write to file</param>
+    /// <param name="cancellationToken"></param>
+    public virtual async ValueTask AppendAllBytesAsync(string path, ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken)
+    {
+        using var file = OpenFile(path, FileMode.Append, FileAccess.ReadWrite);
+        await file.WriteAsync(buffer, cancellationToken).ConfigureAwait(false);
+    }
 
     /// <summary>
     /// Gets the attributes of a file or directory.
