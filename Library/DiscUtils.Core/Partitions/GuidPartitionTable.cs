@@ -358,6 +358,7 @@ public sealed class GuidPartitionTable : PartitionTable
         _diskGeometry = diskGeometry;
 
         disk.Position = diskGeometry.BytesPerSector;
+
         var sector = diskGeometry.BytesPerSector <= 1024
             ? stackalloc byte[diskGeometry.BytesPerSector]
             : StreamUtilities.GetUninitializedArray<byte>(diskGeometry.BytesPerSector);
@@ -365,11 +366,19 @@ public sealed class GuidPartitionTable : PartitionTable
         disk.ReadExactly(sector);
 
         _primaryHeader = new GptHeader(diskGeometry.BytesPerSector);
+
         if (!_primaryHeader.ReadFrom(sector) || !ReadEntries(_primaryHeader))
         {
-            disk.Position = disk.Length - diskGeometry.BytesPerSector;
+            // Since we have a valid primary header, try to read the secondary header based
+            // on where the primary header thinks it should be. This is notably not necessarily
+            // the end of the disk - an example is if the disk was recently grown by a tool
+            // that isn't partition aware.
+            disk.Position = _primaryHeader.AlternateHeaderLba * diskGeometry.BytesPerSector;
+
             disk.ReadExactly(sector);
+
             _secondaryHeader = new GptHeader(diskGeometry.BytesPerSector);
+
             if (!_secondaryHeader.ReadFrom(sector) || !ReadEntries(_secondaryHeader))
             {
                 throw new IOException("No valid GUID Partition Table found");
@@ -394,8 +403,11 @@ public sealed class GuidPartitionTable : PartitionTable
         if (_secondaryHeader is null)
         {
             _secondaryHeader = new GptHeader(diskGeometry.BytesPerSector);
-            disk.Position = disk.Length - diskGeometry.BytesPerSector;
+
+            disk.Position = _primaryHeader.AlternateHeaderLba * diskGeometry.BytesPerSector;
+            
             disk.ReadExactly(sector);
+            
             if (!_secondaryHeader.ReadFrom(sector) || !ReadEntries(_secondaryHeader))
             {
                 // Generate from the secondary table from the primary one
