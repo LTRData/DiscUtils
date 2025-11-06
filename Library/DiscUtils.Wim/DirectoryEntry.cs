@@ -81,7 +81,14 @@ internal class DirectoryEntry
         result.CreationTime = reader.ReadInt64();
         result.LastAccessTime = reader.ReadInt64();
         result.LastWriteTime = reader.ReadInt64();
-        result.Hash = reader.ReadBytes(20).ToImmutableArray();
+
+        var hash = reader.ReadBytes(20);
+
+        if (!BufferUtilities.IsAllZeros(hash))
+        {
+            result.Hash = hash.ToImmutableArray();
+        }
+
         reader.Skip(4);
         result.ReparseTag = reader.ReadUInt32();
         result.HardLink = reader.ReadUInt32();

@@ -554,6 +554,12 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
         var dirEntry = GetEntry(filePart)
             ?? throw new FileNotFoundException("No such file or directory", path);
 
+        if (dirEntry.Attributes.HasFlag(FileAttributes.Directory)
+            && string.IsNullOrEmpty(altStreamPart))
+        {
+            throw new InvalidOperationException($"'{path}' is a directory");
+        }
+
         return dirEntry.GetStreamHash(altStreamPart);
     }
 

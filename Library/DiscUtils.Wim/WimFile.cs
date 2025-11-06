@@ -177,6 +177,11 @@ public class WimFile
 
     internal ShortResourceHeader? LocateResource(ImmutableArray<byte> hash)
     {
+        if (hash.IsDefaultOrEmpty)
+        {
+            return null;
+        }
+
         var hashHash = EndianUtilities.ToUInt32LittleEndian(hash.AsSpan());
 
         if (!_resources.TryGetValue(hashHash, out var headers))
