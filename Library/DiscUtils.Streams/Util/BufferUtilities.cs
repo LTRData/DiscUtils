@@ -71,11 +71,6 @@ public static class BufferUtilities
 
     public static bool AreEqual(ImmutableArray<byte> a, ImmutableArray<byte> b)
     {
-        if (a.Length != b.Length)
-        {
-            return false;
-        }
-
         if (a.Equals(b) || a.AsSpan().SequenceEqual(b.AsSpan()))
         {
             return true;

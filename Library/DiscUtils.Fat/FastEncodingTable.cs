@@ -19,7 +19,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 using System;
-#if NET8_0_OR_GREATER
+#if NET462_OR_GREATER || NETSTANDARD || NETCOREAPP
 using System.Collections.Frozen;
 #endif
 using DiscUtils.Streams;
@@ -37,7 +37,7 @@ namespace DiscUtils.Fat;
 /// </summary>
 internal sealed class FastEncodingTable
 {
-#if NET8_0_OR_GREATER
+#if NET462_OR_GREATER || NETSTANDARD || NETCOREAPP
     private readonly FrozenDictionary<char, byte> _mapUpperCharToByte;
     private readonly ImmutableArray<char> _mapByteToChar;
 
@@ -112,13 +112,13 @@ internal sealed class FastEncodingTable
                     }
                 }
 
-#if NET8_0_OR_GREATER
+#if NET462_OR_GREATER || NETSTANDARD || NETCOREAPP
                 var frozenMapUpperCharToByte = mapUpperCharToByte.ToFrozenDictionary();
-                var frozenMapByteToChar = mapByteToChar.ToImmutableArray();
 #else
                 var frozenMapUpperCharToByte = mapUpperCharToByte.ToImmutableDictionary();
-                var frozenMapByteToChar = mapByteToChar.ToImmutableArray();
 #endif
+
+                var frozenMapByteToChar = mapByteToChar.ToImmutableArray();
 
                 return (frozenMapUpperCharToByte, frozenMapByteToChar);
             });
