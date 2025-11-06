@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text;
 using DiscUtils;
 using DiscUtils.Ext;
+using DiscUtils.Streams;
 using LibraryTests.Helpers;
 using Xunit;
 
@@ -51,10 +52,10 @@ public class ExtFileSystemTest
 
         var sep = Path.DirectorySeparatorChar;
 
-        var tmpData = fs.OpenFile($"bar{sep}blah.txt", FileMode.Open).ReadAll();
+        var tmpData = fs.ReadAllBytes($"bar{sep}blah.txt");
         Assert.Equal(Encoding.ASCII.GetBytes("hello world\n"), tmpData);
 
-        tmpData = fs.OpenFile($"bar{sep}testdir1{sep}test.txt", FileMode.Open).ReadAll();
+        tmpData = fs.ReadAllBytes($"bar{sep}testdir1{sep}test.txt");
         Assert.Equal(Encoding.ASCII.GetBytes("Mon Feb 11 19:54:14 UTC 2019\n"), tmpData);
 
         Assert.Single(fs.GetFiles("bar", "b*"));

@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) 2008-2011, Kenneth Bell
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -24,6 +24,7 @@ using System;
 using System.IO;
 using System.Linq;
 using DiscUtils;
+using DiscUtils.Streams;
 using DiscUtils.SquashFs;
 using K4os.Compression.LZ4;
 
@@ -48,7 +49,7 @@ public sealed class SquashFileSystemBuilderTest
         Assert.Single(reader.GetFileSystemEntries("\\"));
         Assert.True(reader.FileExists("file"));
         Assert.Equal(fileData.LongLength, reader.GetFileLength("file"));
-        var fileVerifyData = reader.OpenFile("file", FileMode.Open).ReadAll();
+        var fileVerifyData = reader.ReadAllBytes("file");
         Assert.Equal(fileData, fileVerifyData);
         Assert.False(reader.DirectoryExists("file"));
         Assert.False(reader.FileExists("otherfile"));
@@ -69,9 +70,9 @@ public sealed class SquashFileSystemBuilderTest
         var reader = new SquashFileSystemReader(fsImage);
         Assert.Equal(2, reader.GetFileSystemEntries("\\").Count());
         Assert.Equal(fileData1.LongLength, reader.GetFileLength("file1.txt"));
-        var fileVerifyData1 = reader.OpenFile("file1.txt", FileMode.Open).ReadAll();
+        var fileVerifyData1 = reader.ReadAllBytes("file1.txt");
         Assert.Equal(fileData1, fileVerifyData1);
-        var fileVerifyData2 = reader.OpenFile("file2.txt", FileMode.Open).ReadAll();
+        var fileVerifyData2 = reader.ReadAllBytes("file2.txt");
         Assert.Equal(fileData2, fileVerifyData2);
         Assert.False(reader.DirectoryExists("file1.txt"));
         Assert.False(reader.FileExists("otherfile"));

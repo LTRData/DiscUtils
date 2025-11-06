@@ -11,15 +11,6 @@ namespace LibraryTests.Helpers;
 
 public static class Helpers
 {
-    public static byte[] ReadAll(this Stream stream)
-    {
-        using var ms = new MemoryStream();
-
-        stream.CopyTo(ms);
-
-        return ms.ToArray();
-    }
-
     public static Stream LoadTestDataFileFromGZipFile(string projectName, string dataFileName)
     {
         using var fs = File.OpenRead(Path.Combine("..", "..", "LibraryTests", projectName, "Data", dataFileName));
@@ -43,7 +34,7 @@ public static class Helpers
     }
     public static string GetFileChecksum(string path, IFileSystem fs)
     {
-#if NETCOREAPP
+#if NET5_0_OR_GREATER
         var fileInfo = fs.GetFileInfo(path);
         using var file = fileInfo.OpenRead();
         Span<byte> checksum = stackalloc byte[MD5.HashSizeInBytes];
