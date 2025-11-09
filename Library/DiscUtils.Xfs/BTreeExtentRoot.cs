@@ -114,6 +114,6 @@ internal class BTreeExtentRoot : IByteArraySerializable
 
     public IEnumerable<Extent> GetExtents()
     {
-        return Children.SelectMany(child => child.Value.GetExtents());
+        return Children.SelectMany(static child => child.Value.GetExtents());
     }
 }

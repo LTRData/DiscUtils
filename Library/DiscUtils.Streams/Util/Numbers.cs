@@ -83,12 +83,12 @@ internal static class Numbers<T>
     {
         if (typeof(T) == typeof(long))
         {
-            return ((NoParamFn)(object)new LongNoParamFn(() => { return 1; }))();
+            return ((NoParamFn)(object)new LongNoParamFn(static () => { return 1; }))();
         }
 
         if (typeof(T) == typeof(int))
         {
-            return ((NoParamFn)(object)new IntNoParamFn(() => { return 1; }))();
+            return ((NoParamFn)(object)new IntNoParamFn(static () => { return 1; }))();
         }
 
         throw new NotSupportedException();
@@ -98,12 +98,12 @@ internal static class Numbers<T>
     {
         if (typeof(T) == typeof(long))
         {
-            return (ConvertLongFn)(object)new LongConvertLongFn(x => { return x; });
+            return (ConvertLongFn)(object)new LongConvertLongFn(static x => { return x; });
         }
 
         if (typeof(T) == typeof(int))
         {
-            return (ConvertLongFn)(object)new IntConvertLongFn(x => { return (int)x; });
+            return (ConvertLongFn)(object)new IntConvertLongFn(static x => { return (int)x; });
         }
 
         throw new NotSupportedException();
@@ -113,12 +113,12 @@ internal static class Numbers<T>
     {
         if (typeof(T) == typeof(long))
         {
-            return (ConvertIntFn)(object)new LongConvertIntFn(x => { return x; });
+            return (ConvertIntFn)(object)new LongConvertIntFn(static x => { return x; });
         }
 
         if (typeof(T) == typeof(int))
         {
-            return (ConvertIntFn)(object)new IntConvertIntFn(x => { return x; });
+            return (ConvertIntFn)(object)new IntConvertIntFn(static x => { return x; });
         }
 
         throw new NotSupportedException();
@@ -128,12 +128,12 @@ internal static class Numbers<T>
     {
         if (typeof(T) == typeof(long))
         {
-            return (DualParamFn)(object)new LongDualParamFn((a, b) => { return a + b; });
+            return (DualParamFn)(object)new LongDualParamFn(static (a, b) => { return a + b; });
         }
 
         if (typeof(T) == typeof(int))
         {
-            return (DualParamFn)(object)new IntDualParamFn((a, b) => { return a + b; });
+            return (DualParamFn)(object)new IntDualParamFn(static (a, b) => { return a + b; });
         }
 
         throw new NotSupportedException();
@@ -143,12 +143,12 @@ internal static class Numbers<T>
     {
         if (typeof(T) == typeof(long))
         {
-            return (DualParamFn)(object)new LongDualParamFn((a, b) => { return a - b; });
+            return (DualParamFn)(object)new LongDualParamFn(static (a, b) => { return a - b; });
         }
 
         if (typeof(T) == typeof(int))
         {
-            return (DualParamFn)(object)new IntDualParamFn((a, b) => { return a - b; });
+            return (DualParamFn)(object)new IntDualParamFn(static (a, b) => { return a - b; });
         }
 
         throw new NotSupportedException();
@@ -158,12 +158,12 @@ internal static class Numbers<T>
     {
         if (typeof(T) == typeof(long))
         {
-            return (DualParamFn)(object)new LongDualParamFn((a, b) => { return a * b; });
+            return (DualParamFn)(object)new LongDualParamFn(static (a, b) => { return a * b; });
         }
 
         if (typeof(T) == typeof(int))
         {
-            return (DualParamFn)(object)new IntDualParamFn((a, b) => { return a * b; });
+            return (DualParamFn)(object)new IntDualParamFn(static (a, b) => { return a * b; });
         }
 
         throw new NotSupportedException();
@@ -173,12 +173,12 @@ internal static class Numbers<T>
     {
         if (typeof(T) == typeof(long))
         {
-            return (DualParamFn)(object)new LongDualParamFn((a, b) => { return a / b; });
+            return (DualParamFn)(object)new LongDualParamFn(static (a, b) => { return a / b; });
         }
 
         if (typeof(T) == typeof(int))
         {
-            return (DualParamFn)(object)new IntDualParamFn((a, b) => { return a / b; });
+            return (DualParamFn)(object)new IntDualParamFn(static (a, b) => { return a / b; });
         }
 
         throw new NotSupportedException();
@@ -188,12 +188,12 @@ internal static class Numbers<T>
     {
         if (typeof(T) == typeof(long))
         {
-            return (DualParamFn)(object)new LongDualParamFn((a, b) => { return (a + b - 1) / b * b; });
+            return (DualParamFn)(object)new LongDualParamFn(static (a, b) => { return (a + b - 1) / b * b; });
         }
 
         if (typeof(T) == typeof(int))
         {
-            return (DualParamFn)(object)new IntDualParamFn((a, b) => { return (a + b - 1) / b * b; });
+            return (DualParamFn)(object)new IntDualParamFn(static (a, b) => { return (a + b - 1) / b * b; });
         }
 
         throw new NotSupportedException();
@@ -203,12 +203,12 @@ internal static class Numbers<T>
     {
         if (typeof(T) == typeof(long))
         {
-            return (DualParamFn)(object)new LongDualParamFn((a, b) => { return a / b * b; });
+            return (DualParamFn)(object)new LongDualParamFn(static (a, b) => { return a / b * b; });
         }
 
         if (typeof(T) == typeof(int))
         {
-            return (DualParamFn)(object)new IntDualParamFn((a, b) => { return a / b * b; });
+            return (DualParamFn)(object)new IntDualParamFn(static (a, b) => { return a / b * b; });
         }
 
         throw new NotSupportedException();
@@ -218,12 +218,12 @@ internal static class Numbers<T>
     {
         if (typeof(T) == typeof(long))
         {
-            return (DualParamFn)(object)new LongDualParamFn((a, b) => { return (a + b - 1) / b; });
+            return (DualParamFn)(object)new LongDualParamFn(static (a, b) => { return (a + b - 1) / b; });
         }
 
         if (typeof(T) == typeof(int))
         {
-            return (DualParamFn)(object)new IntDualParamFn((a, b) => { return (a + b - 1) / b; });
+            return (DualParamFn)(object)new IntDualParamFn(static (a, b) => { return (a + b - 1) / b; });
         }
 
         throw new NotSupportedException();

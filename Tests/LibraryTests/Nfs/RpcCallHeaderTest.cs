@@ -45,7 +45,7 @@ public class RpcCallHeaderTest
             Version = 7
         };
 
-        RpcCallHeader clone = null;
+        RpcCallHeader? clone = null;
 
         using (var stream = new MemoryStream())
         {

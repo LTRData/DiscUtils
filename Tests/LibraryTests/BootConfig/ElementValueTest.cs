@@ -78,8 +78,10 @@ public class ElementValueTest
 
         el = obj.GetElement(WellKnownElement.LibraryApplicationDevice);
 
-        Assert.NotNull(el.Value.ToString());
-        Assert.NotEmpty(el.Value.ToString());
+        var o = el.Value.ToString();
+
+        Assert.NotNull(o);
+        Assert.NotEmpty(o);
     }
 
     [Fact]
@@ -99,8 +101,9 @@ public class ElementValueTest
 
         el = obj.GetElement(WellKnownElement.LibraryApplicationDevice);
 
-        Assert.NotNull(el.Value.ToString());
-        Assert.NotEmpty(el.Value.ToString());
+        var o = el.Value.ToString();
+        Assert.NotNull(o);
+        Assert.NotEmpty(o);
     }
 
     [Fact]
@@ -114,8 +117,9 @@ public class ElementValueTest
 
         el = obj.GetElement(WellKnownElement.LibraryApplicationDevice);
 
-        Assert.NotNull(el.Value.ToString());
-        Assert.NotEmpty(el.Value.ToString());
+        var o = el.Value.ToString();
+        Assert.NotNull(o);
+        Assert.NotEmpty(o);
     }
 
     [Fact]
@@ -176,7 +180,8 @@ public class ElementValueTest
 
         el = obj.GetElement(WellKnownElement.LibraryBadMemoryList);
 
-        Assert.NotNull(el.Value.ToString());
-        Assert.NotEmpty(el.Value.ToString());
+        var o = el.Value.ToString();
+        Assert.NotNull(o);
+        Assert.NotEmpty(o);
     }
 }

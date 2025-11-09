@@ -28,7 +28,7 @@ namespace LibraryTests;
 
 public class MacOSOnlyTheoryAttribute : TheoryAttribute
 {
-    public override string Skip
+    public override string? Skip
     {
         get
         {

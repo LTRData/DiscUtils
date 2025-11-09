@@ -18,18 +18,18 @@ public class ExtFileSystemTest
         using var fs = new ExtFileSystem(data, new FileSystemParameters());
 
         Assert.Collection(fs.Root.GetFileSystemInfos()
-                            .OrderBy(s => s.Name),
-            s =>
+                            .OrderBy(static s => s.Name),
+            static s =>
             {
                 Assert.Equal("bar", s.Name);
                 Assert.NotEqual<FileAttributes>(0, s.Attributes & FileAttributes.Directory);
             },
-            s =>
+            static s =>
             {
                 Assert.Equal("foo", s.Name);
                 Assert.NotEqual<FileAttributes>(0, s.Attributes & FileAttributes.Directory);
             },
-            s =>
+            static s =>
             {
                 Assert.Equal("lost+found", s.Name);
                 Assert.NotEqual<FileAttributes>(0, s.Attributes & FileAttributes.Directory);
@@ -38,13 +38,13 @@ public class ExtFileSystemTest
         Assert.Empty(fs.Root.GetDirectories("foo").First().GetFileSystemInfos());
 
         Assert.Collection(fs.Root.GetDirectories("bar").First().GetFileSystemInfos()
-                            .OrderBy(s => s.Name),
-            s =>
+                            .OrderBy(static s => s.Name),
+            static s =>
             {
                 Assert.Equal("blah.txt", s.Name);
                 Assert.Equal<FileAttributes>(0, s.Attributes & FileAttributes.Directory);
             },
-            s =>
+            static s =>
             {
                 Assert.Equal("testdir1", s.Name);
                 Assert.NotEqual<FileAttributes>(0, s.Attributes & FileAttributes.Directory);

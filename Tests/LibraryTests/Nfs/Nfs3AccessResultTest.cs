@@ -44,7 +44,7 @@ public class Nfs3AccessResultTest
             Status = Nfs3Status.AccessDenied
         };
 
-        Nfs3AccessResult clone = null;
+        Nfs3AccessResult? clone = null;
 
         using (var stream = new MemoryStream())
         {

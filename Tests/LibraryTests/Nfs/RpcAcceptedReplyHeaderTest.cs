@@ -44,7 +44,7 @@ public class RpcAcceptedReplyHeaderTest
             }
         };
 
-        RpcAcceptedReplyHeader clone = null;
+        RpcAcceptedReplyHeader? clone = null;
 
         using (var stream = new MemoryStream())
         {

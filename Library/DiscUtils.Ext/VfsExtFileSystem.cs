@@ -204,7 +204,7 @@ internal sealed class VfsExtFileSystem : VfsReadOnlyFileSystem<DirEntry, File, D
 
     public long OffsetToCluster(long offset) => offset / ClusterSize;
 
-    public long GetAllocatedClustersCount(string path) => PathToClusters(path).Sum(range => range.Count);
+    public long GetAllocatedClustersCount(string path) => PathToClusters(path).Sum(static range => range.Count);
 
     /// <summary>
     /// Size of the Filesystem in bytes

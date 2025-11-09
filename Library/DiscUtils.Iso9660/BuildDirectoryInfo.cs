@@ -239,7 +239,7 @@ public sealed class BuildDirectoryInfo : BuildDirectoryMember
 #if NET7_0_OR_GREATER
             _sortedMembers = [.. _membersLongNames.Values.Order(SortedComparison)];
 #else
-            _sortedMembers = [.. _membersLongNames.Values.OrderBy(v => v, SortedComparison)];
+            _sortedMembers = [.. _membersLongNames.Values.OrderBy(static v => v, SortedComparison)];
 #endif
         }
 

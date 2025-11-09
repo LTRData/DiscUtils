@@ -43,7 +43,7 @@ public class Nfs3GetAttributesResultTest
             Status = Nfs3Status.Ok
         };
 
-        Nfs3GetAttributesResult clone = null;
+        Nfs3GetAttributesResult? clone = null;
 
         using (var stream = new MemoryStream())
         {

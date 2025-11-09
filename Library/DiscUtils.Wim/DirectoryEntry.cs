@@ -122,7 +122,7 @@ internal class DirectoryEntry
 
         if (result.StreamCount > 0)
         {
-            result.AlternateStreams = new FastDictionary<AlternateStreamEntry>(StringComparer.OrdinalIgnoreCase, entry => entry.Name);
+            result.AlternateStreams = new FastDictionary<AlternateStreamEntry>(StringComparer.OrdinalIgnoreCase, static entry => entry.Name);
             
             for (var i = 0; i < result.StreamCount; ++i)
             {

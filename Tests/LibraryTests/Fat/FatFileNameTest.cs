@@ -55,7 +55,7 @@ public class FatFileNameTest
     [InlineData("mixed.Txt", "MIXED.TXT", true)]
     public void TestShortName(string name, string expectedShortName, bool expectedLongName)
     {
-        Func<string, bool> resolver = name.StartsWith("V1") ? IsShortNameExits1 : name.StartsWith("V2") ? IsShortNameExists2 : shortName => false;
+        Func<string, bool> resolver = name.StartsWith("V1") ? IsShortNameExits1 : name.StartsWith("V2") ? IsShortNameExists2 : static shortName => false;
         var fileName = FatFileName.FromName(name, FastEncodingTable.Default, resolver);
         Assert.Equal(expectedShortName, fileName.ShortName);
         Assert.Equal(expectedLongName, fileName.LongName is not null);

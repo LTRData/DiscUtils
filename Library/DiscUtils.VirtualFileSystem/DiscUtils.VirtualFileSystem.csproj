@@ -5,6 +5,7 @@
     <Description>DiscUtils Virtual File System</Description>
     <Authors>Olof Lagerkvist</Authors>
     <PackageTags>DiscUtils;tar;zip</PackageTags>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

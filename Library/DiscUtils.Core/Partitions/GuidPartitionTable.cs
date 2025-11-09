@@ -434,8 +434,8 @@ public sealed class GuidPartitionTable : PartitionTable
     {
         // If no MicrosoftReserved partition, and no Microsoft Data partitions, and the disk
         // has a 'reasonable' size free, create a Microsoft Reserved partition.
-        if (CountEntries(allEntries, e => e.PartitionType == GuidPartitionTypes.MicrosoftReserved) == 0
-            && CountEntries(allEntries, e => e.PartitionType == GuidPartitionTypes.WindowsBasicData) == 0
+        if (CountEntries(allEntries, static e => e.PartitionType == GuidPartitionTypes.MicrosoftReserved) == 0
+            && CountEntries(allEntries, static e => e.PartitionType == GuidPartitionTypes.WindowsBasicData) == 0
             && _diskGeometry.Capacity > 512 * 1024 * 1024)
         {
             var reservedStart = FirstAvailableSector(allEntries);

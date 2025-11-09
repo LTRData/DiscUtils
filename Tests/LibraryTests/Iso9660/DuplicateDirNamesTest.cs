@@ -44,7 +44,7 @@ public class DuplicateDirNamesTest
         {
             var folder = CDReader.GetDirectoryInfo("Folder");
             var count = folder.GetFiles().Count();
-            var uniqueCount = folder.GetFiles().Select(file => file.Name).Distinct().Count();
+            var uniqueCount = folder.GetFiles().Select(static file => file.Name).Distinct().Count();
             Assert.Equal(count, uniqueCount);
         }
 
@@ -52,7 +52,7 @@ public class DuplicateDirNamesTest
         {
             var folder = CDReader.GetDirectoryInfo("Folder");
             var count = folder.GetFiles().Count();
-            var uniqueCount = folder.GetFiles().Select(file => file.Name).Distinct().Count();
+            var uniqueCount = folder.GetFiles().Select(static file => file.Name).Distinct().Count();
             Assert.Equal(count, uniqueCount);
         }
     }
@@ -73,7 +73,7 @@ public class DuplicateDirNamesTest
         {
             var folder = CDReader.GetDirectoryInfo("Folder");
             var count = folder.GetFiles().Count();
-            var uniqueCount = folder.GetFiles().Select(file => file.Name).Distinct().Count();
+            var uniqueCount = folder.GetFiles().Select(static file => file.Name).Distinct().Count();
             Assert.Equal(count, uniqueCount);
         }
 
@@ -81,7 +81,7 @@ public class DuplicateDirNamesTest
         {
             var folder = CDReader.GetDirectoryInfo("Folder");
             var count = folder.GetFiles().Count();
-            var uniqueCount = folder.GetFiles().Select(file => file.Name).Distinct().Count();
+            var uniqueCount = folder.GetFiles().Select(static file => file.Name).Distinct().Count();
             Assert.Equal(count, uniqueCount);
         }
     }

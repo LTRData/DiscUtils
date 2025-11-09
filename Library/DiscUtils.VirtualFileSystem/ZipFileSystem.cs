@@ -8,7 +8,7 @@ namespace DiscUtils.VirtualFileSystem;
 
 public class ZipFileSystem : VirtualFileSystem
 {
-    private readonly WeakReference _zip;
+    private readonly WeakReference<ZipArchive>? _zip;
 
     public int FileDatabufferChunkSize { get; set; } = 32 * 1024 * 1024;
 
@@ -51,7 +51,7 @@ public class ZipFileSystem : VirtualFileSystem
 
         if (ownsStream)
         {
-            _zip = new WeakReference(zip);
+            _zip = new(zip);
         }
 
         foreach (var file in zip.Entries)
@@ -112,7 +112,7 @@ public class ZipFileSystem : VirtualFileSystem
 
     protected override void Dispose(bool disposing)
     {
-        if (disposing && _zip?.Target is IDisposable archive)
+        if (disposing && _zip is not null && _zip.TryGetTarget(out var archive))
         {
             archive.Dispose();
         }

@@ -60,7 +60,7 @@ public sealed class SparseMemoryBuffer : Buffer
 #if NET7_0_OR_GREATER
     public IEnumerable<int> AllocatedChunks => _buffers.Keys.Order();
 #else
-    public IEnumerable<int> AllocatedChunks => _buffers.Keys.OrderBy(i => i);
+    public IEnumerable<int> AllocatedChunks => _buffers.Keys.OrderBy(static i => i);
 #endif
 
     /// <summary>

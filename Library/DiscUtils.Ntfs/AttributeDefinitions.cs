@@ -81,7 +81,7 @@ public sealed class AttributeDefinitions
 #if NET7_0_OR_GREATER
         var attribs = _attrDefs.Keys.Order();
 #else
-        var attribs = _attrDefs.Keys.OrderBy(item => item);
+        var attribs = _attrDefs.Keys.OrderBy(static item => item);
 #endif
 
         using var s = file.OpenStream(AttributeType.Data, null, FileAccess.ReadWrite);

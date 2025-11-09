@@ -37,7 +37,7 @@ public class DiskTest
         var ms = new MemoryStream();
         using (var disk = Disk.InitializeFixed(ms, Ownership.None, 8 * 1024 * 1024))
         {
-            Assert.NotNull(disk);
+            Assert.NotNull(disk?.Geometry);
             Assert.True(disk.Geometry.Value.Capacity is > (long)(7.5 * 1024 * 1024) and < (8 * 1024 * 1024));
             Assert.True(disk.Geometry.Value.Capacity <= disk.Content.Length);
         }
@@ -64,7 +64,7 @@ public class DiskTest
         var ms = new MemoryStream();
         using (var disk = Disk.InitializeDynamic(ms, Ownership.None, 16 * 1024L * 1024 * 1024))
         {
-            Assert.NotNull(disk);
+            Assert.NotNull(disk?.Geometry);
             Assert.True(disk.Geometry.Value.Capacity is > (long)(15.8 * 1024L * 1024 * 1024) and < (16 * 1024L * 1024 * 1024));
             Assert.True(disk.Geometry.Value.Capacity <= disk.Content.Length);
         }
@@ -73,6 +73,7 @@ public class DiskTest
 
         using (var disk = new Disk(ms))
         {
+            Assert.NotNull(disk.Geometry);
             Assert.True(disk.Geometry.Value.Capacity is > (long)(15.8 * 1024L * 1024 * 1024) and < (16 * 1024L * 1024 * 1024));
             Assert.True(disk.Geometry.Value.Capacity <= disk.Content.Length);
         }
@@ -85,6 +86,7 @@ public class DiskTest
         var ms = new MemoryStream();
         using (var disk = Disk.InitializeDynamic(ms, Ownership.None, 16 * 1024L * 1024 * 1024))
         {
+            Assert.NotNull(disk?.Geometry);
             geometry = disk.Geometry.Value;
         }
 

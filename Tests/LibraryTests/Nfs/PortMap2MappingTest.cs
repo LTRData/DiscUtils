@@ -39,7 +39,7 @@ public class PortMap2MappingTest
             Version = 4
         };
 
-        PortMap2Mapping clone = null;
+        PortMap2Mapping? clone = null;
 
         using (var stream = new MemoryStream())
         {

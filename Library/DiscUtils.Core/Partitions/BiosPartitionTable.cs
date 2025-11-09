@@ -803,7 +803,7 @@ public sealed class BiosPartitionTable : PartitionTable
 
     private int FindCylinderGap(int numCylinders)
     {
-        var list = GetPrimaryRecords().Where(r => r.IsValid).ToList();
+        var list = GetPrimaryRecords().Where(static r => r.IsValid).ToList();
         list.Sort();
 
         var startCylinder = 0;
@@ -839,7 +839,7 @@ public sealed class BiosPartitionTable : PartitionTable
 
     private long FindGap(long numSectors, long alignmentSectors)
     {
-        var list = GetPrimaryRecords().Where(r => r.IsValid).ToList();
+        var list = GetPrimaryRecords().Where(static r => r.IsValid).ToList();
         list.Sort();
 
         var startSector = MathUtilities.RoundUp(_diskGeometry.ToLogicalBlockAddress(0, 1, 1), alignmentSectors);

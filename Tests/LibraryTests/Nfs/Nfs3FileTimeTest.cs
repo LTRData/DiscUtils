@@ -33,7 +33,7 @@ public class Nfs3FileTimeTest
     {
         var time = new Nfs3FileTime(1, 2);
 
-        Nfs3FileTime clone = null;
+        Nfs3FileTime? clone = null;
 
         using (var stream = new MemoryStream())
         {

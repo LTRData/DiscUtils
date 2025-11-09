@@ -64,7 +64,7 @@ public class Nfs3ReadDirResultTest
             ]
         };
 
-        Nfs3ReadDirResult clone = null;
+        Nfs3ReadDirResult? clone = null;
 
         using (var stream = new MemoryStream())
         {

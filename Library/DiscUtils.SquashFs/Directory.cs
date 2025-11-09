@@ -49,7 +49,7 @@ internal class Directory : File, IVfsDirectory<DirectoryEntry, File>
         {
             if (_allEntries is null)
             {
-                _allEntries = new(StringComparer.Ordinal, entry => entry.FileName);
+                _allEntries = new(StringComparer.Ordinal, static entry => entry.FileName);
 
                 var reader = Context.DirectoryReader;
                 reader.SetPosition(_dirInode.StartBlock, _dirInode.Offset);

@@ -68,7 +68,7 @@ public class Nfs3FileSystemInfoResultTest
             Status = Nfs3Status.Ok
         };
 
-        Nfs3FileSystemInfoResult clone = null;
+        Nfs3FileSystemInfoResult? clone = null;
 
         using (var stream = new MemoryStream())
         {

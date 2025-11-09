@@ -28,7 +28,7 @@ namespace LibraryTests;
 
 public class WindowsOnlyFactAttribute : FactAttribute
 {
-    public override string Skip
+    public override string? Skip
     {
         get
         {
@@ -49,6 +49,7 @@ public class WindowsOnlyFactAttribute : FactAttribute
 #endif
 
         }
+
         set => throw new NotSupportedException();
     }
 }

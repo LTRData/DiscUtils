@@ -67,7 +67,7 @@ public sealed class VirtualFileSystemFile : VirtualFileSystemDirectoryEntry
         return new VirtualFileSystemFile(new_parent, new_name, this);
     }
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
         => obj is VirtualFileSystemFile other
         && other.OpenFunc == OpenFunc;
 

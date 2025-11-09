@@ -39,7 +39,7 @@ public class Nfs3WeakCacheConsistencyAttrTest
             Size = 3
         };
 
-        Nfs3WeakCacheConsistencyAttr clone = null;
+        Nfs3WeakCacheConsistencyAttr? clone = null;
 
         using (var stream = new MemoryStream())
         {

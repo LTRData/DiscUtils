@@ -36,7 +36,7 @@ public class Nfs3FileHandleTest
             Value = [0x01]
         };
 
-        Nfs3FileHandle clone = null;
+        Nfs3FileHandle? clone = null;
 
         using (var stream = new MemoryStream())
         {

@@ -12,7 +12,7 @@ namespace DiscUtils.VirtualFileSystem;
 
 public class TarFileSystem : VirtualFileSystem
 {
-    private readonly WeakReference<Stream> _tar;
+    private readonly WeakReference<Stream>? _tar;
 
     public override bool IsThreadSafe => true;
 
@@ -40,10 +40,10 @@ public class TarFileSystem : VirtualFileSystem
     public TarFileSystem(FileStream tar_stream, bool ownsStream)
         : this(tar_stream, tar_stream.Name, ownsStream) { }
 
-    public TarFileSystem(Stream tar_stream, string label, bool ownsStream)
+    public TarFileSystem(Stream tar_stream, string? label, bool ownsStream)
         : this(tar_stream, label, ownsStream, initialize: true) { }
 
-    private TarFileSystem(Stream tar_stream, string label, bool ownsStream, bool initialize)
+    private TarFileSystem(Stream tar_stream, string? label, bool ownsStream, bool initialize)
         : base(new VirtualFileSystemOptions
         {
             VolumeLabel = label,
@@ -113,7 +113,8 @@ public class TarFileSystem : VirtualFileSystem
             AddDirectory(path, file.Header.OwnerId, file.Header.GroupId, file.Header.FileMode,
                 file.Header.CreationTime.LocalDateTime, file.Header.ModificationTime.LocalDateTime, file.Header.LastAccessTime.LocalDateTime);
         }
-        else if (file.Header.FileType == TarFileType.TarEntryLink)
+        else if (file.Header.FileType == TarFileType.TarEntryLink
+            && file.Header.LinkName is not null)
         {
             AddLink(file.Header.LinkName, path);
         }

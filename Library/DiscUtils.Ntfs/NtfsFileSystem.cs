@@ -376,13 +376,13 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
         if (recursive)
         {
             foreach (var dir in DoSearch(path, null, subFolders: true, dirs: true, files: false,
-                entry => entry.Key.FileNameNamespace != FileNameNamespace.Dos).ToArray())
+                static entry => entry.Key.FileNameNamespace != FileNameNamespace.Dos).ToArray())
             {
                 DeleteDirectory(dir, true);
             }
 
             foreach (var file in DoSearch(path, null, subFolders: true, dirs: false, files: true,
-                entry => entry.Key.FileNameNamespace != FileNameNamespace.Dos).ToArray())
+                static entry => entry.Key.FileNameNamespace != FileNameNamespace.Dos).ToArray())
             {
                 DeleteFile(file);
             }

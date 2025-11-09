@@ -43,7 +43,7 @@ public class BiosPartitionedDiskBuilderTest
         partitionContent.WriteByte(0xAf);
         builder.SetPartitionContent(0, partitionContent);
 
-        var constructedStream = builder.Build() as SparseStream;
+        var constructedStream = (SparseStream)builder.Build();
 
         var bpt = new BiosPartitionTable(constructedStream, geometry);
         Assert.Equal(1, bpt.Count);

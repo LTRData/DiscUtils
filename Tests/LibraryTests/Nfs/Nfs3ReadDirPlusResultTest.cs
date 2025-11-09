@@ -87,7 +87,7 @@ public class Nfs3ReadDirPlusResultTest
             Status = Nfs3Status.Ok
         };
 
-        Nfs3ReadDirPlusResult clone = null;
+        Nfs3ReadDirPlusResult? clone = null;
 
         using (var stream = new MemoryStream())
         {

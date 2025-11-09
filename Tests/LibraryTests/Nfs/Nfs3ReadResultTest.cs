@@ -58,7 +58,7 @@ public class Nfs3ReadResultTest
             Status = Nfs3Status.Ok
         };
 
-        Nfs3ReadResult clone = null;
+        Nfs3ReadResult? clone = null;
 
         using (var stream = new MemoryStream())
         {

@@ -31,7 +31,7 @@ public interface IFileSystemBuilder
 
     long TotalSize { get; }
 
-    string VolumeIdentifier { get; set; }
+    string? VolumeIdentifier { get; set; }
 
     event EventHandler<ProgressEventArgs> ProgressChanged;
 

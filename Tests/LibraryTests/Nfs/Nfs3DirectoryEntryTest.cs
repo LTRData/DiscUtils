@@ -56,7 +56,7 @@ public class Nfs3DirectoryEntryTest
             Name = "test"
         };
 
-        Nfs3DirectoryEntry clone = null;
+        Nfs3DirectoryEntry? clone = null;
 
         using (var stream = new MemoryStream())
         {

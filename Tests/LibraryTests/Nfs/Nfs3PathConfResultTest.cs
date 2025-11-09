@@ -49,7 +49,7 @@ public class Nfs3PathConfResultTest
             }
         };
 
-        Nfs3PathConfResult clone = null;
+        Nfs3PathConfResult? clone = null;
 
         using (var stream = new MemoryStream())
         {

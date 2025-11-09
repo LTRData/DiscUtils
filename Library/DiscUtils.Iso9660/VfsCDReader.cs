@@ -303,12 +303,12 @@ internal class VfsCDReader : VfsReadOnlyFileSystem<ReaderDirEntry, File, ReaderD
         var entry = GetDirectoryEntry(path)
             ?? throw new FileNotFoundException("File not found", path);
 
-        if (entry.RecordExtents.Any(e => e.FileUnitSize != 0 || e.InterleaveGapSize != 0))
+        if (entry.RecordExtents.Any(static e => e.FileUnitSize != 0 || e.InterleaveGapSize != 0))
         {
             throw new NotSupportedException("Non-contiguous extents not supported");
         }
 
-        return entry.RecordExtents.Select(e => new Range<long, long>(e.LocationOfExtent, MathUtilities.Ceil(e.DataLength, IsoUtilities.SectorSize)));
+        return entry.RecordExtents.Select(static e => new Range<long, long>(e.LocationOfExtent, MathUtilities.Ceil(e.DataLength, IsoUtilities.SectorSize)));
     }
 
     public IEnumerable<StreamExtent> PathToExtents(string path)
@@ -316,12 +316,12 @@ internal class VfsCDReader : VfsReadOnlyFileSystem<ReaderDirEntry, File, ReaderD
         var entry = GetDirectoryEntry(path)
             ?? throw new FileNotFoundException("File not found", path);
 
-        if (entry.RecordExtents.Any(e => e.FileUnitSize != 0 || e.InterleaveGapSize != 0))
+        if (entry.RecordExtents.Any(static e => e.FileUnitSize != 0 || e.InterleaveGapSize != 0))
         {
             throw new NotSupportedException("Non-contiguous extents not supported");
         }
 
-        return entry.RecordExtents.Select(e => new StreamExtent(e.LocationOfExtent * IsoUtilities.SectorSize, e.DataLength));
+        return entry.RecordExtents.Select(static e => new StreamExtent(e.LocationOfExtent * IsoUtilities.SectorSize, e.DataLength));
     }
 
     public long GetAllocatedClustersCount(string path)
@@ -329,7 +329,7 @@ internal class VfsCDReader : VfsReadOnlyFileSystem<ReaderDirEntry, File, ReaderD
         var entry = GetDirectoryEntry(path)
             ?? throw new FileNotFoundException("File not found", path);
 
-        if (entry.RecordExtents.Any(e => e.FileUnitSize != 0 || e.InterleaveGapSize != 0))
+        if (entry.RecordExtents.Any(static e => e.FileUnitSize != 0 || e.InterleaveGapSize != 0))
         {
             throw new NotSupportedException("Non-contiguous extents not supported");
         }

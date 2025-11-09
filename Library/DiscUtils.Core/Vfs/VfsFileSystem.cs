@@ -813,7 +813,7 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
 
                 var newPathEntries = targetPath.AsMemory()
                     .TokenEnum('\\', '/', StringSplitOptions.RemoveEmptyEntries)
-                    .Select(entry => entry.ToString())
+                    .Select(static entry => entry.ToString())
                     .Concat(pathEntries.Skip(pathOffset + 1))
                     .ToArray();
 

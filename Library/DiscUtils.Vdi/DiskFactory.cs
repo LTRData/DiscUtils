@@ -85,7 +85,7 @@ internal sealed class DiskFactory : VirtualDiskFactory
             CanBeHardDisk = true,
             DeterministicGeometry = true,
             PreservesBiosGeometry = true,
-            CalcGeometry = c => GeometryRecord.FromCapacity(c).ToGeometry(c)
+            CalcGeometry = static c => GeometryRecord.FromCapacity(c).ToGeometry(c)
         };
     }
 }

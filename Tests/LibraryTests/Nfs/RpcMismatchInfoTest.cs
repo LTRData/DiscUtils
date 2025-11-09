@@ -37,7 +37,7 @@ public class RpcMismatchInfoTest
              Low = 2
         };
 
-        RpcMismatchInfo clone = null;
+        RpcMismatchInfo? clone = null;
 
         using (var stream = new MemoryStream())
         {

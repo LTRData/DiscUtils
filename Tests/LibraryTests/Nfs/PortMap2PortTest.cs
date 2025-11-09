@@ -36,7 +36,7 @@ public class PortMap2PortTest
             Port = 2
         };
 
-        PortMap2Port clone = null;
+        PortMap2Port? clone = null;
 
         using (var stream = new MemoryStream())
         {

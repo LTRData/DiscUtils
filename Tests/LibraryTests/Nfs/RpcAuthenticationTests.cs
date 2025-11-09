@@ -33,7 +33,7 @@ public class RpcAuthenticationTests
     {
         var authentication = new RpcAuthentication();
 
-        RpcAuthentication clone = null;
+        RpcAuthentication? clone = null;
 
         using (var stream = new MemoryStream())
         {

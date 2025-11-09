@@ -49,7 +49,7 @@ public class Nfs3SetAttributesTest
             Uid = 5
         };
 
-        Nfs3SetAttributes clone = null;
+        Nfs3SetAttributes? clone = null;
 
         using (var stream = new MemoryStream())
         {

@@ -47,7 +47,7 @@ internal class Directory : File, IVfsDirectory<DirEntry, File>
                 return _allEntries;
             }
 
-            var result = new FastDictionary<DirEntry>(StringComparer.Ordinal, entry => entry.FileName);
+            var result = new FastDictionary<DirEntry>(StringComparer.Ordinal, static entry => entry.FileName);
             var treeId = DirEntry.TreeId;
             var objectId = DirEntry.ObjectId;
             if (DirEntry.IsSubtree)

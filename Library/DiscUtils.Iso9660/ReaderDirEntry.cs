@@ -97,7 +97,7 @@ internal sealed class ReaderDirEntry : VfsDirEntry
             {
                 _fileName = string.Concat(nameEntries
                     .OfType<PosixNameSystemUseEntry>()
-                    .Select(nameEntry => nameEntry.NameData));
+                    .Select(static nameEntry => nameEntry.NameData));
 
                 if (context.HideVersions)
                 {
@@ -232,7 +232,7 @@ internal sealed class ReaderDirEntry : VfsDirEntry
     [Obsolete("Please use RecordExtents property instead.")]
     public DirectoryRecord Record => _records[0];
     public ReadOnlyCollection<DirectoryRecord> RecordExtents => _records.AsReadOnly();
-    public long RecordExtentsDataLength => _records.Sum(r => r.DataLength);
+    public long RecordExtentsDataLength => _records.Sum(static r => r.DataLength);
 
     public SuspRecords SuspRecords { get; }
 

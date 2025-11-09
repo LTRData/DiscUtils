@@ -29,7 +29,7 @@ using LTRData.Extensions.Buffers;
 [VfsFileSystemFactory]
 internal class ZipFileSystemFactory : VfsFileSystemFactory
 {
-    public override IEnumerable<FileSystemInfo> Detect(System.IO.Stream stream, VolumeInfo volume)
+    public override IEnumerable<FileSystemInfo> Detect(System.IO.Stream stream, VolumeInfo? volume)
     {
         if (ZipFileSystem.Detect(stream))
         {
@@ -39,7 +39,7 @@ internal class ZipFileSystemFactory : VfsFileSystemFactory
         return [];
     }
 
-    private ZipFileSystem Open(System.IO.Stream stream, VolumeInfo volumeInfo, FileSystemParameters parameters)
+    private ZipFileSystem Open(System.IO.Stream stream, VolumeInfo? volumeInfo, FileSystemParameters? parameters)
     {
         return new ZipFileSystem(stream, "ZIP", ownsStream: true);
     }

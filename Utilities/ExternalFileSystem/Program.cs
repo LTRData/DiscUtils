@@ -159,7 +159,7 @@ class MyDirectory : MyFile, IVfsDirectory<MyDirEntry, MyFile>
     public MyDirectory(MyDirEntry dirEntry, bool isRoot)
         : base(dirEntry)
     {
-        _entries = new(StringComparer.OrdinalIgnoreCase, entry => entry.FileName);
+        _entries = new(StringComparer.OrdinalIgnoreCase, static entry => entry.FileName);
 
         if (isRoot)
         {

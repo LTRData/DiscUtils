@@ -76,7 +76,7 @@ public class Nfs3LookupResultTest
             Status = Nfs3Status.Ok
         };
 
-        Nfs3LookupResult clone = null;
+        Nfs3LookupResult? clone = null;
 
         using (var stream = new MemoryStream())
         {

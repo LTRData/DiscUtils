@@ -86,7 +86,7 @@ internal class LinuxRaidDiskManagerFactory : LogicalVolumeFactory
 
         // Group RAID partitions by array UUID
         var raidGroups = raidPartitions
-            .GroupBy(rp => rp.ArrayUuid)
+            .GroupBy(static rp => rp.ArrayUuid)
             .ToList();
 
         // Create logical volumes for each complete RAID array

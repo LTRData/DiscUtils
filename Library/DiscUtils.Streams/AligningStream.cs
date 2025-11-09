@@ -189,8 +189,8 @@ public sealed class AligningStream : WrappingMappedStream<SparseStream>
     public override void Clear(int count)
     {
         DoOperation(
-            (s, opOffset, opCount) => { s.Clear(opCount); },
-            (buffer, offset, opOffset, opCount) => { Array.Clear(buffer, offset, opCount); },
+            static (s, opOffset, opCount) => { s.Clear(opCount); },
+            static (buffer, offset, opOffset, opCount) => { Array.Clear(buffer, offset, opCount); },
             count);
     }
 

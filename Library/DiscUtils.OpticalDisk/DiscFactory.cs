@@ -76,7 +76,7 @@ internal sealed class DiscFactory : VirtualDiskFactory
             CanBeHardDisk = false,
             DeterministicGeometry = true,
             PreservesBiosGeometry = false,
-            CalcGeometry = c => new Geometry(1, 1, 1, 2048)
+            CalcGeometry = static c => new Geometry(1, 1, 1, 2048)
         };
     }
 }

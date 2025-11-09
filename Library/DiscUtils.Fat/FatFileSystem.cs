@@ -428,7 +428,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
     }
 
     public long GetAllocatedClustersCount(string path)
-        => PathToClusters(path).Sum(range => range.Count);
+        => PathToClusters(path).Sum(static range => range.Count);
 
     public long GetFileId(string path)
     {

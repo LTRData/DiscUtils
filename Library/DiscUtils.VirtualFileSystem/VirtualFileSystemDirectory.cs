@@ -34,7 +34,7 @@ public sealed class VirtualFileSystemDirectory : VirtualFileSystemDirectoryEntry
         _entries = existing_link._entries;
     }
 
-    public VirtualFileSystemDirectoryEntry GetEntry(string name)
+    public VirtualFileSystemDirectoryEntry? GetEntry(string name)
     {
         if (_entries.TryGetValue(name, out var found))
         {
@@ -124,12 +124,12 @@ public sealed class VirtualFileSystemDirectory : VirtualFileSystemDirectoryEntry
     }
 
     public IEnumerable<KeyValuePair<string, VirtualFileSystemDirectory>> EnumerateDirectories() => _entries
-        .Where(entry => entry.Value is VirtualFileSystemDirectory)
-        .Select(entry => new KeyValuePair<string, VirtualFileSystemDirectory>(entry.Key, entry.Value as VirtualFileSystemDirectory));
+        .Where(static entry => entry.Value is VirtualFileSystemDirectory)
+        .Select(static entry => new KeyValuePair<string, VirtualFileSystemDirectory>(entry.Key, (VirtualFileSystemDirectory)entry.Value));
 
     public IEnumerable<KeyValuePair<string, VirtualFileSystemFile>> EnumerateFiles() => _entries
-        .Where(entry => entry.Value is VirtualFileSystemFile)
-        .Select(entry => new KeyValuePair<string, VirtualFileSystemFile>(entry.Key, entry.Value as VirtualFileSystemFile));
+        .Where(static entry => entry.Value is VirtualFileSystemFile)
+        .Select(static entry => new KeyValuePair<string, VirtualFileSystemFile>(entry.Key, (VirtualFileSystemFile)entry.Value));
 
     public override void Delete() => Delete(recursive: false);
 
@@ -143,10 +143,10 @@ public sealed class VirtualFileSystemDirectory : VirtualFileSystemDirectoryEntry
         base.Delete();
     }
 
-    public VirtualFileSystemDirectoryEntry ResolvePathToEntry(string path) =>
+    public VirtualFileSystemDirectoryEntry? ResolvePathToEntry(string path) =>
         ResolvePath(path.Split(Utilities.PathSeparators, StringSplitOptions.RemoveEmptyEntries), 0);
 
-    private VirtualFileSystemDirectoryEntry ResolvePath(string[] path, int pathindex)
+    private VirtualFileSystemDirectoryEntry? ResolvePath(string[] path, int pathindex)
     {
         if (pathindex == path.Length)
         {
@@ -192,7 +192,7 @@ public sealed class VirtualFileSystemDirectory : VirtualFileSystemDirectoryEntry
 
     public override string Name => $@"{base.Name}\";
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
         => obj is VirtualFileSystemDirectory other
         && other._entries == _entries;
 

@@ -9,7 +9,7 @@ public abstract class VirtualFileSystemDirectoryEntry
 {
     public VirtualFileSystem FileSystem { get; }
 
-    public VirtualFileSystemDirectory Parent { get; }
+    public VirtualFileSystemDirectory? Parent { get; }
 
     public virtual FileAttributes Attributes { get; set; } = FileAttributes.Archive;
 
@@ -28,11 +28,11 @@ public abstract class VirtualFileSystemDirectoryEntry
 
     public int UnixGroupId { get; set; }
 
-    public RawSecurityDescriptor SecurityDescriptor { get; set; }
+    public RawSecurityDescriptor? SecurityDescriptor { get; set; }
 
-    public ReparsePoint ReparsePoint { get; set; }
+    public ReparsePoint? ReparsePoint { get; set; }
 
-    public string ShortName { get; set; }
+    public string? ShortName { get; set; }
 
     public abstract long FileId { get; }
 
@@ -117,7 +117,7 @@ public abstract class VirtualFileSystemDirectoryEntry
         {
             if (replace)
             {
-                existing.Parent.RemoveEntry(existing);
+                existing.Parent?.RemoveEntry(existing);
             }
             else
             {
@@ -127,7 +127,7 @@ public abstract class VirtualFileSystemDirectoryEntry
 
         var new_entry = AddLink(new_parent, new_name);
         
-        Parent.RemoveEntry(this);
+        Parent?.RemoveEntry(this);
         
         return new_entry;
     }

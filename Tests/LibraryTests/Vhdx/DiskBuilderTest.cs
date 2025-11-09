@@ -143,6 +143,8 @@ public class DiskBuilderTest
         {
             using (var parentDiskBuild = DiscUtils.VirtualDisk.CreateDisk("vhdx", "dynamic", parentPath, diskParameters: new() { Capacity = 200L << 20 }, null, null, useAsync: false))
             {
+                Assert.NotNull(parentDiskBuild);
+
                 for (byte i = 0; i < 8; ++i)
                 {
                     parentDiskBuild.Content.Position = i * 1024L * 1024;
@@ -155,8 +157,12 @@ public class DiskBuilderTest
 
             using var parentDisk = DiscUtils.VirtualDisk.OpenDisk(parentPath, FileAccess.Read, useAsync: false);
 
+            Assert.NotNull(parentDisk);
+
             using (var diffDisk = parentDisk.CreateDifferencingDisk(diffPath, useAsync: false))
             {
+                Assert.NotNull(diffDisk);
+
                 for (var i = 0; i < 8; ++i)
                 {
                     diffDisk.Content.Position = i * 1024L * 1024;

@@ -13,9 +13,9 @@ public partial class VirtualFileSystem : DiscFileSystem, IWindowsFileSystem, IUn
     public delegate Stream FileOpenDelegate(FileMode mode, FileAccess access);
 
     // Progress reporting event
-    public event EventHandler<ProgressEventArgs> ProgressChanged;
+    public event EventHandler<ProgressEventArgs>? ProgressChanged;
 
-    private ProgressEventArgs progressEventArgs;
+    private ProgressEventArgs? progressEventArgs;
 
     // Method for updating progress
     internal void AddProgress(int newFiles, int newItems)
@@ -73,7 +73,7 @@ public partial class VirtualFileSystem : DiscFileSystem, IWindowsFileSystem, IUn
         _root = new VirtualFileSystemDirectory(this);
     }
 
-    public VirtualFileSystem(VirtualFileSystemOptions options, Stream referenceStream)
+    public VirtualFileSystem(VirtualFileSystemOptions options, Stream? referenceStream)
         : base(options)
     {
         _root = new VirtualFileSystemDirectory(this);
@@ -81,9 +81,9 @@ public partial class VirtualFileSystem : DiscFileSystem, IWindowsFileSystem, IUn
         RawStream = referenceStream;
     }
 
-    public event EventHandler<CreateFileEventArgs> CreateFile;
+    public event EventHandler<CreateFileEventArgs>? CreateFile;
 
-    public override Stream RawStream { get; }
+    public override Stream? RawStream { get; }
 
     public new VirtualFileSystemOptions Options => (VirtualFileSystemOptions)base.Options;
 
@@ -91,7 +91,7 @@ public partial class VirtualFileSystem : DiscFileSystem, IWindowsFileSystem, IUn
 
     public override bool IsThreadSafe => Options.IsThreadSafe;
 
-    public override string VolumeLabel => Options.VolumeLabel;
+    public override string? VolumeLabel => Options.VolumeLabel;
 
     public override string FriendlyName => "VirtualFileSystem";
 
@@ -105,7 +105,7 @@ public partial class VirtualFileSystem : DiscFileSystem, IWindowsFileSystem, IUn
 
     long IFileSystemBuilder.TotalSize => _used_space;
 
-    public string VolumeIdentifier
+    public string? VolumeIdentifier
     {
         get => Options.VolumeLabel;
         set => Options.VolumeLabel = value;
@@ -115,14 +115,14 @@ public partial class VirtualFileSystem : DiscFileSystem, IWindowsFileSystem, IUn
         ? StringComparer.Ordinal
         : StringComparer.OrdinalIgnoreCase;
 
-    string IFileSystemBuilder.VolumeIdentifier { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+    string? IFileSystemBuilder.VolumeIdentifier { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
     public virtual void SetUsedSpace(long size) => _used_space = size;
 
     public virtual long UpdateUsedSpace() =>
         _used_space = _root.EnumerateTreeEntries()
         .OfType<VirtualFileSystemFile>()
-        .Sum(file => file.AllocationLength);
+        .Sum(static file => file.AllocationLength);
 
     public override void CopyFile(string sourceFile, string destinationFile, bool overwrite) =>
         throw new NotImplementedException();
@@ -431,12 +431,12 @@ public partial class VirtualFileSystem : DiscFileSystem, IWindowsFileSystem, IUn
 
             OnCreateFile(e);
 
-            file = e.Result;
-
-            if (file == null)
+            if (e.Result is null)
             {
                 throw new NotImplementedException($"Could not create file '{path}'.");
             }
+
+            file = e.Result;
         }
 
         return file.Open(mode, access);
@@ -586,7 +586,7 @@ public partial class VirtualFileSystem : DiscFileSystem, IWindowsFileSystem, IUn
         UpdateUsedSpace();
     }
 
-    public override string ToString() => VolumeLabel ?? FriendlyName ?? base.ToString();
+    public override string? ToString() => VolumeLabel ?? FriendlyName ?? base.ToString();
 
     void IFileSystemBuilder.AddDirectory(string name) =>
         AddDirectory(name);
@@ -721,7 +721,7 @@ public partial class VirtualFileSystem : DiscFileSystem, IWindowsFileSystem, IUn
 
     IFileSystem IFileSystemBuilder.GenerateFileSystem() => this;
 
-    public virtual RawSecurityDescriptor GetSecurity(string path)
+    public virtual RawSecurityDescriptor? GetSecurity(string path)
     {
         var file = _root.ResolvePathToEntry(path) ??
             throw new FileNotFoundException("File not found", path);
@@ -737,7 +737,7 @@ public partial class VirtualFileSystem : DiscFileSystem, IWindowsFileSystem, IUn
         file.SecurityDescriptor = securityDescriptor;
     }
 
-    public virtual ReparsePoint GetReparsePoint(string path)
+    public virtual ReparsePoint? GetReparsePoint(string path)
     {
         var file = _root.ResolvePathToEntry(path) ??
             throw new FileNotFoundException("File not found", path);
@@ -787,7 +787,7 @@ public partial class VirtualFileSystem : DiscFileSystem, IWindowsFileSystem, IUn
 
     public virtual int GetHardLinkCount(string path) => 1;
 
-    public virtual string GetShortName(string path)
+    public virtual string? GetShortName(string path)
     {
         var file = _root.ResolvePathToEntry(path) ??
             throw new FileNotFoundException("File not found", path);

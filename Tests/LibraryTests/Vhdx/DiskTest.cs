@@ -38,7 +38,7 @@ public class DiskTest
         var ms = new SparseMemoryStream();
         using (var disk = Disk.InitializeFixed(ms, Ownership.None, 8 * Sizes.OneMiB))
         {
-            Assert.NotNull(disk);
+            Assert.NotNull(disk?.Geometry);
             Assert.True(disk.Geometry.Value.Capacity is > (long)(7.5 * Sizes.OneMiB) and <= (8 * Sizes.OneMiB));
         }
 
@@ -76,7 +76,7 @@ public class DiskTest
         var ms = new MemoryStream();
         using (var disk = Disk.InitializeDynamic(ms, Ownership.None, 16 * Sizes.OneGiB))
         {
-            Assert.NotNull(disk);
+            Assert.NotNull(disk?.Geometry);
             Assert.True(disk.Geometry.Value.Capacity is > (long)(15.8 * Sizes.OneGiB) and <= (16 * Sizes.OneGiB));
         }
 
@@ -84,6 +84,7 @@ public class DiskTest
 
         using (var disk = new Disk(ms, Ownership.Dispose))
         {
+            Assert.NotNull(disk.Geometry);
             Assert.True(disk.Geometry.Value.Capacity is > (long)(15.8 * Sizes.OneGiB) and <= (16 * Sizes.OneGiB));
         }
     }
@@ -96,7 +97,7 @@ public class DiskTest
         var baseFile = DiskImageFile.InitializeDynamic(baseStream, Ownership.Dispose, 16 * Sizes.OneGiB);
         using (var disk = Disk.InitializeDifferencing(diffStream, Ownership.None, baseFile, Ownership.Dispose, @"C:\TEMP\Base.vhd", @".\Base.vhd", DateTime.UtcNow))
         {
-            Assert.NotNull(disk);
+            Assert.NotNull(disk?.Geometry);
             Assert.True(disk.Geometry.Value.Capacity is > (long)(15.8 * Sizes.OneGiB) and <= (16 * Sizes.OneGiB));
             Assert.True(disk.Geometry.Value.Capacity == baseFile.Geometry.Capacity);
             Assert.Equal(2, disk.Layers.Count());
@@ -113,6 +114,7 @@ public class DiskTest
         var ms = new MemoryStream();
         using (var disk = Disk.InitializeDynamic(ms, Ownership.None, 16 * Sizes.OneGiB))
         {
+            Assert.NotNull(disk?.Geometry);
             geometry = disk.Geometry.Value;
         }
 
@@ -136,6 +138,7 @@ public class DiskTest
         var ms = new SparseMemoryStream();
         using (var disk = Disk.InitializeFixed(ms, Ownership.None, 16 * Sizes.OneMiB))
         {
+            Assert.NotNull(disk?.Geometry);
             geometry = disk.Geometry.Value;
         }
 

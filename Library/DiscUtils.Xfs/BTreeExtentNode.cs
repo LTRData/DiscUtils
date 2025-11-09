@@ -93,6 +93,6 @@ internal class BTreeExtentNode : BTreeExtentHeader
     /// <inheritdoc />
     public override IEnumerable<Extent> GetExtents()
     {
-        return Children.SelectMany(child => child.Value.GetExtents());
+        return Children.SelectMany(static child => child.Value.GetExtents());
     }
 }

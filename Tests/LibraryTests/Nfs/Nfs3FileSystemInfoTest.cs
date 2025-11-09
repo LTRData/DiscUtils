@@ -45,7 +45,7 @@ public class Nfs3FileSystemInfoTest
             WritePreferredBytes = 9
         };
 
-        Nfs3FileSystemInfo clone = null;
+        Nfs3FileSystemInfo? clone = null;
 
         using (var stream = new MemoryStream())
         {

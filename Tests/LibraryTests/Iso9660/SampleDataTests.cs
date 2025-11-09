@@ -37,8 +37,8 @@ public class SampleDataTests
         var files = dir.GetFiles().ToList();
         Assert.Equal(10, files.Count);
 
-        var misc0 = files.First(f => f.Name is "Misc0.FPK");
-        var misc1 = files.First(f => f.Name is "Misc1.FPK");
+        var misc0 = files.First(static f => f.Name is "Misc0.FPK");
+        var misc1 = files.First(static f => f.Name is "Misc1.FPK");
         Assert.Equal(1464404972, misc0.Length);
         Assert.Equal(1585521232, misc1.Length);
         

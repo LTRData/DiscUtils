@@ -37,7 +37,7 @@ public class Nfs3ModifyResultTest
             Status = Nfs3Status.Ok
         };
 
-        Nfs3ModifyResult clone = null;
+        Nfs3ModifyResult? clone = null;
 
         using (var stream = new MemoryStream())
         {

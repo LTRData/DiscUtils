@@ -46,7 +46,7 @@ internal class Directory : File, IVfsDirectory<DirEntry, File>
         {
             if (_allEntries is null)
             {
-                var result = new FastDictionary<DirEntry>(StringComparer.Ordinal, entry => entry.FileName);
+                var result = new FastDictionary<DirEntry>(StringComparer.Ordinal, static entry => entry.FileName);
                 if (Inode.Format == InodeFormat.Local)
                 {
                     //shortform directory

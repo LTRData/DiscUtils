@@ -42,7 +42,7 @@ internal class Directory : File, IVfsDirectory<DirEntry, File>
         {
             if (dirEntries == null)
             {
-                dirEntries = new(StringComparer.Ordinal, entry => entry.FileName);
+                dirEntries = new(StringComparer.Ordinal, static entry => entry.FileName);
 
                 var content = FileContent;
                 var blockSize = Context.SuperBlock.BlockSize;

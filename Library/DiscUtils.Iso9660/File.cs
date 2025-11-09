@@ -148,5 +148,5 @@ internal class File : IVfsFile
     }
 
     public IEnumerable<StreamExtent> EnumerateAllocationExtents()
-        => _dirEntry.RecordExtents.Select(e => new StreamExtent(e.LocationOfExtent * IsoUtilities.SectorSize, e.DataLength));
+        => _dirEntry.RecordExtents.Select(static e => new StreamExtent(e.LocationOfExtent * IsoUtilities.SectorSize, e.DataLength));
 }

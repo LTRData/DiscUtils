@@ -52,7 +52,7 @@ public class Nfs3FileSystemStatResultTest
             }
         };
 
-        Nfs3FileSystemStatResult clone = null;
+        Nfs3FileSystemStatResult? clone = null;
 
         using (var stream = new MemoryStream())
         {

@@ -36,7 +36,7 @@ internal sealed class BuilderDirectory : BuilderNode
     public BuilderDirectory()
     {
         _children = [];
-        _index = new FastDictionary<Entry>(StringComparer.Ordinal, entry => entry.Name);
+        _index = new FastDictionary<Entry>(StringComparer.Ordinal, static entry => entry.Name);
     }
 
     public override Inode Inode => _inode;

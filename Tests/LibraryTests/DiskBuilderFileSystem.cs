@@ -38,7 +38,7 @@ class DiskBuilderFileSystem : DiscFileSystem
 
     public DiskBuilderFileSystem(IEnumerable<DiskImageFileSpecification> fileSpecs)
     {
-        _files = new(StringComparer.Ordinal, entry => entry.Name);
+        _files = new(StringComparer.Ordinal, static entry => entry.Name);
 
         foreach (var fileSpec in fileSpecs)
         {
@@ -127,7 +127,7 @@ class DiskBuilderFileSystem : DiscFileSystem
                 throw new IOException("File already exists");
             }
 
-            return _files[path].OpenStream() as SparseStream;
+            return (SparseStream)_files[path].OpenStream();
         }
         else
         {

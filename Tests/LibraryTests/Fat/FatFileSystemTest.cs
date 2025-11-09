@@ -270,14 +270,14 @@ public class FatFileSystemTest
 
         {
             var fs = new FatFileSystem(diskStream);
-            var entries = fs.GetFileSystemEntries(Path.DirectorySeparatorChar.ToString()).OrderBy(x => x).ToList();
+            var entries = fs.GetFileSystemEntries(Path.DirectorySeparatorChar.ToString()).OrderBy(static x => x).ToList();
             Assert.Equal(2, entries.Count);
             Assert.Equal($"{Path.DirectorySeparatorChar}01234567890123456789.txt", entries[0]);
             Assert.Equal($"{Path.DirectorySeparatorChar}BAR", entries[1]);
 
             fs.CreateDirectory("abcdefghijklmnop.txt");
 
-            entries = fs.GetFileSystemEntries(Path.DirectorySeparatorChar.ToString()).OrderBy(x => x).ToList();
+            entries = fs.GetFileSystemEntries(Path.DirectorySeparatorChar.ToString()).OrderBy(static x => x).ToList();
             Assert.Equal(3, entries.Count);
             Assert.Equal(Path.DirectorySeparatorChar + "01234567890123456789.txt", entries[0]);
             Assert.Equal(Path.DirectorySeparatorChar + "abcdefghijklmnop.txt", entries[1]);
@@ -306,7 +306,7 @@ public class FatFileSystemTest
 
         {
             var fs = new FatFileSystem(diskStream);
-            var entries = fs.GetFileSystemEntries(Path.DirectorySeparatorChar.ToString()).OrderBy(x => x).ToList();
+            var entries = fs.GetFileSystemEntries(Path.DirectorySeparatorChar.ToString()).OrderBy(static x => x).ToList();
             Assert.Equal(6, entries.Count);
             Assert.Equal($"{Path.DirectorySeparatorChar}FOO_This_is_a_long_entry_2", entries[0]);
             Assert.Equal($"{Path.DirectorySeparatorChar}FOO_This_is_a_long_entry_3", entries[1]);

@@ -30,7 +30,7 @@ namespace DiscUtils.VirtualFileSystem;
 [VfsFileSystemFactory]
 internal class TarFileSystemFactory : VfsFileSystemFactory
 {
-    public override IEnumerable<FileSystemInfo> Detect(Stream stream, VolumeInfo volume)
+    public override IEnumerable<FileSystemInfo> Detect(Stream stream, VolumeInfo? volume)
     {
         if (TarFileSystem.Detect(stream))
         {
@@ -40,7 +40,7 @@ internal class TarFileSystemFactory : VfsFileSystemFactory
         return [];
     }
 
-    private TarFileSystem Open(Stream stream, VolumeInfo volumeInfo, FileSystemParameters parameters)
+    private TarFileSystem Open(Stream stream, VolumeInfo? volumeInfo, FileSystemParameters? parameters)
     {
         return new TarFileSystem(stream, "TAR", ownsStream: true);
     }

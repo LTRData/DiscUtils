@@ -8,9 +8,9 @@ namespace DiscUtils.VirtualFileSystem;
 public class TarFileSystemBuilder : TarFileBuilder, IFileSystemBuilder
 {
     // Progress reporting event
-    public event EventHandler<ProgressEventArgs> ProgressChanged;
+    public event EventHandler<ProgressEventArgs>? ProgressChanged;
 
-    private ProgressEventArgs progressEventArgs;
+    private ProgressEventArgs? progressEventArgs;
 
     protected override void AddFile(UnixBuildFileRecord file)
     {
@@ -25,7 +25,7 @@ public class TarFileSystemBuilder : TarFileBuilder, IFileSystemBuilder
         }
     }
 
-    public string VolumeIdentifier { get; set; }
+    public string? VolumeIdentifier { get; set; }
 
     public IFileSystem GenerateFileSystem() => new TarFileSystem(Build(), VolumeIdentifier, ownsStream: true);
 

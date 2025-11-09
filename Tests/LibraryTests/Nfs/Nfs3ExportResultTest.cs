@@ -47,7 +47,7 @@ public class Nfs3ExportResultTest
              ]
         };
 
-        Nfs3ExportResult clone = null;
+        Nfs3ExportResult? clone = null;
 
         using (var stream = new MemoryStream())
         {

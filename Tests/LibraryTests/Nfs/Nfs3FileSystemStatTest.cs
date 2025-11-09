@@ -43,7 +43,7 @@ public class Nfs3FileSystemStatTest
             TotalSizeBytes = 8
         };
 
-        Nfs3FileSystemStat clone = null;
+        Nfs3FileSystemStat? clone = null;
 
         using (var stream = new MemoryStream())
         {

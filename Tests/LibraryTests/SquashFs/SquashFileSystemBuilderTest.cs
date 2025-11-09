@@ -198,7 +198,7 @@ public sealed class SquashFileSystemBuilderTest
         {
 
             CompressionKind = SquashFileSystemCompressionKind.Lz4,
-            GetCompressor = (kind, options) => kind == SquashFileSystemCompressionKind.Lz4 ? static stream => new SimpleLz4Stream(stream) : null
+            GetCompressor = static (kind, options) => kind == SquashFileSystemCompressionKind.Lz4 ? static stream => new SimpleLz4Stream(stream) : null
         });
 
         builder.AddFile(@"file", new MemoryStream(testData));
@@ -206,7 +206,7 @@ public sealed class SquashFileSystemBuilderTest
 
         var reader = new SquashFileSystemReader(fsImage, new SquashFileSystemReaderOptions()
         {
-            GetDecompressor = (kind, options) => kind == SquashFileSystemCompressionKind.Lz4 ? static stream => new SimpleLz4Stream(stream) : null
+            GetDecompressor = static (kind, options) => kind == SquashFileSystemCompressionKind.Lz4 ? static stream => new SimpleLz4Stream(stream) : null
         });
 
         using var fs = reader.OpenFile("file", FileMode.Open);

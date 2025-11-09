@@ -60,7 +60,7 @@ public class Nfs3WeakCacheConsistencyTest
             }
         };
 
-        Nfs3WeakCacheConsistency clone = null;
+        Nfs3WeakCacheConsistency? clone = null;
 
         using (var stream = new MemoryStream())
         {

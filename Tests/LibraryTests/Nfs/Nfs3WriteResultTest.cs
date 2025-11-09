@@ -67,7 +67,7 @@ public class Nfs3WriteResultTest
             WriteVerifier = 3
         };
 
-        Nfs3WriteResult clone = null;
+        Nfs3WriteResult? clone = null;
 
         using (var stream = new MemoryStream())
         {

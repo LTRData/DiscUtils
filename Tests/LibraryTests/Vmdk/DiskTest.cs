@@ -40,7 +40,7 @@ public class DiskTest
     public void InitializeFixed()
     {
         using var disk = Disk.Initialize(new InMemoryFileSystem(), "a.vmdk", 8 * 1024 * 1024, DiskCreateType.MonolithicFlat);
-        Assert.NotNull(disk);
+        Assert.NotNull(disk?.Geometry);
         Assert.True(disk.Geometry.Value.Capacity is > (long)(7.9 * 1024 * 1024) and < (long)(8.1 * 1024 * 1024));
         Assert.True(disk.Geometry.Value.Capacity == disk.Content.Length);
 
@@ -54,7 +54,7 @@ public class DiskTest
     public void InitializeFixedIDE()
     {
         using var disk = Disk.Initialize(new InMemoryFileSystem(), "a.vmdk", 8 * 1024 * 1024, DiskCreateType.MonolithicFlat, DiskAdapterType.Ide);
-        Assert.NotNull(disk);
+        Assert.NotNull(disk?.Geometry);
         Assert.True(disk.Geometry.Value.Capacity is > (long)(7.9 * 1024 * 1024) and < (long)(8.1 * 1024 * 1024));
         Assert.True(disk.Geometry.Value.Capacity == disk.Content.Length);
 
@@ -70,7 +70,7 @@ public class DiskTest
         var fs = new InMemoryFileSystem();
         using (var disk = Disk.Initialize(fs, "a.vmdk", 16 * 1024L * 1024 * 1024, DiskCreateType.MonolithicSparse))
         {
-            Assert.NotNull(disk);
+            Assert.NotNull(disk?.Geometry);
             Assert.True(disk.Geometry.Value.Capacity is > (long)(15.8 * 1024L * 1024 * 1024) and <= (16 * 1024L * 1024 * 1024));
             Assert.True(disk.Content.Length == 16 * 1024L * 1024 * 1024);
         }
@@ -80,6 +80,7 @@ public class DiskTest
 
         using (var disk = new Disk(fs, "a.vmdk", FileAccess.Read))
         {
+            Assert.NotNull(disk.Geometry);
             Assert.True(disk.Geometry.Value.Capacity is > (long)(15.8 * 1024L * 1024 * 1024) and <= (16 * 1024L * 1024 * 1024));
             Assert.True(disk.Content.Length == 16 * 1024L * 1024 * 1024);
 
@@ -100,7 +101,7 @@ public class DiskTest
         var baseFile = DiskImageFile.Initialize(fs, $"{sep}base{sep}base.vmdk", 16 * 1024L * 1024 * 1024, DiskCreateType.MonolithicSparse);
         using (var disk = Disk.InitializeDifferencing(fs, $"{sep}diff{sep}diff.vmdk", DiskCreateType.MonolithicSparse, $"{sep}base{sep}base.vmdk"))
         {
-            Assert.NotNull(disk);
+            Assert.NotNull(disk?.Geometry);
             Assert.True(disk.Geometry.Value.Capacity is > (long)(15.8 * 1024L * 1024 * 1024) and < (16 * 1024L * 1024 * 1024));
             Assert.True(disk.Content.Length == 16 * 1024L * 1024 * 1024);
             Assert.Equal(2, new List<VirtualDiskLayer>(disk.Layers).Count);
@@ -127,7 +128,7 @@ public class DiskTest
         var baseFile = DiskImageFile.Initialize(fs, $"{sep}dir{sep}subdir{sep}base.vmdk", 16 * 1024L * 1024 * 1024, DiskCreateType.MonolithicSparse);
         using (var disk = Disk.InitializeDifferencing(fs, $"{sep}dir{sep}diff.vmdk", DiskCreateType.MonolithicSparse, $"subdir{sep}base.vmdk"))
         {
-            Assert.NotNull(disk);
+            Assert.NotNull(disk?.Geometry);
             Assert.True(disk.Geometry.Value.Capacity is > (long)(15.8 * 1024L * 1024 * 1024) and < (16 * 1024L * 1024 * 1024));
             Assert.True(disk.Content.Length == 16 * 1024L * 1024 * 1024);
             Assert.Equal(2, new List<VirtualDiskLayer>(disk.Layers).Count);

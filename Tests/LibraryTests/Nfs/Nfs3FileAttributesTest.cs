@@ -51,7 +51,7 @@ public class Nfs3FileAttributesTest
             Uid = 11
         };
 
-        Nfs3FileAttributes clone = null;
+        Nfs3FileAttributes? clone = null;
 
         using (var stream = new MemoryStream())
         {

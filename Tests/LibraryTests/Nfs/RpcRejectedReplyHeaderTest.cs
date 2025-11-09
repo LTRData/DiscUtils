@@ -42,7 +42,7 @@ public class RpcRejectedReplyHeaderTest
             Status = RpcRejectedStatus.RpcMismatch
         };
 
-        RpcRejectedReplyHeader clone = null;
+        RpcRejectedReplyHeader? clone = null;
 
         using (var stream = new MemoryStream())
         {

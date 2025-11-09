@@ -6,11 +6,11 @@
     <AssemblyName>LibraryTests</AssemblyName>
     <PackageId>LibraryTests</PackageId>
     <SignAssembly>false</SignAssembly>
-    <LangVersion>Latest</LangVersion>
     <AssemblyOriginatorKeyFile>../../SigningKey.snk</AssemblyOriginatorKeyFile>
     <SkipDefaultAdapters>true</SkipDefaultAdapters>
     <DisableSharedTestHost>true</DisableSharedTestHost>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

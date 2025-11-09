@@ -162,7 +162,7 @@ internal readonly struct NtfsStream
     {
         if (Attribute.IsNonResident)
         {
-            var clusters = Attribute.GetClusters().Sum(clusterRange => clusterRange.Count);
+            var clusters = Attribute.GetClusters().Sum(static clusterRange => clusterRange.Count);
             return clusters;
         }
         else

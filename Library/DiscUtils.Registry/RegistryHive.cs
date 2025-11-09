@@ -151,7 +151,7 @@ public class RegistryHive : IDisposable
         if (headerSize == 0 || _header.Sequence1 != _header.Sequence2)
         {
             var logs = logstreams?
-                .Where(log => log.Length > 0x1000)
+                .Where(static log => log.Length > 0x1000)
                 .ToArray();
 
             if (logs is not null && logs.Length > 0)
@@ -193,7 +193,7 @@ public class RegistryHive : IDisposable
                 // If hive header failed validation, recover from latest log
                 if (headerSize == 0)
                 {
-                    var lastvalid = logfiles.LastOrDefault(logfile => logfile.HeaderValid)
+                    var lastvalid = logfiles.LastOrDefault(static logfile => logfile.HeaderValid)
                         ?? throw new RegistryCorruptException("Registry transaction logs are corrupt");
 
                     _header = lastvalid.HiveHeader;

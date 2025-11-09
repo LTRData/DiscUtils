@@ -41,7 +41,7 @@ internal class Directory : File, IVfsDirectory<FileIdentifier, File>
             throw new NotImplementedException("Very large directory");
         }
 
-        _entries = new(StringComparer.OrdinalIgnoreCase, entry => entry.Name);
+        _entries = new(StringComparer.OrdinalIgnoreCase, static entry => entry.Name);
 
         var contentBytes = FileContent.ReadExactly(0, (int)FileContent.Capacity);
 

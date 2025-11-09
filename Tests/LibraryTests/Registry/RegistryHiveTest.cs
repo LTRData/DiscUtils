@@ -70,6 +70,6 @@ public class RegistryHiveTest
     [Fact]
     public void Create_Null()
     {
-        Assert.Throws<ArgumentNullException>(() => RegistryHive.Create((Stream)null));
+        Assert.Throws<ArgumentNullException>(static () => RegistryHive.Create((Stream?)null));
     }
 }

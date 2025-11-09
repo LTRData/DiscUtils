@@ -38,7 +38,7 @@ public class Nfs3CreateResultTest
             CacheConsistency = new Nfs3WeakCacheConsistency()
         };
 
-        Nfs3CreateResult clone = null;
+        Nfs3CreateResult? clone = null;
 
         using (var stream = new MemoryStream())
         {

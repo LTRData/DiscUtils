@@ -3,6 +3,8 @@
     <Description>DiscUtils, meta-package with transports, such as iSCSI and NFS</Description>
     
     <PackageTags>DiscUtils;iSCSI;NFS</PackageTags>
+
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

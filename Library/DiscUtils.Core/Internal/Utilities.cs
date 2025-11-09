@@ -425,7 +425,7 @@ public static class Utilities
     /// The wildcard * (star) matches zero or more characters (including '.'), and ?
     /// (question mark) matches precisely one character (except '.').
     /// </remarks>
-    public static Func<string, bool>? ConvertWildcardsToRegEx(string pattern, bool ignoreCase)
+    public static Func<string, bool>? ConvertWildcardsToRegEx(string? pattern, bool ignoreCase)
     {
 #if NET6_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(pattern);

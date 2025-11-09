@@ -33,7 +33,7 @@ public class RpcMessageHeaderTest
     {
         var header = RpcMessageHeader.Accepted(1);
 
-        RpcMessageHeader clone = null;
+        RpcMessageHeader? clone = null;
 
         using (var stream = new MemoryStream())
         {
