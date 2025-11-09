@@ -75,7 +75,7 @@ public sealed class GuidPartitionInfo : PartitionInfo
     /// <summary>
     /// Gets the name of the partition.
     /// </summary>
-    public string Name => _entry.Name;
+    public string? Name => _entry.Name;
 
     /// <summary>
     /// Gets the type of the partition as a string.

@@ -34,7 +34,7 @@ internal class GptEntry : IComparable<GptEntry>
     public long FirstUsedLogicalBlock;
     public Guid Identity;
     public long LastUsedLogicalBlock;
-    public string Name;
+    public string? Name;
     public Guid PartitionType;
 
     public GptEntry()

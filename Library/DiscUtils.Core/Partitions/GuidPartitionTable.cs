@@ -292,7 +292,7 @@ public sealed class GuidPartitionTable : PartitionTable
     /// <returns>The index of the new partition.</returns>
     /// <remarks>No checking is performed on the parameters, the caller is
     /// responsible for ensuring that the partition does not overlap other partitions.</remarks>
-    public int Create(long startSector, long endSector, Guid type, long attributes, string name)
+    public int Create(long startSector, long endSector, Guid type, long attributes, string? name)
     {
         var newEntry = CreateEntry(startSector, endSector, type, attributes, name);
         return GetEntryIndex(newEntry.Identity);
@@ -462,7 +462,7 @@ public sealed class GuidPartitionTable : PartitionTable
         }
     }
 
-    private GptEntry CreateEntry(long startSector, long endSector, Guid type, long attributes, string name)
+    private GptEntry CreateEntry(long startSector, long endSector, Guid type, long attributes, string? name)
     {
         if (endSector < startSector)
         {
