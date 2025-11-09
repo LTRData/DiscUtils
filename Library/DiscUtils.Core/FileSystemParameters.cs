@@ -50,5 +50,5 @@ public sealed class FileSystemParameters
     /// <summary>
     /// Other string parameters for file systems.
     /// </summary>
-    public StringDictionary Parameters { get; } = new();
+    public StringDictionary Parameters => field ??= new();
 }

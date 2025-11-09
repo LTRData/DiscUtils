@@ -107,16 +107,9 @@ public class WimFile
     /// <remarks>The XML manifest file uses a one-based index, whereas this
     /// method is zero-based.</remarks>
     public WimFileSystem GetImage(int index)
-    {
-        var metaDataFileInfo = LocateImage(index)
-            ?? throw new ArgumentException($"No such image: {index}", nameof(index));
-
-        var metaDataStream = OpenResourceStream(metaDataFileInfo);
-
-        var volumeLabel = XDocument.Parse(Manifest)?.XPathSelectElement($"WIM/IMAGE[@INDEX=\"{index + 1}\"]/NAME")?.Value;
-
-        return new WimFileSystem(this, metaDataStream, volumeLabel);
-    }
+        => TryGetImage(index, out var image)
+        ? image :
+        throw new ArgumentException($"No such image: {index}", nameof(index));
 
     /// <summary>
     /// Gets a particular image within the file (zero-based index).

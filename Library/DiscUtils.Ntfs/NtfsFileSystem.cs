@@ -2667,7 +2667,7 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
     /// A plugin system for handling reparse points. Handlers for specific tags can register here
     /// with a delegate that handles such reparse points when they are opened.
     /// </summary>
-    internal static ConcurrentDictionary<uint, NtfsReparsePluginHandler> ReparsePlugins { get; } = new()
+    internal static ConcurrentDictionary<uint, NtfsReparsePluginHandler> ReparsePlugins => field ??= new()
     {
         [Wof.ReparsePointTagWofCompressed] = Wof.OpenWofReparsePoint
     };

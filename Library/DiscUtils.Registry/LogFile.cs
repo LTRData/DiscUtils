@@ -11,7 +11,7 @@ internal class LogFile : IEnumerable<LogEntry>
 {
     private const int LOG_ENTRY = 1162638920;
 
-    public HiveHeader HiveHeader { get; } = new();
+    public HiveHeader HiveHeader => field ??= new();
 
     public bool HeaderValid { get; }
 
