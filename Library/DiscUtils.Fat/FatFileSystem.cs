@@ -1128,7 +1128,9 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
     /// <returns>Array of files.</returns>
     public override IEnumerable<string> GetFiles(string path)
     {
-        var dir = GetDirectory(path);
+        var dir = GetDirectory(path)
+            ?? throw new DirectoryNotFoundException($"The directory '{path}' was not found");
+
         var entries = dir.GetFiles();
 
         foreach (var dirEntry in entries)
