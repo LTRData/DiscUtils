@@ -385,3 +385,4 @@ artifacts-dotnet-releaser/
 
 # Verify
 *.received.*
+*#

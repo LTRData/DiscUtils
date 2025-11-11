@@ -8,19 +8,25 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="System.Security.Cryptography.Algorithms" Version="4.*" />
     <PackageReference Include="LTRData.Extensions" Version="1.0.*" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework.CompareTo(`net461`))' &gt;= 0">
-    <PackageReference Include="System.Collections.Immutable" Version="*" />
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0' Or $([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net461'))">
+    <PackageReference Include="System.Collections.Immutable" Version="9.*" />
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.*" />
     <PackageReference Include="System.Memory" Version="4.*" />
     <PackageReference Include="Microsoft.Bcl.HashCode" Version="*" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework.CompareTo(`net461`))' &lt; 0">
+
+  <ItemGroup Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'netcoreapp3.1')) And !$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'netstandard2.0')) And !$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net461'))">
+    <PackageReference Include="System.Security.Cryptography.Algorithms" Version="4.*" />
     <PackageReference Include="System.ValueTuple" Version="4.5.*" />
     <PackageReference Include="System.Collections.Immutable" Version="1.*" />
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.*" />
     <PackageReference Include="System.Memory" Version="4.5.*" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
+    <PackageReference Include="System.Collections.Immutable" Version="9.*" />
   </ItemGroup>
 </Project>

@@ -5,22 +5,8 @@
     <PackageTags>DiscUtils;XVA</PackageTags>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework.CompareTo(`net462`))' &gt;= 0">
-    <PackageReference Include="System.ValueTuple" Version="4.6.*" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework.CompareTo(`net462`))' &lt; 0">
-    <PackageReference Include="System.ValueTuple" Version="4.5.*" />
-  </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\DiscUtils.Core\DiscUtils.Core.csproj" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <PackageReference Include="System.Security.Cryptography.Algorithms" Version="4.3.*" />
-    <PackageReference Include="System.Xml.XmlDocument" Version="4.3.*" />
-    <PackageReference Include="System.Xml.XPath" Version="4.3.*" />
-    <PackageReference Include="System.Text.RegularExpressions" Version="*" />
-  </ItemGroup>
 </Project>
