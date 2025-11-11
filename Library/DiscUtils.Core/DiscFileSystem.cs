@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using DiscUtils.Streams;
+using DiscUtils.Vfs;
 
 namespace DiscUtils;
 
@@ -519,6 +520,9 @@ public abstract class DiscFileSystem :
             Disposed?.Invoke(this, EventArgs.Empty);
         }
     }
+
+	public abstract IAbstractRecord GetAbstractRecord(string path);
+	public abstract string GetSymlinkTarget(IAbstractRecord dirEntry);
 
     public event EventHandler Disposed;
 

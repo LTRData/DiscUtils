@@ -203,4 +203,8 @@ internal sealed class VfsXfsFileSystem : VfsReadOnlyFileSystem<DirEntry, File, D
     {
         return 1 << (sb.SectorSizeLog2 - BBSHIFT);
     }
+
+	protected override Directory ConvertDirEntryToDirectory(DirEntry dirEntry) {
+		return dirEntry.CachedDirectory ??= new Directory(Context, dirEntry.Inode);
+	}
 }

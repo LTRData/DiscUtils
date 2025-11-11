@@ -42,7 +42,8 @@ public sealed class BtrfsFileSystem : VfsFileSystemFacade, IUnixFileSystem, IAll
         : base(new VfsBtrfsFileSystem(stream))
     {
     }
-
+	public override IAbstractRecord GetAbstractRecord(string path) => GetRealFileSystem<VfsBtrfsFileSystem>().GetAbstractRecord(path);
+	public override string GetSymlinkTarget(IAbstractRecord dirEntry) => GetRealFileSystem<VfsBtrfsFileSystem>().GetSymlinkTarget(dirEntry);
     /// <summary>
     /// Initializes a new instance of the BtrfsFileSystem class.
     /// </summary>

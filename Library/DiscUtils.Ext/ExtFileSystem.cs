@@ -108,4 +108,6 @@ public sealed class ExtFileSystem : VfsFileSystemFacade, IUnixFileSystem, IClust
 
         return superblock.Magic == SuperBlock.Ext2Magic;
     }
+	public override IAbstractRecord GetAbstractRecord(string path) => GetRealFileSystem<VfsExtFileSystem>().GetAbstractRecord(path);
+	public override string GetSymlinkTarget(IAbstractRecord dirEntry) => GetRealFileSystem<VfsExtFileSystem>().GetSymlinkTarget(dirEntry);
 }

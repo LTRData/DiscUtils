@@ -49,7 +49,8 @@ public class HfsPlusFileSystem : VfsFileSystemFacade, IUnixFileSystem, IAllocati
     {
         return GetRealFileSystem<HfsPlusFileSystemImpl>().GetUnixFileInfo(path);
     }
-
+	public override IAbstractRecord GetAbstractRecord(string path) => GetRealFileSystem<HfsPlusFileSystemImpl>().GetAbstractRecord(path);
+	public override string GetSymlinkTarget(IAbstractRecord dirEntry) => GetRealFileSystem<HfsPlusFileSystemImpl>().GetSymlinkTarget(dirEntry);
     internal static bool Detect(Stream stream)
     {
         if (stream.Length < 1536)

@@ -30,6 +30,7 @@ using System.Xml.Linq;
 using System.Xml.XPath;
 using System.Linq;
 using LTRData.Extensions.Split;
+using DiscUtils.Vfs;
 
 namespace DiscUtils.Wim;
 
@@ -109,13 +110,15 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
     public ReparsePoint GetReparsePoint(string path)
     {
         var dirEntry = GetEntry(path);
-
-        var hdr = _file.LocateResource(dirEntry.Hash)
+		var hash = dirEntry.Hash;
+		if (Utilities.IsAllZeros(hash))
+			hash = GetFileHash(path);
+        var hdr = _file.LocateResource(hash)
             ?? throw new IOException("No reparse point");
 
         using var s = _file.OpenResourceStream(hdr);
         var buffer = s.ReadExactly((int)s.Length);
-        return new ReparsePoint((int)dirEntry.ReparseTag, buffer);
+        return new ReparsePoint(dirEntry.ReparseTag, buffer);
     }
 
     /// <summary>
@@ -744,4 +747,44 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
             }
         }
     }
+	internal class WimAbstractRecord (WimFileSystem FileSystem, DirectoryEntry Record, String Path) : IAbstractRecord{
+		public DateTime CreationTimeUtc => DateTime.FromFileTimeUtc(Record.CreationTime); // Entry has creationTime
+		public FileAttributes FileAttributes => Record.Attributes;
+		public string FileName => Record.FileName;
+		public string FullPath => Path;
+		public bool IsDirectory => Record.Attributes.HasFlag(FileAttributes.Directory);
+		public bool IsSymlink  => Record.Attributes.HasFlag(FileAttributes.ReparsePoint) && ReparsePoint.IsValidSymlinkTag(Record.ReparseTag);
+		public DateTime LastAccessTimeUtc => DateTime.FromFileTimeUtc(Record.LastAccessTime);
+		public DateTime LastWriteTimeUtc => DateTime.FromFileTimeUtc(Record.LastWriteTime);
+		public long FileId => BitConverter.ToInt64(Record.Hash, 0) ^ BitConverter.ToInt64(Record.Hash, 8) ^ BitConverter.ToInt32(Record.Hash, 16);
+		public long FileSize => FileSystem._file.LocateResource(Record.GetStreamHash(default))?.OriginalSize ?? 0;
+		public SparseStream FileContent => FileSystem.OpenFile(Path, FileMode.Open, FileAccess.Read); 
+		protected WimFileSystem FileSystem { get; } = FileSystem;
+		protected DirectoryEntry Record{ get; } = Record;
+
+		public IAbstractDirectory GetAsAbstractDirectory() => (IAbstractDirectory) this;
+		public VfsDirEntry GetAsDirEntry() => throw new NotImplementedException();
+		public IVfsFile GetAsFile() => throw new NotImplementedException();
+	}
+	internal class WimAbstractDirectory(WimFileSystem FileSystem, DirectoryEntry Record, String Path) : WimAbstractRecord(FileSystem, Record, Path), IAbstractDirectory {
+		public IEnumerable<IAbstractRecord> AllEntries => FileSystem.GetDirectory(this.Record.SubdirOffset).Select(record => FileSystem.GetEntryAsAbstractRecord(record,Utilities.CombinePaths(Path,record.FileName)));
+					
+
+	}
+	private IAbstractRecord GetEntryAsAbstractRecord(DirectoryEntry record, String Path) => (record.Attributes.HasFlag(FileAttributes.Directory) && record.Attributes.HasFlag(FileAttributes.ReparsePoint) == false) ?
+			new WimAbstractDirectory(this,record, Path) :
+			new WimAbstractRecord(this,record, Path);
+	public override IAbstractRecord GetAbstractRecord(string path)=> GetEntryAsAbstractRecord(GetEntry(path),String.IsNullOrWhiteSpace(path) ? "/" : "");
+	public override string GetSymlinkTarget(IAbstractRecord dirEntry) {
+		if (!dirEntry.IsSymlink)
+			throw new ArgumentException($"dirEntry is not a symlink");
+		if (dirEntry is not WimAbstractRecord dirEntryWim)
+			throw new ArgumentException($"dirEntry is not a WimAbstractRecord");
+
+		var reparsePoint = GetReparsePoint(dirEntryWim.FullPath);
+		if (reparsePoint == null)
+			throw new IOException($"Unable to read reparse point for {dirEntryWim.FullPath}");
+
+		return reparsePoint.ParseSymlink(dirEntryWim.FullPath);
+	}
 }

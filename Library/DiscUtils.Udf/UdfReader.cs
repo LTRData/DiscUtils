@@ -49,6 +49,8 @@ public sealed class UdfReader : VfsFileSystemFacade
     public UdfReader(Stream data, int sectorSize)
         : base(new VfsUdfReader(data, sectorSize)) {}
 
+	public override IAbstractRecord GetAbstractRecord(string path) => GetRealFileSystem<VfsUdfReader>().GetAbstractRecord(path);
+	public override string GetSymlinkTarget(IAbstractRecord dirEntry) => GetRealFileSystem<VfsUdfReader>().GetSymlinkTarget(dirEntry);
     /// <summary>
     /// Detects if a stream contains a valid UDF file system.
     /// </summary>
@@ -309,5 +311,7 @@ public sealed class UdfReader : VfsFileSystemFacade
             return dt.TagIdentifier == TagIdentifier.AnchorVolumeDescriptorPointer
                    && dt.TagLocation == 256;
         }
-    }
+
+		protected override Directory ConvertDirEntryToDirectory(FileIdentifier dirEntry) => (Directory)File.FromDescriptor(Context, dirEntry.FileLocation);
+	}
 }

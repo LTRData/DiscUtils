@@ -154,7 +154,14 @@ internal sealed class VfsExtFileSystem : VfsReadOnlyFileSystem<DirEntry, File, D
         var file = GetFile(path);
         return file.EnumerateAllocationClusters();
     }
+	protected override Directory ConvertDirEntryToDirectory(DirEntry dirEntry) {
+		var inode = GetInode(dirEntry.Record.Inode);
+        if (dirEntry.Record.FileType != DirectoryRecord.FileTypeDirectory)
+			throw new Exception("Invalid Directory Request record is not a directory");
+        
+        return new Directory(Context, dirEntry.Record.Inode, inode);
 
+	}
     protected override File ConvertDirEntryToFile(DirEntry dirEntry)
     {
         var inode = GetInode(dirEntry.Record.Inode);

@@ -26,7 +26,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using DiscUtils.Internal;
-
+using DiscUtils.Vfs;
 using DirectoryIndexEntry =
     System.Collections.Generic.KeyValuePair<DiscUtils.Ntfs.FileNameRecord, DiscUtils.Ntfs.FileRecordReference>;
 
@@ -254,4 +254,14 @@ internal class Directory : File
             return _upperCase.Compare(_query, 0, _query.Length, buffer, 0x42, fnLen * 2);
         }
     }
+	internal class NtfsAbstractDirectory : NtfsAbstractRecord, IAbstractDirectory {
+		public NtfsAbstractDirectory(NtfsFileSystem fileSystem, FileNameRecord Record, FileRecordReference File, Directory Directory, String DirectoryPath) : base(fileSystem, Record, File,DirectoryPath) {
+			this.Directory = Directory;
+		}
+
+		public Directory Directory { get; }
+
+		IEnumerable<IAbstractRecord> IAbstractDirectory.AllEntries => Directory.Index.Entries.Where(FileSystem.FilterEntry).Select(entry => new NtfsAbstractRecord(this.FileSystem, entry.Key, entry.Value,Utilities.CombinePaths(this.FileName,entry.Key.FileName)));
+
+	}
 }

@@ -67,6 +67,8 @@ public sealed class XfsFileSystem : VfsFileSystemFacade, IUnixFileSystem, IAlloc
     {
         return GetRealFileSystem<VfsXfsFileSystem>().PathToExtents(path);
     }
+	public override IAbstractRecord GetAbstractRecord(string path) => GetRealFileSystem<VfsXfsFileSystem>().GetAbstractRecord(path);
+	public override string GetSymlinkTarget(IAbstractRecord dirEntry) => GetRealFileSystem<VfsXfsFileSystem>().GetSymlinkTarget(dirEntry);
 
     internal static bool Detect(Stream stream)
     {

@@ -37,6 +37,7 @@ namespace DiscUtils.Vfs;
 /// </remarks>
 public abstract class VfsDirEntry
 {
+		public static bool NO_SYMLINK_RESOLUTION;
     /// <summary>
     /// Gets the creation time of the file or directory.
     /// </summary>
