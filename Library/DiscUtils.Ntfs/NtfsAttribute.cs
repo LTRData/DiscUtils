@@ -28,7 +28,6 @@ namespace DiscUtils.Ntfs;
 
 internal class NtfsAttribute : IDiagnosticTraceable
 {
-    private Buffer _cachedRawBuffer;
     protected FileRecordReference _containingFile;
     protected Dictionary<AttributeReference, AttributeRecord> _extents;
     protected File _file;
@@ -138,7 +137,7 @@ internal class NtfsAttribute : IDiagnosticTraceable
         set
         {
             _primaryRecord.Flags = value;
-            _cachedRawBuffer = null;
+            RawBuffer = null;
         }
     }
 
@@ -185,20 +184,22 @@ internal class NtfsAttribute : IDiagnosticTraceable
     {
         get
         {
-            if (_cachedRawBuffer == null)
+            if (field == null)
             {
                 if (_primaryRecord.IsNonResident)
                 {
-                    _cachedRawBuffer = new NonResidentAttributeBuffer(_file, this);
+                    field = new NonResidentAttributeBuffer(_file, this);
                 }
                 else
                 {
-                    _cachedRawBuffer = ((ResidentAttributeRecord)_primaryRecord).DataBuffer;
+                    field = ((ResidentAttributeRecord)_primaryRecord).DataBuffer;
                 }
             }
 
-            return _cachedRawBuffer;
+            return field;
         }
+
+        private set;
     }
 
     public List<AttributeRecord> Records
@@ -270,7 +271,7 @@ internal class NtfsAttribute : IDiagnosticTraceable
 
     public void SetExtent(FileRecordReference containingFile, AttributeRecord record)
     {
-        _cachedRawBuffer = null;
+        RawBuffer = null;
         _containingFile = containingFile;
         _primaryRecord = record;
         _extents.Clear();
@@ -279,7 +280,7 @@ internal class NtfsAttribute : IDiagnosticTraceable
 
     public void AddExtent(FileRecordReference containingFile, AttributeRecord record)
     {
-        _cachedRawBuffer = null;
+        RawBuffer = null;
         _extents.Add(new AttributeReference(containingFile, record.AttributeId), record);
     }
 
@@ -290,7 +291,7 @@ internal class NtfsAttribute : IDiagnosticTraceable
 
     public bool ReplaceExtent(AttributeReference oldRef, AttributeReference newRef, AttributeRecord record)
     {
-        _cachedRawBuffer = null;
+        RawBuffer = null;
 
         if (!_extents.Remove(oldRef))
         {

@@ -30,7 +30,6 @@ namespace DiscUtils.Ntfs;
 /// </summary>
 internal readonly struct AttributeReference : IComparable<AttributeReference>, IEquatable<AttributeReference>
 {
-    private readonly FileRecordReference _fileReference;
 
     /// <summary>
     /// Initializes a new instance of the AttributeReference class.
@@ -39,7 +38,7 @@ internal readonly struct AttributeReference : IComparable<AttributeReference>, I
     /// <param name="attributeId">The identity of the attribute within the file record.</param>
     public AttributeReference(FileRecordReference fileReference, ushort attributeId)
     {
-        _fileReference = fileReference;
+        File = fileReference;
         AttributeId = attributeId;
     }
 
@@ -51,7 +50,7 @@ internal readonly struct AttributeReference : IComparable<AttributeReference>, I
     /// <summary>
     /// Gets the file containing the attribute.
     /// </summary>
-    public FileRecordReference File => _fileReference;
+    public FileRecordReference File { get; }
 
     #region IComparable<AttributeReference> Members
 
@@ -62,7 +61,7 @@ internal readonly struct AttributeReference : IComparable<AttributeReference>, I
     /// <returns>Zero if references are identical.</returns>
     public int CompareTo(AttributeReference other)
     {
-        var refDiff = _fileReference.CompareTo(other._fileReference);
+        var refDiff = File.CompareTo(other.File);
         if (refDiff != 0)
         {
             return refDiff;
@@ -81,7 +80,7 @@ internal readonly struct AttributeReference : IComparable<AttributeReference>, I
     /// <param name="other">The attribute reference to compare.</param>
     /// <returns><c>true</c> if the references are equivalent.</returns>
     public bool Equals(AttributeReference other)
-        => _fileReference.Equals(other._fileReference) && AttributeId.Equals(other.AttributeId);
+        => File.Equals(other.File) && AttributeId.Equals(other.AttributeId);
 
     #endregion
 
@@ -90,7 +89,7 @@ internal readonly struct AttributeReference : IComparable<AttributeReference>, I
     /// </summary>
     /// <returns>String representing the attribute.</returns>
     public override string ToString()
-        => $"{_fileReference}.attr[{AttributeId}]";
+        => $"{File}.attr[{AttributeId}]";
 
     /// <summary>
     /// Indicates if this reference is equivalent to another object.
@@ -109,5 +108,5 @@ internal readonly struct AttributeReference : IComparable<AttributeReference>, I
     /// </summary>
     /// <returns>The hash code.</returns>
     public override int GetHashCode()
-        => HashCode.Combine(_fileReference, AttributeId);
+        => HashCode.Combine(File, AttributeId);
 }

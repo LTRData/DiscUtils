@@ -29,11 +29,6 @@ namespace DiscUtils.Archives;
 
 public sealed class UnixBuildFileRecord
 {
-    private string _name;
-    private UnixFilePermissions _fileMode;
-    private int _ownerId;
-    private int _groupId;
-    private DateTime _modificationTime;
     private BuilderExtentSource _source;
 
     public UnixBuildFileRecord(string name, byte[] buffer)
@@ -60,23 +55,23 @@ public sealed class UnixBuildFileRecord
 
     public UnixBuildFileRecord(string name, BuilderExtentSource fileSource, UnixFilePermissions fileMode, int ownerId, int groupId, DateTime modificationTime)
     {
-        _name = name;
+        Name = name;
         _source = fileSource;
-        _fileMode = fileMode;
-        _ownerId = ownerId;
-        _groupId = groupId;
-        _modificationTime = modificationTime;
+        FileMode = fileMode;
+        OwnerId = ownerId;
+        GroupId = groupId;
+        ModificationTime = modificationTime;
     }
 
-    public string Name => _name;
+    public string Name { get; }
 
-    public UnixFilePermissions FileMode => _fileMode;
+    public UnixFilePermissions FileMode { get; }
 
-    public int OwnerId => _ownerId;
+    public int OwnerId { get; }
 
-    public int GroupId => _groupId;
+    public int GroupId { get; }
 
-    public DateTime ModificationTime => _modificationTime;
+    public DateTime ModificationTime { get; }
 
     public long Length => _source.Length;
 
@@ -87,6 +82,6 @@ public sealed class UnixBuildFileRecord
 
     public override string ToString()
     {
-        return _name;
+        return Name;
     }
 }

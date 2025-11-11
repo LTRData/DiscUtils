@@ -32,13 +32,12 @@ public sealed class LogicalVolumeInfo : VolumeInfo
 {
     private Guid _guid;
     private readonly SparseStreamOpenDelegate _opener;
-    private readonly PhysicalVolumeInfo? _physicalVol;
 
     internal LogicalVolumeInfo(Guid guid, PhysicalVolumeInfo? physicalVolume, SparseStreamOpenDelegate opener,
                                long length, byte biosType, LogicalVolumeStatus status, string? typeAsString)
     {
         _guid = guid;
-        _physicalVol = physicalVolume;
+        PhysicalVolume = physicalVolume;
         _opener = opener;
         Length = length;
         BiosType = biosType;
@@ -49,7 +48,7 @@ public sealed class LogicalVolumeInfo : VolumeInfo
     /// <summary>
     /// Gets the disk geometry of the underlying storage medium (as used in BIOS calls), may be null.
     /// </summary>
-    public override Geometry? BiosGeometry => _physicalVol?.BiosGeometry;
+    public override Geometry? BiosGeometry => PhysicalVolume?.BiosGeometry;
 
     /// <summary>
     /// Gets the one-byte BIOS type for this volume, which indicates the content.
@@ -72,7 +71,7 @@ public sealed class LogicalVolumeInfo : VolumeInfo
                 return $"VLG{_guid:B}";
             }
 
-            return $"VLP:{_physicalVol?.Identity}";
+            return $"VLP:{PhysicalVolume?.Identity}";
         }
     }
 
@@ -84,12 +83,12 @@ public sealed class LogicalVolumeInfo : VolumeInfo
     /// <summary>
     /// Gets the disk geometry of the underlying storage medium, if any (may be Geometry.Null).
     /// </summary>
-    public override Geometry? PhysicalGeometry => _physicalVol?.PhysicalGeometry;
+    public override Geometry? PhysicalGeometry => PhysicalVolume?.PhysicalGeometry;
 
     /// <summary>
     /// Gets the offset of this volume in the underlying storage medium, if any (may be Zero).
     /// </summary>
-    public override long PhysicalStartSector => _physicalVol == null ? 0 : _physicalVol.PhysicalStartSector;
+    public override long PhysicalStartSector => PhysicalVolume == null ? 0 : PhysicalVolume.PhysicalStartSector;
 
     /// <summary>
     /// Gets the status of the logical volume, indicating volume health.
@@ -104,7 +103,7 @@ public sealed class LogicalVolumeInfo : VolumeInfo
     /// <summary>
     /// Gets the underlying physical volume info
     /// </summary>
-    public PhysicalVolumeInfo? PhysicalVolume => _physicalVol;
+    public PhysicalVolumeInfo? PhysicalVolume { get; }
 
     /// <summary>
     /// Opens a stream with access to the content of the logical volume.

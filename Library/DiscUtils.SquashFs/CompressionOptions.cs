@@ -269,7 +269,6 @@ public enum Lz4CompressionFormatVersion
 /// </summary>
 public class XzCompressionOptions : CompressionOptions
 {
-    private int _dictionarySize;
 
     /// <summary>
     /// Creates a new instance of the XZ compression options.
@@ -277,13 +276,13 @@ public class XzCompressionOptions : CompressionOptions
     /// <param name="dictionarySize">The size of the dictionary.</param>
     public XzCompressionOptions(int dictionarySize) : base(SquashFileSystemCompressionKind.Xz)
     {
-        _dictionarySize = dictionarySize;
+        DictionarySize = dictionarySize;
     }
 
     /// <summary>
     /// Gets the size of the dictionary.
     /// </summary>
-    public int DictionarySize => _dictionarySize;
+    public int DictionarySize { get; private set; }
 
     /// <inheritdoc />
     public override int Size => 8;
@@ -291,7 +290,7 @@ public class XzCompressionOptions : CompressionOptions
     /// <inheritdoc />
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {
-        _dictionarySize = EndianUtilities.ToInt32LittleEndian(buffer);
+        DictionarySize = EndianUtilities.ToInt32LittleEndian(buffer);
         // Read flags but ignore them
         _ = EndianUtilities.ToInt32LittleEndian(buffer.Slice(4));
         return Size;
@@ -300,7 +299,7 @@ public class XzCompressionOptions : CompressionOptions
     /// <inheritdoc />
     public override void WriteTo(Span<byte> buffer)
     {
-        EndianUtilities.WriteBytesLittleEndian(_dictionarySize, buffer);
+        EndianUtilities.WriteBytesLittleEndian(DictionarySize, buffer);
         EndianUtilities.WriteBytesLittleEndian((uint)0, buffer.Slice(4));
     }
 }

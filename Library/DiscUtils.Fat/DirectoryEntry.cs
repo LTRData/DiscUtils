@@ -38,7 +38,6 @@ internal class DirectoryEntry
     private readonly FatType _fatVariant;
     private readonly FatFileSystemOptions _options;
     private FatFileName _name;
-    private FatAttributes _attr;
     private ushort _creationDate;
     private ushort _creationTime;
     private byte _creationTimeTenth;
@@ -102,7 +101,7 @@ internal class DirectoryEntry
         _fatVariant = fatVariant;
         _options = options;
         _name = name;
-        _attr = attrs;
+        Attributes = attrs;
     }
 
     internal DirectoryEntry(DirectoryEntry toCopy, in FatFileName name)
@@ -110,7 +109,7 @@ internal class DirectoryEntry
         _fatVariant = toCopy._fatVariant;
         _options = toCopy._options;
         _name = name;
-        _attr = toCopy._attr;
+        Attributes = toCopy.Attributes;
         _creationTimeTenth = toCopy._creationTimeTenth;
         _creationTime = toCopy._creationTime;
         _creationDate = toCopy._creationDate;
@@ -123,11 +122,7 @@ internal class DirectoryEntry
 
     public int EntryCount => 1 + Name.LfnDirectoryEntryCount;
 
-    public FatAttributes Attributes
-    {
-        get => _attr;
-        set => _attr = value;
-    }
+    public FatAttributes Attributes { get; set; }
 
     public DateTime CreationTime
     {
@@ -196,7 +191,7 @@ internal class DirectoryEntry
 
         Name.ToDirectoryEntryBytes(buffer, encodingTable);
         int offset = buffer.Length - SizeOf;
-        buffer[offset + 11] = (byte)_attr;
+        buffer[offset + 11] = (byte)Attributes;
         buffer[offset + 13] = _creationTimeTenth;
         EndianUtilities.WriteBytesLittleEndian(_creationTime, buffer.Slice(offset + 14));
         EndianUtilities.WriteBytesLittleEndian(_creationDate, buffer.Slice(offset + 16));
@@ -268,9 +263,9 @@ internal class DirectoryEntry
         _name = FatFileName.FromDirectoryEntryBytes(data.AsSpan(0, count), fileNameEncoding, out bytesProcessed);
 
         var offset = bytesProcessed - SizeOf;
-        _attr = (FatAttributes)data[offset + 11];
+        Attributes = (FatAttributes)data[offset + 11];
 
-        if (((_attr & FatAttributes.LongFileNameMask) == FatAttributes.LongFileName) || _name.IsDeleted())
+        if (((Attributes & FatAttributes.LongFileNameMask) == FatAttributes.LongFileName) || _name.IsDeleted())
         {
             // This is a deleted entry or an orphaned LFN entry, so we don't care about the other fields
         }

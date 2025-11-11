@@ -30,24 +30,23 @@ namespace DiscUtils.PowerShell.VirtualRegistryProvider;
 public sealed class VirtualRegistryPSDriveInfo : PSDriveInfo
 {
     private Stream _hiveStream;
-    private RegistryHive _hive;
 
     public VirtualRegistryPSDriveInfo(PSDriveInfo toCopy, string root, Stream stream)
         : base(toCopy.Name, toCopy.Provider, root, toCopy.Description, toCopy.Credential)
     {
         _hiveStream = stream;
-        _hive = new RegistryHive(_hiveStream, Ownership.Dispose);
+        Hive = new RegistryHive(_hiveStream, Ownership.Dispose);
     }
 
     internal void Close()
     {
-        if (_hive != null)
+        if (Hive != null)
         {
-            _hive.Dispose();
-            _hive = null;
+            Hive.Dispose();
+            Hive = null;
         }
     }
 
-    internal RegistryHive Hive => _hive;
+    internal RegistryHive Hive { get; private set; }
 }
 

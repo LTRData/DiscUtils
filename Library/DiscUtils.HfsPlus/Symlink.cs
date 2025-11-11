@@ -6,8 +6,6 @@ namespace DiscUtils.HfsPlus;
 
 internal class Symlink : File, IVfsSymlink<DirEntry, File>
 {
-    private string _targetPath;
-
     public Symlink(Context context, CatalogNodeId nodeId, CommonCatalogFileInfo catalogInfo)
         : base(context, nodeId, catalogInfo) {}
 
@@ -15,15 +13,17 @@ internal class Symlink : File, IVfsSymlink<DirEntry, File>
     {
         get
         {
-            if (_targetPath == null)
+            if (field == null)
             {
                 using var stream = new BufferStream(FileContent, FileAccess.Read);
                 using var reader = new StreamReader(stream);
-                _targetPath = reader.ReadToEnd();
-                _targetPath = _targetPath.Replace('/', Path.DirectorySeparatorChar);
+                field = reader.ReadToEnd();
+                field = field.Replace('/', Path.DirectorySeparatorChar);
             }
 
-            return _targetPath;
+            return field;
         }
+
+        private set;
     }
 }

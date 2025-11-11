@@ -29,50 +29,46 @@ namespace DiscUtils.Common;
 public class CommandLineSwitch
 {
     private string[] _shortSwitches;
-    private string _fullSwitch;
-    private string _paramName;
     private string _description;
-    private bool _isPresent;
-    private string _paramValue;
 
     public CommandLineSwitch(string fullSwitch, string paramName, string description)
     {
         _shortSwitches = [];
-        _fullSwitch = fullSwitch;
-        _paramName = paramName;
+        FullSwitchName = fullSwitch;
+        ParameterName = paramName;
         _description = description;
     }
 
     public CommandLineSwitch(string shortSwitch, string fullSwitch, string paramName, string description)
     {
         _shortSwitches = [shortSwitch];
-        _fullSwitch = fullSwitch;
-        _paramName = paramName;
+        FullSwitchName = fullSwitch;
+        ParameterName = paramName;
         _description = description;
     }
 
     public CommandLineSwitch(string[] shortSwitches, string fullSwitch, string paramName, string description)
     {
         _shortSwitches = shortSwitches;
-        _fullSwitch = fullSwitch;
-        _paramName = paramName;
+        FullSwitchName = fullSwitch;
+        ParameterName = paramName;
         _description = description;
     }
 
-    public string ParameterName => _paramName;
+    public string ParameterName { get; }
 
-    public string FullSwitchName => _fullSwitch;
+    public string FullSwitchName { get; }
 
     public virtual string FullDescription => _description;
 
-    public bool IsPresent => _isPresent;
+    public bool IsPresent { get; private set; }
 
-    public string Value => _paramValue;
+    public string Value { get; private set; }
 
     internal void WriteDescription(TextWriter writer, string lineTemplate, int perLineDescWidth)
     {
         string[] switches;
-        switches = BuildSwitchInfo(_shortSwitches, _fullSwitch, _paramName, out var ignore);
+        switches = BuildSwitchInfo(_shortSwitches, FullSwitchName, ParameterName, out var ignore);
 
         var text = Utilities.WordWrap(FullDescription, perLineDescWidth).ToArray();
 
@@ -86,7 +82,7 @@ public class CommandLineSwitch
     {
         get
         {
-            BuildSwitchInfo(_shortSwitches, _fullSwitch, _paramName, out var maxLen);
+            BuildSwitchInfo(_shortSwitches, FullSwitchName, ParameterName, out var maxLen);
             return maxLen;
         }
     }
@@ -121,7 +117,7 @@ public class CommandLineSwitch
 
     internal bool Matches(string switchName)
     {
-        if (switchName == _fullSwitch)
+        if (switchName == FullSwitchName)
         {
             return true;
         }
@@ -139,16 +135,16 @@ public class CommandLineSwitch
 
     internal virtual int Process(string[] args, int pos)
     {
-        _isPresent = true;
+        IsPresent = true;
 
-        if (!string.IsNullOrEmpty(_paramName))
+        if (!string.IsNullOrEmpty(ParameterName))
         {
             if (pos >= args.Length)
             {
-                throw new Exception($"Command-line switch {_fullSwitch} is missing value");
+                throw new Exception($"Command-line switch {FullSwitchName} is missing value");
             }
 
-            _paramValue = args[pos];
+            Value = args[pos];
             ++pos;
         }
 

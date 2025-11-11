@@ -30,34 +30,31 @@ public class CommandLineMultiParameter
 {
     private string _name;
     private string _description;
-    private bool _isOptional;
-
-    private bool _isPresent;
     private List<string> _values;
 
     public CommandLineMultiParameter(string name, string description, bool isOptional)
     {
         _name = name;
         _description = description;
-        _isOptional = isOptional;
+        IsOptional = isOptional;
         _values = [];
     }
 
-    public bool IsPresent => _isPresent;
+    public bool IsPresent { get; private set; }
 
     public string[] Values => _values.ToArray();
 
-    public virtual bool IsValid => _isOptional || _isPresent;
+    public virtual bool IsValid => IsOptional || IsPresent;
 
-    internal bool IsOptional => _isOptional;
+    internal bool IsOptional { get; }
 
-    internal string CommandLineText => _isOptional ? $"[{_name}0 {_name}1 ...]" : $"{_name}0 {_name}1 ...";
+    internal string CommandLineText => IsOptional ? $"[{_name}0 {_name}1 ...]" : $"{_name}0 {_name}1 ...";
 
     internal int NameDisplayLength => _name.Length + 4;
 
     internal void WriteDescription(TextWriter writer, string lineTemplate, int perLineDescWidth)
     {
-        var text = Utilities.WordWrap((_isOptional ? "Optional. " : "") + _description, perLineDescWidth).ToArray();
+        var text = Utilities.WordWrap((IsOptional ? "Optional. " : "") + _description, perLineDescWidth).ToArray();
 
         writer.WriteLine(lineTemplate, $"{_name}0..n", text[0]);
         for (var i = 1; i < text.Length; ++i)
@@ -73,7 +70,7 @@ public class CommandLineMultiParameter
 
     protected internal virtual int Process(string[] args, int pos)
     {
-        _isPresent = true;
+        IsPresent = true;
         _values.Add(args[pos]);
         return pos + 1;
     }

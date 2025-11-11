@@ -32,37 +32,28 @@ namespace DiscUtils.Fat;
 
 internal sealed class ClusterReader
 {
-    private readonly int _bytesPerSector;
-
-    /// <summary>
-    /// Pre-calculated value because of number of uses of this externally.
-    /// </summary>
-    private readonly int _clusterSize;
-
     private readonly int _firstDataSector;
-    private readonly int _sectorsPerCluster;
-    private readonly Stream _stream;
 
     public ClusterReader(Stream stream, int firstDataSector, int sectorsPerCluster, int bytesPerSector)
     {
-        _stream = stream;
+        BaseStream = stream;
         _firstDataSector = firstDataSector;
-        _sectorsPerCluster = sectorsPerCluster;
-        _bytesPerSector = bytesPerSector;
+        SectorsPerCluster = sectorsPerCluster;
+        BytesPerSector = bytesPerSector;
 
-        _clusterSize = _sectorsPerCluster * _bytesPerSector;
+        ClusterSize = SectorsPerCluster * BytesPerSector;
     }
 
-    public Stream BaseStream => _stream;
+    public Stream BaseStream { get; }
 
-    public int ClusterSize => _clusterSize;
+    public int ClusterSize { get; }
 
-    public int BytesPerSector => _bytesPerSector;
+    public int BytesPerSector { get; }
 
-    public int SectorsPerCluster => _sectorsPerCluster;
+    public int SectorsPerCluster { get; }
 
     public long GetBaseStreamPositionForCluster(uint cluster)
-        => ((uint)((cluster - 2) * _sectorsPerCluster + _firstDataSector)) * _bytesPerSector;
+        => ((uint)((cluster - 2) * SectorsPerCluster + _firstDataSector)) * BytesPerSector;
 
     public void ReadCluster(uint cluster, byte[] buffer, int offset)
     {
@@ -72,10 +63,10 @@ internal sealed class ClusterReader
                 "buffer is too small - cluster would overflow buffer");
         }
 
-        var firstSector = (uint)((cluster - 2) * _sectorsPerCluster + _firstDataSector);
+        var firstSector = (uint)((cluster - 2) * SectorsPerCluster + _firstDataSector);
 
-        _stream.Position = firstSector * _bytesPerSector;
-        _stream.ReadExactly(buffer, offset, _clusterSize);
+        BaseStream.Position = firstSector * BytesPerSector;
+        BaseStream.ReadExactly(buffer, offset, ClusterSize);
     }
 
     public void ReadCluster(uint cluster, Span<byte> buffer)
@@ -86,10 +77,10 @@ internal sealed class ClusterReader
                 "buffer is too small - cluster would overflow buffer");
         }
 
-        var firstSector = (uint)((cluster - 2) * _sectorsPerCluster + _firstDataSector);
+        var firstSector = (uint)((cluster - 2) * SectorsPerCluster + _firstDataSector);
 
-        _stream.Position = firstSector * _bytesPerSector;
-        _stream.ReadExactly(buffer.Slice(0, _clusterSize));
+        BaseStream.Position = firstSector * BytesPerSector;
+        BaseStream.ReadExactly(buffer.Slice(0, ClusterSize));
     }
 
     public ValueTask ReadClusterAsync(uint cluster, Memory<byte> buffer, CancellationToken cancellationToken)
@@ -100,10 +91,10 @@ internal sealed class ClusterReader
                 "buffer is too small - cluster would overflow buffer");
         }
 
-        var firstSector = (uint)((cluster - 2) * _sectorsPerCluster + _firstDataSector);
+        var firstSector = (uint)((cluster - 2) * SectorsPerCluster + _firstDataSector);
 
-        _stream.Position = firstSector * _bytesPerSector;
-        return _stream.ReadExactlyAsync(buffer.Slice(0, _clusterSize), cancellationToken);
+        BaseStream.Position = firstSector * BytesPerSector;
+        return BaseStream.ReadExactlyAsync(buffer.Slice(0, ClusterSize), cancellationToken);
     }
 
     internal void WriteCluster(uint cluster, byte[] buffer, int offset)
@@ -114,11 +105,11 @@ internal sealed class ClusterReader
                 "buffer is too small - cluster would overflow buffer");
         }
 
-        var firstSector = (uint)((cluster - 2) * _sectorsPerCluster + _firstDataSector);
+        var firstSector = (uint)((cluster - 2) * SectorsPerCluster + _firstDataSector);
 
-        _stream.Position = firstSector * _bytesPerSector;
+        BaseStream.Position = firstSector * BytesPerSector;
 
-        _stream.Write(buffer, offset, _clusterSize);
+        BaseStream.Write(buffer, offset, ClusterSize);
     }
 
     internal void WriteCluster(uint cluster, ReadOnlySpan<byte> buffer)
@@ -129,11 +120,11 @@ internal sealed class ClusterReader
                 "buffer is too small - cluster would overflow buffer");
         }
 
-        var firstSector = (uint)((cluster - 2) * _sectorsPerCluster + _firstDataSector);
+        var firstSector = (uint)((cluster - 2) * SectorsPerCluster + _firstDataSector);
 
-        _stream.Position = firstSector * _bytesPerSector;
+        BaseStream.Position = firstSector * BytesPerSector;
 
-        _stream.Write(buffer.Slice(0, _clusterSize));
+        BaseStream.Write(buffer.Slice(0, ClusterSize));
     }
 
     internal ValueTask WriteClusterAsync(uint cluster, ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken)
@@ -144,24 +135,24 @@ internal sealed class ClusterReader
                 "buffer is too small - cluster would overflow buffer");
         }
 
-        var firstSector = (uint)((cluster - 2) * _sectorsPerCluster + _firstDataSector);
+        var firstSector = (uint)((cluster - 2) * SectorsPerCluster + _firstDataSector);
 
-        _stream.Position = firstSector * _bytesPerSector;
+        BaseStream.Position = firstSector * BytesPerSector;
 
-        return _stream.WriteAsync(buffer.Slice(0, _clusterSize), cancellationToken);
+        return BaseStream.WriteAsync(buffer.Slice(0, ClusterSize), cancellationToken);
     }
 
     internal void WipeCluster(uint cluster)
     {
-        var firstSector = (uint)((cluster - 2) * _sectorsPerCluster + _firstDataSector);
+        var firstSector = (uint)((cluster - 2) * SectorsPerCluster + _firstDataSector);
 
-        _stream.Position = firstSector * _bytesPerSector;
+        BaseStream.Position = firstSector * BytesPerSector;
 
-        var buffer = ArrayPool<byte>.Shared.Rent(_clusterSize);
+        var buffer = ArrayPool<byte>.Shared.Rent(ClusterSize);
         try
         {
-            Array.Clear(buffer, 0, _clusterSize);
-            _stream.Write(buffer, 0, _clusterSize);
+            Array.Clear(buffer, 0, ClusterSize);
+            BaseStream.Write(buffer, 0, ClusterSize);
         }
         finally
         {
@@ -171,15 +162,15 @@ internal sealed class ClusterReader
 
     internal async ValueTask WipeClusterAsync(uint cluster, CancellationToken cancellationToken)
     {
-        var firstSector = (uint)((cluster - 2) * _sectorsPerCluster + _firstDataSector);
+        var firstSector = (uint)((cluster - 2) * SectorsPerCluster + _firstDataSector);
 
-        _stream.Position = firstSector * _bytesPerSector;
+        BaseStream.Position = firstSector * BytesPerSector;
 
-        var buffer = ArrayPool<byte>.Shared.Rent(_clusterSize);
+        var buffer = ArrayPool<byte>.Shared.Rent(ClusterSize);
         try
         {
-            Array.Clear(buffer, 0, _clusterSize);
-            await _stream.WriteAsync(buffer.AsMemory(0, _clusterSize), cancellationToken).ConfigureAwait(false);
+            Array.Clear(buffer, 0, ClusterSize);
+            await BaseStream.WriteAsync(buffer.AsMemory(0, ClusterSize), cancellationToken).ConfigureAwait(false);
         }
         finally
         {

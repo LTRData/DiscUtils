@@ -34,7 +34,6 @@ internal class File : IVfsFile
 {
     protected readonly Context Context;
     internal readonly Inode Inode;
-    private IBuffer _content;
 
     public File(Context context, Inode inode)
     {
@@ -72,10 +71,12 @@ internal class File : IVfsFile
     {
         get
         {
-            _content ??= Inode.GetContentBuffer(Context);
+            field ??= Inode.GetContentBuffer(Context);
 
-            return _content;
+            return field;
         }
+
+        private set;
     }
 
     public IEnumerable<StreamExtent> EnumerateAllocationExtents()

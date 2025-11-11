@@ -31,7 +31,6 @@ namespace DiscUtils.Ntfs;
 internal class StructuredNtfsAttribute<T> : NtfsAttribute
     where T : class, IByteArraySerializable, IDiagnosticTraceable, new()
 {
-    private bool _hasContent;
     private bool _initialized;
     private T _structure;
 
@@ -52,7 +51,7 @@ internal class StructuredNtfsAttribute<T> : NtfsAttribute
         set
         {
             _structure = value;
-            _hasContent = true;
+            HasContent = true;
         }
     }
 
@@ -61,8 +60,10 @@ internal class StructuredNtfsAttribute<T> : NtfsAttribute
         get
         {
             Initialize();
-            return _hasContent;
+            return field;
         }
+
+        private set;
     }
 
     public void Save()
@@ -117,7 +118,7 @@ internal class StructuredNtfsAttribute<T> : NtfsAttribute
         {
             using var s = Open(FileAccess.Read);
             _structure.ReadFrom(s, (int)Length);
-            _hasContent = s.Length != 0;
+            HasContent = s.Length != 0;
             _initialized = true;
         }
     }

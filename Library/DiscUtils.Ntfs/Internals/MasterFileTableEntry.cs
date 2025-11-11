@@ -183,9 +183,7 @@ public sealed class MasterFileTableEntry
     public IBuffer GetRawBuffer(IAttributeLocator attr) =>
         File.GetRawBuffer(attr.Identifier, attr.AttributeType);
 
-    private File _file;
-
-    internal File File => _file ??= new File(_context, _fileRecord);
+    internal File File { get => field ??= new File(_context, _fileRecord); private set; }
 
     public AttributeFlags GetAttributeFlags(IAttributeLocator attr)
     {

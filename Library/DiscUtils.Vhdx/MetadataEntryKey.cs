@@ -26,17 +26,15 @@ namespace DiscUtils.Vhdx;
 
 internal sealed class MetadataEntryKey : IEquatable<MetadataEntryKey>
 {
-    private Guid _itemId;
-
     public MetadataEntryKey(Guid itemId, bool isUser)
     {
-        _itemId = itemId;
+        ItemId = itemId;
         IsUser = isUser;
     }
 
     public bool IsUser { get; }
 
-    public Guid ItemId => _itemId;
+    public Guid ItemId { get; }
 
     public bool Equals(MetadataEntryKey other)
     {
@@ -45,7 +43,7 @@ internal sealed class MetadataEntryKey : IEquatable<MetadataEntryKey>
             return false;
         }
 
-        return _itemId == other._itemId && IsUser == other.IsUser;
+        return ItemId == other.ItemId && IsUser == other.IsUser;
     }
 
     public static bool operator ==(MetadataEntryKey x, MetadataEntryKey y)
@@ -60,7 +58,7 @@ internal sealed class MetadataEntryKey : IEquatable<MetadataEntryKey>
             return false;
         }
 
-        return x._itemId == y._itemId && x.IsUser == y.IsUser;
+        return x.ItemId == y.ItemId && x.IsUser == y.IsUser;
     }
 
     public static bool operator !=(MetadataEntryKey x, MetadataEntryKey y) => !(x == y);
@@ -83,11 +81,11 @@ internal sealed class MetadataEntryKey : IEquatable<MetadataEntryKey>
 
     public override int GetHashCode()
     {
-        return _itemId.GetHashCode() ^ (IsUser ? 0x3C13A5 : 0);
+        return ItemId.GetHashCode() ^ (IsUser ? 0x3C13A5 : 0);
     }
 
     public override string ToString()
     {
-        return $"{_itemId}{(IsUser ? " - User" : " - System")}";
+        return $"{ItemId}{(IsUser ? " - User" : " - System")}";
     }
 }

@@ -28,27 +28,26 @@ public class CommandLineEnumSwitch<T> : CommandLineSwitch
     where T : struct, IConvertible
 {
     private T _defaultValue;
-    private T _enumValue;
 
     public CommandLineEnumSwitch(string fullSwitch, string paramName, T defaultValue, string description)
         : base(fullSwitch, paramName, description)
     {
         _defaultValue = defaultValue;
-        _enumValue = defaultValue;
+        EnumValue = defaultValue;
     }
 
     public CommandLineEnumSwitch(string shortSwitch, string fullSwitch, string paramName, T defaultValue, string description)
         : base(shortSwitch, fullSwitch, paramName, description)
     {
         _defaultValue = defaultValue;
-        _enumValue = defaultValue;
+        EnumValue = defaultValue;
     }
 
     public CommandLineEnumSwitch(string[] shortSwitches, string fullSwitch, string paramName, T defaultValue, string description)
         : base(shortSwitches, fullSwitch, paramName, description)
     {
         _defaultValue = defaultValue;
-        _enumValue = defaultValue;
+        EnumValue = defaultValue;
     }
 
     public override string FullDescription
@@ -67,19 +66,19 @@ public class CommandLineEnumSwitch<T> : CommandLineSwitch
         }
     }
 
-    public T EnumValue => _enumValue;
+    public T EnumValue { get; private set; }
 
     internal override int Process(string[] args, int pos)
     {
         var retVal = base.Process(args, pos);
 
-        _enumValue = _defaultValue;
+        EnumValue = _defaultValue;
         try
         {
 #if NETCOREAPP || NETSTANDARD2_1_OR_GREATER
-            _enumValue = Enum.Parse<T>(Value, true);
+            EnumValue = Enum.Parse<T>(Value, true);
 #else
-            _enumValue = (T)Enum.Parse(typeof(T), Value, true);
+            EnumValue = (T)Enum.Parse(typeof(T), Value, true);
 #endif
         }
         catch

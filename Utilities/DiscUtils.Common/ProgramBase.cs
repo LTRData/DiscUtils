@@ -46,29 +46,22 @@ public abstract class ProgramBase
     private CommandLineSwitch _quietSwitch;
     private CommandLineSwitch _verboseSwitch;
     private CommandLineSwitch _timeSwitch;
-
-    private string _userName;
-    private string _password;
-    private string _outputDiskType;
-    private string _outputDiskVariant;
-    private GenericDiskAdapterType _adapterType;
     private int _partition = -1;
-    private string _volumeId;
     private long _diskSize;
 
     protected ProgramBase()
     {
     }
 
-    protected string UserName => _userName;
+    protected string UserName { get; private set; }
 
-    protected string Password => _password;
+    protected string Password { get; private set; }
 
-    protected string OutputDiskType => _outputDiskType;
+    protected string OutputDiskType { get; private set; }
 
-    protected string OutputDiskVariant => _outputDiskVariant;
+    protected string OutputDiskVariant { get; private set; }
 
-    protected GenericDiskAdapterType AdapterType => _adapterType;
+    protected GenericDiskAdapterType AdapterType { get; private set; }
 
     protected bool Quiet => _quietSwitch.IsPresent;
 
@@ -76,7 +69,7 @@ public abstract class ProgramBase
 
     protected int Partition => _partition;
 
-    protected string VolumeId => _volumeId;
+    protected string VolumeId { get; private set; }
 
     protected long DiskSize => _diskSize;
 
@@ -170,8 +163,8 @@ public abstract class ProgramBase
             if (_outFormatSwitch.IsPresent)
             {
                 var typeAndVariant = _outFormatSwitch.Value.Split('-', 2);
-                _outputDiskType = typeAndVariant[0];
-                _outputDiskVariant = (typeAndVariant.Length > 1) ? typeAndVariant[1] : "";
+                OutputDiskType = typeAndVariant[0];
+                OutputDiskVariant = (typeAndVariant.Length > 1) ? typeAndVariant[1] : "";
             }
             else
             {
@@ -181,11 +174,11 @@ public abstract class ProgramBase
 
             if (_adapterTypeSwitch.IsPresent)
             {
-                _adapterType = _adapterTypeSwitch.EnumValue;
+                AdapterType = _adapterTypeSwitch.EnumValue;
             }
             else
             {
-                _adapterType = GenericDiskAdapterType.Ide;
+                AdapterType = GenericDiskAdapterType.Ide;
             }
         }
 
@@ -207,24 +200,24 @@ public abstract class ProgramBase
                 return;
             }
 
-            _volumeId = _volumeIdSwitch.IsPresent ? _volumeIdSwitch.Value : null;
+            VolumeId = _volumeIdSwitch.IsPresent ? _volumeIdSwitch.Value : null;
         }
 
         if ((stdSwitches & StandardSwitches.UserAndPassword) != 0)
         {
-            _userName = null;
+            UserName = null;
 
             if (_userNameSwitch.IsPresent)
             {
-                _userName = _userNameSwitch.Value;
+                UserName = _userNameSwitch.Value;
 
                 if (_passwordSwitch.IsPresent)
                 {
-                    _password = _passwordSwitch.Value;
+                    Password = _passwordSwitch.Value;
                 }
                 else
                 {
-                    _password = Utilities.PromptForPassword();
+                    Password = Utilities.PromptForPassword();
                 }
             }
         }

@@ -43,11 +43,7 @@ public sealed class TracingStream : CompatibilityStream
 
     private List<StreamTraceRecord> _records;
     private bool _active;
-    private bool _captureStack;
     private bool _captureStackFileDetails = false;
-    private bool _traceReads;
-    private bool _traceWrites = true;
-
     private StreamWriter _fileOut;
 
     /// <summary>
@@ -119,29 +115,17 @@ public sealed class TracingStream : CompatibilityStream
     /// <summary>
     /// Gets and sets whether to capture stack traces for every read/write
     /// </summary>
-    public bool CaptureStackTraces
-    {
-        get => _captureStack;
-        set => _captureStack = value;
-    }
+    public bool CaptureStackTraces { get; set; }
 
     /// <summary>
     /// Gets and sets whether to trace read activity (default is false).
     /// </summary>
-    public bool TraceReads
-    {
-        get => _traceReads;
-        set => _traceReads = value;
-    }
+    public bool TraceReads { get; set; }
 
     /// <summary>
     /// Gets and sets whether to trace write activity (default is true).
     /// </summary>
-    public bool TraceWrites
-    {
-        get => _traceWrites;
-        set => _traceWrites = value;
-    }
+    public bool TraceWrites { get; set; } = true;
 
     /// <summary>
     /// Directs trace output to a file as well as storing internally.
@@ -219,7 +203,7 @@ public sealed class TracingStream : CompatibilityStream
         try
         {
             var result = _wrapped.Read(buffer, offset, count);
-            if (_active && _traceReads)
+            if (_active && TraceReads)
             {
                 CreateAndAddRecord("READ", position, count, result);
             }
@@ -228,7 +212,7 @@ public sealed class TracingStream : CompatibilityStream
         }
         catch (Exception e)
         {
-            if (_active && _traceReads)
+            if (_active && TraceReads)
             {
                 CreateAndAddRecord("READ", position, count, e);
             }
@@ -248,7 +232,7 @@ public sealed class TracingStream : CompatibilityStream
         try
         {
             var result = _wrapped.Read(buffer);
-            if (_active && _traceReads)
+            if (_active && TraceReads)
             {
                 CreateAndAddRecord("READ", position, buffer.Length, result);
             }
@@ -257,7 +241,7 @@ public sealed class TracingStream : CompatibilityStream
         }
         catch (Exception e)
         {
-            if (_active && _traceReads)
+            if (_active && TraceReads)
             {
                 CreateAndAddRecord("READ", position, buffer.Length, e);
             }
@@ -278,7 +262,7 @@ public sealed class TracingStream : CompatibilityStream
         try
         {
             var result = await _wrapped.ReadAsync(buffer, cancellationToken).ConfigureAwait(false);
-            if (_active && _traceReads)
+            if (_active && TraceReads)
             {
                 CreateAndAddRecord("READ", position, buffer.Length, result);
             }
@@ -287,7 +271,7 @@ public sealed class TracingStream : CompatibilityStream
         }
         catch (Exception e)
         {
-            if (_active && _traceReads)
+            if (_active && TraceReads)
             {
                 CreateAndAddRecord("READ", position, buffer.Length, e);
             }
@@ -307,7 +291,7 @@ public sealed class TracingStream : CompatibilityStream
         try
         {
             var result = await _wrapped.ReadAsync(buffer.AsMemory(offset, count), cancellationToken).ConfigureAwait(false);
-            if (_active && _traceReads)
+            if (_active && TraceReads)
             {
                 CreateAndAddRecord("READ", position, count, result);
             }
@@ -316,7 +300,7 @@ public sealed class TracingStream : CompatibilityStream
         }
         catch (Exception e)
         {
-            if (_active && _traceReads)
+            if (_active && TraceReads)
             {
                 CreateAndAddRecord("READ", position, count, e);
             }
@@ -357,14 +341,14 @@ public sealed class TracingStream : CompatibilityStream
         try
         {
             _wrapped.Write(buffer, offset, count);
-            if (_active && _traceWrites)
+            if (_active && TraceWrites)
             {
                 CreateAndAddRecord("WRITE", position, count);
             }
         }
         catch (Exception e)
         {
-            if (_active && _traceWrites)
+            if (_active && TraceWrites)
             {
                 CreateAndAddRecord("WRITE", position, count, e);
             }
@@ -383,14 +367,14 @@ public sealed class TracingStream : CompatibilityStream
         try
         {
             _wrapped.Write(buffer);
-            if (_active && _traceWrites)
+            if (_active && TraceWrites)
             {
                 CreateAndAddRecord("WRITE", position, buffer.Length);
             }
         }
         catch (Exception e)
         {
-            if (_active && _traceWrites)
+            if (_active && TraceWrites)
             {
                 CreateAndAddRecord("WRITE", position, buffer.Length, e);
             }
@@ -410,14 +394,14 @@ public sealed class TracingStream : CompatibilityStream
         try
         {
             await _wrapped.WriteAsync(buffer, cancellationToken).ConfigureAwait(false);
-            if (_active && _traceWrites)
+            if (_active && TraceWrites)
             {
                 CreateAndAddRecord("WRITE", position, buffer.Length);
             }
         }
         catch (Exception e)
         {
-            if (_active && _traceWrites)
+            if (_active && TraceWrites)
             {
                 CreateAndAddRecord("WRITE", position, buffer.Length, e);
             }
@@ -445,7 +429,7 @@ public sealed class TracingStream : CompatibilityStream
     {
         // var trace = (_captureStack ? new StackTrace(2, _captureStackFileDetails) : null);
         // Note: Not sure about the 'ex' parameter to StackTrace, but the new StackTrace does not accept a frameCount
-        var trace = (_captureStack ? new StackTrace(ex, _captureStackFileDetails) : null);
+        var trace = (CaptureStackTraces ? new StackTrace(ex, _captureStackFileDetails) : null);
         var record = new StreamTraceRecord(_records.Count, activity, position, trace)
         {
             CountArg = count,

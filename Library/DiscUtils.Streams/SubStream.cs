@@ -33,46 +33,43 @@ namespace DiscUtils.Streams;
 public class SubStream : MappedStream
 {
     private readonly long _first;
-    private readonly long _length;
     private readonly Ownership _ownsParent;
 
-    private readonly Stream _parent;
-
-    public Stream Parent => _parent;
+    public Stream Parent { get; }
 
     public SubStream(Stream parent, long first, long length)
     {
-        _parent = parent;
+        Parent = parent;
         _first = first;
-        _length = length;
+        MaximumLength = length;
         _ownsParent = Ownership.None;
     }
 
     public SubStream(Stream parent, Ownership ownsParent, long first, long length)
     {
-        _parent = parent;
+        Parent = parent;
         _ownsParent = ownsParent;
         _first = first;
-        _length = length;
+        MaximumLength = length;
     }
 
-    public override bool CanRead => _parent.CanRead;
+    public override bool CanRead => Parent.CanRead;
 
-    public override bool CanSeek => _parent.CanSeek;
+    public override bool CanSeek => Parent.CanSeek;
 
-    public override bool CanWrite => _parent.CanWrite;
+    public override bool CanWrite => Parent.CanWrite;
 
     public override IEnumerable<StreamExtent> Extents
     {
         get
         {
-            var parentAsSparse = _parent as SparseStream;
+            var parentAsSparse = Parent as SparseStream;
             if (parentAsSparse is not null)
             {
-                return OffsetExtents(parentAsSparse.GetExtentsInRange(_first, _length));
+                return OffsetExtents(parentAsSparse.GetExtentsInRange(_first, MaximumLength));
             }
 
-            return SingleValueEnumerable.Get(new StreamExtent(0, _length));
+            return SingleValueEnumerable.Get(new StreamExtent(0, MaximumLength));
         }
     }
 
@@ -83,7 +80,7 @@ public class SubStream : MappedStream
             return virtualPosition;
         }
 
-        if (_parent is CompatibilityStream baseCompatStream)
+        if (Parent is CompatibilityStream baseCompatStream)
         {
             return baseCompatStream.GetPositionInBaseStream(baseStream, _first + virtualPosition);
         }
@@ -95,12 +92,12 @@ public class SubStream : MappedStream
     /// Current length of the stream. This may be less than the maximum length
     /// if the underlying stream is shorter than the defined substream.
     /// </summary>
-    public override long Length => Math.Min(_length, _parent.Length - _first);
+    public override long Length => Math.Min(MaximumLength, Parent.Length - _first);
 
     /// <summary>
     /// Gets the maximum length allowed for the current stream.
     /// </summary>
-    public long MaximumLength => _length;
+    public long MaximumLength { get; }
 
     public override long Position { get; set; }
 
@@ -109,7 +106,7 @@ public class SubStream : MappedStream
 
     public override void Flush()
     {
-        _parent.Flush();
+        Parent.Flush();
     }
 
     public override int Read(byte[] buffer, int offset, int count)
@@ -119,55 +116,55 @@ public class SubStream : MappedStream
             throw new ArgumentOutOfRangeException(nameof(count), "Attempt to read negative bytes");
         }
 
-        if (Position < 0 || Position == _length)
+        if (Position < 0 || Position == MaximumLength)
         {
             return 0;
         }
 
-        if (Position > _length)
+        if (Position > MaximumLength)
         {
             throw new EndOfStreamException("Attempt to read beyond end of substream");
         }
 
-        _parent.Position = _first + Position;
-        var numRead = _parent.Read(buffer, offset,
-            (int)Math.Min(count, Math.Min(_length - Position, int.MaxValue)));
+        Parent.Position = _first + Position;
+        var numRead = Parent.Read(buffer, offset,
+            (int)Math.Min(count, Math.Min(MaximumLength - Position, int.MaxValue)));
         Position += numRead;
         return numRead;
     }
 
     public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken)
     {
-        if (Position < 0 || Position == _length)
+        if (Position < 0 || Position == MaximumLength)
         {
             return 0;
         }
 
-        if (Position > _length)
+        if (Position > MaximumLength)
         {
             throw new EndOfStreamException("Attempt to read beyond end of substream");
         }
 
-        _parent.Position = _first + Position;
-        var numRead = await _parent.ReadAsync(buffer.Slice(0, (int)Math.Min(buffer.Length, Math.Min(_length - Position, int.MaxValue))), cancellationToken).ConfigureAwait(false);
+        Parent.Position = _first + Position;
+        var numRead = await Parent.ReadAsync(buffer.Slice(0, (int)Math.Min(buffer.Length, Math.Min(MaximumLength - Position, int.MaxValue))), cancellationToken).ConfigureAwait(false);
         Position += numRead;
         return numRead;
     }
 
     public override int Read(Span<byte> buffer)
     {
-        if (Position < 0 || Position == _length)
+        if (Position < 0 || Position == MaximumLength)
         {
             return 0;
         }
 
-        if (Position > _length)
+        if (Position > MaximumLength)
         {
             throw new EndOfStreamException("Attempt to read beyond end of substream");
         }
 
-        _parent.Position = _first + Position;
-        var numRead = _parent.Read(buffer.Slice(0, (int)Math.Min(buffer.Length, Math.Min(_length - Position, int.MaxValue))));
+        Parent.Position = _first + Position;
+        var numRead = Parent.Read(buffer.Slice(0, (int)Math.Min(buffer.Length, Math.Min(MaximumLength - Position, int.MaxValue))));
         Position += numRead;
         return numRead;
     }
@@ -181,7 +178,7 @@ public class SubStream : MappedStream
         }
         else if (origin == SeekOrigin.End)
         {
-            absNewPos += _length;
+            absNewPos += MaximumLength;
         }
 
         if (absNewPos < 0)
@@ -205,13 +202,13 @@ public class SubStream : MappedStream
             throw new ArgumentOutOfRangeException(nameof(count), "Attempt to write negative bytes");
         }
 
-        if (Position < 0 || Position + count > _length)
+        if (Position < 0 || Position + count > MaximumLength)
         {
             throw new ArgumentOutOfRangeException(nameof(count), "Attempt to write beyond end of substream");
         }
 
-        _parent.Position = _first + Position;
-        _parent.Write(buffer, offset, count);
+        Parent.Position = _first + Position;
+        Parent.Write(buffer, offset, count);
         Position += count;
     }
 
@@ -222,42 +219,42 @@ public class SubStream : MappedStream
             throw new ArgumentOutOfRangeException(nameof(count), "Attempt to write negative bytes");
         }
 
-        if (Position < 0 || Position + count > _length)
+        if (Position < 0 || Position + count > MaximumLength)
         {
             throw new ArgumentOutOfRangeException(nameof(count), "Attempt to write beyond end of substream");
         }
 
-        _parent.Position = _first + Position;
-        await _parent.WriteAsync(buffer.AsMemory(offset, count), cancellationToken).ConfigureAwait(false);
+        Parent.Position = _first + Position;
+        await Parent.WriteAsync(buffer.AsMemory(offset, count), cancellationToken).ConfigureAwait(false);
         Position += count;
     }
 
     public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken)
     {
-        if (Position < 0 || Position + buffer.Length > _length)
+        if (Position < 0 || Position + buffer.Length > MaximumLength)
         {
             throw new ArgumentOutOfRangeException(nameof(buffer), "Attempt to write beyond end of substream");
         }
 
-        _parent.Position = _first + Position;
-        await _parent.WriteAsync(buffer, cancellationToken).ConfigureAwait(false);
+        Parent.Position = _first + Position;
+        await Parent.WriteAsync(buffer, cancellationToken).ConfigureAwait(false);
         Position += buffer.Length;
     }
 
     public override void Write(ReadOnlySpan<byte> buffer)
     {
-        if (Position < 0 || Position + buffer.Length > _length)
+        if (Position < 0 || Position + buffer.Length > MaximumLength)
         {
             throw new ArgumentOutOfRangeException(nameof(buffer), "Attempt to write beyond end of substream");
         }
 
-        _parent.Position = _first + Position;
-        _parent.Write(buffer);
+        Parent.Position = _first + Position;
+        Parent.Write(buffer);
         Position += buffer.Length;
     }
 
     public override Task FlushAsync(CancellationToken cancellationToken) =>
-        _parent.FlushAsync(cancellationToken);
+        Parent.FlushAsync(cancellationToken);
 
     protected override void Dispose(bool disposing)
     {
@@ -267,7 +264,7 @@ public class SubStream : MappedStream
             {
                 if (_ownsParent == Ownership.Dispose)
                 {
-                    _parent.Dispose();
+                    Parent.Dispose();
                 }
             }
         }

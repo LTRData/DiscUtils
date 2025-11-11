@@ -28,12 +28,6 @@ namespace DiscUtils.Ntfs;
 internal sealed class IndexEntry
 {
     public const int EndNodeSize = 0x18;
-    private byte[] _dataBuffer;
-
-    private IndexEntryFlags _flags;
-
-    private byte[] _keyBuffer;
-    private long _vcn; // Only valid if Node flag set
 
     public IndexEntry(bool isFileIndexEntry)
     {
@@ -43,45 +37,29 @@ internal sealed class IndexEntry
     public IndexEntry(IndexEntry toCopy, byte[] newKey, byte[] newData)
     {
         IsFileIndexEntry = toCopy.IsFileIndexEntry;
-        _flags = toCopy._flags;
-        _vcn = toCopy._vcn;
-        _keyBuffer = newKey;
-        _dataBuffer = newData;
+        Flags = toCopy.Flags;
+        ChildrenVirtualCluster = toCopy.ChildrenVirtualCluster;
+        KeyBuffer = newKey;
+        DataBuffer = newData;
     }
 
     public IndexEntry(byte[] key, byte[] data, bool isFileIndexEntry)
     {
         IsFileIndexEntry = isFileIndexEntry;
-        _flags = IndexEntryFlags.None;
-        _keyBuffer = key;
-        _dataBuffer = data;
+        Flags = IndexEntryFlags.None;
+        KeyBuffer = key;
+        DataBuffer = data;
     }
 
-    public long ChildrenVirtualCluster
-    {
-        get => _vcn;
-        set => _vcn = value;
-    }
+    public long ChildrenVirtualCluster { get; set; }
 
-    public byte[] DataBuffer
-    {
-        get => _dataBuffer;
-        set => _dataBuffer = value;
-    }
+    public byte[] DataBuffer { get; set; }
 
-    public IndexEntryFlags Flags
-    {
-        get => _flags;
-        set => _flags = value;
-    }
+    public IndexEntryFlags Flags { get; set; }
 
     private readonly bool IsFileIndexEntry;
 
-    public byte[] KeyBuffer
-    {
-        get => _keyBuffer;
-        set => _keyBuffer = value;
-    }
+    public byte[] KeyBuffer { get; set; }
 
     public int Size
     {
@@ -89,15 +67,15 @@ internal sealed class IndexEntry
         {
             var size = 0x10; // start of variable data
 
-            if ((_flags & IndexEntryFlags.End) == 0)
+            if ((Flags & IndexEntryFlags.End) == 0)
             {
-                size += _keyBuffer.Length;
-                size += IsFileIndexEntry ? 0 : _dataBuffer.Length;
+                size += KeyBuffer.Length;
+                size += IsFileIndexEntry ? 0 : DataBuffer.Length;
             }
 
             size = MathUtilities.RoundUp(size, 8);
 
-            if ((_flags & IndexEntryFlags.Node) != 0)
+            if ((Flags & IndexEntryFlags.Node) != 0)
             {
                 size += 8;
             }
@@ -112,29 +90,29 @@ internal sealed class IndexEntry
         var dataLength = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(0x02));
         var length = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(0x08));
         var keyLength = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(0x0A));
-        _flags = (IndexEntryFlags)EndianUtilities.ToUInt16LittleEndian(buffer.Slice(0x0C));
+        Flags = (IndexEntryFlags)EndianUtilities.ToUInt16LittleEndian(buffer.Slice(0x0C));
 
-        if ((_flags & IndexEntryFlags.End) == 0)
+        if ((Flags & IndexEntryFlags.End) == 0)
         {
-            _keyBuffer = StreamUtilities.GetUninitializedArray<byte>(keyLength);
-            buffer.Slice(0x10, keyLength).CopyTo(_keyBuffer);
+            KeyBuffer = StreamUtilities.GetUninitializedArray<byte>(keyLength);
+            buffer.Slice(0x10, keyLength).CopyTo(KeyBuffer);
 
             if (IsFileIndexEntry)
             {
                 // Special case, for file indexes, the MFT ref is held where the data offset & length go
-                _dataBuffer = StreamUtilities.GetUninitializedArray<byte>(8);
-                buffer.Slice(0x00, 8).CopyTo(_dataBuffer);
+                DataBuffer = StreamUtilities.GetUninitializedArray<byte>(8);
+                buffer.Slice(0x00, 8).CopyTo(DataBuffer);
             }
             else
             {
-                _dataBuffer = StreamUtilities.GetUninitializedArray<byte>(dataLength);
-                buffer.Slice(0x10 + keyLength, dataLength).CopyTo(_dataBuffer);
+                DataBuffer = StreamUtilities.GetUninitializedArray<byte>(dataLength);
+                buffer.Slice(0x10 + keyLength, dataLength).CopyTo(DataBuffer);
             }
         }
 
-        if ((_flags & IndexEntryFlags.Node) != 0)
+        if ((Flags & IndexEntryFlags.Node) != 0)
         {
-            _vcn = EndianUtilities.ToInt64LittleEndian(buffer.Slice(length - 8));
+            ChildrenVirtualCluster = EndianUtilities.ToInt64LittleEndian(buffer.Slice(length - 8));
         }
     }
 
@@ -142,26 +120,26 @@ internal sealed class IndexEntry
     {
         var length = (ushort)Size;
 
-        if ((_flags & IndexEntryFlags.End) == 0)
+        if ((Flags & IndexEntryFlags.End) == 0)
         {
-            var keyLength = (ushort)_keyBuffer.Length;
+            var keyLength = (ushort)KeyBuffer.Length;
 
             if (IsFileIndexEntry)
             {
-                _dataBuffer.AsSpan(0, 8).CopyTo(buffer);
+                DataBuffer.AsSpan(0, 8).CopyTo(buffer);
             }
             else
             {
                 var dataOffset = (ushort)(IsFileIndexEntry ? 0 : 0x10 + keyLength);
-                var dataLength = (ushort)_dataBuffer.Length;
+                var dataLength = (ushort)DataBuffer.Length;
 
                 EndianUtilities.WriteBytesLittleEndian(dataOffset, buffer);
                 EndianUtilities.WriteBytesLittleEndian(dataLength, buffer.Slice(0x02));
-                _dataBuffer.AsSpan().CopyTo(buffer.Slice(dataOffset));
+                DataBuffer.AsSpan().CopyTo(buffer.Slice(dataOffset));
             }
 
             EndianUtilities.WriteBytesLittleEndian(keyLength, buffer.Slice(0x0A));
-            _keyBuffer.AsSpan().CopyTo(buffer.Slice(0x10));
+            KeyBuffer.AsSpan().CopyTo(buffer.Slice(0x10));
         }
         else
         {
@@ -171,10 +149,10 @@ internal sealed class IndexEntry
         }
 
         EndianUtilities.WriteBytesLittleEndian(length, buffer.Slice(0x08));
-        EndianUtilities.WriteBytesLittleEndian((ushort)_flags, buffer.Slice(0x0C));
-        if ((_flags & IndexEntryFlags.Node) != 0)
+        EndianUtilities.WriteBytesLittleEndian((ushort)Flags, buffer.Slice(0x0C));
+        if ((Flags & IndexEntryFlags.Node) != 0)
         {
-            EndianUtilities.WriteBytesLittleEndian(_vcn, buffer.Slice(length - 8));
+            EndianUtilities.WriteBytesLittleEndian(ChildrenVirtualCluster, buffer.Slice(length - 8));
         }
     }
 }

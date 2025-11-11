@@ -29,45 +29,42 @@ namespace DiscUtils.Lvm.LinuxRaid;
 
 internal class LinuxRaidDiskVolume : IDiagnosticTraceable
 {
-    private readonly PhysicalVolumeInfo _physicalVolume;
-    private readonly LinuxRaidSuperblock _superblock;
-
     internal LinuxRaidDiskVolume(PhysicalVolumeInfo physicalVolume, LinuxRaidSuperblock superblock)
     {
-        _physicalVolume = physicalVolume;
-        _superblock = superblock;
-        if (_superblock?.IsValid != true)
+        PhysicalVolume = physicalVolume;
+        Superblock = superblock;
+        if (Superblock?.IsValid != true)
         {
             throw new InvalidDataException("Invalid Linux RAID superblock");
         }
     }
 
-    public PhysicalVolumeInfo PhysicalVolume => _physicalVolume;
+    public PhysicalVolumeInfo PhysicalVolume { get; }
 
-    public LinuxRaidSuperblock Superblock => _superblock;
+    public LinuxRaidSuperblock Superblock { get; }
 
-    public long DataOffset => (long)_superblock.DataOffset * Sizes.Sector;
+    public long DataOffset => (long)Superblock.DataOffset * Sizes.Sector;
 
-    public Guid ArrayUuid => _superblock.ArrayUuid;
+    public Guid ArrayUuid => Superblock.ArrayUuid;
 
-    public uint RaidLevel => _superblock.RaidLevel;
+    public uint RaidLevel => Superblock.RaidLevel;
 
-    public string ArrayName => _superblock.ArrayName;
+    public string ArrayName => Superblock.ArrayName;
 
-    public ulong ArraySize => _superblock.ArraySize;
+    public ulong ArraySize => Superblock.ArraySize;
 
-    public PartitionInfo Partition => _physicalVolume.Partition;
+    public PartitionInfo Partition => PhysicalVolume.Partition;
 
     public void Dump(TextWriter writer, string linePrefix)
     {
-        writer.WriteLine($"{linePrefix}LINUX RAID DISK ({_superblock.ArrayName})");
-        writer.WriteLine($"{linePrefix}      RAID Version: {_superblock.MajorVersion}.{_superblock.MinorVersion}");
-        writer.WriteLine($"{linePrefix}        RAID Level: {_superblock.RaidLevel}");
-        writer.WriteLine($"{linePrefix}        Array UUID: {_superblock.ArrayUuid}");
-        writer.WriteLine($"{linePrefix}        Array Name: {_superblock.ArrayName}");
-        writer.WriteLine($"{linePrefix}       Data Offset: {_superblock.DataOffset} (Sectors)");
-        writer.WriteLine($"{linePrefix}        Array Size: {_superblock.ArraySize} (Sectors)");
-        writer.WriteLine($"{linePrefix}       Total Disks: {_superblock.TotalDisks}");
+        writer.WriteLine($"{linePrefix}LINUX RAID DISK ({Superblock.ArrayName})");
+        writer.WriteLine($"{linePrefix}      RAID Version: {Superblock.MajorVersion}.{Superblock.MinorVersion}");
+        writer.WriteLine($"{linePrefix}        RAID Level: {Superblock.RaidLevel}");
+        writer.WriteLine($"{linePrefix}        Array UUID: {Superblock.ArrayUuid}");
+        writer.WriteLine($"{linePrefix}        Array Name: {Superblock.ArrayName}");
+        writer.WriteLine($"{linePrefix}       Data Offset: {Superblock.DataOffset} (Sectors)");
+        writer.WriteLine($"{linePrefix}        Array Size: {Superblock.ArraySize} (Sectors)");
+        writer.WriteLine($"{linePrefix}       Total Disks: {Superblock.TotalDisks}");
     }
 
     public enum MetadataVersion

@@ -32,21 +32,18 @@ using LogicalVolumeStatus = DiscUtils.LogicalVolumeStatus;
 internal class LinuxRaidDiskGroup : IDiagnosticTraceable
 {
     private readonly List<LinuxRaidDiskVolume> _disks;
-    private readonly Guid _arrayUuid;
-    private readonly string _arrayName;
-    private readonly uint _raidLevel;
 
     internal LinuxRaidDiskGroup(LinuxRaidDiskVolume initialDisk)
     {
         _disks = [initialDisk];
-        _arrayUuid = initialDisk.ArrayUuid;
-        _arrayName = initialDisk.ArrayName;
-        _raidLevel = initialDisk.RaidLevel;
+        ArrayUuid = initialDisk.ArrayUuid;
+        ArrayName = initialDisk.ArrayName;
+        RaidLevel = initialDisk.RaidLevel;
     }
 
-    public Guid ArrayUuid => _arrayUuid;
-    public string ArrayName => _arrayName;
-    public uint RaidLevel => _raidLevel;
+    public Guid ArrayUuid { get; }
+    public string ArrayName { get; }
+    public uint RaidLevel { get; }
     public int DiskCount => _disks.Count;
 
     // Property to access the first disk for volume calculations
@@ -54,10 +51,10 @@ internal class LinuxRaidDiskGroup : IDiagnosticTraceable
 
     public void Dump(TextWriter writer, string linePrefix)
     {
-        writer.WriteLine($"{linePrefix}LINUX RAID ARRAY ({_arrayName})");
-        writer.WriteLine($"{linePrefix}  Array UUID: {_arrayUuid}");
-        writer.WriteLine($"{linePrefix}  Array Name: {_arrayName}");
-        writer.WriteLine($"{linePrefix}  RAID Level: {_raidLevel}");
+        writer.WriteLine($"{linePrefix}LINUX RAID ARRAY ({ArrayName})");
+        writer.WriteLine($"{linePrefix}  Array UUID: {ArrayUuid}");
+        writer.WriteLine($"{linePrefix}  Array Name: {ArrayName}");
+        writer.WriteLine($"{linePrefix}  RAID Level: {RaidLevel}");
         writer.WriteLine($"{linePrefix}  Disk Count: {_disks.Count}");
         writer.WriteLine();
 
@@ -71,7 +68,7 @@ internal class LinuxRaidDiskGroup : IDiagnosticTraceable
 
     public void Add(LinuxRaidDiskVolume disk)
     {
-        if (disk.ArrayUuid != _arrayUuid)
+        if (disk.ArrayUuid != ArrayUuid)
         {
             throw new InvalidOperationException("Cannot add disk with different array UUID to RAID group");
         }
@@ -88,12 +85,12 @@ internal class LinuxRaidDiskGroup : IDiagnosticTraceable
 
     internal SparseStream OpenVolume()
     {
-        switch (_raidLevel)
+        switch (RaidLevel)
         {
             case 1: // RAID 1 - mirroring
                 return OpenRaid1Volume();
             default:
-                throw new NotSupportedException($"RAID level {_raidLevel} is not currently supported");
+                throw new NotSupportedException($"RAID level {RaidLevel} is not currently supported");
         }
     }
 

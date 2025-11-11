@@ -34,14 +34,12 @@ public class CommandLineParser
     private List<CommandLineParameter> _params;
     private CommandLineMultiParameter _multiParam;
 
-    private bool _parseFailed;
-
     public CommandLineParser(string utilityName)
     {
         _utilityName = utilityName;
         _switches = [];
         _params = [];
-        _parseFailed = false;
+        ParseSucceeded = false;
     }
 
     public void AddMultiParameter(CommandLineMultiParameter multiParameter)
@@ -143,7 +141,7 @@ public class CommandLineParser
 
     public bool Parse(string[] args)
     {
-        _parseFailed = true;
+        ParseSucceeded = true;
 
         var i = 0;
         var paramIdx = 0;
@@ -213,9 +211,9 @@ public class CommandLineParser
             }
         }
 
-        _parseFailed = false;
+        ParseSucceeded = false;
         return true;
     }
 
-    public bool ParseSucceeded => !_parseFailed;
+    public bool ParseSucceeded { get => !field; private set; }
 }

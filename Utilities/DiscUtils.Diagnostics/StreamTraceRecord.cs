@@ -30,73 +30,53 @@ namespace DiscUtils.Diagnostics;
 /// </summary>
 public sealed class StreamTraceRecord
 {
-    private int _id;
-    private string _fileAction;
-    private long _filePosition;
-    private long _countArg;
-    private long _result;
-    private Exception _exThrown;
-    private StackTrace _stack;
-
     internal StreamTraceRecord(int id, string fileAction, long filePosition, StackTrace stack)
     {
-        _id = id;
-        _fileAction = fileAction;
-        _filePosition = filePosition;
-        _stack = stack;
+        Id = id;
+        FileAction = fileAction;
+        FilePosition = filePosition;
+        Stack = stack;
     }
 
     /// <summary>
     /// Unique identity for this record.
     /// </summary>
-    public int Id => _id;
+    public int Id { get; }
 
     /// <summary>
     /// The type of action being performed.
     /// </summary>
-    public string FileAction => _fileAction;
+    public string FileAction { get; }
 
     /// <summary>
     /// The stream position when the action was performed.
     /// </summary>
-    public long FilePosition => _filePosition;
+    public long FilePosition { get; }
 
     /// <summary>
     /// The count argument (if relevant) when the action was performed.
     /// </summary>
-    public long CountArg
-    {
-        get => _countArg;
-        internal set => _countArg = value;
-    }
+    public long CountArg { get; internal set; }
 
     /// <summary>
     /// The return value (if relevant) when the action was performed.
     /// </summary>
-    public long Result
-    {
-        get => _result;
-        internal set => _result = value;
-    }
+    public long Result { get; internal set; }
 
     /// <summary>
     /// The exception thrown during processing of this action.
     /// </summary>
-    public Exception ExceptionThrown
-    {
-        get => _exThrown;
-        internal set => _exThrown = value;
-    }
+    public Exception ExceptionThrown { get; internal set; }
 
     /// <summary>
     /// A full stack trace at the point the action was performed.
     /// </summary>
-    public StackTrace Stack => _stack;
+    public StackTrace Stack { get; }
 
     /// <summary>
     /// Gets a string representation of the common fields.
     /// </summary>
     /// <returns></returns>
     public override string ToString() =>
-        $"{_id:D3}{(_exThrown != null ? "E" : " "),1}:{_fileAction,5}  @{_filePosition:X10}  [count={_countArg}, result={_result}]";
+        $"{Id:D3}{(ExceptionThrown != null ? "E" : " "),1}:{FileAction,5}  @{FilePosition:X10}  [count={CountArg}, result={Result}]";
 }

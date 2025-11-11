@@ -24,8 +24,6 @@ namespace DiscUtils.Btrfs;
 
 public class BtrfsFileSystemOptions : DiscFileSystemOptions
 {
-    private ulong _subvolumeId;
-
     public BtrfsFileSystemOptions()
     {
         UseDefaultSubvolume = true;
@@ -33,10 +31,10 @@ public class BtrfsFileSystemOptions : DiscFileSystemOptions
 
     public ulong SubvolumeId
     {
-        get => _subvolumeId;
+        get;
         set
         {
-            _subvolumeId = value;
+            field = value;
             UseDefaultSubvolume = false;
         }
     }

@@ -29,31 +29,27 @@ public class CommandLineParameter
 {
     private string _name;
     private string _description;
-    private bool _isOptional;
-
-    private bool _isPresent;
-    private string _value;
 
     public CommandLineParameter(string name, string description, bool isOptional)
     {
         _name = name;
         _description = description;
-        _isOptional = isOptional;
+        IsOptional = isOptional;
     }
 
-    public bool IsPresent => _isPresent;
+    public bool IsPresent { get; private set; }
 
-    public string Value => _value;
+    public string Value { get; private set; }
 
-    public virtual bool IsValid => _isOptional || _isPresent;
+    public virtual bool IsValid => IsOptional || IsPresent;
 
-    internal bool IsOptional => _isOptional;
+    internal bool IsOptional { get; }
 
     internal string CommandLineText
     {
         get
         {
-            if (_isOptional)
+            if (IsOptional)
             {
                 return $"[{_name}]";
             }
@@ -68,7 +64,7 @@ public class CommandLineParameter
 
     internal void WriteDescription(TextWriter writer, string lineTemplate, int perLineDescWidth)
     {
-        var text = Utilities.WordWrap((_isOptional ? "Optional. " : "") + _description, perLineDescWidth).ToArray();
+        var text = Utilities.WordWrap((IsOptional ? "Optional. " : "") + _description, perLineDescWidth).ToArray();
 
         writer.WriteLine(lineTemplate, _name, text[0]);
         for (var i = 1; i < text.Length; ++i)
@@ -84,8 +80,8 @@ public class CommandLineParameter
 
     protected internal virtual int Process(string[] args, int pos)
     {
-        _isPresent = true;
-        _value = args[pos];
+        IsPresent = true;
+        Value = args[pos];
         return pos + 1;
     }
 }

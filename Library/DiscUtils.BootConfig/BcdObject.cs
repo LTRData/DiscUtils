@@ -128,8 +128,6 @@ public class BcdObject
 
     private static readonly Dictionary<string, Guid> _nameToGuid;
     private static readonly Dictionary<Guid, string> _guidToName;
-    private Guid _id;
-
     private readonly BaseStorage _storage;
     private readonly int _type;
 
@@ -158,7 +156,7 @@ public class BcdObject
     internal BcdObject(BaseStorage store, Guid id)
     {
         _storage = store;
-        _id = id;
+        Identity = id;
         _type = _storage.GetObjectType(id);
     }
 
@@ -179,9 +177,9 @@ public class BcdObject
     {
         get
         {
-            foreach (var el in _storage.EnumerateElements(_id))
+            foreach (var el in _storage.EnumerateElements(Identity))
             {
-                yield return new Element(_storage, _id, ApplicationType, el);
+                yield return new Element(_storage, Identity, ApplicationType, el);
             }
         }
     }
@@ -193,19 +191,19 @@ public class BcdObject
     {
         get
         {
-            if (_guidToName.TryGetValue(_id, out var name))
+            if (_guidToName.TryGetValue(Identity, out var name))
             {
                 return name;
             }
 
-            return _id.ToString("B");
+            return Identity.ToString("B");
         }
     }
 
     /// <summary>
     /// Gets the identity of this object.
     /// </summary>
-    public Guid Identity => _id;
+    public Guid Identity { get; }
 
     private bool IsApplication => ObjectType == ObjectType.Application;
 
@@ -245,7 +243,7 @@ public class BcdObject
     /// <returns><c>true</c> if present, else <c>false</c>.</returns>
     public bool HasElement(int id)
     {
-        return _storage.HasValue(_id, id);
+        return _storage.HasValue(Identity, id);
     }
 
     /// <summary>
@@ -267,7 +265,7 @@ public class BcdObject
     {
         if (HasElement(id))
         {
-            return new Element(_storage, _id, ApplicationType, id);
+            return new Element(_storage, Identity, ApplicationType, id);
         }
 
         return null;
@@ -291,8 +289,8 @@ public class BcdObject
     /// <returns>The element object.</returns>
     public Element AddElement(int id, ElementValue initialValue)
     {
-        _storage.CreateElement(_id, id);
-        var el = new Element(_storage, _id, ApplicationType, id)
+        _storage.CreateElement(Identity, id);
+        var el = new Element(_storage, Identity, ApplicationType, id)
         {
             Value = initialValue
         };
@@ -316,7 +314,7 @@ public class BcdObject
     /// <param name="id">The element to remove.</param>
     public void RemoveElement(int id)
     {
-        _storage.DeleteElement(_id, id);
+        _storage.DeleteElement(Identity, id);
     }
 
     /// <summary>
@@ -334,7 +332,7 @@ public class BcdObject
     /// <returns>A string representation, with surrounding curly braces.</returns>
     public override string ToString()
     {
-        return _id.ToString("B");
+        return Identity.ToString("B");
     }
 
     internal static int MakeApplicationType(ApplicationImageType imageType, ApplicationType appType)

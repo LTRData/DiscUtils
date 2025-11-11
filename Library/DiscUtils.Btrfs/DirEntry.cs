@@ -33,11 +33,10 @@ internal class DirEntry : VfsDirEntry
 {
     private readonly InodeItem _inode;
     private readonly DirIndex _item;
-    private readonly ulong _treeId;
 
     public DirEntry(ulong treeId, ulong objectId)
     {
-        _treeId = treeId;
+        TreeId = treeId;
         ObjectId = objectId;
     }
 
@@ -118,7 +117,7 @@ internal class DirEntry : VfsDirEntry
 
     internal ulong ObjectId { get; private set; }
 
-    internal ulong TreeId => _treeId;
+    internal ulong TreeId { get; }
 
     internal ulong FileSize => _inode?.FileSize ?? 0;
 

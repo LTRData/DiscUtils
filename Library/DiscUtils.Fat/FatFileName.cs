@@ -52,49 +52,45 @@ internal struct FatFileName : IEquatable<FatFileName>
 
     public static readonly FatFileName Null = new("\0\0\0\0\0\0\0\0\0\0\0\0");
 
-    private readonly string _shortName; // null indicates a deleted / orphaned entry
-
-    private readonly string _longName;
-
     private FatFileName(string shortName, string longName = null)
     {
-        _shortName = shortName;
-        _longName = longName;
+        ShortName = shortName;
+        LongName = longName;
     }
 
-    public readonly string ShortName => _shortName;
+    public readonly string ShortName { get; }
 
-    public readonly string LongName => _longName;
+    public readonly string LongName { get; }
 
-    public readonly string FullName => _longName ?? _shortName;
+    public readonly string FullName => LongName ?? ShortName;
     
     /// <summary>
     /// Gets the number of additional directory entries used by the long file name.
     /// </summary>
-    public readonly int LfnDirectoryEntryCount => _longName is not null ? (_longName.Length + 12) / 13 : 0;
+    public readonly int LfnDirectoryEntryCount => LongName is not null ? (LongName.Length + 12) / 13 : 0;
 
     public readonly bool Equals(FatFileName other) => Equals(this, other);
 
     public static bool Equals(in FatFileName a, in FatFileName b)
     {
-        if (a._longName != null)
+        if (a.LongName != null)
         {
-            if (StringComparer.OrdinalIgnoreCase.Equals(a._longName, b._longName) ||
-                StringComparer.OrdinalIgnoreCase.Equals(a._longName, b._shortName))
+            if (StringComparer.OrdinalIgnoreCase.Equals(a.LongName, b.LongName) ||
+                StringComparer.OrdinalIgnoreCase.Equals(a.LongName, b.ShortName))
             {
                 return true;
             }
         }
-        else if (b._longName != null)
+        else if (b.LongName != null)
         {
-            if (StringComparer.OrdinalIgnoreCase.Equals(a._shortName, b._longName))
+            if (StringComparer.OrdinalIgnoreCase.Equals(a.ShortName, b.LongName))
             {
                 return true;
             }
         }
         else
         {
-            if (StringComparer.OrdinalIgnoreCase.Compare(a._shortName, b._shortName) == 0)
+            if (StringComparer.OrdinalIgnoreCase.Compare(a.ShortName, b.ShortName) == 0)
             {
                 return true;
             }
@@ -162,7 +158,7 @@ internal struct FatFileName : IEquatable<FatFileName>
             throw new ArgumentException($"Extension too long in short name '{name}'", nameof(name));
         }
 
-        return new(name, _longName);
+        return new(name, LongName);
     }
 
     public readonly bool IsMatch(Func<string, bool> filter)
@@ -181,9 +177,9 @@ internal struct FatFileName : IEquatable<FatFileName>
         return filter(searchName);
     }
 
-    public readonly bool IsDeleted() => _shortName is null;
+    public readonly bool IsDeleted() => ShortName is null;
 
-    public readonly bool IsEndMarker() => _shortName is not null && _shortName.Equals(Null._shortName, StringComparison.Ordinal);
+    public readonly bool IsEndMarker() => ShortName is not null && ShortName.Equals(Null.ShortName, StringComparison.Ordinal);
 
     public readonly override bool Equals(object other)
         => other is FatFileName otherName && Equals(this, otherName);
@@ -203,9 +199,9 @@ internal struct FatFileName : IEquatable<FatFileName>
     /// <param name="encodingTable">Encoding table</param>
     public readonly void ToDirectoryEntryBytes(Span<byte> buffer, FastEncodingTable encodingTable)
     {
-        if (_shortName is null) throw new InvalidOperationException("Cannot write a deleted file name");
+        if (ShortName is null) throw new InvalidOperationException("Cannot write a deleted file name");
 
-        if (_shortName.Equals(Null._shortName, StringComparison.Ordinal))
+        if (ShortName.Equals(Null.ShortName, StringComparison.Ordinal))
         {
             buffer.Clear();
             return;
@@ -226,17 +222,17 @@ internal struct FatFileName : IEquatable<FatFileName>
         finalBytes.Fill((byte)' ');
 
         // Initialize the buffer with the short name
-        var indexOfDot = _shortName.IndexOf('.');
+        var indexOfDot = ShortName.IndexOf('.');
         int idxFinal = 0;
 
-        var baseNameLength = indexOfDot > 0 ? indexOfDot : _shortName.Length;
+        var baseNameLength = indexOfDot > 0 ? indexOfDot : ShortName.Length;
 
         // Process the base name (at max 8 characters)
         bool hasLowerCaseBase = false;
 
         for (var i = 0; i < baseNameLength; i++, idxFinal++)
         {
-            var c = _shortName[i];
+            var c = ShortName[i];
 
             // We have the guarantee if the short name that if there is a lower case base name character, then all letters are lower case
             if (char.IsLetter(c) && char.IsLower(c))
@@ -260,9 +256,9 @@ internal struct FatFileName : IEquatable<FatFileName>
         {
             var hasLowerCaseExt = false;
             idxFinal = 8;
-            for (int i = indexOfDot + 1; i < _shortName.Length; i++, idxFinal++)
+            for (int i = indexOfDot + 1; i < ShortName.Length; i++, idxFinal++)
             {
-                var c = _shortName[i];
+                var c = ShortName[i];
 
                 if (char.IsLetter(c) && char.IsLower(c))
                 {
@@ -282,14 +278,14 @@ internal struct FatFileName : IEquatable<FatFileName>
         }
 
         var offset = 0;
-        if (_longName != null)
+        if (LongName != null)
         {
             // Calculate the checksum for the short name
             var checksumByte = SfnChecksum(finalBytes);
 
-            var lfnBytes = MemoryMarshal.AsBytes(_longName.AsSpan());
+            var lfnBytes = MemoryMarshal.AsBytes(LongName.AsSpan());
 
-            var length13 = _longName.Length % 13;
+            var length13 = LongName.Length % 13;
             
             for (var i = lfnCount; i > 0; i--, offset += DirectoryEntry.SizeOf)
             {

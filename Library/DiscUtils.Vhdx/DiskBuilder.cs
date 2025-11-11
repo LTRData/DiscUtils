@@ -37,14 +37,12 @@ namespace DiscUtils.Vhdx;
 /// is simply to present a VHD version of an existing disk.</remarks>
 public sealed class DiskBuilder : DiskImageBuilder
 {
-    private long _blockSize = 32 * Sizes.OneMiB;
-
     /// <summary>
     /// The VHDX block size, or <c>0</c> (indicating default).
     /// </summary>
     public long BlockSize
     {
-        get => _blockSize;
+        get;
         set
         {
             if (value % Sizes.OneMiB != 0)
@@ -52,9 +50,9 @@ public sealed class DiskBuilder : DiskImageBuilder
                 throw new ArgumentException("BlockSize must be a multiple of 1MB", nameof(value));
             }
 
-            _blockSize = value;
+            field = value;
         }
-    }
+    } = 32 * Sizes.OneMiB;
 
     /// <summary>
     /// Gets or sets the type of VHDX file to build.

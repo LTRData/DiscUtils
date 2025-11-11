@@ -5,9 +5,6 @@ namespace DiscUtils.Core.WindowsSecurity.AccessControl;
 
 public sealed class ObjectAce : QualifiedAce
 {
-    private Guid _objectAceType;
-    private Guid _inheritedObjectType;
-    
     public ObjectAceFlags ObjectAceFlags { get; set; }
 
     public ObjectAce(AceFlags aceFlags, AceQualifier qualifier,
@@ -118,19 +115,11 @@ public sealed class ObjectAce : QualifiedAce
         }
     }
 
-    public Guid InheritedObjectAceType
-    {
-        get => _inheritedObjectType;
-        set => _inheritedObjectType = value;
-    }
+    public Guid InheritedObjectAceType { get; set; }
 
     bool InheritedObjectAceTypePresent => 0 != (ObjectAceFlags & ObjectAceFlags.InheritedObjectAceTypePresent);
 
-    public Guid ObjectAceType
-    {
-        get => _objectAceType;
-        set => _objectAceType = value;
-    }
+    public Guid ObjectAceType { get; set; }
 
     bool ObjectAceTypePresent => 0 != (ObjectAceFlags & ObjectAceFlags.ObjectAceTypePresent);
 
@@ -181,13 +170,13 @@ public sealed class ObjectAce : QualifiedAce
         var objType = "";
         if ((ObjectAceFlags & ObjectAceFlags.ObjectAceTypePresent) != 0)
         {
-            objType = _objectAceType.ToString("D");
+            objType = ObjectAceType.ToString("D");
         }
 
         var inhObjType = "";
         if ((ObjectAceFlags & ObjectAceFlags.InheritedObjectAceTypePresent) != 0)
         {
-            inhObjType = _inheritedObjectType.ToString("D");
+            inhObjType = InheritedObjectAceType.ToString("D");
         }
 
         return $"({GetSddlAceType(AceType)};{GetSddlAceFlags(AceFlags)};{GetSddlAccessRights(AccessMask)};{objType};{inhObjType};{SecurityIdentifier!.GetSddlForm()})";

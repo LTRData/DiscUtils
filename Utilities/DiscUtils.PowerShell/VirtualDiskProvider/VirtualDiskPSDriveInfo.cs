@@ -28,21 +28,19 @@ namespace DiscUtils.PowerShell.VirtualDiskProvider;
 
 public sealed class VirtualDiskPSDriveInfo : PSDriveInfo
 {
-    private VirtualDisk _disk;
-    private VolumeManager _volMgr;
     private Dictionary<string, DiscFileSystem> _fsCache;
 
     public VirtualDiskPSDriveInfo(PSDriveInfo toCopy, string root, VirtualDisk disk)
         : base(toCopy.Name, toCopy.Provider, root, toCopy.Description, toCopy.Credential)
     {
-        _disk = disk;
-        _volMgr = new VolumeManager(_disk);
+        Disk = disk;
+        VolumeManager = new VolumeManager(Disk);
         _fsCache = [];
     }
 
-    public VirtualDisk Disk => _disk;
+    public VirtualDisk Disk { get; }
 
-    public VolumeManager VolumeManager => _volMgr;
+    public VolumeManager VolumeManager { get; private set; }
 
     internal DiscFileSystem GetFileSystem(VolumeInfo volInfo)
     {
@@ -63,7 +61,7 @@ public sealed class VirtualDiskPSDriveInfo : PSDriveInfo
 
     internal void RescanVolumes()
     {
-        var newVolMgr = new VolumeManager(_disk);
+        var newVolMgr = new VolumeManager(Disk);
         var newFsCache = new Dictionary<string, DiscFileSystem>();
         var deadFileSystems = new Dictionary<string, DiscFileSystem>(_fsCache);
 
@@ -81,7 +79,7 @@ public sealed class VirtualDiskPSDriveInfo : PSDriveInfo
             deadFs.Dispose();
         }
 
-        _volMgr = newVolMgr;
+        VolumeManager = newVolMgr;
         _fsCache = newFsCache;
     }
 

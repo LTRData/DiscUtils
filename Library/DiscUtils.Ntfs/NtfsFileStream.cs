@@ -31,9 +31,7 @@ namespace DiscUtils.Ntfs;
 
 internal sealed class NtfsFileStream : SparseStream
 {
-    private SparseStream _baseStream;
-
-    public SparseStream BaseStream => _baseStream;
+    public SparseStream BaseStream { get; private set; }
 
     private readonly DirectoryEntry _entry;
 
@@ -65,7 +63,7 @@ internal sealed class NtfsFileStream : SparseStream
     {
         _entry = entry;
         _file = file;
-        _baseStream = baseStream;
+        BaseStream = baseStream;
     }
 
     public static SparseStream Open(File file, DirectoryEntry entry, AttributeType attrType, ushort attrId,
@@ -95,7 +93,7 @@ internal sealed class NtfsFileStream : SparseStream
             return virtualPosition;
         }
 
-        return _baseStream.GetPositionInBaseStream(baseStream, virtualPosition);
+        return BaseStream.GetPositionInBaseStream(baseStream, virtualPosition);
     }
 
     public override bool CanRead
@@ -103,7 +101,7 @@ internal sealed class NtfsFileStream : SparseStream
         get
         {
             AssertOpen();
-            return _baseStream.CanRead;
+            return BaseStream.CanRead;
         }
     }
 
@@ -112,7 +110,7 @@ internal sealed class NtfsFileStream : SparseStream
         get
         {
             AssertOpen();
-            return _baseStream.CanSeek;
+            return BaseStream.CanSeek;
         }
     }
 
@@ -121,7 +119,7 @@ internal sealed class NtfsFileStream : SparseStream
         get
         {
             AssertOpen();
-            return _baseStream.CanWrite;
+            return BaseStream.CanWrite;
         }
     }
 
@@ -130,7 +128,7 @@ internal sealed class NtfsFileStream : SparseStream
         get
         {
             AssertOpen();
-            return _baseStream.Extents;
+            return BaseStream.Extents;
         }
     }
 
@@ -139,7 +137,7 @@ internal sealed class NtfsFileStream : SparseStream
         get
         {
             AssertOpen();
-            return _baseStream.Length;
+            return BaseStream.Length;
         }
     }
 
@@ -148,7 +146,7 @@ internal sealed class NtfsFileStream : SparseStream
         get
         {
             AssertOpen();
-            return _baseStream.Position;
+            return BaseStream.Position;
         }
 
         set
@@ -156,14 +154,14 @@ internal sealed class NtfsFileStream : SparseStream
             AssertOpen();
             using (NtfsTransaction.Begin())
             {
-                _baseStream.Position = value;
+                BaseStream.Position = value;
             }
         }
     }
 
     protected override void Dispose(bool disposing)
     {
-        if (_baseStream == null)
+        if (BaseStream == null)
         {
             base.Dispose(disposing);
             return;
@@ -174,11 +172,11 @@ internal sealed class NtfsFileStream : SparseStream
             using (NtfsTransaction.Begin())
             {
                 base.Dispose(disposing);
-                _baseStream.Dispose();
+                BaseStream.Dispose();
 
                 UpdateMetadata();
 
-                _baseStream = null;
+                BaseStream = null;
             }
         }
     }
@@ -188,7 +186,7 @@ internal sealed class NtfsFileStream : SparseStream
         AssertOpen();
         using (NtfsTransaction.Begin())
         {
-            _baseStream.Flush();
+            BaseStream.Flush();
 
             UpdateMetadata();
         }
@@ -201,7 +199,7 @@ internal sealed class NtfsFileStream : SparseStream
 
         using (NtfsTransaction.Begin())
         {
-            return _baseStream.Read(buffer, offset, count);
+            return BaseStream.Read(buffer, offset, count);
         }
     }
 
@@ -211,7 +209,7 @@ internal sealed class NtfsFileStream : SparseStream
 
         using (NtfsTransaction.Begin())
         {
-            return _baseStream.Read(buffer);
+            return BaseStream.Read(buffer);
         }
     }
 
@@ -221,7 +219,7 @@ internal sealed class NtfsFileStream : SparseStream
 
         using (NtfsTransaction.Begin())
         {
-            return await _baseStream.ReadAsync(buffer, cancellationToken).ConfigureAwait(false);
+            return await BaseStream.ReadAsync(buffer, cancellationToken).ConfigureAwait(false);
         }
     }
 
@@ -230,7 +228,7 @@ internal sealed class NtfsFileStream : SparseStream
         AssertOpen();
         using (NtfsTransaction.Begin())
         {
-            return _baseStream.Seek(offset, origin);
+            return BaseStream.Seek(offset, origin);
         }
     }
 
@@ -242,7 +240,7 @@ internal sealed class NtfsFileStream : SparseStream
             if (value != Length)
             {
                 _isDirty = true;
-                _baseStream.SetLength(value);
+                BaseStream.SetLength(value);
             }
         }
     }
@@ -255,7 +253,7 @@ internal sealed class NtfsFileStream : SparseStream
         using (NtfsTransaction.Begin())
         {
             _isDirty = true;
-            _baseStream.Write(buffer, offset, count);
+            BaseStream.Write(buffer, offset, count);
         }
     }
 
@@ -267,7 +265,7 @@ internal sealed class NtfsFileStream : SparseStream
         using (NtfsTransaction.Begin())
         {
             _isDirty = true;
-            await _baseStream.WriteAsync(buffer.AsMemory(offset, count), cancellationToken).ConfigureAwait(false);
+            await BaseStream.WriteAsync(buffer.AsMemory(offset, count), cancellationToken).ConfigureAwait(false);
         }
     }
 
@@ -278,7 +276,7 @@ internal sealed class NtfsFileStream : SparseStream
         using (NtfsTransaction.Begin())
         {
             _isDirty = true;
-            _baseStream.Write(buffer);
+            BaseStream.Write(buffer);
         }
     }
 
@@ -289,12 +287,12 @@ internal sealed class NtfsFileStream : SparseStream
         using (NtfsTransaction.Begin())
         {
             _isDirty = true;
-            await _baseStream.WriteAsync(buffer, cancellationToken).ConfigureAwait(false);
+            await BaseStream.WriteAsync(buffer, cancellationToken).ConfigureAwait(false);
         }
     }
 
     public override Task FlushAsync(CancellationToken cancellationToken) =>
-        _baseStream.FlushAsync(cancellationToken);
+        BaseStream.FlushAsync(cancellationToken);
 
     public override void Clear(int count)
     {
@@ -302,7 +300,7 @@ internal sealed class NtfsFileStream : SparseStream
         using (NtfsTransaction.Begin())
         {
             _isDirty = true;
-            _baseStream.Clear(count);
+            BaseStream.Clear(count);
         }
     }
 
@@ -332,9 +330,9 @@ internal sealed class NtfsFileStream : SparseStream
     private void AssertOpen()
     {
 #if NET7_0_OR_GREATER
-        ObjectDisposedException.ThrowIf(_baseStream is null, this);
+        ObjectDisposedException.ThrowIf(BaseStream is null, this);
 #else
-        if (_baseStream is null)
+        if (BaseStream is null)
         {
             throw new ObjectDisposedException(_entry.Details.FileName, "Attempt to use closed stream");
         }

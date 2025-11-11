@@ -43,7 +43,6 @@ public sealed class Chunk
 
     private readonly Stream _bat;
     private readonly byte[] _batData;
-    private readonly int _blocksPerChunk;
     private readonly int _chunk;
     private readonly SparseStream _file;
     private readonly FileParameters _fileParameters;
@@ -58,9 +57,9 @@ public sealed class Chunk
         _freeSpace = freeSpace;
         _fileParameters = fileParameters;
         _chunk = chunk;
-        _blocksPerChunk = blocksPerChunk;
+        BlocksPerChunk = blocksPerChunk;
 
-        var chunkBatSize = (_blocksPerChunk + 1) * 8;
+        var chunkBatSize = (BlocksPerChunk + 1) * 8;
 
         _bat.Position = _chunk * chunkBatSize;
         
@@ -76,11 +75,11 @@ public sealed class Chunk
         }
     }
 
-    public bool HasSectorBitmap => new BatEntry(_batData, _blocksPerChunk * 8).BitmapBlockPresent;
+    public bool HasSectorBitmap => new BatEntry(_batData, BlocksPerChunk * 8).BitmapBlockPresent;
 
     private long SectorBitmapPos
     {
-        get => new BatEntry(_batData, _blocksPerChunk * 8).FileOffsetMB * Sizes.OneMiB;
+        get => new BatEntry(_batData, BlocksPerChunk * 8).FileOffsetMB * Sizes.OneMiB;
 
         set
         {
@@ -89,11 +88,11 @@ public sealed class Chunk
                 BitmapBlockPresent = value != 0,
                 FileOffsetMB = value / Sizes.OneMiB
             };
-            entry.WriteTo(_batData, _blocksPerChunk * 8);
+            entry.WriteTo(_batData, BlocksPerChunk * 8);
         }
     }
 
-    public int BlocksPerChunk => _blocksPerChunk;
+    public int BlocksPerChunk { get; }
 
     public long GetBlockPosition(int block)
     {
@@ -107,7 +106,7 @@ public sealed class Chunk
 
     public AllocationBitmap GetBlockBitmap(int block)
     {
-        var bytesPerBlock = (int)(Sizes.OneMiB / _blocksPerChunk);
+        var bytesPerBlock = (int)(Sizes.OneMiB / BlocksPerChunk);
         var offset = bytesPerBlock * block;
         var data = LoadSectorBitmap();
         return new AllocationBitmap(data, offset, bytesPerBlock);
@@ -115,7 +114,7 @@ public sealed class Chunk
 
     public async ValueTask<AllocationBitmap> GetBlockBitmapAsync(int block, CancellationToken cancellationToken)
     {
-        var bytesPerBlock = (int)(Sizes.OneMiB / _blocksPerChunk);
+        var bytesPerBlock = (int)(Sizes.OneMiB / BlocksPerChunk);
         var offset = bytesPerBlock * block;
         var data = await LoadSectorBitmapAsync(cancellationToken).ConfigureAwait(false);
         return new AllocationBitmap(data, offset, bytesPerBlock);
@@ -123,7 +122,7 @@ public sealed class Chunk
 
     public void WriteBlockBitmap(int block)
     {
-        var bytesPerBlock = (int)(Sizes.OneMiB / _blocksPerChunk);
+        var bytesPerBlock = (int)(Sizes.OneMiB / BlocksPerChunk);
         var offset = bytesPerBlock * block;
 
         _file.Position = SectorBitmapPos + offset;
@@ -132,7 +131,7 @@ public sealed class Chunk
 
     public ValueTask WriteBlockBitmapAsync(int block, CancellationToken cancellationToken)
     {
-        var bytesPerBlock = (int)(Sizes.OneMiB / _blocksPerChunk);
+        var bytesPerBlock = (int)(Sizes.OneMiB / BlocksPerChunk);
         var offset = bytesPerBlock * block;
 
         _file.Position = SectorBitmapPos + offset;
@@ -186,7 +185,7 @@ public sealed class Chunk
         {
             blockEntry.WriteTo(_batData, block * 8);
 
-            _bat.Position = _chunk * (_blocksPerChunk + 1) * 8;
+            _bat.Position = _chunk * (BlocksPerChunk + 1) * 8;
             _bat.Write(_batData, 0, _batData.Length);
         }
 
@@ -228,7 +227,7 @@ public sealed class Chunk
         {
             blockEntry.WriteTo(_batData, block * 8);
 
-            _bat.Position = _chunk * (_blocksPerChunk + 1) * 8;
+            _bat.Position = _chunk * (BlocksPerChunk + 1) * 8;
             await _bat.WriteAsync(_batData, cancellationToken).ConfigureAwait(false);
         }
 

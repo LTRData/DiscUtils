@@ -34,7 +34,6 @@ namespace DiscUtils.Vhd;
 public class DynamicStream : MappedStream
 {
     private bool _atEof;
-    private bool _autoCommitFooter = true;
     private uint[] _blockAllocationTable;
     private readonly byte[][] _blockBitmaps;
     private readonly int _blockBitmapSize;
@@ -101,17 +100,17 @@ public class DynamicStream : MappedStream
 
     public bool AutoCommitFooter
     {
-        get => _autoCommitFooter;
+        get;
 
         set
         {
-            _autoCommitFooter = value;
-            if (_autoCommitFooter)
+            field = value;
+            if (field)
             {
                 UpdateFooter();
             }
         }
-    }
+    } = true;
 
     public uint BlockSize => _dynamicHeader.BlockSize;
 
@@ -1071,21 +1070,21 @@ public class DynamicStream : MappedStream
         _blockAllocationTable = bat;
     }
 
-    private byte[] _allAllocatedBlockBitmap;
-
     private byte[] AllAllocatedBlockBitmap
     {
         get
         {
-            if (_allAllocatedBlockBitmap == null)
+            if (field == null)
             {
                 var newArray = StreamUtilities.GetUninitializedArray<byte>(_blockBitmapSize);
                 newArray.AsSpan().Fill(0xff);
-                _allAllocatedBlockBitmap = newArray;
+                field = newArray;
             }
 
-            return _allAllocatedBlockBitmap;
+            return field;
         }
+
+        set;
     }
 
     private bool PopulateBlockBitmap(long block)
@@ -1158,7 +1157,7 @@ public class DynamicStream : MappedStream
         _fileStream.Write(entryBuffer);
         _blockAllocationTable[block] = (uint)(newBlockStart / 512);
 
-        if (_autoCommitFooter)
+        if (AutoCommitFooter)
         {
             UpdateFooter();
         }
@@ -1201,7 +1200,7 @@ public class DynamicStream : MappedStream
 
         _blockAllocationTable[block] = (uint)(newBlockStart / 512);
 
-        if (_autoCommitFooter)
+        if (AutoCommitFooter)
         {
             await UpdateFooterAsync(cancellationToken).ConfigureAwait(false);
         }

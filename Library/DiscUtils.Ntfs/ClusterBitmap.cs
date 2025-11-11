@@ -31,7 +31,6 @@ namespace DiscUtils.Ntfs;
 
 internal class ClusterBitmap : IDisposable
 {
-    private Bitmap _bitmap;
     private readonly File _file;
     private bool _fragmentedDiskMode;
 
@@ -40,20 +39,20 @@ internal class ClusterBitmap : IDisposable
     public ClusterBitmap(File file)
     {
         _file = file;
-        _bitmap = new Bitmap(
+        Bitmap = new Bitmap(
             _file.OpenStream(AttributeType.Data, null, FileAccess.ReadWrite),
             MathUtilities.Ceil(file.Context.BiosParameterBlock.TotalSectors64,
                 file.Context.BiosParameterBlock.SectorsPerCluster));
     }
 
-    internal Bitmap Bitmap => _bitmap;
+    internal Bitmap Bitmap { get; private set; }
 
     public void Dispose()
     {
-        if (_bitmap != null)
+        if (Bitmap != null)
         {
-            _bitmap.Dispose();
-            _bitmap = null;
+            Bitmap.Dispose();
+            Bitmap = null;
         }
     }
 
@@ -238,14 +237,14 @@ internal class ClusterBitmap : IDisposable
 
     internal void MarkAllocated(long first, long count)
     {
-        _bitmap.MarkPresentRange(first, count);
+        Bitmap.MarkPresentRange(first, count);
     }
 
     internal void FreeClusters(IEnumerable<Range<long, long>> runs)
     {
         foreach (var run in runs)
         {
-            _bitmap.MarkAbsentRange(run.Offset, run.Count);
+            Bitmap.MarkAbsentRange(run.Offset, run.Count);
         }
     }
 
@@ -253,18 +252,18 @@ internal class ClusterBitmap : IDisposable
     {
         foreach (var run in runs)
         {
-            await _bitmap.MarkAbsentRangeAsync(run.Offset, run.Count, cancellationToken).ConfigureAwait(false);
+            await Bitmap.MarkAbsentRangeAsync(run.Offset, run.Count, cancellationToken).ConfigureAwait(false);
         }
     }
 
     internal void FreeClusters(Range<long, long> run)
     {
-        _bitmap.MarkAbsentRange(run.Offset, run.Count);
+        Bitmap.MarkAbsentRange(run.Offset, run.Count);
     }
 
     internal ValueTask FreeClustersAsync(Range<long, long> run, CancellationToken cancellationToken)
     {
-        return _bitmap.MarkAbsentRangeAsync(run.Offset, run.Count, cancellationToken);
+        return Bitmap.MarkAbsentRangeAsync(run.Offset, run.Count, cancellationToken);
     }
 
     /// <summary>
@@ -276,7 +275,7 @@ internal class ClusterBitmap : IDisposable
     /// </remarks>
     internal void SetTotalClusters(long numClusters)
     {
-        var actualClusters = _bitmap.SetTotalEntries(numClusters);
+        var actualClusters = Bitmap.SetTotalEntries(numClusters);
         if (actualClusters != numClusters)
         {
             MarkAllocated(numClusters, actualClusters - numClusters);
@@ -286,7 +285,7 @@ internal class ClusterBitmap : IDisposable
     private long ExtendRun(long count, List<Range<long, long>> result, long start, long end)
     {
         var focusCluster = start;
-        while (!_bitmap.IsPresent(focusCluster) && focusCluster < end && focusCluster - start < count)
+        while (!Bitmap.IsPresent(focusCluster) && focusCluster < end && focusCluster - start < count)
         {
             ++focusCluster;
         }
@@ -295,7 +294,7 @@ internal class ClusterBitmap : IDisposable
 
         if (numFound > 0)
         {
-            _bitmap.MarkPresentRange(start, numFound);
+            Bitmap.MarkPresentRange(start, numFound);
             result.Add(new Range<long, long>(start, numFound));
         }
 
@@ -305,7 +304,7 @@ internal class ClusterBitmap : IDisposable
     private async ValueTask<long> ExtendRunAsync(long count, List<Range<long, long>> result, long start, long end, CancellationToken cancellationToken)
     {
         var focusCluster = start;
-        while (!_bitmap.IsPresent(focusCluster) && focusCluster < end && focusCluster - start < count)
+        while (!Bitmap.IsPresent(focusCluster) && focusCluster < end && focusCluster - start < count)
         {
             ++focusCluster;
         }
@@ -314,7 +313,7 @@ internal class ClusterBitmap : IDisposable
 
         if (numFound > 0)
         {
-            await _bitmap.MarkPresentRangeAsync(start, numFound, cancellationToken).ConfigureAwait(false);
+            await Bitmap.MarkPresentRangeAsync(start, numFound, cancellationToken).ConfigureAwait(false);
             result.Add(new Range<long, long>(start, numFound));
         }
 
@@ -355,13 +354,13 @@ internal class ClusterBitmap : IDisposable
         long numInspected = 0;
         while (numFound < count && focusCluster >= start && numInspected < end - start)
         {
-            if (!_bitmap.IsPresent(focusCluster))
+            if (!Bitmap.IsPresent(focusCluster))
             {
                 // Start of a run...
                 var runStart = focusCluster;
                 ++focusCluster;
 
-                while (!_bitmap.IsPresent(focusCluster) && focusCluster - runStart < count - numFound)
+                while (!Bitmap.IsPresent(focusCluster) && focusCluster - runStart < count - numFound)
                 {
                     ++focusCluster;
                     ++numInspected;
@@ -369,7 +368,7 @@ internal class ClusterBitmap : IDisposable
 
                 if (!contiguous || focusCluster - runStart == count - numFound)
                 {
-                    _bitmap.MarkPresentRange(runStart, focusCluster - runStart);
+                    Bitmap.MarkPresentRange(runStart, focusCluster - runStart);
 
                     result.Add(new Range<long, long>(runStart, focusCluster - runStart));
                     numFound += focusCluster - runStart;
@@ -431,13 +430,13 @@ internal class ClusterBitmap : IDisposable
         long numInspected = 0;
         while (numFound < count && focusCluster >= start && numInspected < end - start)
         {
-            if (!_bitmap.IsPresent(focusCluster))
+            if (!Bitmap.IsPresent(focusCluster))
             {
                 // Start of a run...
                 var runStart = focusCluster;
                 ++focusCluster;
 
-                while (!_bitmap.IsPresent(focusCluster) && focusCluster - runStart < count - numFound)
+                while (!Bitmap.IsPresent(focusCluster) && focusCluster - runStart < count - numFound)
                 {
                     ++focusCluster;
                     ++numInspected;
@@ -445,7 +444,7 @@ internal class ClusterBitmap : IDisposable
 
                 if (!contiguous || focusCluster - runStart == count - numFound)
                 {
-                    await _bitmap.MarkPresentRangeAsync(runStart, focusCluster - runStart, cancellationToken).ConfigureAwait(false);
+                    await Bitmap.MarkPresentRangeAsync(runStart, focusCluster - runStart, cancellationToken).ConfigureAwait(false);
 
                     result.Add(new Range<long, long>(runStart, focusCluster - runStart));
                     numFound += focusCluster - runStart;

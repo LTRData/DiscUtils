@@ -31,17 +31,8 @@ namespace DiscUtils.Diagnostics;
 /// <remarks>This report contains detailed tracing information.</remarks>
 public sealed class ReplayReport
 {
-    private Exception _failureException;
-    private Exception _replayException;
     private List<StreamTraceRecord> _globalTraceReport;
     private List<StreamTraceRecord> _traceReport;
-    private int _replayBufferSize;
-    private int _eventsReplayed;
-    private long _eventsBeforeLockdown;
-    private string _replayPreVerificationReport;
-    private bool _failedVerifyOnReplay;
-    private string _replayVerificationReport;
-    private string _lastCheckpointReport;
 
     internal ReplayReport(
         Exception failureEx,
@@ -56,28 +47,28 @@ public sealed class ReplayReport
         string replayVerificationReport,
         string lastCheckpointReport)
     {
-        _failureException = failureEx;
-        _replayException = replayEx;
+        VerificationFailureException = failureEx;
+        ReplayException = replayEx;
         _globalTraceReport = [.. globalTraceStream.Log];
         _traceReport = [.. traceStream.Log];
-        _replayBufferSize = replayBufferSize;
-        _eventsReplayed = eventsReplayed;
-        _eventsBeforeLockdown = eventsBeforeLockdown;
-        _replayPreVerificationReport = replayPreVerificationReport;
-        _failedVerifyOnReplay = failedVerifyOnReplay;
-        _replayVerificationReport = replayVerificationReport;
-        _lastCheckpointReport = lastCheckpointReport;
+        ReplayEventsAvailable = replayBufferSize;
+        ReplayEventsProcessed = eventsReplayed;
+        TotalEventsProcessed = eventsBeforeLockdown;
+        ReplayPreVerificationReport = replayPreVerificationReport;
+        ReplayFailedVerification = failedVerifyOnReplay;
+        ReplayVerificationReport = replayVerificationReport;
+        LastCheckpointReport = lastCheckpointReport;
     }
 
     /// <summary>
     /// The exception (if any) that caused the file system verification check to fail.
     /// </summary>
-    public Exception VerificationFailureException => _failureException;
+    public Exception VerificationFailureException { get; }
 
     /// <summary>
     /// The exception (if any) that cause the full replay to fail.
     /// </summary>
-    public Exception ReplayException => _replayException;
+    public Exception ReplayException { get; }
 
     /// <summary>
     /// The stream activities traced whilst replaying the file system action that broke the file system.
@@ -92,35 +83,35 @@ public sealed class ReplayReport
     /// <summary>
     /// The number of replay events available to replay.
     /// </summary>
-    public int ReplayEventsAvailable => _replayBufferSize;
+    public int ReplayEventsAvailable { get; }
 
     /// <summary>
     /// The number of replay events successfully replayed.
     /// </summary>
-    public int ReplayEventsProcessed => _eventsReplayed;
+    public int ReplayEventsProcessed { get; }
 
     /// <summary>
     /// Gets whether file system corruption was detected whilst replaying events.
     /// </summary>
-    public bool ReplayFailedVerification => _failedVerifyOnReplay;
+    public bool ReplayFailedVerification { get; }
 
     /// <summary>
     /// Gets the file system verification report generated at the last checkpoint.
     /// </summary>
-    public string LastCheckpointReport => _lastCheckpointReport;
+    public string LastCheckpointReport { get; }
 
     /// <summary>
     /// Gets the file system verification report generated whilst just before replaying the file system action that failed.
     /// </summary>
-    public string ReplayPreVerificationReport => _replayPreVerificationReport;
+    public string ReplayPreVerificationReport { get; }
 
     /// <summary>
     /// Gets the file system verification report generated whilst replaying the file system action that failed.
     /// </summary>
-    public string ReplayVerificationReport => _replayVerificationReport;
+    public string ReplayVerificationReport { get; }
 
     /// <summary>
     /// The total number of events processed (ignoring events run during replay).
     /// </summary>
-    public long TotalEventsProcessed => _eventsBeforeLockdown;
+    public long TotalEventsProcessed { get; }
 }

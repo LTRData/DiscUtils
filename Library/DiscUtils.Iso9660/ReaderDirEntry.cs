@@ -38,7 +38,6 @@ internal sealed class ReaderDirEntry : VfsDirEntry
 {
     private readonly IsoContext _context;
     private readonly string _fileName;
-    private readonly string _shortName;
     private readonly uint _version;
     internal readonly List<DirectoryRecord> _records = [];
     internal List<ReaderDirEntry> _versions;
@@ -57,17 +56,17 @@ internal sealed class ReaderDirEntry : VfsDirEntry
     public ReaderDirEntry(IsoContext context, DirectoryRecord dirRecord)
     {
         _context = context;
-        _shortName = dirRecord.FileIdentifier;
+        ShortName = dirRecord.FileIdentifier;
         _version = 1;
 
-        var versionDelimiter = _shortName.LastIndexOf(';');
+        var versionDelimiter = ShortName.LastIndexOf(';');
 
         if (versionDelimiter >= 0)
         {
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP
-            if (!uint.TryParse(_shortName.AsSpan(versionDelimiter + 1), out _version))
+            if (!uint.TryParse(ShortName.AsSpan(versionDelimiter + 1), out _version))
 #else
-            if (!uint.TryParse(_shortName.Substring(versionDelimiter + 1), out _version))
+            if (!uint.TryParse(ShortName.Substring(versionDelimiter + 1), out _version))
 #endif
             {
                 throw new IOException($"Invalid version number in file entry '{dirRecord.FileIdentifier}'");
@@ -75,11 +74,11 @@ internal sealed class ReaderDirEntry : VfsDirEntry
 
             if (context.HideVersions)
             {
-                _shortName = _shortName.Substring(0, versionDelimiter);
+                ShortName = ShortName.Substring(0, versionDelimiter);
             }
         }
 
-        _fileName = _shortName;
+        _fileName = ShortName;
 
         var rockRidge = !string.IsNullOrEmpty(_context.RockRidgeIdentifier);
 
@@ -211,7 +210,7 @@ internal sealed class ReaderDirEntry : VfsDirEntry
 
     public override string FileName => _fileName;
 
-    public string ShortName => _shortName;
+    public string ShortName { get; }
 
     public uint Version => _version;
 

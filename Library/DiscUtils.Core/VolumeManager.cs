@@ -44,7 +44,6 @@ namespace DiscUtils;
 public sealed class VolumeManager
     : MarshalByRefObject
 {
-    private static ConcurrentBag<LogicalVolumeFactory>? s_logicalVolumeFactories;
     private readonly List<VirtualDisk> _disks;
     private bool _needScan;
 
@@ -88,20 +87,22 @@ public sealed class VolumeManager
     {
         get
         {
-            if (s_logicalVolumeFactories == null)
+            if (field == null)
             {
                 lock (_syncObj)
                 {
-                    if (s_logicalVolumeFactories == null)
+                    if (field == null)
                     {
                         var factories = new ConcurrentBag<LogicalVolumeFactory>(GetLogicalVolumeFactories(_coreAssembly));
-                        s_logicalVolumeFactories = factories;
+                        field = factories;
                     }
                 }
             }
 
-            return s_logicalVolumeFactories;
+            return field;
         }
+
+        set;
     }
 
     private static IEnumerable<LogicalVolumeFactory> GetLogicalVolumeFactories(Assembly assembly)

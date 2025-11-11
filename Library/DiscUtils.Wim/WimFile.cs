@@ -39,7 +39,6 @@ namespace DiscUtils.Wim;
 public class WimFile
 {
     private readonly FileHeader _fileHeader;
-    private readonly Stream _fileStream;
     private Dictionary<uint, List<ResourceInfo>> _resources;
 
     /// <summary>
@@ -48,7 +47,7 @@ public class WimFile
     /// <param name="stream">A stream of the WIM file contents.</param>
     public WimFile(Stream stream)
     {
-        _fileStream = stream;
+        FileStream = stream;
 
         _fileHeader = stream.ReadStruct<FileHeader>(512);
 
@@ -97,7 +96,7 @@ public class WimFile
         }
     }
 
-    public Stream FileStream => _fileStream;
+    public Stream FileStream { get; }
 
     /// <summary>
     /// Gets a particular image within the file (zero-based index).

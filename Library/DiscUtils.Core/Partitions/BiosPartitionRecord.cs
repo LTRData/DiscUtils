@@ -27,13 +27,11 @@ namespace DiscUtils.Partitions;
 
 internal class BiosPartitionRecord : IComparable<BiosPartitionRecord>
 {
-    private readonly uint _lbaOffset;
-
     public BiosPartitionRecord() {}
 
     public BiosPartitionRecord(ReadOnlySpan<byte> data, uint lbaOffset, int index)
     {
-        _lbaOffset = lbaOffset;
+        LBAStartAbsolute = lbaOffset;
 
         Status = data[0];
         StartHead = data[1];
@@ -64,7 +62,7 @@ internal class BiosPartitionRecord : IComparable<BiosPartitionRecord>
 
     public uint LBAStart { get; set; }
 
-    public uint LBAStartAbsolute => LBAStart + _lbaOffset;
+    public uint LBAStartAbsolute => LBAStart + field;
 
     public byte PartitionType { get; set; }
 

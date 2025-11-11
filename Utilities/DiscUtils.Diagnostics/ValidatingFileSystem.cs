@@ -77,17 +77,6 @@ public class ValidatingFileSystem<TFileSystem, TChecker> : DiscFileSystem
     /// <summary>
     /// How often a check point is run (in number of 'activities').
     /// </summary>
-    private int _checkpointPeriod = 1;
-
-    /// <summary>
-    /// Indicates if a read/write trace should run all the time.
-    /// </summary>
-    private bool _runGlobalTrace = false;
-
-    /// <summary>
-    /// Indicates whether to capture full stack traces when doing a global trace.
-    /// </summary>
-    private bool _globalTraceCaptureStackTraces = false;
 
     //-------------------------------------
     // INITIALIZED STATE
@@ -121,11 +110,6 @@ public class ValidatingFileSystem<TFileSystem, TChecker> : DiscFileSystem
     /// The last verification report generated at a scheduled checkpoint.
     /// </summary>
     private string _lastCheckpointReport;
-
-    /// <summary>
-    /// Flag set when a validation failure is observed, preventing further file system activity.
-    /// </summary>
-    private bool _lockdown;
 
     /// <summary>
     /// The exception (if any) that indicated the file system was corrupt.
@@ -178,29 +162,17 @@ public class ValidatingFileSystem<TFileSystem, TChecker> : DiscFileSystem
     /// <remarks>The number here represents the number of distinct file system operations.
     /// Each method/property access on DiscFileSystem or a stream retrieved from DiscFileSystem
     /// counts as an operation.</remarks>
-    public int CheckpointInterval
-    {
-        get => _checkpointPeriod;
-        set => _checkpointPeriod = value;
-    }
+    public int CheckpointInterval { get; set; } = 1;
 
     /// <summary>
     /// Gets and sets whether an inter-checkpoint trace should be run (useful for non-reproducible failures).
     /// </summary>
-    public bool RunGlobalIOTrace
-    {
-        get => _runGlobalTrace;
-        set => _runGlobalTrace = value;
-    }
+    public bool RunGlobalIOTrace { get; set; } = false;
 
     /// <summary>
     /// Gets and sets whether a global I/O trace should be run (useful for non-reproducible failures).
     /// </summary>
-    public bool GlobalIOTraceCapturesStackTraces
-    {
-        get => _globalTraceCaptureStackTraces;
-        set => _globalTraceCaptureStackTraces = value;
-    }
+    public bool GlobalIOTraceCapturesStackTraces { get; set; } = false;
 
     /// <summary>
     /// Gets access to a view of the stream being validated, forcing 'lock-down'.
@@ -216,7 +188,7 @@ public class ValidatingFileSystem<TFileSystem, TChecker> : DiscFileSystem
     public Stream OpenStreamView(StreamView view, bool readOnly)
     {
         // Prevent further changes.
-        _lockdown = true;
+        InLockdown = true;
 
         Stream s;
 
@@ -282,8 +254,8 @@ public class ValidatingFileSystem<TFileSystem, TChecker> : DiscFileSystem
         }
         else
         {
-            _lockdown = true;
-            if (_runGlobalTrace)
+            InLockdown = true;
+            if (RunGlobalIOTrace)
             {
                 _globalTrace.Stop();
                 _globalTrace.WriteToFile(null);
@@ -318,9 +290,9 @@ public class ValidatingFileSystem<TFileSystem, TChecker> : DiscFileSystem
         _liveTarget.Options.RandomNumberGenerator = new Random(_checkpointRngSeed);
 
         // Reset the global trace stream - no longer interested in what it captured.
-        if (_runGlobalTrace)
+        if (RunGlobalIOTrace)
         {
-            _globalTrace.Reset(_runGlobalTrace);
+            _globalTrace.Reset(RunGlobalIOTrace);
         }
 
         return true;
@@ -418,7 +390,7 @@ public class ValidatingFileSystem<TFileSystem, TChecker> : DiscFileSystem
     /// <summary>
     /// Indicates if we're in lock-down (i.e. corruption has been detected).
     /// </summary>
-    internal bool InLockdown => _lockdown;
+    internal bool InLockdown { get; private set; }
 
     /// <summary>
     /// Replays a specified number of activities.
@@ -461,7 +433,7 @@ public class ValidatingFileSystem<TFileSystem, TChecker> : DiscFileSystem
     /// do not persist references to that object.</remarks>
     public TResult PerformActivity<TResult>(Activity<TFileSystem, TResult> activity)
     {
-        if (_lockdown)
+        if (InLockdown)
         {
             throw new InvalidOperationException("Validator in lock-down, file system corruption has been detected.");
         }
@@ -484,10 +456,10 @@ public class ValidatingFileSystem<TFileSystem, TChecker> : DiscFileSystem
         finally
         {
             // If a checkpoint is due...
-            if (_checkpointBuffer.Count >= _checkpointPeriod)
+            if (_checkpointBuffer.Count >= CheckpointInterval)
             {
                 // Roll over the on-disk trace
-                if (_runGlobalTrace)
+                if (RunGlobalIOTrace)
                 {
                     _globalTrace.WriteToFile($@"C:\temp\working\trace{_numScheduledCheckpoints++:X3}.log");
                 }
@@ -519,13 +491,13 @@ public class ValidatingFileSystem<TFileSystem, TChecker> : DiscFileSystem
 
         _masterRng = new Random(56456456);
 
-        if (_runGlobalTrace)
+        if (RunGlobalIOTrace)
         {
             _globalTrace = new TracingStream(_snapStream, Ownership.None)
             {
-                CaptureStackTraces = _globalTraceCaptureStackTraces
+                CaptureStackTraces = GlobalIOTraceCapturesStackTraces
             };
-            _globalTrace.Reset(_runGlobalTrace);
+            _globalTrace.Reset(RunGlobalIOTrace);
             _globalTrace.WriteToFile($@"C:\temp\working\trace{_numScheduledCheckpoints++:X3}.log");
             focusStream = _globalTrace;
         }

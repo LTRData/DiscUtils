@@ -33,8 +33,6 @@ using DirectoryIndexEntry =
 namespace DiscUtils.Ntfs;
 internal class Directory : File
 {
-    private IndexView<FileNameRecord, FileRecordReference> _index;
-
     public Directory(INtfsContext context, FileRecord baseRecord)
         : base(context, baseRecord) {}
 
@@ -42,13 +40,15 @@ internal class Directory : File
     {
         get
         {
-            if (_index == null && StreamExists(AttributeType.IndexRoot, "$I30"))
+            if (field == null && StreamExists(AttributeType.IndexRoot, "$I30"))
             {
-                _index = new IndexView<FileNameRecord, FileRecordReference>(GetIndex("$I30"));
+                field = new IndexView<FileNameRecord, FileRecordReference>(GetIndex("$I30"));
             }
 
-            return _index;
+            return field;
         }
+
+        set;
     }
 
     public bool IsEmpty => Index.Count == 0;

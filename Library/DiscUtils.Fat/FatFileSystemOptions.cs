@@ -30,11 +30,9 @@ namespace DiscUtils.Fat;
 /// </summary>
 public sealed class FatFileSystemOptions : DiscFileSystemOptions
 {
-    private FastEncodingTable _encodingTable;
-
     internal FatFileSystemOptions()
     {
-        _encodingTable = FastEncodingTable.Default;
+        FileNameEncodingTable = FastEncodingTable.Default;
     }
 
     internal FatFileSystemOptions(FileSystemParameters parameters)
@@ -45,21 +43,21 @@ public sealed class FatFileSystemOptions : DiscFileSystemOptions
         }
         else
         {
-            _encodingTable = FastEncodingTable.Default;
+            FileNameEncodingTable = FastEncodingTable.Default;
         }
     }
 
     /// <summary>
     /// Gets the fast encoding table used for file names.
     /// </summary>
-    internal FastEncodingTable FileNameEncodingTable => _encodingTable;
+    internal FastEncodingTable FileNameEncodingTable { get; private set; }
 
     /// <summary>
     /// Gets or sets the character encoding used for file names.
     /// </summary>
     public Encoding FileNameEncoding
     {
-        get => _encodingTable.Encoding;
+        get => FileNameEncodingTable.Encoding;
 
         set
         {
@@ -68,7 +66,7 @@ public sealed class FatFileSystemOptions : DiscFileSystemOptions
                 throw new ArgumentException($"{value.EncodingName} is not a single byte encoding");
             }
 
-            _encodingTable =  new FastEncodingTable(value);
+            FileNameEncodingTable =  new FastEncodingTable(value);
         }
     }
 }
