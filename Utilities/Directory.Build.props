@@ -5,7 +5,7 @@
   <!-- Package related stuff -->
   <PropertyGroup>
     <IsPackable>false</IsPackable>
-    <TargetFrameworks>net46;net48;netstandard2.1;net8.0;net9.0</TargetFrameworks>
+    <TargetFrameworks>net46;net48;netstandard2.1;net8.0;net9.0;net10.0</TargetFrameworks>
     <RollForward>LatestMajor</RollForward>
     <SignAssembly>false</SignAssembly>
     <DelaySign>false</DelaySign>
