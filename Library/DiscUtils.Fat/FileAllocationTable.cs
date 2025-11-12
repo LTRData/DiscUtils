@@ -44,7 +44,7 @@ internal class FileAllocationTable
         _bytesPerSector = bytesPerSector;
 
         _stream.Position = (firstFatSector + fatSize * activeFat) * bytesPerSector;
-        _buffer = new FatBuffer(type, _stream.ReadExactly((int)(fatSize * bytesPerSector)));
+        _buffer = new FatBuffer(type, _stream.ReadExactly((int)(fatSize * bytesPerSector)), bytesPerSector);
     }
 
     internal static bool IsFree(uint val)

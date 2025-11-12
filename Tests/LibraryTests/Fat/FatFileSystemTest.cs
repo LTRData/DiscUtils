@@ -398,7 +398,88 @@ public class FatFileSystemTest
         using (var file = fs.OpenFile("ANOTHER", FileMode.Create))
         {
             file.Write(buffer, 0, buffer.Length);
+
+            Assert.Equal(buffer.Length, file.Length);
         }
+
+        Assert.Equal(buffer.Length, fs.PathToExtents("ANOTHER").Sum(ext => ext.Length));
+
+        Assert.True(fs.FileExists("ANOTHER"));
+    }
+
+    [Fact]
+    public void TestLargeFileCreateOpenAppendTruncate1KSectors()
+    {
+        const int sectorSize = 1024;
+        var size = 20 * Sizes.OneMiB;
+        var sectors = (int)(size / sectorSize);
+
+        using var diskStream = new SparseMemoryStream();
+        using var fs = FatFileSystem.FormatPartition(diskStream, "FLOPPY_IMG ", Geometry.FromCapacity(size, sectorSize), 0, sectors, 0);
+
+        var buffer = new byte[1024 * 1024];
+        var rnd = new Random(0);
+        rnd.NextBytes(buffer);
+        using (var file = fs.OpenFile("TEST", FileMode.Create))
+        {
+            file.Write(buffer, 0, buffer.Length);
+        }
+
+        using (var file = fs.OpenFile("TEST", FileMode.Open))
+        {
+            var buffer2 = new byte[buffer.Length];
+            int length = file.Read(buffer2, 0, buffer2.Length);
+            Assert.Equal(length, buffer2.Length);
+
+            for (int i = 0; i < buffer.Length; i++)
+            {
+                Assert.Equal(buffer[i], buffer2[i]);
+            }
+        }
+
+        using (var file = fs.OpenFile("TEST", FileMode.Append))
+        {
+            var smallerBuffer = new byte[] { 1, 2, 3, 4 };
+            file.Write(smallerBuffer, 0, smallerBuffer.Length);
+        }
+
+        using (var file = fs.OpenFile("TEST", FileMode.Open))
+        {
+            var buffer2 = new byte[buffer.Length + 4];
+            int length = file.Read(buffer2, 0, buffer2.Length);
+            Assert.Equal(length, buffer2.Length);
+
+            for (int i = 0; i < buffer.Length; i++)
+            {
+                Assert.Equal(buffer[i], buffer2[i]);
+            }
+
+            for (int i = 0; i < 4; i++)
+            {
+                Assert.Equal(i + 1, buffer2[buffer.Length + i]);
+            }
+        }
+
+        using (var file = fs.OpenFile("TEST", FileMode.Truncate))
+        {
+            file.Write([0]);
+        }
+
+        var attr = fs.GetFileLength("TEST");
+        Assert.Equal(1, attr);
+
+        fs.DeleteFile("TEST");
+
+        Assert.Throws<FileNotFoundException>(() => fs.GetFileLength("TEST"));
+
+        using (var file = fs.OpenFile("ANOTHER", FileMode.Create))
+        {
+            file.Write(buffer, 0, buffer.Length);
+
+            Assert.Equal(buffer.Length, file.Length);
+        }
+
+        Assert.Equal(buffer.Length, fs.PathToExtents("ANOTHER").Sum(ext => ext.Length));
 
         Assert.True(fs.FileExists("ANOTHER"));
     }

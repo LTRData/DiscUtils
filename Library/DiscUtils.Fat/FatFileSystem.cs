@@ -1461,7 +1461,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
         // OEM Name
         "DISCUTIL"u8.CopyTo(bootSector.Slice(3, 8));
 
-        // Bytes Per Sector (512)
+        // Bytes Per Sector (usually 512)
         EndianUtilities.WriteBytesLittleEndian((ushort)diskGeometry.BytesPerSector, bootSector.Slice(11));
 
         // Sectors Per Cluster
@@ -1916,7 +1916,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
         // Write both FAT copies
         var fatSize = CalcFatSize(sectors, FatType.Fat12, 1, Sizes.Sector);
         var fat = new byte[fatSize * Sizes.Sector];
-        var fatBuffer = new FatBuffer(FatType.Fat12, fat);
+        var fatBuffer = new FatBuffer(FatType.Fat12, fat, sectorSize: 512);
         fatBuffer.SetNext(0, 0xFFFFFFF0);
         fatBuffer.SetEndOfChain(1);
         stream.Write(fat, 0, fat.Length);
@@ -2067,7 +2067,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
          */
 
         var fat = new byte[CalcFatSize((uint)sectorCount, fatType, sectorsPerCluster, (uint)bytesPerSector) * bytesPerSector];
-        var fatBuffer = new FatBuffer(fatType, fat);
+        var fatBuffer = new FatBuffer(fatType, fat, diskGeometry.BytesPerSector);
         fatBuffer.SetNext(0, 0xFFFFFFF8);
         fatBuffer.SetEndOfChain(1);
         if (fatType >= FatType.Fat32)

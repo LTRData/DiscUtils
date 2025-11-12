@@ -263,15 +263,16 @@ internal class ClusterStream : CompatibilityStream
             _fat.SetEndOfChain(cluster);
             _fat.FreeChain(firstToFree);
 
-            while (_knownClusters.Count > desiredNumClusters)
+            if (_knownClusters.Count > desiredNumClusters)
             {
-                _knownClusters.RemoveAt(_knownClusters.Count - 1);
+                _knownClusters.RemoveRange((int)desiredNumClusters, (int)(_knownClusters.Count - desiredNumClusters));
             }
 
             _knownClusters.Add(FatBuffer.EndOfChain);
 
             if (desiredNumClusters == 0)
             {
+                _fat.FreeChain(cluster);
                 FireFirstClusterAllocated(0);
             }
         }
@@ -621,14 +622,14 @@ internal class ClusterStream : CompatibilityStream
         uint? firstCluster = null;
         uint? lastCluster = null;
 
-        for (var i = 0; i < _knownClusters.Count && !_fat.IsEndOfChain(_knownClusters[i]); i++)
+        for (var cluster = _knownClusters[0]; !_fat.IsEndOfChain(cluster); cluster = _fat.GetNext(cluster))
         {
-            firstCluster ??= _knownClusters[i];
+            firstCluster ??= cluster;
 
             if (lastCluster == null
-                || _knownClusters[i] == lastCluster.Value + 1)
+                || cluster == lastCluster.Value + 1)
             {
-                lastCluster = _knownClusters[i];
+                lastCluster = cluster;
                 continue;
             }
 

@@ -57,18 +57,18 @@ internal class FatBuffer
     /// </remarks>
     public const uint FreeCluster = 0;
 
-    private const uint DirtyRegionSize = 512;
     private readonly byte[] _buffer;
-    private readonly Dictionary<uint, uint> _dirtySectors;
+    private HashSet<uint> _dirtySectors;
+    private readonly int _sectorSize;
 
     private readonly FatType _type;
     private uint _nextFreeCandidate;
 
-    public FatBuffer(FatType type, byte[] buffer)
+    public FatBuffer(FatType type, byte[] buffer, int sectorSize)
     {
         _type = type;
         _buffer = buffer;
-        _dirtySectors = [];
+        _sectorSize = sectorSize;
     }
 
     internal int NumEntries => _type switch
@@ -152,39 +152,48 @@ internal class FatBuffer
 
     internal void SetNext(uint cluster, uint next)
     {
-        if (_type == FatType.Fat16)
+        switch (_type)
         {
-            MarkDirty(cluster * 2);
-            EndianUtilities.WriteBytesLittleEndian((ushort)next, _buffer, (int)(cluster * 2));
-        }
-        else if (_type == FatType.Fat32)
-        {
-            MarkDirty(cluster * 4);
-            var oldVal = EndianUtilities.ToUInt32LittleEndian(_buffer, (int)(cluster * 4));
-            var newVal = (oldVal & 0xF0000000) | (next & 0x0FFFFFFF);
-            EndianUtilities.WriteBytesLittleEndian(newVal, _buffer, (int)(cluster * 4));
-        }
-        else
-        {
-            var offset = cluster + cluster / 2;
-            MarkDirty(offset);
-            MarkDirty(offset + 1); // On alternate sector boundaries, cluster info crosses two sectors
+            case FatType.Fat16:
+                MarkDirty(cluster * 2);
+                EndianUtilities.WriteBytesLittleEndian((ushort)next, _buffer, (int)(cluster * 2));
+                break;
 
-            ushort maskedOldVal;
-            if ((cluster & 1) != 0)
-            {
-                next <<= 4;
-                maskedOldVal = (ushort)(EndianUtilities.ToUInt16LittleEndian(_buffer, (int)offset) & 0x000F);
-            }
-            else
-            {
-                next &= 0x0FFF;
-                maskedOldVal = (ushort)(EndianUtilities.ToUInt16LittleEndian(_buffer, (int)offset) & 0xF000);
-            }
+            case FatType.Fat32:
+                {
+                    MarkDirty(cluster * 4);
+                    var oldVal = EndianUtilities.ToUInt32LittleEndian(_buffer, (int)(cluster * 4));
+                    var newVal = oldVal & 0xF0000000 | next & 0x0FFFFFFF;
+                    EndianUtilities.WriteBytesLittleEndian(newVal, _buffer, (int)(cluster * 4));
+                    break;
+                }
 
-            var newVal = (ushort)(maskedOldVal | next);
+            case FatType.Fat12:
+                {
+                    var offset = cluster + cluster / 2;
+                    MarkDirty(offset);
+                    MarkDirty(offset + 1); // On alternate sector boundaries, cluster info crosses two sectors
 
-            EndianUtilities.WriteBytesLittleEndian(newVal, _buffer, (int)offset);
+                    ushort maskedOldVal;
+                    if ((cluster & 1) != 0)
+                    {
+                        next <<= 4;
+                        maskedOldVal = (ushort)(EndianUtilities.ToUInt16LittleEndian(_buffer, (int)offset) & 0x000F);
+                    }
+                    else
+                    {
+                        next &= 0x0FFF;
+                        maskedOldVal = (ushort)(EndianUtilities.ToUInt16LittleEndian(_buffer, (int)offset) & 0xF000);
+                    }
+
+                    var newVal = (ushort)(maskedOldVal | next);
+
+                    EndianUtilities.WriteBytesLittleEndian(newVal, _buffer, (int)offset);
+                    break;
+                }
+
+            default:
+                throw new InvalidOperationException();
         }
     }
 
@@ -230,29 +239,40 @@ internal class FatBuffer
 
     internal void MarkDirty(uint offset)
     {
-        _dirtySectors[offset / DirtyRegionSize] = offset / DirtyRegionSize;
+        _dirtySectors ??= new();
+        _dirtySectors.Add((uint)(offset / _sectorSize));
     }
 
     internal void WriteDirtyRegions(Stream stream, long position)
     {
-        foreach (var val in _dirtySectors.Values)
+        if (_dirtySectors is null)
         {
-            stream.Position = position + val * DirtyRegionSize;
-            stream.Write(_buffer, (int)(val * DirtyRegionSize), (int)DirtyRegionSize);
+            return;
+        }
+
+        foreach (var val in _dirtySectors)
+        {
+            stream.Position = position + val * _sectorSize;
+            stream.Write(_buffer, (int)(val * _sectorSize), (int)Math.Min(_sectorSize, stream.Length - stream.Position));
         }
     }
 
     internal async ValueTask WriteDirtyRegionsAsync(Stream stream, long position, CancellationToken cancellationToken)
     {
-        foreach (var val in _dirtySectors.Values)
+        if (_dirtySectors is null)
         {
-            stream.Position = position + val * DirtyRegionSize;
-            await stream.WriteAsync(_buffer.AsMemory((int)(val * DirtyRegionSize), (int)DirtyRegionSize), cancellationToken).ConfigureAwait(false);
+            return;
+        }
+
+        foreach (var val in _dirtySectors)
+        {
+            stream.Position = position + val * _sectorSize;
+            await stream.WriteAsync(_buffer.AsMemory((int)(val * _sectorSize), (int)Math.Min(_sectorSize, stream.Length - stream.Position)), cancellationToken).ConfigureAwait(false);
         }
     }
 
     internal void ClearDirtyRegions()
     {
-        _dirtySectors.Clear();
+        _dirtySectors?.Clear();
     }
 }
