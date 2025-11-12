@@ -219,7 +219,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
         {
             FloppyDiskType.DoubleDensity => Sizes.Sector * 1440,
             FloppyDiskType.HighDensity => Sizes.Sector * 2880,
-            FloppyDiskType.Extended => (long)(Sizes.Sector * 5760),
+            FloppyDiskType.Extended => Sizes.Sector * 5760,
             _ => throw new ArgumentException("Invalid floppy disk type", nameof(type)),
         };
     }

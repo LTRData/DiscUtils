@@ -138,7 +138,7 @@ internal sealed class FastEncodingTable
     /// <param name="b">The byte to convert.</param>
     /// <returns>The char converted or <see cref="ReplacementChar"/> if no mapping exists.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public char GetCharFromByte(byte b) => _mapByteToChar[(int)b];
+    public char GetCharFromByte(byte b) => _mapByteToChar[b];
 
     /// <summary>
     /// Gets the upper case byte for the specified char.

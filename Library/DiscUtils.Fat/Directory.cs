@@ -308,7 +308,7 @@ internal class Directory : IDisposable
                 stream.Seek(0, SeekOrigin.End);
             }
 
-            HandleAccessed(false);
+            HandleAccessed(forWrite: false);
 
             return stream;
         }

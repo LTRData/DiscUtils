@@ -1084,7 +1084,7 @@ public class DokanDiscUtils : IDokanOperations2, IDisposable
             totalNumberOfFreeBytes = FileSystem.AvailableSpace;
         }
 
-        return Trace(nameof(GetDiskFreeSpace), null as string, info, DokanResult.Success, freeBytesAvailable,
+        return Trace(nameof(GetDiskFreeSpace), null, info, DokanResult.Success, freeBytesAvailable,
             totalNumberOfBytes, totalNumberOfFreeBytes);
     }
 
@@ -1152,7 +1152,7 @@ public class DokanDiscUtils : IDokanOperations2, IDisposable
             volumeSerialNumber = dfs.VolumeId;
         }
 
-        return Trace(nameof(GetVolumeInformation), null as string, info, DokanResult.Success, volumeLabel,
+        return Trace(nameof(GetVolumeInformation), null, info, DokanResult.Success, volumeLabel,
             features, fileSystemName);
     }
 
@@ -1243,9 +1243,9 @@ public class DokanDiscUtils : IDokanOperations2, IDisposable
         }
     }
 
-    public NtStatus Mounted(ReadOnlyNativeMemory<char> mountPoint, ref DokanFileInfo info) => Trace(nameof(Mounted), null as string, info, DokanResult.Success);
+    public NtStatus Mounted(ReadOnlyNativeMemory<char> mountPoint, ref DokanFileInfo info) => Trace(nameof(Mounted), null, info, DokanResult.Success);
 
-    public NtStatus Unmounted(ref DokanFileInfo info) => Trace(nameof(Unmounted), null as string, info, DokanResult.Success);
+    public NtStatus Unmounted(ref DokanFileInfo info) => Trace(nameof(Unmounted), null, info, DokanResult.Success);
 
     public NtStatus FindStreams(ReadOnlyNativeMemory<char> fileNamePtr, out IEnumerable<FindFileInformation> streams, ref DokanFileInfo info)
     {
