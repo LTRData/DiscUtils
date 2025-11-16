@@ -1,0 +1,87 @@
+<Solution>
+  <Folder Name="/Common/">
+    <File Path=".editorconfig" />
+    <File Path=".gitattributes" />
+    <File Path=".gitignore" />
+    <File Path="Changelog.txt" />
+    <File Path="Directory.Build.props" />
+    <File Path="LICENSE.txt" />
+    <File Path="README.md" />
+    <File Path="SigningKey.snk" />
+    <File Path="version.json" />
+  </Folder>
+  <Folder Name="/Library/">
+    <File Path="Library/Directory.Build.props" />
+    <Project Path="Library/DiscUtils.BootConfig/DiscUtils.BootConfig.csproj" />
+    <Project Path="Library/DiscUtils.Btrfs/DiscUtils.Btrfs.csproj" />
+    <Project Path="Library/DiscUtils.Containers/DiscUtils.Containers.csproj" />
+    <Project Path="Library/DiscUtils.Core/DiscUtils.Core.csproj" />
+    <Project Path="Library/DiscUtils.Dmg/DiscUtils.Dmg.csproj" />
+    <Project Path="Library/DiscUtils.Ext/DiscUtils.Ext.csproj" />
+    <Project Path="Library/DiscUtils.Fat/DiscUtils.Fat.csproj" />
+    <Project Path="Library/DiscUtils.FileSystems/DiscUtils.FileSystems.csproj" />
+    <Project Path="Library/DiscUtils.HfsPlus/DiscUtils.HfsPlus.csproj" />
+    <Project Path="Library/DiscUtils.Iscsi/DiscUtils.Iscsi.csproj" />
+    <Project Path="Library/DiscUtils.Iso9660/DiscUtils.Iso9660.csproj" />
+    <Project Path="Library/DiscUtils.Lvm/DiscUtils.Lvm.csproj" />
+    <Project Path="Library/DiscUtils.MountDokan/DiscUtils.MountDokan.csproj" />
+    <Project Path="Library/DiscUtils.MountFuse/DiscUtils.MountFuse.csproj" />
+    <Project Path="Library/DiscUtils.Net/DiscUtils.Net.csproj" />
+    <Project Path="Library/DiscUtils.Nfs/DiscUtils.Nfs.csproj" />
+    <Project Path="Library/DiscUtils.Ntfs/DiscUtils.Ntfs.csproj" />
+    <Project Path="Library/DiscUtils.OpticalDiscSharing/DiscUtils.OpticalDiscSharing.csproj" />
+    <Project Path="Library/DiscUtils.OpticalDisk/DiscUtils.OpticalDisk.csproj" />
+    <Project Path="Library/DiscUtils.Registry/DiscUtils.Registry.csproj" />
+    <Project Path="Library/DiscUtils.Sdi/DiscUtils.Sdi.csproj" />
+    <Project Path="Library/DiscUtils.SquashFs/DiscUtils.SquashFs.csproj" />
+    <Project Path="Library/DiscUtils.Streams/DiscUtils.Streams.csproj" />
+    <Project Path="Library/DiscUtils.Swap/DiscUtils.Swap.csproj" />
+    <Project Path="Library/DiscUtils.Transports/DiscUtils.Transports.csproj" />
+    <Project Path="Library/DiscUtils.Udf/DiscUtils.Udf.csproj" />
+    <Project Path="Library/DiscUtils.Vdi/DiscUtils.Vdi.csproj" />
+    <Project Path="Library/DiscUtils.Vhd/DiscUtils.Vhd.csproj" />
+    <Project Path="Library/DiscUtils.Vhdx/DiscUtils.Vhdx.csproj" />
+    <Project Path="Library/DiscUtils.VirtualFileSystem/DiscUtils.VirtualFileSystem.csproj" />
+    <Project Path="Library/DiscUtils.Vmdk/DiscUtils.Vmdk.csproj" />
+    <Project Path="Library/DiscUtils.Wim/DiscUtils.Wim.csproj" />
+    <Project Path="Library/DiscUtils.Xfs/DiscUtils.Xfs.csproj" />
+    <Project Path="Library/DiscUtils.Xva/DiscUtils.Xva.csproj" />
+    <Project Path="Library/DiscUtils/DiscUtils.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".github/workflows/build-test.yml" />
+    <File Path=".github/workflows/publish-nuget.yml" />
+    <File Path=".gitignore" />
+    <File Path="testenvironments.json" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <File Path="Tests/Directory.Build.props" />
+    <Project Path="Tests/LibraryTests/LibraryTests.csproj" />
+  </Folder>
+  <Folder Name="/Utilities/">
+    <File Path="Utilities/Directory.Build.props" />
+    <Project Path="Utilities/BCDDump/BCDDump.csproj" />
+    <Project Path="Utilities/DiscUtils.Common/DiscUtils.Common.csproj" />
+    <Project Path="Utilities/DiscUtils.Diagnostics/DiscUtils.Diagnostics.csproj" />
+    <Project Path="Utilities/DiscUtils.PowerShell/DiscUtils.PowerShell.csproj" />
+    <Project Path="Utilities/DiskClone/DiskClone.csproj" />
+    <Project Path="Utilities/DiskDump/DiskDump.csproj" />
+    <Project Path="Utilities/DmgExtract/DmgExtract.csproj" />
+    <Project Path="Utilities/ExternalFileSystem/ExternalFileSystem.csproj" />
+    <Project Path="Utilities/FileExtract/FileExtract.csproj" />
+    <Project Path="Utilities/FileRecover/FileRecover.csproj" />
+    <Project Path="Utilities/iSCSIBrowse/iSCSIBrowse.csproj" />
+    <Project Path="Utilities/ISOCreate/ISOCreate.csproj" />
+    <Project Path="Utilities/MSBuildTask/MSBuildTask.csproj" />
+    <Project Path="Utilities/NTFSDump/NTFSDump.csproj" />
+    <Project Path="Utilities/ODSBrowse/ODSBrowse.csproj" />
+    <Project Path="Utilities/OSClone/OSClone.csproj" />
+    <Project Path="Utilities/VHDCreate/VHDCreate.csproj" />
+    <Project Path="Utilities/VHDDump/VHDDump.csproj" />
+    <Project Path="Utilities/VHDXCreate/VHDXCreate.csproj" />
+    <Project Path="Utilities/VHDXDump/VHDXDump.csproj" />
+    <Project Path="Utilities/VirtualDiskConvert/VirtualDiskConvert.csproj" />
+    <Project Path="Utilities/VolInfo/VolInfo.csproj" />
+  </Folder>
+</Solution>
