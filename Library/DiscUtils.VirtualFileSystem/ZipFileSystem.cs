@@ -90,7 +90,7 @@ public class ZipFileSystem : VirtualFileSystem
                     }
                     else
                     {
-                        var data = new byte[file.Length];
+                        var data = StreamUtilities.GetUninitializedArray<byte>(checked((int)file.Length));
 
                         file.Open().ReadExactly(data, 0, data.Length);
 

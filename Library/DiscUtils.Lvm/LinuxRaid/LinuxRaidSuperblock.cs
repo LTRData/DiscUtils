@@ -21,6 +21,7 @@
 //
 
 using System;
+using System.Runtime.InteropServices;
 using DiscUtils.Streams;
 
 namespace DiscUtils.Lvm.LinuxRaid;
@@ -99,13 +100,12 @@ grub_uint32_t gstate_creserved[SB_GENERIC_CONSTANT_WORDS - 16];
             return;
         }
         RaidLevel = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(uIntSize * 7));
-        var _uuidBytes = new byte[16];
-        Span<byte> uuidBytes = _uuidBytes;
+        Span<byte> uuidBytes = stackalloc byte[16];
         buffer.Slice(uIntSize * 5, 4).CopyTo(uuidBytes);
         buffer.Slice(uIntSize * 13, 4).CopyTo(uuidBytes.Slice(4));
         buffer.Slice(uIntSize * 14, 4).CopyTo(uuidBytes.Slice(8));
         buffer.Slice(uIntSize * 15, 4).CopyTo(uuidBytes.Slice(12));
-        ArrayUuid = new Guid(_uuidBytes);
+        ArrayUuid = MemoryMarshal.Read<Guid>(uuidBytes);
         ArrayName = "raid";
         ArraySize = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(uIntSize * 8)) * 1024UL;
         TotalDisks = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(uIntSize * 9));
@@ -126,9 +126,8 @@ grub_uint32_t gstate_creserved[SB_GENERIC_CONSTANT_WORDS - 16];
         RaidLevel = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x48));
 
         // Array UUID at offset 0x10-0x1F
-        var uuidBytes = new byte[16];
-        buffer.Slice(0x10, 16).CopyTo(uuidBytes);
-        ArrayUuid = new Guid(uuidBytes);
+        var uuidBytes = buffer.Slice(0x10, 16);
+        ArrayUuid = MemoryMarshal.Read<Guid>(uuidBytes);
 
         // Array name at offset 0x20-0x3F (32 bytes)
         ArrayName = EndianUtilities.BytesToZString(buffer.Slice(0x20, 32));

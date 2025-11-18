@@ -109,17 +109,17 @@ internal class PartitionRecord : DeviceRecord
             if (PartitionType == 1)
             {
                 // BIOS disk
-                DiskIdentity = new byte[4];
+                DiskIdentity = StreamUtilities.GetUninitializedArray<byte>(4);
                 System.Buffer.BlockCopy(data, offset + 0x28, DiskIdentity, 0, 4);
-                PartitionIdentity = new byte[8];
+                PartitionIdentity = StreamUtilities.GetUninitializedArray<byte>(8);
                 System.Buffer.BlockCopy(data, offset + 0x10, PartitionIdentity, 0, 8);
             }
             else if (PartitionType == 0)
             {
                 // GPT disk
-                DiskIdentity = new byte[16];
+                DiskIdentity = StreamUtilities.GetUninitializedArray<byte>(16);
                 System.Buffer.BlockCopy(data, offset + 0x28, DiskIdentity, 0, 16);
-                PartitionIdentity = new byte[16];
+                PartitionIdentity = StreamUtilities.GetUninitializedArray<byte>(16);
                 System.Buffer.BlockCopy(data, offset + 0x10, PartitionIdentity, 0, 16);
             }
             else

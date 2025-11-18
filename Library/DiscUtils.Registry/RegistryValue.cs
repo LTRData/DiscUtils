@@ -273,28 +273,28 @@ public sealed class RegistryValue
             case RegistryValueType.String:
             case RegistryValueType.ExpandString:
                 var strValue = value.ToString();
-                data = new byte[strValue.Length * 2 + 2];
+                data = StreamUtilities.GetUninitializedArray<byte>(strValue.Length * 2 + 2);
                 Encoding.Unicode.GetBytes(strValue, 0, strValue.Length, data, 0);
                 break;
 
             case RegistryValueType.Dword:
-                data = new byte[sizeof(int)];
+                data = StreamUtilities.GetUninitializedArray<byte>(sizeof(int));
                 EndianUtilities.WriteBytesLittleEndian((int)value, data, 0);
                 break;
 
             case RegistryValueType.Qword:
-                data = new byte[sizeof(long)];
+                data = StreamUtilities.GetUninitializedArray<byte>(sizeof(long));
                 EndianUtilities.WriteBytesLittleEndian((int)value, data, 0);
                 break;
 
             case RegistryValueType.DwordBigEndian:
-                data = new byte[sizeof(int)];
+                data = StreamUtilities.GetUninitializedArray<byte>(sizeof(int));
                 EndianUtilities.WriteBytesBigEndian((int)value, data, 0);
                 break;
 
             case RegistryValueType.MultiString:
                 var multiStrValue = $"{string.Join("\0", (string[])value)}\0";
-                data = new byte[multiStrValue.Length * 2 + 2];
+                data = StreamUtilities.GetUninitializedArray<byte>(multiStrValue.Length * 2 + 2);
                 Encoding.Unicode.GetBytes(multiStrValue, 0, multiStrValue.Length, data, 0);
                 break;
 

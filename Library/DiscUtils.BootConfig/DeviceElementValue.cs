@@ -52,17 +52,17 @@ internal class DeviceElementValue : ElementValue
         if (pvi.VolumeType == PhysicalVolumeType.BiosPartition)
         {
             record.PartitionType = 1;
-            record.DiskIdentity = new byte[4];
+            record.DiskIdentity = StreamUtilities.GetUninitializedArray<byte>(4);
             EndianUtilities.WriteBytesLittleEndian(pvi.DiskSignature, record.DiskIdentity, 0);
-            record.PartitionIdentity = new byte[8];
+            record.PartitionIdentity = StreamUtilities.GetUninitializedArray<byte>(8);
             EndianUtilities.WriteBytesLittleEndian(pvi.PhysicalStartSector * 512, record.PartitionIdentity, 0);
         }
         else if (pvi.VolumeType == PhysicalVolumeType.GptPartition)
         {
             record.PartitionType = 0;
-            record.DiskIdentity = new byte[16];
+            record.DiskIdentity = StreamUtilities.GetUninitializedArray<byte>(16);
             EndianUtilities.WriteBytesLittleEndian(pvi.DiskIdentity, record.DiskIdentity, 0);
-            record.PartitionIdentity = new byte[16];
+            record.PartitionIdentity = StreamUtilities.GetUninitializedArray<byte>(16);
             EndianUtilities.WriteBytesLittleEndian(pvi.PartitionIdentity, record.PartitionIdentity, 0);
         }
         else

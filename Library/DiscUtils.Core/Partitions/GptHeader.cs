@@ -22,6 +22,7 @@
 
 using System;
 using System.Buffers;
+using System.Linq;
 using DiscUtils.Internal;
 using DiscUtils.Streams;
 
@@ -71,8 +72,7 @@ internal class GptHeader
         PartitionEntrySize = toCopy.PartitionEntrySize;
         EntriesCrc = toCopy.EntriesCrc;
 
-        Buffer = new byte[toCopy.Buffer.Length];
-        System.Buffer.BlockCopy(toCopy.Buffer, 0, Buffer, 0, Buffer.Length);
+        Buffer = [.. toCopy.Buffer];
     }
 
     public bool ReadFrom(ReadOnlySpan<byte> buffer)
@@ -101,8 +101,7 @@ internal class GptHeader
 
         // In case the header has new fields unknown to us, store the entire header
         // as a byte array
-        Buffer = new byte[HeaderSize];
-        buffer.Slice(0, HeaderSize).CopyTo(Buffer);
+        Buffer = buffer.Slice(0, HeaderSize).ToArray();
 
         return Crc == CalcCrc(Buffer, 0, HeaderSize);
     }
@@ -134,8 +133,7 @@ internal class GptHeader
         EndianUtilities.WriteBytesLittleEndian(CalcCrc(buffer.Slice(0, HeaderSize)), buffer.Slice(16));
 
         // Update the cached copy - re-allocate the buffer to allow for HeaderSize potentially having changed
-        Buffer = new byte[HeaderSize];
-        buffer.Slice(0, HeaderSize).CopyTo(Buffer);
+        Buffer = buffer.Slice(0, HeaderSize).ToArray();
     }
 
     internal static uint CalcCrc(byte[] buffer, int offset, int count)
