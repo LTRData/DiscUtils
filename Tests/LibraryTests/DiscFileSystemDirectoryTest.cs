@@ -23,7 +23,6 @@
 using System;
 using System.IO;
 using System.Linq;
-using Xunit;
 
 namespace LibraryTests;
 
@@ -98,7 +97,7 @@ public class DiscFileSystemDirectoryTest
     {
         var fs = fsFactory();
 
-        var dirInfo = fs.GetDirectoryInfo(@"SOMEDIR\CHILDDIR");
+        var dirInfo = fs.GetDirectoryInfo(@$"SOMEDIR{Path.DirectorySeparatorChar}CHILDDIR");
         dirInfo.Create();
 
         var sep = Path.DirectorySeparatorChar;
@@ -169,7 +168,7 @@ public class DiscFileSystemDirectoryTest
     {
         var fs = fsFactory();
 
-        fs.CreateDirectory(@"Fred\child");
+        fs.CreateDirectory(@$"Fred{Path.DirectorySeparatorChar}child");
         Assert.Throws<IOException>(() => fs.Root.GetDirectories(@"Fred").First().Delete());
     }
 
@@ -261,7 +260,7 @@ public class DiscFileSystemDirectoryTest
     {
         var fs = fsFactory();
 
-        Assert.Throws<DirectoryNotFoundException>(() => fs.GetDirectories(@"\baddir").Any());
+        Assert.Throws<DirectoryNotFoundException>(() => fs.GetDirectories(@$"{Path.DirectorySeparatorChar}baddir").Any());
     }
 
     [Theory]

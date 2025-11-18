@@ -25,7 +25,6 @@ using System.IO;
 using System.Linq;
 using DiscUtils.Iso9660;
 using DiscUtils.Streams;
-using Xunit;
 
 namespace LibraryTests.Iso9660;
 
@@ -44,7 +43,7 @@ public class IsoFileSystemTest
     {
         var builder = new CDBuilder();
         var fs = new CDReader(builder.Build(), false);
-        var fi = fs.GetFileInfo(@"SOMEDIR\SOMEFILE.TXT");
+        var fi = fs.GetFileInfo(@$"SOMEDIR{Path.DirectorySeparatorChar}SOMEFILE.TXT");
         Assert.NotNull(fi);
     }
 
@@ -62,7 +61,7 @@ public class IsoFileSystemTest
     {
         var builder = new CDBuilder();
         var fs = new CDReader(builder.Build(), false);
-        var fi = fs.GetFileSystemInfo(@"SOMEDIR\SOMEFILE");
+        var fi = fs.GetFileSystemInfo(@$"SOMEDIR{Path.DirectorySeparatorChar}SOMEFILE");
         Assert.NotNull(fi);
     }
 

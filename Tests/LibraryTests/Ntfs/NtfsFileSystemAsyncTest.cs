@@ -25,7 +25,6 @@ using System.IO;
 using DiscUtils;
 using DiscUtils.Ntfs;
 using DiscUtils.Streams;
-using Xunit;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
@@ -129,7 +128,7 @@ public class NtfsFileSystemAsyncTest
 
         // Test NTFS options for hardlink behaviour
         ntfs.CreateDirectory("Dir");
-        ntfs.CreateHardLink("AFILE.TXT", @"Dir\OtherLink.txt");
+        ntfs.CreateHardLink("AFILE.TXT", @$"Dir{Path.DirectorySeparatorChar}OtherLink.txt");
 
         using (var stream = ntfs.OpenFile("AFILE.TXT", FileMode.Open, FileAccess.ReadWrite))
         {
@@ -137,11 +136,11 @@ public class NtfsFileSystemAsyncTest
         }
 
         Assert.Equal(50, ntfs.GetFileLength("AFILE.TXT"));
-        Assert.Equal(14325, ntfs.GetFileLength(@"Dir\OtherLink.txt"));
+        Assert.Equal(14325, ntfs.GetFileLength(@$"Dir{Path.DirectorySeparatorChar}OtherLink.txt"));
 
         ntfs.NtfsOptions.FileLengthFromDirectoryEntries = false;
 
-        Assert.Equal(50, ntfs.GetFileLength(@"Dir\OtherLink.txt"));
+        Assert.Equal(50, ntfs.GetFileLength($@"Dir{Path.DirectorySeparatorChar}OtherLink.txt"));
     }
 
     [Fact]
@@ -155,12 +154,12 @@ public class NtfsFileSystemAsyncTest
 
         for(var i = 0; i < 2500; ++i)
         {
-            using(var stream = ntfs.OpenFile(@$"DIR\file{i}.bin", FileMode.Create, FileAccess.ReadWrite))
+            using(var stream = ntfs.OpenFile(@$"DIR{Path.DirectorySeparatorChar}file{i}.bin", FileMode.Create, FileAccess.ReadWrite))
             {
                 await stream.WriteAsync(buffer);
             }
 
-            using(var stream = ntfs.OpenFile(@$"DIR\{i}.bin", FileMode.Create, FileAccess.ReadWrite))
+            using(var stream = ntfs.OpenFile(@$"DIR{Path.DirectorySeparatorChar}{i}.bin", FileMode.Create, FileAccess.ReadWrite))
             {
                 await stream.WriteAsync(buffer);
             }
@@ -168,11 +167,11 @@ public class NtfsFileSystemAsyncTest
 
         for (var i = 0; i < 2500; ++i)
         {
-            ntfs.DeleteFile(@$"DIR\file{i}.bin");
+            ntfs.DeleteFile(@$"DIR{Path.DirectorySeparatorChar}file{i}.bin");
         }
 
         // Create fragmented file (lots of small writes)
-        using (var stream = ntfs.OpenFile(@"DIR\fragmented.bin", FileMode.Create, FileAccess.ReadWrite))
+        using (var stream = ntfs.OpenFile(@$"DIR{Path.DirectorySeparatorChar}fragmented.bin", FileMode.Create, FileAccess.ReadWrite))
         {
             for (var i = 0; i < 2500; ++i)
             {
@@ -187,7 +186,7 @@ public class NtfsFileSystemAsyncTest
             largeWriteBuffer[i * 4096] = (byte)i;
         }
 
-        using (var stream = ntfs.OpenFile(@"DIR\fragmented.bin", FileMode.OpenOrCreate, FileAccess.ReadWrite))
+        using (var stream = ntfs.OpenFile(@$"DIR{Path.DirectorySeparatorChar}fragmented.bin", FileMode.OpenOrCreate, FileAccess.ReadWrite))
         {
             stream.Position = stream.Length - largeWriteBuffer.Length;
             await stream.WriteAsync(largeWriteBuffer);
@@ -195,7 +194,7 @@ public class NtfsFileSystemAsyncTest
 
         // And a large read
         var largeReadBuffer = new byte[largeWriteBuffer.Length];
-        using (var stream = ntfs.OpenFile(@"DIR\fragmented.bin", FileMode.OpenOrCreate, FileAccess.ReadWrite))
+        using (var stream = ntfs.OpenFile(@$"DIR{Path.DirectorySeparatorChar}fragmented.bin", FileMode.OpenOrCreate, FileAccess.ReadWrite))
         {
             stream.Position = stream.Length - largeReadBuffer.Length;
             await stream.ReadExactlyAsync(largeReadBuffer, CancellationToken.None);

@@ -25,7 +25,6 @@ using System.IO;
 using DiscUtils;
 using DiscUtils.Iso9660;
 using DiscUtils.Partitions;
-using Xunit;
 
 namespace LibraryTests.Iso9660;
 
@@ -35,20 +34,20 @@ public class BuilderTest
     public void AddFileStream()
     {
         var builder = new CDBuilder();
-        builder.AddFile(@"ADIR\AFILE.TXT", new MemoryStream());
+        builder.AddFile(@$"ADIR{Path.DirectorySeparatorChar}AFILE.TXT", new MemoryStream());
         var fs = new CDReader(builder.Build(), false);
 
-        Assert.True(fs.Exists(@"ADIR\AFILE.TXT"));
+        Assert.True(fs.Exists(@$"ADIR{Path.DirectorySeparatorChar}AFILE.TXT"));
     }
 
     [Fact]
     public void AddFileBytes()
     {
         var builder = new CDBuilder();
-        builder.AddFile(@"ADIR\AFILE.TXT", []);
+        builder.AddFile($@"ADIR{Path.DirectorySeparatorChar}AFILE.TXT", []);
         var fs = new CDReader(builder.Build(), false);
 
-        Assert.True(fs.Exists(@"ADIR\AFILE.TXT"));
+        Assert.True(fs.Exists($@"ADIR{Path.DirectorySeparatorChar}AFILE.TXT"));
     }
 
     [Fact]
@@ -95,7 +94,7 @@ public class BuilderTest
     [Fact]
     public void LongPathTest()
     {
-        const string testPath = @"Layout\Microsoft.VisualStudio.Debugger.Concord.Remote.Resources,version=17.12.35504.99,chip=x64,language=en-US,productarch=neutral,machinearch=ARM64\payload.vsix";
+        var testPath = @$"Layout{Path.DirectorySeparatorChar}Microsoft.VisualStudio.Debugger.Concord.Remote.Resources,version=17.12.35504.99,chip=x64,language=en-US,productarch=neutral,machinearch=ARM64{Path.DirectorySeparatorChar}payload.vsix";
 
         var builder = new CDBuilder();
 

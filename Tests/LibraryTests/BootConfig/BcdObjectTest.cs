@@ -24,7 +24,6 @@ using System;
 using System.IO;
 using DiscUtils.BootConfig;
 using DiscUtils.Registry;
-using Xunit;
 
 namespace LibraryTests.BootConfig;
 
@@ -38,10 +37,10 @@ public class BcdObjectTest
         var obj = s.CreateInherit(InheritType.AnyObject);
 
         Assert.False(obj.HasElement(WellKnownElement.LibraryApplicationPath));
-        obj.AddElement(WellKnownElement.LibraryApplicationPath, ElementValue.ForString(@"\a\path\to\nowhere"));
+        obj.AddElement(WellKnownElement.LibraryApplicationPath, ElementValue.ForString(@$"{Path.DirectorySeparatorChar}a{Path.DirectorySeparatorChar}path{Path.DirectorySeparatorChar}to{Path.DirectorySeparatorChar}nowhere"));
         Assert.True(obj.HasElement(WellKnownElement.LibraryApplicationPath));
 
-        Assert.Equal(@"\a\path\to\nowhere", obj.GetElement(WellKnownElement.LibraryApplicationPath).Value.ToString());
+        Assert.Equal(@$"{Path.DirectorySeparatorChar}a{Path.DirectorySeparatorChar}path{Path.DirectorySeparatorChar}to{Path.DirectorySeparatorChar}nowhere", obj.GetElement(WellKnownElement.LibraryApplicationPath).Value.ToString());
     }
 
     [Fact]
@@ -51,7 +50,7 @@ public class BcdObjectTest
         var s = Store.Initialize(hive.Root);
         var obj = s.CreateInherit(InheritType.AnyObject);
 
-        Assert.Throws<ArgumentException>(() => obj.AddElement(WellKnownElement.LibraryApplicationDevice, ElementValue.ForString(@"\a\path\to\nowhere")));
+        Assert.Throws<ArgumentException>(() => obj.AddElement(WellKnownElement.LibraryApplicationDevice, ElementValue.ForString($@"{Path.DirectorySeparatorChar}a{Path.DirectorySeparatorChar}path{Path.DirectorySeparatorChar}to{Path.DirectorySeparatorChar}nowhere")));
     }
 
     [Fact]
@@ -61,7 +60,7 @@ public class BcdObjectTest
         var s = Store.Initialize(hive.Root);
         var obj = s.CreateInherit(InheritType.AnyObject);
 
-        obj.AddElement(WellKnownElement.LibraryApplicationPath, ElementValue.ForString(@"\a\path\to\nowhere"));
+        obj.AddElement(WellKnownElement.LibraryApplicationPath, ElementValue.ForString($@"{Path.DirectorySeparatorChar}a{Path.DirectorySeparatorChar}path{Path.DirectorySeparatorChar}to{Path.DirectorySeparatorChar}nowhere"));
         obj.RemoveElement(WellKnownElement.LibraryApplicationPath);
 
         Assert.False(obj.HasElement(WellKnownElement.LibraryApplicationPath));

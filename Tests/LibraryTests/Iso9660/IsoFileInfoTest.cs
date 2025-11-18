@@ -23,7 +23,6 @@
 using System;
 using System.IO;
 using DiscUtils.Iso9660;
-using Xunit;
 
 namespace LibraryTests.Iso9660;
 
@@ -82,8 +81,8 @@ public class IsoFileInfoTest
         var fs = new CDReader(builder.Build(), false);
 
         Assert.Equal("foo.txt", fs.GetFileInfo("foo.txt").Name);
-        Assert.Equal("foo.txt", fs.GetFileInfo(@"path\foo.txt").Name);
-        Assert.Equal("foo.txt", fs.GetFileInfo(@"\foo.txt").Name);
+        Assert.Equal("foo.txt", fs.GetFileInfo(@$"path{Path.DirectorySeparatorChar}foo.txt").Name);
+        Assert.Equal("foo.txt", fs.GetFileInfo(@$"{Path.DirectorySeparatorChar}foo.txt").Name);
     }
 
     [Fact]
@@ -103,12 +102,12 @@ public class IsoFileInfoTest
     public void Exists()
     {
         var builder = new CDBuilder();
-        builder.AddFile(@"dir\foo.txt", [1]);
+        builder.AddFile(@$"dir{Path.DirectorySeparatorChar}foo.txt", [1]);
         var fs = new CDReader(builder.Build(), false);
 
         Assert.False(fs.GetFileInfo("unknown.txt").Exists);
-        Assert.True(fs.GetFileInfo(@"dir\foo.txt").Exists);
-        Assert.False(fs.GetFileInfo(@"dir").Exists);
+        Assert.True(fs.GetFileInfo(@$"dir{Path.DirectorySeparatorChar}foo.txt").Exists);
+        Assert.False(fs.GetFileInfo("dir").Exists);
     }
 
     [Fact]

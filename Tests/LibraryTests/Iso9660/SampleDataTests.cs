@@ -1,6 +1,6 @@
-using System.Linq;
 using DiscUtils.Iso9660;
-using Xunit;
+using System.IO;
+using System.Linq;
 
 namespace LibraryTests.Iso9660;
 
@@ -29,7 +29,7 @@ public class SampleDataTests
         using var iso = Helpers.Helpers.LoadTestDataFileFromGZipFile(nameof(Iso9660), "multiextent.iso_header.gz");
         using var cr = new CDReader(iso, joliet: true,  hideVersions: true);
 
-        const string pathToMultiextentFiles = @"\PS3_GAME\USRDIR\Resource\Common";
+        var pathToMultiextentFiles = @$"{Path.DirectorySeparatorChar}PS3_GAME{Path.DirectorySeparatorChar}USRDIR{Path.DirectorySeparatorChar}Resource{Path.DirectorySeparatorChar}Common";
         var fsEntries = cr.GetFileSystemEntries(pathToMultiextentFiles).ToList();
         Assert.Equal(11, fsEntries.Count);
 

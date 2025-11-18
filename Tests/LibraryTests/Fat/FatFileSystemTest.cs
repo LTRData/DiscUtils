@@ -28,7 +28,6 @@ using DiscUtils;
 using DiscUtils.Fat;
 using DiscUtils.Setup;
 using DiscUtils.Streams;
-using Xunit;
 
 namespace LibraryTests.Fat;
 
@@ -109,7 +108,7 @@ public class FatFileSystemTest
         var g = Geometry.FromCapacity(1024 * 1024 * 32);
         var fs = FatFileSystem.FormatPartition(ms, "KBPARTITION", g, 0, (int)g.TotalSectorsLong, 13);
 
-        fs.CreateDirectory(@"DIRB\DIRC");
+        fs.CreateDirectory(@$"DIRB{Path.DirectorySeparatorChar}DIRC");
 
         var fs2 = new FatFileSystem(ms);
         Assert.Single(fs2.Root.GetDirectories());
@@ -125,10 +124,10 @@ public class FatFileSystemTest
         Assert.Equal("UnItTeSt", entry.Name);
         Assert.Equal("UNITTEST", fs.GetShortName(entry.FullName));
 
-        fs.CreateDirectory(@"folder\subflder");
+        fs.CreateDirectory(@$"folder{Path.DirectorySeparatorChar}subflder");
         Assert.Equal("FOLDER", fs.GetShortName(fs.Root.GetDirectories("FOLDER").First().FullName));
 
-        fs.CreateDirectory(@"folder\subflder");
+        fs.CreateDirectory(@$"folder{Path.DirectorySeparatorChar}subflder");
         Assert.Equal("SUBFLDER", fs.GetShortName(fs.Root.GetDirectories("FOLDER").First().GetDirectories("SUBFLDER").First().FullName));
 
     }
@@ -154,7 +153,7 @@ public class FatFileSystemTest
     public void FileInfo()
     {
         using var fs = FatFileSystem.FormatFloppy(new MemoryStream(), FloppyDiskType.HighDensity, "FLOPPY_IMG ");
-        var fi = fs.GetFileInfo(@"SOMEDIR\SOMEFILE.TXT");
+        var fi = fs.GetFileInfo(@$"SOMEDIR{Path.DirectorySeparatorChar}SOMEFILE.TXT");
         Assert.NotNull(fi);
     }
 
@@ -170,7 +169,7 @@ public class FatFileSystemTest
     public void FileSystemInfo()
     {
         using var fs = FatFileSystem.FormatFloppy(new MemoryStream(), FloppyDiskType.HighDensity, "FLOPPY_IMG ");
-        var fi = fs.GetFileSystemInfo(@"SOMEDIR\SOMEFILE");
+        var fi = fs.GetFileSystemInfo(@$"SOMEDIR{Path.DirectorySeparatorChar}SOMEFILE");
         Assert.NotNull(fi);
     }
 

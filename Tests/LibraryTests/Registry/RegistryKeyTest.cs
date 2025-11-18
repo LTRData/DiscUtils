@@ -24,13 +24,13 @@ using System;
 using System.IO;
 using System.Linq;
 using DiscUtils.Registry;
-using Xunit;
 
 namespace LibraryTests.Registry;
 
 public class RegistryKeyTest
 {
     private RegistryHive hive;
+    private static readonly string[] value = ["A", "B", "C"];
 
     public RegistryKeyTest()
     {
@@ -110,7 +110,7 @@ public class RegistryKeyTest
     [Fact]
     public void SetStringArrayValue()
     {
-        hive.Root.SetValue("value", new string[] { "A", "B", "C" });
+        hive.Root.SetValue("value", value);
         Assert.Equal(RegistryValueType.MultiString, hive.Root.GetValueType("value"));
         var readVal = (string[])hive.Root.GetValue("value");
         Assert.Equal(3, readVal.Length);
@@ -189,7 +189,7 @@ public class RegistryKeyTest
     [Fact]
     public void CreateKey()
     {
-        var newKey = hive.Root.CreateSubKey(@"Child\Grandchild");
+        var newKey = hive.Root.CreateSubKey(@$"Child{Path.DirectorySeparatorChar}Grandchild");
         Assert.NotNull(newKey);
         Assert.Equal(1, hive.Root.SubKeyCount);
         Assert.Equal(1, hive.Root.OpenSubKey("cHiLd").SubKeyCount);
@@ -198,20 +198,20 @@ public class RegistryKeyTest
     [Fact]
     public void CreateKeyWithInitialSeparator()
     {
-        var newKey = hive.Root.CreateSubKey(@"\Child\Grandchild");
+        var newKey = hive.Root.CreateSubKey(@$"{Path.DirectorySeparatorChar}Child{Path.DirectorySeparatorChar}Grandchild");
         Assert.NotNull(newKey);
         Assert.Equal(1, hive.Root.SubKeyCount);
-        Assert.Equal(1, hive.Root.OpenSubKey(@"\cHiLd").SubKeyCount);
+        Assert.Equal(1, hive.Root.OpenSubKey(@$"{Path.DirectorySeparatorChar}cHiLd").SubKeyCount);
     }
 
     [Fact]
     public void CreateExistingKey()
     {
-        var newKey = hive.Root.CreateSubKey(@"Child");
+        var newKey = hive.Root.CreateSubKey("Child");
         Assert.NotNull(newKey);
         Assert.Equal(1, hive.Root.SubKeyCount);
 
-        newKey = hive.Root.CreateSubKey(@"cHILD");
+        newKey = hive.Root.CreateSubKey("cHILD");
         Assert.NotNull(newKey);
         Assert.Equal(1, hive.Root.SubKeyCount);
     }
@@ -219,8 +219,8 @@ public class RegistryKeyTest
     [Fact]
     public void DeleteKey()
     {
-        var newKey = hive.Root.CreateSubKey(@"Child");
-        hive.Root.OpenSubKey(@"Child").SetValue("value", "a value");
+        var newKey = hive.Root.CreateSubKey("Child");
+        hive.Root.OpenSubKey("Child").SetValue("value", "a value");
         Assert.Equal(1, hive.Root.SubKeyCount);
         hive.Root.DeleteSubKey("cHiLd");
         Assert.Equal(0, hive.Root.SubKeyCount);
@@ -229,14 +229,14 @@ public class RegistryKeyTest
     [Fact]
     public void DeleteNonEmptyKey()
     {
-        var newKey = hive.Root.CreateSubKey(@"Child\Grandchild");
+        var newKey = hive.Root.CreateSubKey(@$"Child{Path.DirectorySeparatorChar}Grandchild");
         Assert.Throws<InvalidOperationException>(() => hive.Root.DeleteSubKey("Child"));
     }
 
     [Fact]
     public void DeleteKeyTree()
     {
-        var newKey = hive.Root.CreateSubKey(@"Child\Grandchild");
+        var newKey = hive.Root.CreateSubKey($@"Child{Path.DirectorySeparatorChar}Grandchild");
         Assert.Equal(1, hive.Root.SubKeyCount);
         hive.Root.DeleteSubKeyTree("cHiLd");
         Assert.Equal(0, hive.Root.SubKeyCount);

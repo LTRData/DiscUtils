@@ -3,7 +3,6 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Xunit;
 
 namespace LibraryTests.Iso9660;
 
@@ -15,9 +14,9 @@ public class DuplicateFileNamesTest
         // Test 1
         var CDBuilder = new CDBuilder();
         CDBuilder.UseJoliet = false;
-        CDBuilder.AddFile(@"Folder\Filename.txt", Encoding.ASCII.GetBytes("Hello World!"));
+        CDBuilder.AddFile(@$"Folder{Path.DirectorySeparatorChar}Filename.txt", Encoding.ASCII.GetBytes("Hello World!"));
         Assert.Throws<ArgumentException>(()
-            => CDBuilder.AddFile(@"Folder\Filename.txt", Encoding.ASCII.GetBytes("Hello World!")));
+            => CDBuilder.AddFile(@$"Folder{Path.DirectorySeparatorChar}Filename.txt", Encoding.ASCII.GetBytes("Hello World!")));
     }
 
     [Fact]
@@ -26,9 +25,9 @@ public class DuplicateFileNamesTest
         // Test 2
         var CDBuilder = new CDBuilder();
         CDBuilder.UseJoliet = false;
-        CDBuilder.AddFile(@"Folder\Extremely long filename that can't possibly fit into an ISO9660 FS.txt", Encoding.ASCII.GetBytes("Hello World!"));
+        CDBuilder.AddFile(@$"Folder{Path.DirectorySeparatorChar}Extremely long filename that can't possibly fit into an ISO9660 FS.txt", Encoding.ASCII.GetBytes("Hello World!"));
         Assert.Throws<ArgumentException>(()
-            => CDBuilder.AddFile(@"Folder\Extremely long filename that can't possibly fit into an ISO9660 FS.txt", Encoding.ASCII.GetBytes("Hello World! 2")));
+            => CDBuilder.AddFile(@$"Folder{Path.DirectorySeparatorChar}Extremely long filename that can't possibly fit into an ISO9660 FS.txt", Encoding.ASCII.GetBytes("Hello World! 2")));
     }
 
     [Fact]
@@ -36,9 +35,9 @@ public class DuplicateFileNamesTest
     {
         var CDBuilder = new CDBuilder();
         CDBuilder.UseJoliet = true;
-        CDBuilder.AddFile(@"Folder\Extremely long filename that can't possibly fit into an ISO9660 FS.txt", Encoding.ASCII.GetBytes("Hello World!"));
-        CDBuilder.AddFile(@"Folder\Extremely long filename that can't possibly fit into an ISO9660 FS 2.txt", Encoding.ASCII.GetBytes("Hello World! 2"));
-        CDBuilder.AddFile(@"Folder\EXTREMELY_LONG_FILENAME_THA.TXT", Encoding.ASCII.GetBytes("Hello World! 2"));
+        CDBuilder.AddFile($@"Folder{Path.DirectorySeparatorChar}Extremely long filename that can't possibly fit into an ISO9660 FS.txt", Encoding.ASCII.GetBytes("Hello World!"));
+        CDBuilder.AddFile(@$"Folder{Path.DirectorySeparatorChar}Extremely long filename that can't possibly fit into an ISO9660 FS 2.txt", Encoding.ASCII.GetBytes("Hello World! 2"));
+        CDBuilder.AddFile(@$"Folder{Path.DirectorySeparatorChar}EXTREMELY_LONG_FILENAME_THA.TXT", Encoding.ASCII.GetBytes("Hello World! 2"));
 
         var isoStream = new MemoryStream();
         CDBuilder.Build(isoStream);
@@ -65,9 +64,9 @@ public class DuplicateFileNamesTest
     {
         var CDBuilder = new CDBuilder();
         CDBuilder.UseJoliet = false;
-        CDBuilder.AddFile(@"Folder\Extremely long filename that can't possibly fit into an ISO9660 FS.txt", Encoding.ASCII.GetBytes("Hello World!"));
-        CDBuilder.AddFile(@"Folder\Extremely long filename that can't possibly fit into an ISO9660 FS 2.txt", Encoding.ASCII.GetBytes("Hello World! 2"));
-        CDBuilder.AddFile(@"Folder\EXTREMELY_LONG_FILENAME_THA.TXT", Encoding.ASCII.GetBytes("Hello World! 2"));
+        CDBuilder.AddFile($@"Folder{Path.DirectorySeparatorChar}Extremely long filename that can't possibly fit into an ISO9660 FS.txt", Encoding.ASCII.GetBytes("Hello World!"));
+        CDBuilder.AddFile(@$"Folder{Path.DirectorySeparatorChar}Extremely long filename that can't possibly fit into an ISO9660 FS 2.txt", Encoding.ASCII.GetBytes("Hello World! 2"));
+        CDBuilder.AddFile(@$"Folder{Path.DirectorySeparatorChar}EXTREMELY_LONG_FILENAME_THA.TXT", Encoding.ASCII.GetBytes("Hello World! 2"));
 
         var isoStream = new MemoryStream();
         CDBuilder.Build(isoStream);
@@ -94,7 +93,7 @@ public class DuplicateFileNamesTest
     {
         var CDBuilder = new CDBuilder();
         CDBuilder.UseJoliet = true;
-        CDBuilder.AddFile(@"Folder\file.txt", Encoding.ASCII.GetBytes("Hello World!"));
+        CDBuilder.AddFile(@$"Folder{Path.DirectorySeparatorChar}file.txt", Encoding.ASCII.GetBytes("Hello World!"));
 
         var isoStream = new MemoryStream();
         CDBuilder.Build(isoStream);
@@ -109,7 +108,7 @@ public class DuplicateFileNamesTest
     {
         var CDBuilder = new CDBuilder();
         CDBuilder.UseJoliet = false;
-        CDBuilder.AddFile(@"Folder\file.txt", Encoding.ASCII.GetBytes("Hello World!"));
+        CDBuilder.AddFile(@$"Folder{Path.DirectorySeparatorChar}file.txt", Encoding.ASCII.GetBytes("Hello World!"));
 
         var isoStream = new MemoryStream();
         CDBuilder.Build(isoStream);

@@ -2,7 +2,6 @@
 using System;
 using System.IO;
 using System.Linq;
-using Xunit;
 
 namespace LibraryTests.Iso9660;
 
@@ -14,8 +13,8 @@ public class DuplicateDirNamesTest
         // Test 1
         var CDBuilder = new CDBuilder();
         CDBuilder.UseJoliet = false;
-        CDBuilder.AddDirectory(@"Folder\Filename.txt");
-        CDBuilder.AddDirectory(@"Folder\Filename.txt");
+        CDBuilder.AddDirectory(@$"Folder{Path.DirectorySeparatorChar}Filename.txt");
+        CDBuilder.AddDirectory(@$"Folder{Path.DirectorySeparatorChar}Filename.txt");
     }
 
     [Fact]
@@ -24,8 +23,8 @@ public class DuplicateDirNamesTest
         // Test 2
         var CDBuilder = new CDBuilder();
         CDBuilder.UseJoliet = false;
-        CDBuilder.AddDirectory(@"Folder\Extremely long filename that can't possibly fit into an ISO9660 FS.txt");
-        CDBuilder.AddDirectory(@"Folder\Extremely long filename that can't possibly fit into an ISO9660 FS.txt");
+        CDBuilder.AddDirectory(@$"Folder{Path.DirectorySeparatorChar}Extremely long filename that can't possibly fit into an ISO9660 FS.txt");
+        CDBuilder.AddDirectory(@$"Folder{Path.DirectorySeparatorChar}Extremely long filename that can't possibly fit into an ISO9660 FS.txt");
     }
 
     [Fact]
@@ -33,9 +32,9 @@ public class DuplicateDirNamesTest
     {
         var CDBuilder = new CDBuilder();
         CDBuilder.UseJoliet = true;
-        CDBuilder.AddDirectory(@"Folder\Extremely long filename that can't possibly fit into an ISO9660 FS.txt");
-        CDBuilder.AddDirectory(@"Folder\Extremely long filename that can't possibly fit into an ISO9660 FS 2.txt");
-        CDBuilder.AddDirectory(@"Folder\EXTREMELY_LONG_FILENAME_THA.TXT");
+        CDBuilder.AddDirectory(@$"Folder{Path.DirectorySeparatorChar}Extremely long filename that can't possibly fit into an ISO9660 FS.txt");
+        CDBuilder.AddDirectory(@$"Folder{Path.DirectorySeparatorChar}Extremely long filename that can't possibly fit into an ISO9660 FS 2.txt");
+        CDBuilder.AddDirectory(@$"Folder{Path.DirectorySeparatorChar}EXTREMELY_LONG_FILENAME_THA.TXT");
 
         var isoStream = new MemoryStream();
         CDBuilder.Build(isoStream);
@@ -62,9 +61,9 @@ public class DuplicateDirNamesTest
     {
         var CDBuilder = new CDBuilder();
         CDBuilder.UseJoliet = false;
-        CDBuilder.AddDirectory(@"Folder\Extremely long filename that can't possibly fit into an ISO9660 FS.txt");
-        CDBuilder.AddDirectory(@"Folder\Extremely long filename that can't possibly fit into an ISO9660 FS 2.txt");
-        CDBuilder.AddDirectory(@"Folder\EXTREMELY_LONG_FILENAME_THA.TXT");
+        CDBuilder.AddDirectory(@$"Folder{Path.DirectorySeparatorChar}Extremely long filename that can't possibly fit into an ISO9660 FS.txt");
+        CDBuilder.AddDirectory(@$"Folder{Path.DirectorySeparatorChar}Extremely long filename that can't possibly fit into an ISO9660 FS 2.txt");
+        CDBuilder.AddDirectory(@$"Folder{Path.DirectorySeparatorChar}EXTREMELY_LONG_FILENAME_THA.TXT");
 
         var isoStream = new MemoryStream();
         CDBuilder.Build(isoStream);
@@ -91,7 +90,7 @@ public class DuplicateDirNamesTest
     {
         var CDBuilder = new CDBuilder();
         CDBuilder.UseJoliet = true;
-        CDBuilder.AddDirectory(@"Folder\file.txt");
+        CDBuilder.AddDirectory(@$"Folder{Path.DirectorySeparatorChar}file.txt");
 
         var isoStream = new MemoryStream();
         CDBuilder.Build(isoStream);
@@ -106,7 +105,7 @@ public class DuplicateDirNamesTest
     {
         var CDBuilder = new CDBuilder();
         CDBuilder.UseJoliet = false;
-        CDBuilder.AddDirectory(@"Folder\file.txt");
+        CDBuilder.AddDirectory(@$"Folder{Path.DirectorySeparatorChar}file.txt");
 
         var isoStream = new MemoryStream();
         CDBuilder.Build(isoStream);

@@ -24,12 +24,8 @@ using System;
 using System.IO;
 using System.Linq;
 using DiscUtils;
-using DiscUtils.Streams;
 using DiscUtils.SquashFs;
 using K4os.Compression.LZ4;
-
-using LibraryTests.Helpers;
-using Xunit;
 
 namespace LibraryTests.SquashFs;
 
@@ -46,7 +42,7 @@ public sealed class SquashFileSystemBuilderTest
         builder.Build(fsImage);
 
         var reader = new SquashFileSystemReader(fsImage);
-        Assert.Single(reader.GetFileSystemEntries("\\"));
+        Assert.Single(reader.GetFileSystemEntries($"{Path.DirectorySeparatorChar}"));
         Assert.True(reader.FileExists("file"));
         Assert.Equal(fileData.LongLength, reader.GetFileLength("file"));
         var fileVerifyData = reader.ReadAllBytes("file");
@@ -68,7 +64,7 @@ public sealed class SquashFileSystemBuilderTest
         builder.Build(fsImage);
 
         var reader = new SquashFileSystemReader(fsImage);
-        Assert.Equal(2, reader.GetFileSystemEntries("\\").Count());
+        Assert.Equal(2, reader.GetFileSystemEntries($"{Path.DirectorySeparatorChar}").Count());
         Assert.Equal(fileData1.LongLength, reader.GetFileLength("file1.txt"));
         var fileVerifyData1 = reader.ReadAllBytes("file1.txt");
         Assert.Equal(fileData1, fileVerifyData1);

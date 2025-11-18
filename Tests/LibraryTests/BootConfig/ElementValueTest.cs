@@ -27,7 +27,6 @@ using DiscUtils.BootConfig;
 using DiscUtils.Partitions;
 using DiscUtils.Registry;
 using DiscUtils.Streams;
-using Xunit;
 
 namespace LibraryTests.BootConfig;
 
@@ -40,11 +39,11 @@ public class ElementValueTest
         var s = Store.Initialize(hive.Root);
         var obj = s.CreateInherit(InheritType.AnyObject);
 
-        var el = obj.AddElement(WellKnownElement.LibraryApplicationPath, ElementValue.ForString(@"a\path\to\nowhere"));
+        var el = obj.AddElement(WellKnownElement.LibraryApplicationPath, ElementValue.ForString(@$"a{Path.DirectorySeparatorChar}path{Path.DirectorySeparatorChar}to{Path.DirectorySeparatorChar}nowhere"));
 
         el = obj.GetElement(WellKnownElement.LibraryApplicationPath);
 
-        Assert.Equal(@"a\path\to\nowhere", el.Value.ToString());
+        Assert.Equal(@$"a{Path.DirectorySeparatorChar}path{Path.DirectorySeparatorChar}to{Path.DirectorySeparatorChar}nowhere", el.Value.ToString());
     }
 
     [Fact]

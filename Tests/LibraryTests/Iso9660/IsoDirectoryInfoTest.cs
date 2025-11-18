@@ -24,7 +24,6 @@ using System;
 using System.IO;
 using System.Linq;
 using DiscUtils.Iso9660;
-using Xunit;
 
 namespace LibraryTests.Iso9660;
 
@@ -34,15 +33,15 @@ public class IsoDirectoryInfoTest
     public void Exists()
     {
         var builder = new CDBuilder();
-        builder.AddFile(@"SOMEDIR\CHILDDIR\FILE.TXT", []);
+        builder.AddFile(@$"SOMEDIR{Path.DirectorySeparatorChar}CHILDDIR{Path.DirectorySeparatorChar}FILE.TXT", []);
         var fs = new CDReader(builder.Build(), false);
 
-        Assert.True(fs.GetDirectoryInfo(@"\").Exists);
-        Assert.True(fs.GetDirectoryInfo(@"SOMEDIR").Exists);
-        Assert.True(fs.GetDirectoryInfo(@"SOMEDIR\CHILDDIR").Exists);
-        Assert.True(fs.GetDirectoryInfo(@"SOMEDIR\CHILDDIR\").Exists);
-        Assert.False(fs.GetDirectoryInfo(@"NONDIR").Exists);
-        Assert.False(fs.GetDirectoryInfo(@"SOMEDIR\NONDIR").Exists);
+        Assert.True(fs.GetDirectoryInfo(Path.DirectorySeparatorChar.ToString()).Exists);
+        Assert.True(fs.GetDirectoryInfo("SOMEDIR").Exists);
+        Assert.True(fs.GetDirectoryInfo(@$"SOMEDIR{Path.DirectorySeparatorChar}CHILDDIR").Exists);
+        Assert.True(fs.GetDirectoryInfo(@$"SOMEDIR{Path.DirectorySeparatorChar}CHILDDIR{Path.DirectorySeparatorChar}").Exists);
+        Assert.False(fs.GetDirectoryInfo("NONDIR").Exists);
+        Assert.False(fs.GetDirectoryInfo(@$"SOMEDIR{Path.DirectorySeparatorChar}NONDIR").Exists);
     }
 
     [Fact]
@@ -85,13 +84,13 @@ public class IsoDirectoryInfoTest
     public void GetDirectories()
     {
         var builder = new CDBuilder();
-        builder.AddDirectory(@"SOMEDIR\CHILD\GCHILD");
-        builder.AddDirectory(@"A.DIR");
+        builder.AddDirectory(@$"SOMEDIR{Path.DirectorySeparatorChar}CHILD{Path.DirectorySeparatorChar}GCHILD");
+        builder.AddDirectory("A.DIR");
         var fs = new CDReader(builder.Build(), false);
 
         Assert.Equal(2, fs.Root.GetDirectories().Count());
 
-        var someDir = fs.Root.GetDirectories(@"SoMeDir").First();
+        var someDir = fs.Root.GetDirectories("SoMeDir").First();
         Assert.Single(fs.Root.GetDirectories("SOMEDIR"));
         Assert.Equal("SOMEDIR", someDir.Name);
 

@@ -1,12 +1,8 @@
 ﻿using System.IO;
 using System.Linq;
-using Xunit;
 using DiscUtils.Wim;
-using System.Security.Permissions;
 using System;
-using LibraryTests.Helpers;
 using System.Security.Cryptography;
-using DiscUtils.Streams;
 
 namespace LibraryTests.Wim;
 
@@ -29,7 +25,7 @@ public class WinFileSystemTest
     [Fact]
     public void ReadFileData()
     {
-        const string path = "\\TestData\\Lorem.txt";
+        var path = $"{Path.DirectorySeparatorChar}TestData{Path.DirectorySeparatorChar}Lorem.txt";
 
         using var fileStream = File.OpenRead(testDataPath);
         var wimFile = new WimFile(fileStream);
@@ -53,7 +49,7 @@ public class WinFileSystemTest
     [Fact]
     public void TryOpenMissingFile()
     {
-        const string path = "\\nonexist.txt";
+        var path = $"{Path.DirectorySeparatorChar}nonexist.txt";
 
         using var fileStream = File.OpenRead(testDataPath);
         var wimFile = new WimFile(fileStream);
@@ -71,7 +67,7 @@ public class WinFileSystemTest
         var wimFile = new WimFile(fileStream);
         var image = wimFile.GetImage(0);
 
-        Assert.Throws<InvalidOperationException>(() => image.OpenFile("\\TestData", FileMode.Open, FileAccess.Read).Close());
+        Assert.Throws<InvalidOperationException>(() => image.OpenFile($"{Path.DirectorySeparatorChar}TestData", FileMode.Open, FileAccess.Read).Close());
     }
 
     [Fact]
@@ -81,7 +77,7 @@ public class WinFileSystemTest
         var wimFile = new WimFile(fileStream);
         var image = wimFile.GetImage(0);
 
-        var files = image.GetFiles("\\TestData", "*.*", SearchOption.AllDirectories).ToList();
+        var files = image.GetFiles($"{Path.DirectorySeparatorChar}TestData", "*.*", SearchOption.AllDirectories).ToList();
 
         Assert.Equal(3, files.Count);
     }
@@ -108,7 +104,7 @@ public class WinFileSystemTest
         var wimFile = new WimFile(fileStream);
         var image = wimFile.GetImage(0);
 
-        var files = image.GetFiles("\\TestData\\Foo", "Lorem.*", SearchOption.AllDirectories).ToList();
+        var files = image.GetFiles($"{Path.DirectorySeparatorChar}TestData{Path.DirectorySeparatorChar}Foo", "Lorem.*", SearchOption.AllDirectories).ToList();
 
         Assert.Equal(2, files.Count);
     }

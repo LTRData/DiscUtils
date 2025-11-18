@@ -26,7 +26,6 @@ using DiscUtils.Core.WindowsSecurity.AccessControl;
 using DiscUtils;
 using DiscUtils.Ntfs;
 using DiscUtils.Streams;
-using Xunit;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
@@ -46,7 +45,7 @@ public class NtfsFileSystemTest
 
         ntfs.CreateDirectory("Dir");
 
-        ntfs.CreateDirectory(@"Dir\SubDir");
+        ntfs.CreateDirectory(@$"Dir{Path.DirectorySeparatorChar}SubDir");
 
         var filePath = Path.Combine("Dir", "SubDir", "File.bin");
 
@@ -96,17 +95,17 @@ public class NtfsFileSystemTest
         ntfs.CreateDirectory("dir");
         ntfs.SetSecurity("dir", sd);
 
-        ntfs.CreateDirectory(@"dir\subdir");
-        var inheritedSd = ntfs.GetSecurity(@"dir\subdir");
+        ntfs.CreateDirectory(@$"dir{Path.DirectorySeparatorChar}subdir");
+        var inheritedSd = ntfs.GetSecurity(@$"dir{Path.DirectorySeparatorChar}subdir");
 
         Assert.NotNull(inheritedSd);
         Assert.Equal("O:BAG:BAD:(A;ID;GA;;;BA)", inheritedSd.GetSddlForm(AccessControlSections.All));
 
-        using (ntfs.OpenFile(@"dir\subdir\file", FileMode.Create, FileAccess.ReadWrite))
+        using (ntfs.OpenFile(@$"dir{Path.DirectorySeparatorChar}subdir{Path.DirectorySeparatorChar}file", FileMode.Create, FileAccess.ReadWrite))
         {
         }
 
-        inheritedSd = ntfs.GetSecurity(@"dir\subdir\file");
+        inheritedSd = ntfs.GetSecurity(@$"dir{Path.DirectorySeparatorChar}subdir{Path.DirectorySeparatorChar}file");
         Assert.NotNull(inheritedSd);
         Assert.Equal("O:BAG:BAD:", inheritedSd.GetSddlForm(AccessControlSections.All));
     }
@@ -314,11 +313,11 @@ public class NtfsFileSystemTest
             ntfs.DeleteFile($"hl{i}");
         }
 
-        Assert.Single(ntfs.GetFiles(@"\"));
+        Assert.Single(ntfs.GetFiles(@$"{Path.DirectorySeparatorChar}"));
 
         ntfs.DeleteFile("file");
 
-        Assert.Empty(ntfs.GetFiles(@"\"));
+        Assert.Empty(ntfs.GetFiles(@$"{Path.DirectorySeparatorChar}"));
     }
 
     [Fact]
@@ -337,13 +336,13 @@ public class NtfsFileSystemTest
 
         // Check path handling
         ntfs.CreateDirectory("DIR");
-        using (var s = ntfs.OpenFile(@"DIR\ALongFileName2.txt", FileMode.CreateNew))
+        using (var s = ntfs.OpenFile(@$"DIR{Path.DirectorySeparatorChar}ALongFileName2.txt", FileMode.CreateNew))
         {
         }
 
-        ntfs.SetShortName(@"DIR\ALongFileName2.txt", "ALONG~02.TXT");
-        Assert.Equal("ALONG~02.TXT", ntfs.GetShortName(@"DIR\ALongFileName2.txt"));
-        Assert.True(ntfs.FileExists(@"DIR\ALONG~02.TXT"));
+        ntfs.SetShortName(@$"DIR{Path.DirectorySeparatorChar}ALongFileName2.txt", "ALONG~02.TXT");
+        Assert.Equal("ALONG~02.TXT", ntfs.GetShortName($@"DIR{Path.DirectorySeparatorChar}ALongFileName2.txt"));
+        Assert.True(ntfs.FileExists(@$"DIR{Path.DirectorySeparatorChar}ALONG~02.TXT"));
 
         // Check we can open a file by the short name
         using (var s = ntfs.OpenFile("ALONG~01.TXT", FileMode.Open))
@@ -355,8 +354,8 @@ public class NtfsFileSystemTest
         Assert.False(ntfs.FileExists("ALONG~01.TXT"));
 
         // Delete the short name, and make sure the file is gone
-        ntfs.DeleteFile(@"DIR\ALONG~02.TXT");
-        Assert.False(ntfs.FileExists(@"DIR\ALongFileName2.txt"));
+        ntfs.DeleteFile(@$"DIR{Path.DirectorySeparatorChar}ALONG~02.TXT");
+        Assert.False(ntfs.FileExists(@$"DIR{Path.DirectorySeparatorChar}ALongFileName2.txt"));
     }
 
     [Fact]
@@ -374,7 +373,7 @@ public class NtfsFileSystemTest
         Assert.Equal(2, ntfs.GetHardLinkCount("ALongFileName.txt"));
 
         ntfs.CreateDirectory("DIR");
-        ntfs.CreateHardLink(@"ALongFileName.txt", @"DIR\SHORTLNK.TXT");
+        ntfs.CreateHardLink(@"ALongFileName.txt", @$"DIR{Path.DirectorySeparatorChar}SHORTLNK.TXT");
         Assert.Equal(3, ntfs.GetHardLinkCount("ALongFileName.txt"));
 
         // If we enumerate short names, then the initial long name results in two 'hardlinks'
@@ -435,7 +434,7 @@ public class NtfsFileSystemTest
         var ntfs = FileSystemSource.NtfsFileSystem();
 
 #pragma warning disable 618
-        Assert.Null(ntfs.OpenRawStream(@"$Extend\$ObjId", AttributeType.Data, null, FileAccess.Read));
+        Assert.Null(ntfs.OpenRawStream(@$"$Extend{Path.DirectorySeparatorChar}$ObjId", AttributeType.Data, null, FileAccess.Read));
 #pragma warning restore 618
     }
 
@@ -471,15 +470,15 @@ public class NtfsFileSystemTest
     {
         var ntfs = FileSystemSource.NtfsFileSystem();
 
-        ntfs.CreateDirectory(@"\TestLongName1\TestLongName2");
-        ntfs.SetShortName(@"\TestLongName1\TestLongName2", "TESTLO~1");
+        ntfs.CreateDirectory(@$"{Path.DirectorySeparatorChar}TestLongName1{Path.DirectorySeparatorChar}TestLongName2");
+        ntfs.SetShortName(@$"{Path.DirectorySeparatorChar}TestLongName1{Path.DirectorySeparatorChar}TestLongName2", "TESTLO~1");
 
-        Assert.True(ntfs.DirectoryExists(@"\TestLongName1\TESTLO~1"));
-        Assert.True(ntfs.DirectoryExists(@"\TestLongName1\TestLongName2"));
+        Assert.True(ntfs.DirectoryExists(@$"{Path.DirectorySeparatorChar}TestLongName1{Path.DirectorySeparatorChar}TESTLO~1"));
+        Assert.True(ntfs.DirectoryExists(@$"{Path.DirectorySeparatorChar}TestLongName1{Path.DirectorySeparatorChar}TestLongName2"));
 
-        ntfs.DeleteDirectory(@"\TestLongName1", true);
+        ntfs.DeleteDirectory(@$"{Path.DirectorySeparatorChar}TestLongName1", true);
 
-        Assert.False(ntfs.DirectoryExists(@"\TestLongName1"));
+        Assert.False(ntfs.DirectoryExists(@$"{Path.DirectorySeparatorChar}TestLongName1"));
     }
 
     [Fact]
@@ -506,7 +505,7 @@ public class NtfsFileSystemTest
 
         // Test NTFS options for hardlink behaviour
         ntfs.CreateDirectory("Dir");
-        ntfs.CreateHardLink("AFILE.TXT", @"Dir\OtherLink.txt");
+        ntfs.CreateHardLink("AFILE.TXT", @$"Dir{Path.DirectorySeparatorChar}OtherLink.txt");
 
         using (var stream = ntfs.OpenFile("AFILE.TXT", FileMode.Open, FileAccess.ReadWrite))
         {
@@ -514,11 +513,11 @@ public class NtfsFileSystemTest
         }
 
         Assert.Equal(50, ntfs.GetFileLength("AFILE.TXT"));
-        Assert.Equal(14325, ntfs.GetFileLength(@"Dir\OtherLink.txt"));
+        Assert.Equal(14325, ntfs.GetFileLength(@$"Dir{Path.DirectorySeparatorChar}OtherLink.txt"));
 
         ntfs.NtfsOptions.FileLengthFromDirectoryEntries = false;
 
-        Assert.Equal(50, ntfs.GetFileLength(@"Dir\OtherLink.txt"));
+        Assert.Equal(50, ntfs.GetFileLength($@"Dir{Path.DirectorySeparatorChar}OtherLink.txt"));
     }
 
     [Fact]
@@ -532,12 +531,12 @@ public class NtfsFileSystemTest
 
         for(var i = 0; i < 2500; ++i)
         {
-            using(var stream = ntfs.OpenFile(@$"DIR\file{i}.bin", FileMode.Create, FileAccess.ReadWrite))
+            using(var stream = ntfs.OpenFile(@$"DIR{Path.DirectorySeparatorChar}file{i}.bin", FileMode.Create, FileAccess.ReadWrite))
             {
                 stream.Write(buffer, 0,buffer.Length);
             }
 
-            using(var stream = ntfs.OpenFile(@$"DIR\{i}.bin", FileMode.Create, FileAccess.ReadWrite))
+            using(var stream = ntfs.OpenFile(@$"DIR{Path.DirectorySeparatorChar}{i}.bin", FileMode.Create, FileAccess.ReadWrite))
             {
                 stream.Write(buffer, 0,buffer.Length);
             }
@@ -545,11 +544,11 @@ public class NtfsFileSystemTest
 
         for (var i = 0; i < 2500; ++i)
         {
-            ntfs.DeleteFile($@"DIR\file{i}.bin");
+            ntfs.DeleteFile($@"DIR{Path.DirectorySeparatorChar}file{i}.bin");
         }
 
         // Create fragmented file (lots of small writes)
-        using (var stream = ntfs.OpenFile(@"DIR\fragmented.bin", FileMode.Create, FileAccess.ReadWrite))
+        using (var stream = ntfs.OpenFile(@$"DIR{Path.DirectorySeparatorChar}fragmented.bin", FileMode.Create, FileAccess.ReadWrite))
         {
             for (var i = 0; i < 2500; ++i)
             {
@@ -564,7 +563,7 @@ public class NtfsFileSystemTest
             largeWriteBuffer[i * 4096] = (byte)i;
         }
 
-        using (var stream = ntfs.OpenFile(@"DIR\fragmented.bin", FileMode.OpenOrCreate, FileAccess.ReadWrite))
+        using (var stream = ntfs.OpenFile(@$"DIR{Path.DirectorySeparatorChar}fragmented.bin", FileMode.OpenOrCreate, FileAccess.ReadWrite))
         {
             stream.Position = stream.Length - largeWriteBuffer.Length;
             stream.Write(largeWriteBuffer, 0, largeWriteBuffer.Length);
@@ -572,7 +571,7 @@ public class NtfsFileSystemTest
 
         // And a large read
         var largeReadBuffer = new byte[largeWriteBuffer.Length];
-        using (var stream = ntfs.OpenFile(@"DIR\fragmented.bin", FileMode.OpenOrCreate, FileAccess.ReadWrite))
+        using (var stream = ntfs.OpenFile(@$"DIR{Path.DirectorySeparatorChar}fragmented.bin", FileMode.OpenOrCreate, FileAccess.ReadWrite))
         {
             stream.Position = stream.Length - largeReadBuffer.Length;
             stream.ReadExactly(largeReadBuffer, 0, largeReadBuffer.Length);
@@ -592,12 +591,12 @@ public class NtfsFileSystemTest
 
         for (var i = 0; i < 2500; ++i)
         {
-            using (var stream = ntfs.OpenFile(@$"DIR\file{i}.bin", FileMode.Create, FileAccess.ReadWrite))
+            using (var stream = ntfs.OpenFile(@$"DIR{Path.DirectorySeparatorChar}file{i}.bin", FileMode.Create, FileAccess.ReadWrite))
             {
                 stream.Write(buffer);
             }
 
-            using (var stream = ntfs.OpenFile(@$"DIR\{i}.bin", FileMode.Create, FileAccess.ReadWrite))
+            using (var stream = ntfs.OpenFile(@$"DIR{Path.DirectorySeparatorChar}{i}.bin", FileMode.Create, FileAccess.ReadWrite))
             {
                 stream.Write(buffer);
             }
@@ -605,11 +604,11 @@ public class NtfsFileSystemTest
 
         for (var i = 0; i < 2500; ++i)
         {
-            ntfs.DeleteFile($@"DIR\file{i}.bin");
+            ntfs.DeleteFile($@"DIR{Path.DirectorySeparatorChar}file{i}.bin");
         }
 
         // Create fragmented file (lots of small writes)
-        using (var stream = ntfs.OpenFile(@"DIR\fragmented.bin", FileMode.Create, FileAccess.ReadWrite))
+        using (var stream = ntfs.OpenFile(@$"DIR{Path.DirectorySeparatorChar}fragmented.bin", FileMode.Create, FileAccess.ReadWrite))
         {
             for (var i = 0; i < 2500; ++i)
             {
@@ -624,7 +623,7 @@ public class NtfsFileSystemTest
             largeWriteBuffer[i * 4096] = (byte)i;
         }
 
-        using (var stream = ntfs.OpenFile(@"DIR\fragmented.bin", FileMode.OpenOrCreate, FileAccess.ReadWrite))
+        using (var stream = ntfs.OpenFile($@"DIR{Path.DirectorySeparatorChar}fragmented.bin", FileMode.OpenOrCreate, FileAccess.ReadWrite))
         {
             stream.Position = stream.Length - largeWriteBuffer.Length;
             stream.Write(largeWriteBuffer);
@@ -632,7 +631,7 @@ public class NtfsFileSystemTest
 
         // And a large read
         var largeReadBuffer = new byte[largeWriteBuffer.Length];
-        using (var stream = ntfs.OpenFile(@"DIR\fragmented.bin", FileMode.OpenOrCreate, FileAccess.ReadWrite))
+        using (var stream = ntfs.OpenFile($@"DIR{Path.DirectorySeparatorChar}fragmented.bin", FileMode.OpenOrCreate, FileAccess.ReadWrite))
         {
             stream.Position = stream.Length - largeReadBuffer.Length;
             stream.ReadExactly(largeReadBuffer);
@@ -652,12 +651,12 @@ public class NtfsFileSystemTest
 
         for (var i = 0; i < 2500; ++i)
         {
-            using (var stream = ntfs.OpenFile(@$"DIR\file{i}.bin", FileMode.Create, FileAccess.ReadWrite))
+            using (var stream = ntfs.OpenFile(@$"DIR{Path.DirectorySeparatorChar}file{i}.bin", FileMode.Create, FileAccess.ReadWrite))
             {
                 await stream.WriteAsync(buffer);
             }
 
-            using (var stream = ntfs.OpenFile(@$"DIR\{i}.bin", FileMode.Create, FileAccess.ReadWrite))
+            using (var stream = ntfs.OpenFile(@$"DIR{Path.DirectorySeparatorChar}{i}.bin", FileMode.Create, FileAccess.ReadWrite))
             {
                 await stream.WriteAsync(buffer);
             }
@@ -665,11 +664,11 @@ public class NtfsFileSystemTest
 
         for (var i = 0; i < 2500; ++i)
         {
-            ntfs.DeleteFile($@"DIR\file{i}.bin");
+            ntfs.DeleteFile($@"DIR{Path.DirectorySeparatorChar}file{i}.bin");
         }
 
         // Create fragmented file (lots of small writes)
-        using (var stream = ntfs.OpenFile(@"DIR\fragmented.bin", FileMode.Create, FileAccess.ReadWrite))
+        using (var stream = ntfs.OpenFile(@$"DIR{Path.DirectorySeparatorChar}fragmented.bin", FileMode.Create, FileAccess.ReadWrite))
         {
             for (var i = 0; i < 2500; ++i)
             {
@@ -684,7 +683,7 @@ public class NtfsFileSystemTest
             largeWriteBuffer[i * 4096] = (byte)i;
         }
 
-        using (var stream = ntfs.OpenFile(@"DIR\fragmented.bin", FileMode.OpenOrCreate, FileAccess.ReadWrite))
+        using (var stream = ntfs.OpenFile($@"DIR{Path.DirectorySeparatorChar}fragmented.bin", FileMode.OpenOrCreate, FileAccess.ReadWrite))
         {
             stream.Position = stream.Length - largeWriteBuffer.Length;
             await stream.WriteAsync(largeWriteBuffer);
@@ -692,7 +691,7 @@ public class NtfsFileSystemTest
 
         // And a large read
         var largeReadBuffer = new byte[largeWriteBuffer.Length];
-        using (var stream = ntfs.OpenFile(@"DIR\fragmented.bin", FileMode.OpenOrCreate, FileAccess.ReadWrite))
+        using (var stream = ntfs.OpenFile($@"DIR{Path.DirectorySeparatorChar}fragmented.bin", FileMode.OpenOrCreate, FileAccess.ReadWrite))
         {
             stream.Position = stream.Length - largeReadBuffer.Length;
             await stream.ReadExactlyAsync(largeReadBuffer);
