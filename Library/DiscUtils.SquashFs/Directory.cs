@@ -54,7 +54,7 @@ internal class Directory : File, IVfsDirectory<DirectoryEntry, File>
                 var reader = Context.DirectoryReader;
                 reader.SetPosition(_dirInode.StartBlock, _dirInode.Offset);
 
-                // For some reason, always 3 greater than actual..
+                // The 3 additional bytes are for ".." and "."
                 while (reader.DistanceFrom(_dirInode.StartBlock, _dirInode.Offset) < _dirInode.FileSize - 3)
                 {
                     var header = DirectoryHeader.ReadFrom(reader);

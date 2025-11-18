@@ -55,11 +55,57 @@ internal sealed class MetablockReader
         _currentBlockStart = blockStart;
         _currentOffset = blockOffset;
     }
-
+    
+    /// <summary>
+    /// Calculates the distance between the current position and the specified block position and offset.
+    /// </summary>
+    /// <remarks>
+    /// * BlockStart is always related to the start of the metablock in the raw data stream
+    /// * BlockOffset is the offset within the uncompressed data stream!
+    ///
+    /// This means, that there can never be a distance calculation based on start and offset
+    /// across block boundaries
+    ///
+    /// Therefor to calculate the distance across block boundaries we need to iteratively read
+    /// through all blocks from the starting block to the current block.
+    ///
+    /// In most (standard) cases everything will be within the same block and the calculation is trivial.
+    /// </remarks>
+    /// <param name="blockStart">The start of the metadatablock with the raw data</param>
+    /// <param name="blockOffset">The offset within the uncompressed block</param>
+    /// <returns>The distance between </returns>
+    /// <exception cref="ArgumentOutOfRangeException"></exception>
     public long DistanceFrom(long blockStart, int blockOffset)
     {
-        return (_currentBlockStart - blockStart) * VfsSquashFileSystemReader.MetadataBufferSize
-               + (_currentOffset - blockOffset);
+        if (blockStart > _currentBlockStart)
+        {
+            throw new ArgumentOutOfRangeException("Block start needs to be less than or equal to current block start");
+        }
+        
+        if (blockStart == _currentBlockStart)
+        {
+            return _currentOffset - blockOffset;
+        }
+        
+        var block = _context.ReadMetaBlock(_start + blockStart);
+        long distance = Metablock.SQUASHFS_METADATA_SIZE - blockOffset;
+        
+        do
+        {
+            block = _context.ReadMetaBlock(block.NextBlockStart);
+            blockStart = block.Position - _start;
+
+            if (blockStart == _currentBlockStart)
+            {
+                distance += _currentOffset;
+            }
+            else
+            {
+                distance += block.Data.LongLength;
+            }
+        } while (blockStart != _currentBlockStart);
+
+        return distance;
     }
 
     public void Skip(int count)

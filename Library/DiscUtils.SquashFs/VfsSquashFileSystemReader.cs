@@ -35,6 +35,7 @@ internal class VfsSquashFileSystemReader : VfsReadOnlyFileSystem<DirectoryEntry,
     public override bool IsCaseSensitive => true;
 
     public const int MetadataBufferSize = 8 * 1024;
+    public const short BlockPrefixSize = 2;
     private readonly BlockCache<Block> _blockCache;
 
     private readonly Context _context;
@@ -272,7 +273,7 @@ internal class VfsSquashFileSystemReader : VfsReadOnlyFileSystem<DirectoryEntry,
         var stream = _context.RawStream;
         stream.Position = pos;
 
-        Span<byte> buffer = stackalloc byte[2];
+        Span<byte> buffer = stackalloc byte[BlockPrefixSize];
         stream.ReadExactly(buffer);
 
         int readLen = EndianUtilities.ToUInt16LittleEndian(buffer);
@@ -283,7 +284,7 @@ internal class VfsSquashFileSystemReader : VfsReadOnlyFileSystem<DirectoryEntry,
             readLen = Metablock.SQUASHFS_COMPRESSED_BIT;
         }
 
-        block.NextBlockStart = pos + readLen + 2;
+        block.NextBlockStart = pos + BlockPrefixSize + readLen;
 
         if (isCompressed)
         {
