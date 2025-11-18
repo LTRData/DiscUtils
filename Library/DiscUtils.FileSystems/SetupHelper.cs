@@ -1,4 +1,5 @@
 ﻿using DiscUtils.Btrfs;
+using DiscUtils.ExFat;
 using DiscUtils.Ext;
 using DiscUtils.Fat;
 using DiscUtils.HfsPlus;
@@ -17,6 +18,7 @@ public static class SetupHelper
         Setup.SetupHelper.RegisterAssembly(typeof(BtrfsFileSystem).Assembly);
         Setup.SetupHelper.RegisterAssembly(typeof(ExtFileSystem).Assembly);
         Setup.SetupHelper.RegisterAssembly(typeof(FatFileSystem).Assembly);
+        Setup.SetupHelper.RegisterAssembly(typeof(ExFatFileSystem).Assembly);
         Setup.SetupHelper.RegisterAssembly(typeof(HfsPlusFileSystem).Assembly);
         Setup.SetupHelper.RegisterAssembly(typeof(NtfsFileSystem).Assembly);
         Setup.SetupHelper.RegisterAssembly(typeof(Disc).Assembly);

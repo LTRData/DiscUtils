@@ -10,6 +10,7 @@
   <ItemGroup>
     <ProjectReference Include="..\DiscUtils.Core\DiscUtils.Core.csproj" />
     <ProjectReference Include="..\DiscUtils.Btrfs\DiscUtils.Btrfs.csproj" />
+    <ProjectReference Include="..\DiscUtils.ExFat\DiscUtils.ExFat.csproj" />
     <ProjectReference Include="..\DiscUtils.Ext\DiscUtils.Ext.csproj" />
     <ProjectReference Include="..\DiscUtils.Fat\DiscUtils.Fat.csproj" />
     <ProjectReference Include="..\DiscUtils.HfsPlus\DiscUtils.HfsPlus.csproj" />

@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>ExFat.Generator</RootNamespace>
+    <AssemblyName>ExFat.Generator</AssemblyName>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <Company>picrap</Company>
+    <Decription>Internal application to generate test disk</Decription>
+    <Title>ExFat generator</Title>
+    <Configuration>Release</Configuration>
+    <Copyright>MIT license https://opensource.org/licenses/MIT</Copyright>
+    <FileVersion>0.9.16</FileVersion>
+    <InformationalVersion>0.9.16</InformationalVersion>
+    <Product>ExFat</Product>
+    <Title>ExFat.Generator</Title>
+    <Version>0.9.16.0</Version>
+
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\LibraryTests\ExFat\DiskContent.cs" Link="DiskContent.cs" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\..\Library\DiscUtils.Core\DiscUtils.Core.csproj" />
+    <ProjectReference Include="..\..\Library\DiscUtils.ExFat\DiscUtils.ExFat.csproj" />
+    <ProjectReference Include="..\..\Library\DiscUtils.Streams\DiscUtils.Streams.csproj" />
+    <ProjectReference Include="..\..\Library\DiscUtils.Vhdx\DiscUtils.Vhdx.csproj" />
+  </ItemGroup>
+
+</Project>

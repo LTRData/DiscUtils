@@ -2,7 +2,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   
   <PropertyGroup>
-    <TargetFrameworks>net46;net48;net10.0</TargetFrameworks>
     <AssemblyName>LibraryTests</AssemblyName>
     <PackageId>LibraryTests</PackageId>
     <SignAssembly>false</SignAssembly>
@@ -17,7 +16,11 @@
     <None Remove="_Data\*" />
     <EmbeddedResource Include="_Data\*" />
   </ItemGroup>
-  
+
+  <ItemGroup>
+	<EmbeddedResource Include="ExFat\Environment\exFAT.vhdx.gz" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\Utilities\DiscUtils.Diagnostics\DiscUtils.Diagnostics.csproj" />
     <ProjectReference Include="..\..\Library\DiscUtils.Core\DiscUtils.Core.csproj" />

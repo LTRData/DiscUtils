@@ -3,7 +3,8 @@
 
   <!-- Package related stuff -->
   <PropertyGroup>
-    <IsPackable>false</IsPackable>
+	<TargetFrameworks>net46;net48;net10.0</TargetFrameworks>
+	<IsPackable>false</IsPackable>
 	<OutputPath>..\$(Configuration)</OutputPath>
   </PropertyGroup>
 

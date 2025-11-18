@@ -17,6 +17,7 @@
     <Project Path="Library/DiscUtils.Containers/DiscUtils.Containers.csproj" />
     <Project Path="Library/DiscUtils.Core/DiscUtils.Core.csproj" />
     <Project Path="Library/DiscUtils.Dmg/DiscUtils.Dmg.csproj" />
+    <Project Path="Library/DiscUtils.ExFat/DiscUtils.ExFat.csproj" />
     <Project Path="Library/DiscUtils.Ext/DiscUtils.Ext.csproj" />
     <Project Path="Library/DiscUtils.Fat/DiscUtils.Fat.csproj" />
     <Project Path="Library/DiscUtils.FileSystems/DiscUtils.FileSystems.csproj" />
@@ -57,6 +58,7 @@
   </Folder>
   <Folder Name="/Tests/">
     <File Path="Tests/Directory.Build.props" />
+    <Project Path="Tests/ExFat.Generator/ExFat.Generator.csproj" />
     <Project Path="Tests/LibraryTests/LibraryTests.csproj" />
   </Folder>
   <Folder Name="/Utilities/">
