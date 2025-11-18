@@ -22,6 +22,8 @@
 
 using System;
 using System.Buffers;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Text;
 using DiscUtils.Streams;
 
@@ -257,7 +259,7 @@ public sealed class RegistryValue
                     return null;
                 }
 
-                return EndianUtilities.ToUInt64LittleEndian(data);
+                return EndianUtilities.ToInt64LittleEndian(data);
 
             default:
                 return data.ToArray();
@@ -266,42 +268,60 @@ public sealed class RegistryValue
 
     private static ReadOnlyMemory<byte> ConvertToData(object value, RegistryValueType valueType)
     {
-        byte[] data;
-
         switch (valueType)
         {
             case RegistryValueType.String:
             case RegistryValueType.ExpandString:
-                var strValue = value.ToString();
-                data = StreamUtilities.GetUninitializedArray<byte>(strValue.Length * 2 + 2);
-                Encoding.Unicode.GetBytes(strValue, 0, strValue.Length, data, 0);
-                break;
+                {
+                    var strValue = value.ToString();
+                    var data = StreamUtilities.GetUninitializedArray<byte>(strValue.Length * 2 + 2);
+                    var done = Encoding.Unicode.GetBytes(strValue, 0, strValue.Length, data, 0);
+                    data.AsSpan(done).Clear();
+                    return data;
+                }
 
             case RegistryValueType.Dword:
-                data = StreamUtilities.GetUninitializedArray<byte>(sizeof(int));
-                EndianUtilities.WriteBytesLittleEndian((int)value, data, 0);
-                break;
+                {
+                    var data = StreamUtilities.GetUninitializedArray<byte>(sizeof(int));
+                    EndianUtilities.WriteBytesLittleEndian((int)value, data, 0);
+                    return data;
+                }
 
             case RegistryValueType.Qword:
-                data = StreamUtilities.GetUninitializedArray<byte>(sizeof(long));
-                EndianUtilities.WriteBytesLittleEndian((int)value, data, 0);
-                break;
+                {
+                    var data = StreamUtilities.GetUninitializedArray<byte>(sizeof(long));
+                    EndianUtilities.WriteBytesLittleEndian((long)value, data, 0);
+                    return data;
+                }
 
             case RegistryValueType.DwordBigEndian:
-                data = StreamUtilities.GetUninitializedArray<byte>(sizeof(int));
-                EndianUtilities.WriteBytesBigEndian((int)value, data, 0);
-                break;
+                {
+                    var data = StreamUtilities.GetUninitializedArray<byte>(sizeof(int));
+                    EndianUtilities.WriteBytesBigEndian((int)value, data, 0);
+                    return data;
+                }
 
             case RegistryValueType.MultiString:
-                var multiStrValue = $"{string.Join("\0", (string[])value)}\0";
-                data = StreamUtilities.GetUninitializedArray<byte>(multiStrValue.Length * 2 + 2);
-                Encoding.Unicode.GetBytes(multiStrValue, 0, multiStrValue.Length, data, 0);
-                break;
+                {
+                    var multiStrValue = $"{string.Join("\0", (IEnumerable<string>)value)}\0";
+                    var data = StreamUtilities.GetUninitializedArray<byte>(multiStrValue.Length * 2 + 2);
+                    var done = Encoding.Unicode.GetBytes(multiStrValue, 0, multiStrValue.Length, data, 0);
+                    data.AsSpan(done).Clear();
+                    return data;
+                }
 
             default:
                 if (value is byte[] array)
                 {
                     return array;
+                }
+                else if (value is ImmutableArray<byte> iarray)
+                {
+                    return iarray.AsMemory();
+                }
+                else if (value is ArraySegment<byte> segm)
+                {
+                    return segm;
                 }
                 else if (value is ReadOnlyMemory<byte> romem)
                 {
@@ -316,8 +336,6 @@ public sealed class RegistryValue
                     throw new ArgumentException("Invalid data type for value data parameter", nameof(value));
                 }
         }
-
-        return data;
     }
 
     private string DataAsString()

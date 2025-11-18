@@ -78,6 +78,17 @@ public class RegistryKeyTest
     }
 
     [Fact]
+    public void SetLongValue()
+    {
+        var value = long.MaxValue;
+        hive.Root.SetValue("longvalue", value);
+
+        Assert.Equal(RegistryValueType.Qword, hive.Root.GetValueType("longvalue"));
+        var readVal = (long)hive.Root.GetValue("longvalue");
+        Assert.Equal(value, readVal);
+    }
+
+    [Fact]
     public void SetStringValue()
     {
         hive.Root.SetValue("value", "string");
@@ -94,6 +105,14 @@ public class RegistryKeyTest
     {
         hive.Root.SetValue("value", 0x7342BEEF);
         Assert.Equal(RegistryValueType.Dword, hive.Root.GetValueType("value"));
+        Assert.Equal(0x7342BEEF, (int)hive.Root.GetValue("value"));
+    }
+
+    [Fact]
+    public void SetBigEndianIntegerValue()
+    {
+        hive.Root.SetValue("value", 0x7342BEEF, RegistryValueType.DwordBigEndian);
+        Assert.Equal(RegistryValueType.DwordBigEndian, hive.Root.GetValueType("value"));
         Assert.Equal(0x7342BEEF, (int)hive.Root.GetValue("value"));
     }
 
