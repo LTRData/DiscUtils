@@ -26,7 +26,6 @@ using System.Linq;
 using DiscUtils;
 using DiscUtils.Streams;
 using DiscUtils.Vhdx;
-using Xunit;
 
 namespace LibraryTests.Vhdx;
 

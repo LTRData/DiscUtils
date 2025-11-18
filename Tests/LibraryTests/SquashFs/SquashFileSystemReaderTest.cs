@@ -22,7 +22,6 @@
 
 using System.IO;
 using DiscUtils.SquashFs;
-using Xunit;
 
 namespace LibraryTests.SquashFs;
 

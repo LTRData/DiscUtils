@@ -20,10 +20,8 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-using System.Collections.Generic;
 using DiscUtils.Streams;
 using DiscUtils.Vhdx;
-using Xunit;
 
 namespace LibraryTests.Vhdx;
 

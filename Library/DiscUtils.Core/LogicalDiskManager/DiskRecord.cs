@@ -20,8 +20,6 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-using System.Diagnostics.CodeAnalysis;
-
 namespace DiscUtils.LogicalDiskManager;
 
 internal sealed class DiskRecord : DatabaseRecord

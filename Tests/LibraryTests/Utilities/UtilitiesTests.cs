@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using Xunit;
 
 namespace LibraryTests.Utilities;
 

@@ -21,7 +21,6 @@
 //
 
 using DiscUtils.Streams;
-using Xunit;
 
 namespace LibraryTests.Streams;
 

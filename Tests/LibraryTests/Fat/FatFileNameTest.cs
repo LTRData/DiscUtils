@@ -20,7 +20,6 @@
 // DEALINGS IN THE SOFTWARE.
 using System;
 using DiscUtils.Fat;
-using Xunit;
 
 namespace LibraryTests.Fat;
 

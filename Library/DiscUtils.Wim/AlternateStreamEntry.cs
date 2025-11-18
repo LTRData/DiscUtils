@@ -22,7 +22,6 @@
 
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
-using System.Text;
 using DiscUtils.Streams;
 using LTRData.Extensions.Buffers;
 

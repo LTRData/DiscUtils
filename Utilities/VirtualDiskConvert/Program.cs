@@ -136,11 +136,11 @@ class Program : ProgramBase
         pump.Run();
     }
 
-    protected override string[] HelpRemarks => new string[] {
+    protected override string[] HelpRemarks => [
                 "This utility flattens disk hierarchies (VMDK linked-clones, VHD differencing disks) " +
                 "into a single disk image, but does preserve sparseness where the output disk format " +
                 "supports it."
-            };
+            ];
 
     private static void UpdateBiosGeometry(SparseStream contentStream, Geometry oldGeometry, Geometry newGeometry)
     {

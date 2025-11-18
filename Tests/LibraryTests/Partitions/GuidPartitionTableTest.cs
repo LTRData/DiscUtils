@@ -24,7 +24,6 @@ using System.IO;
 using DiscUtils.Partitions;
 using DiscUtils.Streams;
 using DiscUtils.Vdi;
-using Xunit;
 
 namespace LibraryTests.Partitions;
 

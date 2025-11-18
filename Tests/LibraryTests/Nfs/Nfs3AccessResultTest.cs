@@ -23,7 +23,6 @@
 using DiscUtils.Nfs;
 using System;
 using System.IO;
-using Xunit;
 
 namespace LibraryTests.Nfs;
 

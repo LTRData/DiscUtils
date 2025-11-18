@@ -27,7 +27,6 @@ using DiscUtils.Setup;
 using DiscUtils.Streams;
 using System.Collections.Generic;
 using System.IO;
-using Xunit;
 
 #pragma warning disable IDE0079 // Remove unnecessary suppression
 #pragma warning disable xUnit1042 // The member referenced by the MemberData attribute returns untyped data rows

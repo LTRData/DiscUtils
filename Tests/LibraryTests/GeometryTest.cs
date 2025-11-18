@@ -21,7 +21,6 @@
 //
 
 using DiscUtils;
-using Xunit;
 
 namespace LibraryTests;
 

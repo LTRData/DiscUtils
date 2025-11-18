@@ -24,7 +24,6 @@ using System;
 using System.IO;
 using DiscUtils.BootConfig;
 using DiscUtils.Registry;
-using Xunit;
 
 namespace LibraryTests.BootConfig;
 

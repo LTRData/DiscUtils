@@ -1,9 +1,7 @@
-﻿using System.Collections.Generic;
-using DiscUtils;
+﻿using DiscUtils;
 using DiscUtils.Complete;
 using DiscUtils.Streams;
 using DiscUtils.Vhdx;
-using Xunit;
 
 namespace LibraryTests.Lvm;
 

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using DiscUtils.Lvm;
-using Xunit;
 
 namespace LibraryTests.Lvm;
 

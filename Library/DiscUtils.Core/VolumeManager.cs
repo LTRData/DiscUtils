@@ -27,7 +27,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using DiscUtils.Internal;
-using DiscUtils.Partitions;
 using DiscUtils.Raw;
 using DiscUtils.Streams;
 

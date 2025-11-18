@@ -25,7 +25,6 @@ using System.IO;
 using DiscUtils;
 using DiscUtils.Complete;
 using DiscUtils.Vmdk;
-using Xunit;
 
 namespace LibraryTests.Vmdk;
 

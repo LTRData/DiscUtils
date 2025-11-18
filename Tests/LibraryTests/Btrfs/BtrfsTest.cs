@@ -1,7 +1,6 @@
 ﻿using System.IO;
 using System.Linq;
 using DiscUtils.Btrfs;
-using Xunit;
 
 namespace LibraryTests.Btrfs;
 

@@ -24,7 +24,6 @@ using System;
 using System.IO;
 using DiscUtils.Core.WindowsSecurity.AccessControl;
 using DiscUtils.Registry;
-using Xunit;
 
 namespace LibraryTests.Registry;
 

@@ -22,7 +22,6 @@
 
 using System;
 using System.Text;
-using DiscUtils.Internal;
 using DiscUtils.Streams;
 
 namespace DiscUtils.Iso9660;

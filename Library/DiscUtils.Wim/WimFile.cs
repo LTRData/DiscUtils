@@ -20,7 +20,6 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-using DiscUtils.Internal;
 using DiscUtils.Streams;
 using System;
 using System.Collections.Generic;
@@ -29,7 +28,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Xml.Linq;
 using System.Xml.XPath;
-using static System.Net.WebRequestMethods;
 
 namespace DiscUtils.Wim;
 

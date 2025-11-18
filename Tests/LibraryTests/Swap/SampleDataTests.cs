@@ -1,10 +1,8 @@
-using System.Collections.Generic;
 using DiscUtils;
 using DiscUtils.Complete;
 using DiscUtils.Streams;
 using DiscUtils.Swap;
 using DiscUtils.Vhdx;
-using Xunit;
 
 namespace LibraryTests.Swap;
 

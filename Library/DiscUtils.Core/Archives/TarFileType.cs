@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace DiscUtils.Archives;
+﻿namespace DiscUtils.Archives;
 
 /// <summary>
 /// Tar file types.

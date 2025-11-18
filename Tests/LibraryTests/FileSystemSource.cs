@@ -23,7 +23,6 @@
 using DiscUtils;
 using DiscUtils.Ntfs;
 using DiscUtils.Streams;
-using Xunit;
 
 namespace LibraryTests;
 

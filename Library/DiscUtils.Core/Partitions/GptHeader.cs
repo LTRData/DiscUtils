@@ -22,7 +22,6 @@
 
 using System;
 using System.Buffers;
-using System.Linq;
 using DiscUtils.Internal;
 using DiscUtils.Streams;
 

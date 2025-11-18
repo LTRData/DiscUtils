@@ -23,7 +23,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using DiscUtils.Internal;
 using DiscUtils.Partitions;
 using DiscUtils.Streams;

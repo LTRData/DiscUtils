@@ -26,7 +26,6 @@ using DiscUtils.Fat;
 using DiscUtils.Partitions;
 using DiscUtils.Streams;
 using DiscUtils.Vhd;
-using Xunit;
 
 namespace LibraryTests.Combined;
 

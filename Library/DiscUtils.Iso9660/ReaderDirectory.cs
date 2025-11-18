@@ -23,12 +23,10 @@
 using DiscUtils.Internal;
 using DiscUtils.Streams;
 using DiscUtils.Vfs;
-using LTRData.Extensions.Split;
 using LTRData.Extensions.Buffers;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 

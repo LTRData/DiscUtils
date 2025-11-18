@@ -1,12 +1,10 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Reflection;
 using DiscUtils;
 using DiscUtils.Btrfs;
 using DiscUtils.Streams;
 using DiscUtils.Vhdx;
-using Xunit;
 using static LibraryTests.Helpers.Helpers;
 
 namespace LibraryTests.Btrfs;

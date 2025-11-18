@@ -23,7 +23,6 @@
 using System;
 using System.Collections.Generic;
 using DiscUtils.Streams;
-using Xunit;
 
 namespace LibraryTests;
 

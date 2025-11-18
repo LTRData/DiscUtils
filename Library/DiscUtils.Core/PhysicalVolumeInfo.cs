@@ -21,7 +21,6 @@
 //
 
 using System;
-using System.Globalization;
 using DiscUtils.Partitions;
 using DiscUtils.Streams;
 

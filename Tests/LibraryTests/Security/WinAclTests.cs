@@ -1,5 +1,4 @@
 ﻿using DiscUtils.Core.WindowsSecurity;
-using Xunit;
 
 namespace LibraryTests.Security;
 

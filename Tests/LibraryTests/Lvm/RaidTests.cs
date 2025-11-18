@@ -2,8 +2,6 @@
 using DiscUtils.Complete;
 using DiscUtils.Streams;
 using DiscUtils.Vhdx;
-using System.Collections.Generic;
-using Xunit;
 
 namespace LibraryTests.Lvm;
 

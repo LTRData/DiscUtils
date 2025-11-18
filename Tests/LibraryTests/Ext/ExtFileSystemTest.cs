@@ -3,9 +3,6 @@ using System.Linq;
 using System.Text;
 using DiscUtils;
 using DiscUtils.Ext;
-using DiscUtils.Streams;
-using LibraryTests.Helpers;
-using Xunit;
 
 namespace LibraryTests.Ext;
 

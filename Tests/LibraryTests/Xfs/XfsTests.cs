@@ -1,6 +1,5 @@
 ﻿using System.Text;
 using DiscUtils.Xfs;
-using Xunit;
 
 namespace LibraryTests.Xfs;
 

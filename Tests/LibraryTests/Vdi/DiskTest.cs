@@ -25,7 +25,6 @@ using System.IO;
 using DiscUtils;
 using DiscUtils.Streams;
 using DiscUtils.Vdi;
-using Xunit;
 
 namespace LibraryTests.Vdi;
 

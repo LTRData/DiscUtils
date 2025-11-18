@@ -27,7 +27,6 @@ using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using DiscUtils.Internal;
 using DiscUtils.Streams;
 using DiscUtils.Streams.Compatibility;
 using LTRData.Extensions.Buffers;

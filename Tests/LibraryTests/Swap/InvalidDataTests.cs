@@ -1,5 +1,4 @@
 using DiscUtils.Swap;
-using Xunit;
 
 namespace LibraryTests.Swap;
 
