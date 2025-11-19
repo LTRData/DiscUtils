@@ -86,8 +86,8 @@ internal class TestEnvironment : IDisposable
         {
             RunDiskPart("attach", vhdxPath);
             var result = ProcessUtility.Run("chkdsk", @$"\\?\Volume{{{volumeId}}} /x");
-            var success = result.Item1 == 0;
-            var checkResult = result.Item3;
+            var success = result.exitCode == 0;
+            var checkResult = result.result;
 
             RunDiskPart("detach", vhdxPath);
             return (success, checkResult);
