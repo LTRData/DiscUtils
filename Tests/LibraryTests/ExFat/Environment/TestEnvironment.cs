@@ -9,12 +9,14 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Security.Principal;
+using System.Threading;
 using DiscUtils.Vhdx;
 
 namespace LibraryTests.ExFat.Environment;
 internal class TestEnvironment : IDisposable
 {
     protected string vhdxPath = null!;
+    protected Guid volumeId;
     protected Disk? disk;
 
     protected TestEnvironment()
@@ -69,26 +71,27 @@ internal class TestEnvironment : IDisposable
         }
     }
 
+#if NET9_0_OR_GREATER
+    private static readonly Lock _lock = new();
+#else
+    private static readonly object _lock = new();
+#endif
+
 #if NETCOREAPP
     [SupportedOSPlatform("windows")]
 #endif
-    private Tuple<bool, string?> CheckDisk()
+    private (bool success, string? checkResult) CheckDisk()
     {
-        var previousDrives = DriveInfo.GetDrives();
-        RunDiskPart("attach", vhdxPath);
-        var newDrives = DriveInfo.GetDrives();
-        var mountedDrive = newDrives.FirstOrDefault(d => previousDrives.All(p => p.Name != d.Name));
-        var success = true;
-        string? checkResult = null;
-        if (mountedDrive != null)
+        lock (_lock)
         {
-            var result = ProcessUtility.Run("chkdsk", mountedDrive.Name.TrimEnd('\\'));
-            success = result.Item1 == 0;
-            checkResult = result.Item2;
-        }
+            RunDiskPart("attach", vhdxPath);
+            var result = ProcessUtility.Run("chkdsk", @$"\\?\Volume{{{volumeId}}} /x");
+            var success = result.Item1 == 0;
+            var checkResult = result.Item3;
 
-        RunDiskPart("detach", vhdxPath);
-        return Tuple.Create(success, checkResult);
+            RunDiskPart("detach", vhdxPath);
+            return (success, checkResult);
+        }
     }
 
 #if NETCOREAPP

@@ -21,7 +21,7 @@ public static class ProcessUtility
     /// <param name="waitForExit">if set to <c>true</c> [wait for exit].</param>
     /// <returns>Either an exit code or a PID (when waitForExit is false)</returns>
     /// <exception cref="ProcessStartInfo.FileName">The file specified in the command parameter <see cref="T:System.IO.FileNotFoundException" /> property could not be found.</exception>
-    public static Tuple<int, string?> Run(string command, string arguments, string? input = null,
+    public static (int pid, int exitCode, string? result) Run(string command, string arguments, string? input = null,
         bool waitForExit = true)
     {
         var process = new Process
@@ -50,7 +50,7 @@ public static class ProcessUtility
         }
         catch
         {
-            return Tuple.Create(-1, (string?)null);
+            return (-1, -1, null);
         }
 
         if (input != null)
@@ -61,11 +61,11 @@ public static class ProcessUtility
 
         if (!waitForExit)
         {
-            return Tuple.Create(process.Id, (string?)null);
+            return (process.Id, -1, null);
         }
 
         process.BeginOutputReadLine();
         process.WaitForExit();
-        return Tuple.Create(process.ExitCode, (string?)resultBuilder.ToString());
+        return (-1, process.ExitCode, (string?)resultBuilder.ToString());
     }
 }

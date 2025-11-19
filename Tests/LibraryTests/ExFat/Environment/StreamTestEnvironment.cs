@@ -6,6 +6,7 @@ using System;
 using System.IO;
 using System.IO.Compression;
 using DiscUtils;
+using DiscUtils.Partitions;
 using DiscUtils.Streams;
 using DiscUtils.Vhdx;
 
@@ -41,6 +42,7 @@ internal class StreamTestEnvironment : TestEnvironment
 
         disk = new Disk(vhdxStream, Ownership.Dispose);
         var volume = VolumeManager.GetPhysicalVolumes(disk)[1];
+        volumeId = ((GuidPartitionInfo)volume.Partition!).Identity;
         PartitionStream = volume.Open();
     }
 }
