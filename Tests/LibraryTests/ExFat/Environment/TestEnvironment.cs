@@ -84,12 +84,14 @@ internal class TestEnvironment : IDisposable
     {
         lock (_lock)
         {
-            RunDiskPart("attach", vhdxPath);
+            RunDiskPartAttach(vhdxPath);
+            
             var result = ProcessUtility.Run("chkdsk", @$"\\?\Volume{{{volumeId}}} /x");
             var success = result.exitCode == 0;
             var checkResult = result.result;
 
-            RunDiskPart("detach", vhdxPath);
+            RunDiskPartDetach(vhdxPath);
+
             return (success, checkResult);
         }
     }
@@ -97,13 +99,32 @@ internal class TestEnvironment : IDisposable
 #if NETCOREAPP
     [SupportedOSPlatform("windows")]
 #endif
-    private static void RunDiskPart(string action, string vdiskPath)
+    private static void RunDiskPartAttach(string vdiskPath)
     {
         var scriptPath = Path.GetTempFileName();
         using (var scriptStream = File.CreateText(scriptPath))
         {
             scriptStream.WriteLine($"select vdisk file=\"{vdiskPath}\"");
-            scriptStream.WriteLine($"{action} vdisk");
+            scriptStream.WriteLine("attach vdisk");
+            scriptStream.WriteLine("online disk");
+            scriptStream.WriteLine("select partition 2");
+            scriptStream.WriteLine("online volume");
+        }
+
+        ProcessUtility.Run("diskpart", $"/s {scriptPath}");
+        File.Delete(scriptPath);
+    }
+
+#if NETCOREAPP
+    [SupportedOSPlatform("windows")]
+#endif
+    private static void RunDiskPartDetach(string vdiskPath)
+    {
+        var scriptPath = Path.GetTempFileName();
+        using (var scriptStream = File.CreateText(scriptPath))
+        {
+            scriptStream.WriteLine($"select vdisk file=\"{vdiskPath}\"");
+            scriptStream.WriteLine($"detach vdisk");
         }
 
         ProcessUtility.Run("diskpart", $"/s {scriptPath}");
