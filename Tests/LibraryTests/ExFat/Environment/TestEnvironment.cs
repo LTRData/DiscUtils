@@ -2,6 +2,19 @@
 // Released under MIT license
 // https://github.com/picrap/ExFat
 
+// Validation with Windows chkdsk is disabled for now.
+// There are issues with finding the correct volume to
+// check as well as actual file system issues that
+// make chkdsk stop with "an unspecified error occurred"
+// in the test cases where the entire partition and file
+// system is created by the test case.
+//
+// This needs more investigation before it can be
+// activated again.
+// // Olof, LTRData
+//
+//#define CHKDSK_VALIDATION
+
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -13,6 +26,7 @@ using System.Threading;
 using DiscUtils.Vhdx;
 
 namespace LibraryTests.ExFat.Environment;
+
 internal class TestEnvironment : IDisposable
 {
     protected string vhdxPath = null!;
@@ -51,6 +65,7 @@ internal class TestEnvironment : IDisposable
                 }
 #endif
 
+#if CHKDSK_VALIDATION
                 if (IsAdmin)
                 {
                     var t = CheckDisk();
@@ -63,6 +78,7 @@ internal class TestEnvironment : IDisposable
                 {
                     Trace.WriteLine("Validation with chkdsk requires administrative privileges.");
                 }
+#endif
             }
             finally
             {
