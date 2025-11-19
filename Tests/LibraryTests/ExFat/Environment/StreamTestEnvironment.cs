@@ -42,7 +42,7 @@ internal class StreamTestEnvironment : TestEnvironment
 
         disk = new Disk(vhdxStream, Ownership.Dispose);
         var volume = VolumeManager.GetPhysicalVolumes(disk)[1];
-        volumeId = ((GuidPartitionInfo)volume.Partition!).Identity;
+        volumeId = volume.PartitionIdentity;
         PartitionStream = volume.Open();
     }
 }

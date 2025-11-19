@@ -37,6 +37,7 @@ internal class EntryFilesystemTestEnvironment : TestEnvironment
         var gpt = GuidPartitionTable.Initialize(disk);
         gpt.Create(gpt.FirstUsableSector, gpt.LastUsableSector, GuidPartitionTypes.WindowsBasicData, 0, null);
         var volume = VolumeManager.GetPhysicalVolumes(disk).First();
+        volumeId = volume.PartitionIdentity;
         var bytesPerSector = (uint)(volume.PhysicalGeometry?.BytesPerSector ?? 512);
         var clusterCount = 1 << 25;
         var clusterSize = length / clusterCount;
