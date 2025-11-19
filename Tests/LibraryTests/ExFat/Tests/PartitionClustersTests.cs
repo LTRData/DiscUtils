@@ -2,8 +2,8 @@
 // Released under MIT license
 // https://github.com/picrap/ExFat
 
-using ExFat.IO;
-using ExFat.Partition;
+using DiscUtils.ExFat.Internal.IO;
+using DiscUtils.ExFat.Internal.Partition;
 using LibraryTests.ExFat.Environment;
 using System;
 using System.Collections.Generic;

@@ -8,8 +8,8 @@ using DiscUtils.Vhdx;
 using System.IO;
 using System.Linq;
 using System;
-using ExFat.Filesystem;
-using ExFat;
+using DiscUtils.ExFat.Internal.Filesystem;
+using DiscUtils.ExFat.Internal;
 using DiscUtils;
 
 namespace LibraryTests.ExFat.Environment;

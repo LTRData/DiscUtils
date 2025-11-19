@@ -3,8 +3,8 @@
 // https://github.com/picrap/ExFat
 
 using DiscUtils.Streams;
-using ExFat.IO;
-using ExFat.Partition;
+using DiscUtils.ExFat.Internal.IO;
+using DiscUtils.ExFat.Internal.Partition;
 using LibraryTests.ExFat.Environment;
 using System;
 using System.IO;

@@ -7,10 +7,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using ExFat.Filesystem;
+using DiscUtils.ExFat.Internal.Filesystem;
 using DiscUtils.Streams;
-using ExFat.Partition;
-using ExFat;
+using DiscUtils.ExFat.Internal.Partition;
+using DiscUtils.ExFat.Internal;
 using LTRData.Extensions.Buffers;
 
 namespace DiscUtils.ExFat;
@@ -89,8 +89,15 @@ public partial class ExFatFileSystem : DiscFileSystem
     /// <returns></returns>
     public static bool Detect(Stream partitionStream)
     {
-        var bootSector = ExFatPartition.ReadBootSector(partitionStream);
-        return bootSector.IsValid;
+        try
+        {
+            var bootSector = ExFatPartition.ReadBootSector(partitionStream);
+            return bootSector.IsValid;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     /// <inheritdoc />

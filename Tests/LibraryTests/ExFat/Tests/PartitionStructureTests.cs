@@ -2,8 +2,8 @@
 // Released under MIT license
 // https://github.com/picrap/ExFat
 
-using ExFat.Partition;
-using ExFat.Partition.Entries;
+using DiscUtils.ExFat.Internal.Partition;
+using DiscUtils.ExFat.Internal.Partition.Entries;
 using LibraryTests.ExFat.Environment;
 using System.Linq;
 

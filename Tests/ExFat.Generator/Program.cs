@@ -10,11 +10,13 @@ using DiscUtils;
 using DiscUtils.Partitions;
 using DiscUtils.Streams;
 using DiscUtils.Vhdx;
-using System.Runtime.Versioning;
-using DiscUtils.Streams.Compatibility;
 using LibraryTests.ExFat;
+using System.Runtime.Versioning;
+using DiscUtils.ExFat.Internal;
+using DiscUtils.Streams.Compatibility;
 
 namespace ExFat.Generator;
+
 public static class Program
 {
     public static void Main(params string[] _)

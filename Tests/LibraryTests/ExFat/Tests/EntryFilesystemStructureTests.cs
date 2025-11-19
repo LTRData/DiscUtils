@@ -2,7 +2,7 @@
 // Released under MIT license
 // https://github.com/picrap/ExFat
 
-using ExFat.Filesystem;
+using DiscUtils.ExFat.Internal.Filesystem;
 using LibraryTests.ExFat.Environment;
 using System.Linq;
 

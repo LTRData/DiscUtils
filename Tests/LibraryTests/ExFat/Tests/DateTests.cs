@@ -2,7 +2,7 @@
 // Released under MIT license
 // https://github.com/picrap/ExFat
 
-using ExFat;
+using DiscUtils.ExFat.Internal;
 using System;
 
 namespace LibraryTests.ExFat.Tests;

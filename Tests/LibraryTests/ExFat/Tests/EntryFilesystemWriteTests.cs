@@ -7,7 +7,7 @@ using System.IO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ExFat.Filesystem;
+using DiscUtils.ExFat.Internal.Filesystem;
 using LibraryTests.ExFat.Environment;
 
 namespace LibraryTests.ExFat.Tests;

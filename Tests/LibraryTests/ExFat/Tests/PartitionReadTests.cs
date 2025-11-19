@@ -6,10 +6,10 @@ using DiscUtils.Streams;
 using System;
 using System.Linq;
 using System.IO;
-using ExFat.Partition;
-using ExFat;
-using ExFat.Partition.Entries;
-using ExFat.IO;
+using DiscUtils.ExFat.Internal.Partition;
+using DiscUtils.ExFat.Internal;
+using DiscUtils.ExFat.Internal.Partition.Entries;
+using DiscUtils.ExFat.Internal.IO;
 using LibraryTests.ExFat.Environment;
 
 namespace LibraryTests.ExFat.Tests;
