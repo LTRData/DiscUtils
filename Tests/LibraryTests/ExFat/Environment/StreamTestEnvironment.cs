@@ -6,7 +6,6 @@ using System;
 using System.IO;
 using System.IO.Compression;
 using DiscUtils;
-using DiscUtils.Partitions;
 using DiscUtils.Streams;
 using DiscUtils.Vhdx;
 

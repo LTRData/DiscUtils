@@ -2,7 +2,6 @@
 // Released under MIT license
 // https://github.com/picrap/ExFat
 
-using DiscUtils.Streams.Compatibility;
 using DiscUtils.ExFat.Internal.IO;
 using DiscUtils.ExFat.Internal.Partition;
 using DiscUtils.ExFat.Internal.Partition.Entries;
