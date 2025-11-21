@@ -35,6 +35,7 @@ using DirectoryIndexEntry =
     System.Collections.Generic.KeyValuePair<DiscUtils.Ntfs.FileNameRecord, DiscUtils.Ntfs.FileRecordReference>;
 using System.Collections.Concurrent;
 using DiscUtils.Ntfs.Internals;
+using LTRData.Extensions.Formatting;
 
 namespace DiscUtils.Ntfs;
 
@@ -1266,6 +1267,11 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
         writer.WriteLine($"{linePrefix}DIRECTORY TREE");
         writer.WriteLine($"{linePrefix}{Path.DirectorySeparatorChar} (5)");
         DumpDirectory(GetDirectory(MasterFileTable.RootDirIndex), writer, linePrefix); // 5 = Root Dir
+
+        writer.WriteLine(linePrefix);
+        writer.WriteLine($"{linePrefix}TOTAL SIZE: {Size} ({SizeFormatting.FormatBytes(Size)})");
+        var usedSpace = UsedSpace;
+        writer.WriteLine($"{linePrefix}USED SPACE: {usedSpace} ({SizeFormatting.FormatBytes(usedSpace)})");
     }
 
     /// <summary>
@@ -2634,7 +2640,7 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
             var bitmap = _context.ClusterBitmap.Bitmap;
             var processed = 0L;
 
-            var bufferSize = 4 * Sizes.OneKiB;
+            var bufferSize = (int)Math.Min(4 * Sizes.OneMiB, bitmap.Size);
             var buffer = ArrayPool<byte>.Shared.Rent(bufferSize);
             try
             {
@@ -2649,7 +2655,7 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
             {
                 ArrayPool<byte>.Shared.Return(buffer);
             }
-
+            
             return usedCluster * ClusterSize;
         }
     }
