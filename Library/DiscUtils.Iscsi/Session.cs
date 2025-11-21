@@ -47,7 +47,7 @@ public sealed class Session : IDisposable
     private ushort _nextConnectionId;
 
     internal Session(SessionType type, string targetName, params TargetAddress[] addresses)
-        : this(type, targetName, null, null, addresses) {}
+        : this(type, targetName, null, null, addresses) { }
 
     internal Session(SessionType type, string targetName, string userName, string password, IList<TargetAddress> addresses)
     {
@@ -175,23 +175,75 @@ public sealed class Session : IDisposable
         return new LunInfo(targetInfo, lun, resp.DeviceType, resp.Removable, resp.VendorId, resp.ProductId, resp.ProductRevision);
     }
 
+    private bool _no16support;
+
     /// <summary>
-    /// Gets the capacity of a particular LUN.
+    /// Gets the capacity of a particular LUN. First attempts
+    /// to get 64 bit capacity and if that is not supported by
+    /// target, gets 32 bit capacity instead.
     /// </summary>
     /// <param name="lun">The LUN to query.</param>
     /// <returns>The LUN's capacity.</returns>
     public LunCapacity GetCapacity(long lun)
     {
-        var cmd = new ScsiReadCapacityCommand((ulong)lun);
+        if (!_no16support)
+        {
+            try
+            {
+                return ReadCapacity16(lun);
+            }
+            catch
+            {
+            }
 
-        var resp = Send<ScsiReadCapacityResponse>(cmd, default, ScsiReadCapacityCommand.ResponseDataLength);
+            _no16support = true;
+        }
+
+        return ReadCapacity10(lun);
+    }
+
+    /// <summary>
+    /// Gets the 32 bit capacity of a particular LUN.
+    /// </summary>
+    /// <param name="lun">The LUN to query.</param>
+    /// <returns>The LUN's capacity.</returns>
+    public LunCapacity ReadCapacity10(long lun)
+    {
+        var cmd = new ScsiReadCapacity10Command((ulong)lun);
+
+        var resp = Send<ScsiReadCapacity10Response>(cmd, default, ScsiReadCapacity10Command.ResponseDataLength);
 
         if (resp.Truncated)
         {
             throw new InvalidProtocolException("Truncated response");
         }
 
-        return new LunCapacity(resp.NumLogicalBlocks, (int)resp.LogicalBlockSize);
+        // READ CAPACITY returns the address of the LAST logical block (zero-indexed)
+        // So the actual count is last_block_address + 1
+        return new LunCapacity(resp.NumLogicalBlocks + 1L, (int)resp.LogicalBlockSize);
+    }
+
+    /// <summary>
+    /// Gets the 64 bit capacity of a particular LUN.
+    /// </summary>
+    /// <param name="lun">The LUN to query.</param>
+    /// <returns>The LUN's capacity.</returns>
+    public LunCapacity ReadCapacity16(long lun)
+    {
+        var cmd = new ScsiReadCapacity16Command((ulong)lun);
+
+        var resp = Send<ScsiReadCapacity16Response>(cmd, default, ScsiReadCapacity16Command.ResponseDataLength);
+
+        if (resp.Truncated)
+        {
+            throw new InvalidProtocolException("Truncated response");
+        }
+
+        _no16support = false;
+
+        // READ CAPACITY returns the address of the LAST logical block (zero-indexed)
+        // So the actual count is last_block_address + 1
+        return new LunCapacity(resp.NumLogicalBlocks + 1L, (int)resp.LogicalBlockSize);
     }
 
     /// <summary>
@@ -223,10 +275,18 @@ public sealed class Session : IDisposable
     /// <param name="blockCount">The number of blocks to read.</param>
     /// <param name="buffer">The buffer to fill.</param>
     /// <returns>The number of bytes read.</returns>
-    public int Read(long lun, long startBlock, short blockCount, Span<byte> buffer)
+    public int Read(long lun, long startBlock, int blockCount, Span<byte> buffer)
     {
-        var cmd = new ScsiReadCommand((ulong)lun, (uint)startBlock, (ushort)blockCount);
-        return Send(cmd, default, buffer);
+        if (startBlock + blockCount > uint.MaxValue || blockCount > ushort.MaxValue)
+        {
+            var cmd = checked(new ScsiRead16Command((ulong)lun, startBlock, blockCount));
+            return Send(cmd, default, buffer);
+        }
+        else
+        {
+            var cmd = checked(new ScsiRead10Command((ulong)lun, (uint)startBlock, (ushort)blockCount));
+            return Send(cmd, default, buffer);
+        }
     }
 
     /// <summary>
@@ -238,10 +298,18 @@ public sealed class Session : IDisposable
     /// <param name="buffer">The buffer to fill.</param>
     /// <param name="cancellationToken"></param>
     /// <returns>The number of bytes read.</returns>
-    public ValueTask<int> ReadAsync(long lun, long startBlock, short blockCount, Memory<byte> buffer, CancellationToken cancellationToken)
+    public ValueTask<int> ReadAsync(long lun, long startBlock, int blockCount, Memory<byte> buffer, CancellationToken cancellationToken)
     {
-        var cmd = new ScsiReadCommand((ulong)lun, (uint)startBlock, (ushort)blockCount);
-        return SendAsync(cmd, default, buffer, cancellationToken);
+        if (startBlock + blockCount > uint.MaxValue || blockCount > ushort.MaxValue)
+        {
+            var cmd = checked(new ScsiRead16Command((ulong)lun, startBlock, blockCount));
+            return SendAsync(cmd, default, buffer, cancellationToken);
+        }
+        else
+        {
+            var cmd = checked(new ScsiRead10Command((ulong)lun, (uint)startBlock, (ushort)blockCount));
+            return SendAsync(cmd, default, buffer, cancellationToken);
+        }
     }
 
     /// <summary>
@@ -252,10 +320,18 @@ public sealed class Session : IDisposable
     /// <param name="blockCount">The number of blocks to write.</param>
     /// <param name="blockSize">The size of each block (must match the actual LUN geometry).</param>
     /// <param name="buffer">The data to write.</param>
-    public void Write(long lun, long startBlock, short blockCount, int blockSize, ReadOnlySpan<byte> buffer)
+    public int Write(long lun, long startBlock, int blockCount, int blockSize, ReadOnlySpan<byte> buffer)
     {
-        var cmd = new ScsiWriteCommand((ulong)lun, (uint)startBlock, (ushort)blockCount);
-        Send(cmd, buffer.Slice(0, blockCount * blockSize), default);
+        if (startBlock + blockCount > uint.MaxValue || blockCount > ushort.MaxValue)
+        {
+            var cmd = checked(new ScsiWrite16Command((ulong)lun, startBlock, blockCount));
+            return Send(cmd, buffer.Slice(0, blockCount * blockSize), default);
+        }
+        else
+        {
+            var cmd = checked(new ScsiWrite10Command((ulong)lun, (uint)startBlock, (ushort)blockCount));
+            return Send(cmd, buffer.Slice(0, blockCount * blockSize), default);
+        }
     }
 
     /// <summary>
@@ -267,10 +343,18 @@ public sealed class Session : IDisposable
     /// <param name="blockSize">The size of each block (must match the actual LUN geometry).</param>
     /// <param name="buffer">The data to write.</param>
     /// <param name="cancellationToken"></param>
-    public ValueTask WriteAsync(long lun, long startBlock, short blockCount, int blockSize, ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken)
+    public ValueTask<int> WriteAsync(long lun, long startBlock, int blockCount, int blockSize, ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken)
     {
-        var cmd = new ScsiWriteCommand((ulong)lun, (uint)startBlock, (ushort)blockCount);
-        return new(SendAsync(cmd, buffer.Slice(0, blockCount * blockSize), default, cancellationToken).AsTask());
+        if (startBlock + blockCount > uint.MaxValue || blockCount > ushort.MaxValue)
+        {
+            var cmd = checked(new ScsiWrite16Command((ulong)lun, startBlock, blockCount));
+            return SendAsync(cmd, buffer.Slice(0, blockCount * blockSize), default, cancellationToken);
+        }
+        else
+        {
+            var cmd = checked(new ScsiWrite10Command((ulong)lun, (uint)startBlock, (ushort)blockCount));
+            return SendAsync(cmd, buffer.Slice(0, blockCount * blockSize), default, cancellationToken);
+        }
     }
 
     /// <summary>
@@ -361,10 +445,10 @@ public sealed class Session : IDisposable
     public string TargetName { get; internal set; }
 
     /// <summary>
-    /// Gets the name of the iSCSI initiator seen by the target for this session.
+    /// Gets or sets the name of the iSCSI initiator seen by the target for this session.
     /// </summary>
     [ProtocolKey("InitiatorName", null, KeyUsagePhase.SecurityNegotiation, KeySender.Initiator, KeyType.Declarative, UsedForDiscovery = true)]
-    public static string InitiatorName => "iqn.2008-2010-04.discutils.codeplex.com";
+    public string InitiatorName { get; set; } = "iqn.2008-2010-04.discutils.codeplex.com";
 
     /// <summary>
     /// Gets the friendly name of the iSCSI target this session is connected to.

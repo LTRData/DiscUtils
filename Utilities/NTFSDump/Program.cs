@@ -62,6 +62,9 @@ class Program : ProgramBase
 
     protected override void DoRun()
     {
+        DiscUtils.Containers.SetupHelper.SetupContainers();
+        DiscUtils.Transports.SetupHelper.SetupTransports();
+
         var volMgr = new VolumeManager();
         foreach (var path in _diskFiles.Values)
         {

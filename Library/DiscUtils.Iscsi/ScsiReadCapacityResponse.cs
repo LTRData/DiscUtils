@@ -24,7 +24,7 @@ using DiscUtils.Streams;
 
 namespace DiscUtils.Iscsi;
 
-internal class ScsiReadCapacityResponse : ScsiResponse
+internal class ScsiReadCapacity10Response : ScsiResponse
 {
     private bool _truncated;
 
@@ -48,3 +48,29 @@ internal class ScsiReadCapacityResponse : ScsiResponse
         LogicalBlockSize = EndianUtilities.ToUInt32BigEndian(buffer, offset + 4);
     }
 }
+
+internal class ScsiReadCapacity16Response : ScsiResponse
+{
+    private bool _truncated;
+
+    public uint LogicalBlockSize { get; private set; }
+
+    public override uint NeededDataLength => 12;
+
+    public long NumLogicalBlocks { get; private set; }
+
+    public override bool Truncated => _truncated;
+
+    public override void ReadFrom(byte[] buffer, int offset, int count)
+    {
+        if (count < 8)
+        {
+            _truncated = true;
+            return;
+        }
+
+        NumLogicalBlocks = EndianUtilities.ToInt64BigEndian(buffer, offset);
+        LogicalBlockSize = EndianUtilities.ToUInt32BigEndian(buffer, offset + 8);
+    }
+}
+

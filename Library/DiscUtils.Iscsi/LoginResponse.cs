@@ -37,6 +37,7 @@ internal class LoginResponse : BaseResponse
     public LoginStatusCode StatusCode;
 
     public ushort TargetSessionId;
+    public uint TargetTransferTag; // TTT from offset 24
     public byte[] TextData;
     public bool Transit;
 
@@ -60,9 +61,13 @@ internal class LoginResponse : BaseResponse
         ActiveVersion = headerData[3];
         TargetSessionId = EndianUtilities.ToUInt16BigEndian(headerData.Slice(14));
         StatusPresent = true;
-        StatusSequenceNumber = EndianUtilities.ToUInt32BigEndian(headerData.Slice(24));
-        ExpectedCommandSequenceNumber = EndianUtilities.ToUInt32BigEndian(headerData.Slice(28));
-        MaxCommandSequenceNumber = EndianUtilities.ToUInt32BigEndian(headerData.Slice(32));
+
+        // RFC 3720: offset 24 = Target Transfer Tag (TTT), offset 28 = StatSN
+        TargetTransferTag = EndianUtilities.ToUInt32BigEndian(headerData.Slice(24));
+        StatusSequenceNumber = EndianUtilities.ToUInt32BigEndian(headerData.Slice(28));
+
+        ExpectedCommandSequenceNumber = EndianUtilities.ToUInt32BigEndian(headerData.Slice(32));
+        MaxCommandSequenceNumber = EndianUtilities.ToUInt32BigEndian(headerData.Slice(36));
         StatusClass = headerData[36];
         StatusCode = (LoginStatusCode)EndianUtilities.ToUInt16BigEndian(headerData.Slice(36));
 

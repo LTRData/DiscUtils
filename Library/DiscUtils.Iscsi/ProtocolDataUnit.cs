@@ -20,9 +20,13 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-using System;
-using System.IO;
 using DiscUtils.Streams;
+using System;
+using System.Buffers;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace DiscUtils.Iscsi;
 
@@ -84,5 +88,66 @@ internal class ProtocolDataUnit
         Span<byte> data = stackalloc byte[4];
         stream.ReadExactly(data);
         return EndianUtilities.ToUInt32BigEndian(data);
+    }
+
+    public static async ValueTask<ProtocolDataUnit> ReadFromAsync(Stream stream, bool headerDigestEnabled, bool dataDigestEnabled, CancellationToken cancellationToken)
+    {
+        var numRead = 0;
+
+        var headerData = await stream.ReadExactlyAsync(48, cancellationToken).ConfigureAwait(false);
+        numRead += 48;
+
+        byte[] contentData = null;
+
+        if (headerDigestEnabled)
+        {
+            var digest = ReadDigest(stream);
+            numRead += 4;
+        }
+
+        var bhs = new BasicHeaderSegment();
+        bhs.ReadFrom(headerData);
+
+        if (bhs.DataSegmentLength > 0)
+        {
+            contentData = await stream.ReadExactlyAsync(bhs.DataSegmentLength, cancellationToken).ConfigureAwait(false);
+            numRead += bhs.DataSegmentLength;
+
+            if (dataDigestEnabled)
+            {
+                var digest = await ReadDigestAsync(stream, cancellationToken).ConfigureAwait(false);
+                numRead += 4;
+            }
+        }
+
+        var rem = 4 - numRead % 4;
+        if (rem != 4)
+        {
+            var buffer = ArrayPool<byte>.Shared.Rent(rem);
+            try
+            {
+                await stream.ReadExactlyAsync(buffer.AsMemory(0, rem), cancellationToken).ConfigureAwait(false);
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(buffer);
+            }
+        }
+
+        return new ProtocolDataUnit(headerData, contentData);
+    }
+
+    private static async ValueTask<uint> ReadDigestAsync(Stream stream, CancellationToken cancellationToken)
+    {
+        var data = ArrayPool<byte>.Shared.Rent(4);
+        try
+        {
+            await stream.ReadExactlyAsync(data.AsMemory(0, 4), cancellationToken).ConfigureAwait(false);
+            return EndianUtilities.ToUInt32BigEndian(data);
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(data);
+        }
     }
 }

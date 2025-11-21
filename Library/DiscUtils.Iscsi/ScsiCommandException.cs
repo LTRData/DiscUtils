@@ -55,6 +55,18 @@ public class ScsiCommandException : IscsiException
     /// <summary>
     /// Initializes a new instance of the ScsiCommandException class.
     /// </summary>
+    /// <param name="status">The SCSI status code.</param>
+    /// <param name="senseData">The SCSI sense data.</param>
+    public ScsiCommandException(ScsiStatus status, byte[] senseData)
+        : base(ScsiSenseParser.TryParse(senseData, out var sense) ? sense.ToString() : "Target indicated SCSI failure")
+    {
+        Status = status;
+        _senseData = senseData;
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the ScsiCommandException class.
+    /// </summary>
     /// <param name="message">The reason for the exception.</param>
     public ScsiCommandException(string message)
         : base(message)
@@ -152,8 +164,18 @@ public class ScsiCommandException : IscsiException
     /// Gets the SCSI sense data (if any) associated with this exception.
     /// </summary>
     /// <returns>The SCSI sense data, or <c>null</c>.</returns>
-    public byte[] GetSenseData()
+    public byte[] GetRawSenseData()
     {
         return _senseData;
+    }
+
+    public bool TryGetSenseData(out ScsiSenseData senseData)
+    {
+        return ScsiSenseParser.TryParse(_senseData, out senseData);
+    }
+
+    public ScsiSenseData GetSenseData()
+    {
+        return ScsiSenseParser.Parse(_senseData);
     }
 }

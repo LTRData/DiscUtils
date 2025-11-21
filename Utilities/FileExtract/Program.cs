@@ -40,6 +40,7 @@ class Program : ProgramBase
     {
         DiscUtils.Containers.SetupHelper.SetupContainers();
         DiscUtils.FileSystems.SetupHelper.SetupFileSystems();
+        DiscUtils.Transports.SetupHelper.SetupTransports();
 
         var program = new Program();
         program.Run(args);
@@ -92,7 +93,7 @@ class Program : ProgramBase
         else
         {
             volInfo = volMgr.GetLogicalVolumes().FirstOrDefault()
-                 ?? throw new DriveNotFoundException("Logical volume not found");
+                ?? throw new DriveNotFoundException("Logical volume not found");
         }
 
         var fsInfo = FileSystemManager.DetectFileSystems(volInfo).FirstOrDefault()

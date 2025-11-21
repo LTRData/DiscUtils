@@ -29,6 +29,7 @@ using DiscUtils.Common;
 using DiscUtils.LogicalDiskManager;
 using DiscUtils.Partitions;
 using DiscUtils.Streams;
+using LTRData.Extensions.Formatting;
 
 namespace DiskDump;
 
@@ -72,6 +73,7 @@ class Program : ProgramBase
     protected override void DoRun()
     {
         DiscUtils.Containers.SetupHelper.SetupContainers();
+        DiscUtils.Transports.SetupHelper.SetupTransports();
         DiscUtils.FileSystems.SetupHelper.SetupFileSystems();
 
         Console.OutputEncoding = Encoding.UTF8;
@@ -92,7 +94,7 @@ class Program : ProgramBase
             Console.WriteLine();
             Console.WriteLine($"DISK: {path}");
             Console.WriteLine();
-            Console.WriteLine($"       Capacity: {disk.Capacity:X16}");
+            Console.WriteLine($"       Capacity: {disk.Capacity:X16} ({SizeFormatting.FormatBytes(disk.Capacity)})");
             Console.WriteLine($"       Geometry: {disk.Geometry}");
             Console.WriteLine($"  BIOS Geometry: {disk.BiosGeometry}");
             Console.WriteLine($"      Signature: {disk.Signature:X8}");
@@ -140,11 +142,11 @@ class Program : ProgramBase
             Console.WriteLine();
             if (disk.IsPartitioned)
             {
-                Console.WriteLine("    T   Start (bytes)     End (bytes)       Type");
-                Console.WriteLine("    ==  ================  ================  ==================");
+                Console.WriteLine("    T   Start (bytes)     End (bytes)       Size         Type");
+                Console.WriteLine("    ==  ================  ================  ===========  ==================");
                 foreach (var partition in disk.Partitions.Partitions)
                 {
-                    Console.WriteLine("    {0:X2}  {1:X16}  {2:X16}  {3}", partition.BiosType, partition.FirstSector * disk.SectorSize, (partition.LastSector + 1) * disk.SectorSize, partition.TypeAsString);
+                    Console.WriteLine("    {0:X2}  {1:X16}  {2:X16}  {3,-11}  {4}", partition.BiosType, partition.FirstSector * disk.SectorSize, (partition.LastSector + 1) * disk.SectorSize, SizeFormatting.FormatBytes(partition.SectorCount * disk.SectorSize), partition.TypeAsString);
 
                     if (partition is BiosPartitionInfo bpi)
                     {
@@ -180,7 +182,7 @@ class Program : ProgramBase
                 Console.WriteLine($"  {vol.Identity}");
                 Console.WriteLine($"    Type: {vol.VolumeType}");
                 Console.WriteLine($"    BIOS Type: {vol.BiosType:X2} [{BiosPartitionTypes.ToString(vol.BiosType)}]");
-                Console.WriteLine($"    Size: {vol.Length}");
+                Console.WriteLine($"    Size: {vol.Length} ({SizeFormatting.FormatBytes(vol.Length)})");
                 Console.WriteLine($"    Disk Id: {vol.DiskIdentity}");
                 Console.WriteLine($"    Disk Sig: {vol.DiskSignature:X8}");
                 Console.WriteLine($"    Partition: {vol.PartitionIdentity}");
@@ -205,7 +207,7 @@ class Program : ProgramBase
                 Console.WriteLine($"  {vol.Identity}");
                 Console.WriteLine($"    BIOS Type: {vol.BiosType:X2} [{BiosPartitionTypes.ToString(vol.BiosType)}] {vol.TypeAsString}");
                 Console.WriteLine($"    Status: {vol.Status}");
-                Console.WriteLine($"    Size: {vol.Length}");
+                Console.WriteLine($"    Size: {vol.Length} ({SizeFormatting.FormatBytes(vol.Length)})");
                 Console.WriteLine($"    Disk Geometry: {vol.PhysicalGeometry}");
                 Console.WriteLine($"    BIOS Geometry: {vol.BiosGeometry}");
                 Console.WriteLine($"    First Sector: {vol.PhysicalStartSector}");

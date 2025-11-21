@@ -34,7 +34,6 @@ namespace DiscUtils.Iscsi;
 public class Disk : VirtualDisk
 {
     private readonly FileAccess _access;
-    private LunCapacity _capacity;
     private readonly long _lun;
     private readonly Session _session;
 
@@ -54,9 +53,9 @@ public class Disk : VirtualDisk
     {
         get
         {
-            _capacity ??= _session.GetCapacity(_lun);
+            _stream ??= new DiskStream(_session, _lun, _access);
 
-            return _capacity.BlockSize;
+            return _stream.BlockSize;
         }
     }
 
@@ -72,9 +71,9 @@ public class Disk : VirtualDisk
     {
         get
         {
-            _capacity ??= _session.GetCapacity(_lun);
+            _stream ??= new DiskStream(_session, _lun, _access);
 
-            return _capacity.BlockSize * _capacity.LogicalBlockCount;
+            return _stream.Length;
         }
     }
 

@@ -25,11 +25,11 @@ using DiscUtils.Streams;
 
 namespace DiscUtils.Iscsi;
 
-internal class ScsiWriteCommand : ScsiCommand
+internal class ScsiWrite10Command : ScsiCommand
 {
     private readonly uint _logicalBlockAddress;
 
-    public ScsiWriteCommand(ulong targetLun, uint logicalBlockAddress, ushort numBlocks)
+    public ScsiWrite10Command(ulong targetLun, uint logicalBlockAddress, ushort numBlocks)
         : base(targetLun)
     {
         _logicalBlockAddress = logicalBlockAddress;
@@ -49,11 +49,44 @@ internal class ScsiWriteCommand : ScsiCommand
 
     public override void WriteTo(Span<byte> buffer)
     {
-        buffer[0] = 0x2A;
+        buffer[0] = (byte)ScsiOpCode.Write10;
         buffer[1] = 0;
         EndianUtilities.WriteBytesBigEndian(_logicalBlockAddress, buffer.Slice(2));
         buffer[6] = 0;
         EndianUtilities.WriteBytesBigEndian(NumBlocks, buffer.Slice(7));
         buffer[9] = 0;
+    }
+}
+
+internal class ScsiWrite16Command : ScsiCommand
+{
+    private readonly long _logicalBlockAddress;
+
+    public ScsiWrite16Command(ulong targetLun, long logicalBlockAddress, int numBlocks)
+        : base(targetLun)
+    {
+        _logicalBlockAddress = logicalBlockAddress;
+        NumBlocks = numBlocks;
+    }
+
+    public int NumBlocks { get; }
+
+    public override int Size => 16;
+
+    public override TaskAttributes TaskAttributes => TaskAttributes.Simple;
+
+    public override int ReadFrom(ReadOnlySpan<byte> buffer)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void WriteTo(Span<byte> buffer)
+    {
+        buffer[0] = (byte)ScsiOpCode.Write16;
+        buffer[1] = 0;
+        EndianUtilities.WriteBytesBigEndian(_logicalBlockAddress, buffer.Slice(2));
+        EndianUtilities.WriteBytesBigEndian(NumBlocks, buffer.Slice(10));
+        buffer[14] = 0;
+        buffer[15] = 0;
     }
 }

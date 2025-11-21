@@ -77,6 +77,9 @@ class Program : ProgramBase
             return;
         }
 
+        DiscUtils.Containers.SetupHelper.SetupContainers();
+        DiscUtils.Transports.SetupHelper.SetupTransports();
+
         using var sourceDisk = VirtualDisk.OpenDisk(_sourceFile.Value, FileAccess.Read, UserName, Password, useAsync: false);
 
         if (sourceDisk is null)

@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Library\DiscUtils.Transports\DiscUtils.Transports.csproj" />
     <ProjectReference Include="..\DiscUtils.Common\DiscUtils.Common.csproj" />
     <ProjectReference Include="..\..\Library\DiscUtils.Core\DiscUtils.Core.csproj" />
     <ProjectReference Include="..\..\Library\DiscUtils.FileSystems\DiscUtils.FileSystems.csproj" />

@@ -64,6 +64,9 @@ class Program : ProgramBase
 
     protected override void DoRun()
     {
+        DiscUtils.Containers.SetupHelper.SetupContainers();
+        DiscUtils.Transports.SetupHelper.SetupTransports();
+
         using var inDisk = VirtualDisk.OpenDisk(_inFile.Value, FileAccess.Read, UserName, Password, useAsync: false);
 
         if (inDisk is null)

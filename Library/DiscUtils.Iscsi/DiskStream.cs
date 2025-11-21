@@ -61,6 +61,8 @@ internal class DiskStream : SparseStream
     public override IEnumerable<StreamExtent> Extents
         => SingleValueEnumerable.Get(new StreamExtent(0, _length));
 
+    public int BlockSize => _blockSize;
+
     public override long Length => _length;
 
     public override long Position
@@ -93,7 +95,7 @@ internal class DiskStream : SparseStream
         var tempBuffer = ArrayPool<byte>.Shared.Rent(checked((int)((lastBlock - firstBlock) * _blockSize)));
         try
         {
-            var numRead = _session.Read(_lun, firstBlock, (short)(lastBlock - firstBlock), tempBuffer);
+            var numRead = _session.Read(_lun, firstBlock, checked((int)(lastBlock - firstBlock)), tempBuffer);
 
             var numCopied = Math.Min(maxToRead, numRead);
             tempBuffer.AsSpan((int)(_position - firstBlock * _blockSize), numCopied).CopyTo(buffer);
@@ -123,7 +125,7 @@ internal class DiskStream : SparseStream
         var tempBuffer = ArrayPool<byte>.Shared.Rent(checked((int)((lastBlock - firstBlock) * _blockSize)));
         try
         {
-            var numRead = await _session.ReadAsync(_lun, firstBlock, (short)(lastBlock - firstBlock), tempBuffer, cancellationToken).ConfigureAwait(false);
+            var numRead = await _session.ReadAsync(_lun, firstBlock, checked((int)(lastBlock - firstBlock)), tempBuffer, cancellationToken).ConfigureAwait(false);
 
             var numCopied = Math.Min(maxToRead, numRead);
             tempBuffer.AsSpan((int)(_position - firstBlock * _blockSize), numCopied).CopyTo(buffer.Span);
@@ -217,7 +219,7 @@ internal class DiskStream : SparseStream
             else
             {
                 // Processing at least one whole block, just write (after making sure to trim any partial sectors from the end)...
-                var numBlocks = (short)(toWrite / _blockSize);
+                var numBlocks = toWrite / _blockSize;
                 toWrite = numBlocks * _blockSize;
 
                 _session.Write(_lun, block, numBlocks, _blockSize, buffer.Slice(numWritten));

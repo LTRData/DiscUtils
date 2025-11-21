@@ -46,7 +46,7 @@ internal class ScsiReportLunsCommand : ScsiCommand
 
     public override void WriteTo(Span<byte> buffer)
     {
-        buffer[0] = 0xA0;
+        buffer[0] = (byte)ScsiOpCode.ReportLuns;
         buffer[1] = 0; // Reserved
         buffer[2] = 0; // Report Type = 0
         buffer[3] = 0; // Reserved

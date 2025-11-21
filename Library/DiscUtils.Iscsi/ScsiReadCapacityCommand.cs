@@ -20,16 +20,17 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
+using DiscUtils.Streams;
 using System;
 
 namespace DiscUtils.Iscsi;
 
-internal class ScsiReadCapacityCommand : ScsiCommand
+internal class ScsiReadCapacity10Command : ScsiCommand
 {
-    public const int ResponseDataLength = 32;
+    public const int ResponseDataLength = 8;
 
-    public ScsiReadCapacityCommand(ulong targetLun)
-        : base(targetLun) {}
+    public ScsiReadCapacity10Command(ulong targetLun)
+        : base(targetLun) { }
 
     public override int Size => 10;
 
@@ -43,6 +44,32 @@ internal class ScsiReadCapacityCommand : ScsiCommand
     public override void WriteTo(Span<byte> buffer)
     {
         buffer.Slice(0, 10).Clear();
-        buffer[0] = 0x25; // OpCode
+        buffer[0] = (byte)ScsiOpCode.ReadCapacity10; // OpCode
     }
 }
+
+internal class ScsiReadCapacity16Command : ScsiCommand
+{
+    public const int ResponseDataLength = 32;
+
+    public ScsiReadCapacity16Command(ulong targetLun)
+        : base(targetLun) { }
+
+    public override int Size => 16;
+
+    public override TaskAttributes TaskAttributes => TaskAttributes.Simple;
+
+    public override int ReadFrom(ReadOnlySpan<byte> buffer)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void WriteTo(Span<byte> buffer)
+    {
+        buffer.Slice(0, 16).Clear();
+        buffer[0] = (byte)ScsiOpCode.ServiceActionIn; // OpCode
+        buffer[1] = (byte)ScsiOpServiceAction.ReadCapacity16; // OpCode
+        EndianUtilities.WriteBytesBigEndian(32, buffer.Slice(10));
+    }
+}
+

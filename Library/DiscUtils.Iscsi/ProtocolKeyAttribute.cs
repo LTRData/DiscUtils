@@ -22,6 +22,7 @@
 
 using System;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
 
 namespace DiscUtils.Iscsi;
@@ -111,20 +112,45 @@ internal sealed class ProtocolKeyAttribute : Attribute
 
         if (valueType.IsEnum)
         {
+            // Handle comma-separated values (e.g., "CRC32C,None")
+            var valuesToTry = value.Split(',');
+
             var infos = valueType.GetFields();
-            foreach (var info in infos)
+
+            // Special case for Digest: prefer "None" if available to avoid CRC32C complexity
+            if (valueType.Name == "Digest" && valuesToTry.Any(v => v.Trim().Equals("None", StringComparison.OrdinalIgnoreCase)))
             {
-                if (info.IsLiteral)
+                foreach (var info in infos)
                 {
-                    var attr = info.GetCustomAttribute<ProtocolKeyValueAttribute>();
-                    if (attr != null && attr.Name == value)
+                    if (info.IsLiteral)
                     {
-                        return info.GetValue(null);
+                        var attr = info.GetCustomAttribute<ProtocolKeyValueAttribute>();
+                        if (attr != null && attr.Name.Equals("None", StringComparison.OrdinalIgnoreCase))
+                        {
+                            return info.GetValue(null);
+                        }
                     }
                 }
             }
 
-            throw new NotImplementedException();
+            // Try each value in the comma-separated list
+            foreach (var valueToTry in valuesToTry)
+            {
+                var trimmedValue = valueToTry.Trim();
+                foreach (var info in infos)
+                {
+                    if (info.IsLiteral)
+                    {
+                        var attr = info.GetCustomAttribute<ProtocolKeyValueAttribute>();
+                        if (attr != null && attr.Name == trimmedValue)
+                        {
+                            return info.GetValue(null);
+                        }
+                    }
+                }
+            }
+
+            throw new NotImplementedException($"Could not find enum value '{value}' in type {valueType.Name}");
         }
 
         throw new NotSupportedException($"Unknown property type: {valueType}");

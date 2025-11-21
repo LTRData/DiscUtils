@@ -44,7 +44,7 @@ internal class BasicHeaderSegment : IByteArraySerializable
         OpCode = (OpCode)(buffer[0] & 0x3F);
         FinalPdu = (buffer[1] & 0x80) != 0;
         TotalAhsLength = buffer[4];
-        DataSegmentLength = EndianUtilities.ToInt32BigEndian(buffer.Slice(4)) & 0x00FFFFFF;
+        DataSegmentLength = (buffer[5] << 16) | (buffer[6] << 8) | buffer[7];
         InitiatorTaskTag = EndianUtilities.ToUInt32BigEndian(buffer.Slice(16));
         return 48;
     }

@@ -24,6 +24,7 @@ using System;
 using System.IO;
 using DiscUtils;
 using DiscUtils.Common;
+using LTRData.Extensions.Formatting;
 
 namespace VolInfo;
 
@@ -51,6 +52,9 @@ class Program : ProgramBase
 
     protected override void DoRun()
     {
+        DiscUtils.Containers.SetupHelper.SetupContainers();
+        DiscUtils.Transports.SetupHelper.SetupTransports();
+
         var volMgr = new VolumeManager();
         foreach (var path in _inFiles.Values)
         {
@@ -73,7 +77,7 @@ class Program : ProgramBase
             Console.WriteLine($"       Disk Id: {physVol.DiskIdentity}");
             Console.WriteLine($"      Disk Sig: {physVol.DiskSignature:X8}");
             Console.WriteLine($"       Part Id: {physVol.PartitionIdentity}");
-            Console.WriteLine($"        Length: {physVol.Length} bytes");
+            Console.WriteLine($"        Length: {physVol.Length} bytes ({SizeFormatting.FormatBytes(physVol.Length)})");
             Console.WriteLine($" Disk Geometry: {physVol.PhysicalGeometry}");
             Console.WriteLine($"  First Sector: {physVol.PhysicalStartSector}");
             Console.WriteLine();
@@ -83,7 +87,7 @@ class Program : ProgramBase
         foreach (var logVol in volMgr.GetLogicalVolumes())
         {
             Console.WriteLine($"      Identity: {logVol.Identity}");
-            Console.WriteLine($"        Length: {logVol.Length} bytes");
+            Console.WriteLine($"        Length: {logVol.Length} bytes ({SizeFormatting.FormatBytes(logVol.Length)})");
             Console.WriteLine($" Disk Geometry: {logVol.PhysicalGeometry}");
             Console.WriteLine($"  First Sector: {logVol.PhysicalStartSector}");
             Console.WriteLine();
