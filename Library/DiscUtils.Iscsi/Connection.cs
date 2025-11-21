@@ -55,6 +55,18 @@ internal sealed class Connection : IDisposable
         {
             NoDelay = true
         };
+
+        var socket = client.Client;
+
+        socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+
+#if NET5_0_OR_GREATER
+        // Linux-only options (no-op on Windows before .NET 7)
+        socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.TcpKeepAliveTime, 15); // seconds
+        socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.TcpKeepAliveInterval, 5);
+        socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.TcpKeepAliveRetryCount, 3);
+#endif
+
         _stream = client.GetStream();
 
         Id = session.NextConnectionId();
