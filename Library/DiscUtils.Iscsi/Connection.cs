@@ -20,18 +20,19 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
+using DiscUtils.Streams;
+using DiscUtils.Streams.Compatibility;
+using LTRData.Extensions.Buffers;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using DiscUtils.Streams;
-using DiscUtils.Streams.Compatibility;
-using LTRData.Extensions.Buffers;
 
 namespace DiscUtils.Iscsi;
 
@@ -74,8 +75,8 @@ internal sealed class Connection : IDisposable
         // Default negotiated values
         HeaderDigest = Digest.None;
         DataDigest = Digest.None;
-        MaxInitiatorTransmitDataSegmentLength = 131072;
-        MaxTargetReceiveDataSegmentLength = 8192;
+        MaxInitiatorTransmitDataSegmentLength = 8 << 20;
+        MaxTargetReceiveDataSegmentLength = 8 << 20;
 
         _negotiatedParameters = [];
         NegotiateSecurity();
@@ -85,8 +86,7 @@ internal sealed class Connection : IDisposable
     internal LoginStages CurrentLoginStage { get; private set; } = LoginStages.SecurityNegotiation;
 
     internal uint ExpectedStatusSequenceNumber { get; private set; } = 1;
-    private uint _expectedDataSN = 0; // RFC 3720: DataSN for Data-IN PDUs starts at 0 for each command
-
+    
     internal ushort Id { get; }
 
     internal LoginStages NextLoginStage => CurrentLoginStage switch
@@ -155,17 +155,14 @@ internal sealed class Connection : IDisposable
                 //Session.NextTaskTag();
 
                 // RFC 3720: DataSN starts at 0 for each new command
-                _expectedDataSN = 0;
+                var expectedDataSN = 0u;
 
                 var req = new CommandRequest(this, cmd.TargetLun);
 
                 var outBufferCount = outBuffer.Length;
                 var inBufferMax = inBuffer.Length;
 
-                // Note: RFC 3720 says we should respect InitialR2T, but many targets (including targetcli)
-                // are configured with InitialR2T=Yes yet expect/accept immediate data anyway.
-                // Original working code ignored InitialR2T and just checked ImmediateData.
-                var toSend = Math.Min(Math.Min(outBufferCount, Session.ImmediateData ? Session.FirstBurstLength : 0), MaxTargetReceiveDataSegmentLength);
+                var toSend = Math.Min(outBufferCount, Session.ImmediateData ? Session.FirstBurstLength : 0);
 
                 // F bit (isFinalData) = true means "no more unsolicited Data-Out PDUs will follow".
                 // Even if we're sending < outBufferCount, we set F=1 because any remaining data
@@ -174,9 +171,16 @@ internal sealed class Connection : IDisposable
                 // Simpler logic: Use buffer sizes directly
                 var expectedTransferLength = outBufferCount != 0 ? (uint)outBufferCount : (uint)inBufferMax;
 
-                var packet = req.GetBytes(cmd, outBuffer.Slice(0, toSend), true, inBufferMax != 0, outBufferCount != 0, expectedTransferLength);
+                var packet = req.GetBytes(cmd,
+                                          immediateData: outBuffer.Slice(0, toSend),
+                                          isFinalData: true,
+                                          willRead: inBufferMax != 0,
+                                          willWrite: outBufferCount != 0,
+                                          expected: expectedTransferLength);
+
                 _stream.Write(packet, 0, packet.Length);
                 _stream.Flush();
+
                 var numSent = toSend;
                 while (numSent < outBufferCount)
                 {
@@ -190,11 +194,17 @@ internal sealed class Connection : IDisposable
                     var pktsSent = 0;
                     while (numApproved > 0)
                     {
-                        toSend = Math.Min(Math.Min(outBufferCount - numSent, numApproved), MaxTargetReceiveDataSegmentLength);
+                        toSend = Math.Min(Math.Min(outBufferCount - numSent, numApproved), MaxTargetReceiveDataSegmentLength ?? MaxInitiatorTransmitDataSegmentLength);
 
                         var pkt = new DataOutPacket(this, cmd.TargetLun);
                         var currentDataSN = pktsSent++;
-                        packet = pkt.GetBytes(outBuffer.Slice(numSent, toSend), toSend == numApproved, currentDataSN, (uint)numSent, targetTransferTag);
+                        
+                        packet = pkt.GetBytes(data: outBuffer.Slice(numSent, toSend),
+                                              isFinalData: toSend == numApproved,
+                                              dataSeqNumber: currentDataSN,
+                                              bufferOffset: (uint)numSent,
+                                              targetTransferTag: targetTransferTag);
+
                         _stream.Write(packet, 0, packet.Length);
                         _stream.Flush();
 
@@ -238,11 +248,10 @@ internal sealed class Connection : IDisposable
                         var resp = ParseResponse<DataInPacket>(pdu);
 
                         // RFC 3720 Section 10.7.4: Validate DataSN sequence
-                        if (resp.DataSequenceNumber != _expectedDataSN)
+                        if (resp.DataSequenceNumber != expectedDataSN)
                         {
-                            throw new InvalidProtocolException($"DataSN mismatch: received {resp.DataSequenceNumber}, expected {_expectedDataSN}");
+                            throw new InvalidProtocolException($"DataSN mismatch: received {resp.DataSequenceNumber}, expected {expectedDataSN}");
                         }
-                        _expectedDataSN++;
 
                         if (resp.StatusPresent && resp.Status != ScsiStatus.Good)
                         {
@@ -256,10 +265,12 @@ internal sealed class Connection : IDisposable
                         }
 
                         isFinal = resp.Header.FinalPdu;
+
+                        expectedDataSN++;
                     }
                 }
 
-                return numRead;
+                return Math.Max(numRead, numSent);
             }
             finally
             {
@@ -288,17 +299,14 @@ internal sealed class Connection : IDisposable
             try
             {
                 // RFC 3720: DataSN starts at 0 for each new command
-                _expectedDataSN = 0;
+                var expectedDataSN = 0u;
 
                 var req = new CommandRequest(this, cmd.TargetLun);
 
                 var outBufferCount = outBuffer.Length;
                 var inBufferMax = inBuffer.Length;
 
-                // Note: RFC 3720 says we should respect InitialR2T, but many targets (including targetcli)
-                // are configured with InitialR2T=Yes yet expect/accept immediate data anyway.
-                // Original working code ignored InitialR2T and just checked ImmediateData.
-                var toSend = Math.Min(Math.Min(outBufferCount, Session.ImmediateData ? Session.FirstBurstLength : 0), MaxTargetReceiveDataSegmentLength);
+                var toSend = Math.Min(outBufferCount, Session.ImmediateData ? Session.FirstBurstLength : 0);
 
                 // F bit (isFinalData) = true means "no more unsolicited Data-Out PDUs will follow".
                 // Even if we're sending < outBufferCount, we set F=1 because any remaining data
@@ -322,7 +330,7 @@ internal sealed class Connection : IDisposable
 
                     while (numApproved > 0)
                     {
-                        toSend = Math.Min(Math.Min(outBufferCount - numSent, numApproved), MaxTargetReceiveDataSegmentLength);
+                        toSend = Math.Min(Math.Min(outBufferCount - numSent, numApproved), MaxTargetReceiveDataSegmentLength ?? MaxInitiatorTransmitDataSegmentLength);
 
                         var pkt = new DataOutPacket(this, cmd.TargetLun);
                         var currentDataSN = pktsSent++;
@@ -370,11 +378,11 @@ internal sealed class Connection : IDisposable
                         var resp = ParseResponse<DataInPacket>(pdu);
 
                         // RFC 3720 Section 10.7.4: Validate DataSN sequence
-                        if (resp.DataSequenceNumber != _expectedDataSN)
+                        if (resp.DataSequenceNumber != expectedDataSN)
                         {
-                            throw new InvalidProtocolException($"DataSN mismatch: received {resp.DataSequenceNumber}, expected {_expectedDataSN}");
+                            throw new InvalidProtocolException($"DataSN mismatch: received {resp.DataSequenceNumber}, expected {expectedDataSN}");
                         }
-                        _expectedDataSN++;
+                        expectedDataSN++;
 
                         if (resp.StatusPresent && resp.Status != ScsiStatus.Good)
                         {
@@ -391,7 +399,7 @@ internal sealed class Connection : IDisposable
                     }
                 }
 
-                return numRead;
+                return Math.Max(numRead, numSent);
             }
             finally
             {
@@ -944,11 +952,11 @@ internal sealed class Connection : IDisposable
     [ProtocolKey("DataDigest", "None", KeyUsagePhase.OperationalNegotiation, KeySender.Both, KeyType.Negotiated, UsedForDiscovery = true)]
     public Digest DataDigest { get; set; }
 
-    [ProtocolKey("MaxRecvDataSegmentLength", "8192", KeyUsagePhase.OperationalNegotiation, KeySender.Initiator, KeyType.Declarative)]
-    internal int MaxInitiatorTransmitDataSegmentLength { get; set; }
+    [ProtocolKey("MaxRecvDataSegmentLength", "", KeyUsagePhase.OperationalNegotiation, KeySender.Both, KeyType.Declarative)]
+    public int MaxInitiatorTransmitDataSegmentLength { get; set; }
 
-    [ProtocolKey("MaxRecvDataSegmentLength", "8192", KeyUsagePhase.OperationalNegotiation, KeySender.Target, KeyType.Declarative)]
-    internal int MaxTargetReceiveDataSegmentLength { get; set; }
+    [ProtocolKey("TargetRecvDataSegmentLength", "", KeyUsagePhase.OperationalNegotiation, KeySender.Both, KeyType.Declarative)]
+    public int? MaxTargetReceiveDataSegmentLength { get; set; }
 
     #endregion
 }

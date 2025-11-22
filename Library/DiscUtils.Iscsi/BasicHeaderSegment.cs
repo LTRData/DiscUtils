@@ -29,6 +29,10 @@ internal class BasicHeaderSegment : IByteArraySerializable
 {
     public int DataSegmentLength; // In bytes!
     public bool FinalPdu;
+    public bool Overflow;
+    public bool Underflow;
+    public bool HasStatus;
+    public byte Status;
     public bool Immediate;
     public uint InitiatorTaskTag;
     public OpCode OpCode;
@@ -43,6 +47,13 @@ internal class BasicHeaderSegment : IByteArraySerializable
         Immediate = (buffer[0] & 0x40) != 0;
         OpCode = (OpCode)(buffer[0] & 0x3F);
         FinalPdu = (buffer[1] & 0x80) != 0;
+        Overflow = (buffer[1] & 0x40) != 0;
+        Underflow = (buffer[1] & 0x20) != 0;
+        HasStatus = (buffer[1] & 0x10) != 0;
+        if (HasStatus)
+        {
+            Status = buffer[2];
+        }
         TotalAhsLength = buffer[4];
         DataSegmentLength = (buffer[5] << 16) | (buffer[6] << 8) | buffer[7];
         InitiatorTaskTag = EndianUtilities.ToUInt32BigEndian(buffer.Slice(16));

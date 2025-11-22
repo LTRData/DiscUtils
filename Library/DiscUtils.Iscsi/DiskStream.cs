@@ -87,57 +87,39 @@ internal class DiskStream : SparseStream
             throw new InvalidOperationException("Attempt to read from read-only stream");
         }
 
-        var maxToRead = (int)Math.Min(_length - _position, buffer.Length);
+        if (_position % BlockSize != 0
+            || buffer.Length % BlockSize != 0)
+        {
+            throw new ArgumentException("I/O not aligned to block boundaries is not supported");
+        }
+
+        var maxToRead = Math.Min((int)Math.Min(_length - _position, buffer.Length), _session.ActiveConnection.MaxInitiatorTransmitDataSegmentLength);
 
         var firstBlock = _position / _blockSize;
         var lastBlock = MathUtilities.Ceil(_position + maxToRead, _blockSize);
 
-        var tempBuffer = ArrayPool<byte>.Shared.Rent(checked((int)((lastBlock - firstBlock) * _blockSize)));
-        try
-        {
-            var numRead = _session.Read(_lun, firstBlock, checked((int)(lastBlock - firstBlock)), tempBuffer);
-
-            var numCopied = Math.Min(maxToRead, numRead);
-            tempBuffer.AsSpan((int)(_position - firstBlock * _blockSize), numCopied).CopyTo(buffer);
-
-            _position += numCopied;
-
-            return numCopied;
-        }
-        finally
-        {
-            ArrayPool<byte>.Shared.Return(tempBuffer);
-        }
+        return _session.Read(_lun, firstBlock, checked((int)(lastBlock - firstBlock)), buffer.Slice(0, maxToRead));
     }
 
-    public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
+    public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
     {
         if (!CanRead)
         {
             throw new InvalidOperationException("Attempt to read from read-only stream");
         }
 
-        var maxToRead = (int)Math.Min(_length - _position, buffer.Length);
+        if (_position % BlockSize != 0
+            || buffer.Length % BlockSize != 0)
+        {
+            throw new ArgumentException("I/O not aligned to block boundaries is not supported");
+        }
+
+        var maxToRead = Math.Min((int)Math.Min(_length - _position, buffer.Length), _session.ActiveConnection.MaxInitiatorTransmitDataSegmentLength);
 
         var firstBlock = _position / _blockSize;
         var lastBlock = MathUtilities.Ceil(_position + maxToRead, _blockSize);
 
-        var tempBuffer = ArrayPool<byte>.Shared.Rent(checked((int)((lastBlock - firstBlock) * _blockSize)));
-        try
-        {
-            var numRead = await _session.ReadAsync(_lun, firstBlock, checked((int)(lastBlock - firstBlock)), tempBuffer, cancellationToken).ConfigureAwait(false);
-
-            var numCopied = Math.Min(maxToRead, numRead);
-            tempBuffer.AsSpan((int)(_position - firstBlock * _blockSize), numCopied).CopyTo(buffer.Span);
-
-            _position += numCopied;
-
-            return numCopied;
-        }
-        finally
-        {
-            ArrayPool<byte>.Shared.Return(tempBuffer);
-        }
+        return _session.ReadAsync(_lun, firstBlock, checked((int)(lastBlock - firstBlock)), buffer.Slice(0, maxToRead), cancellationToken);
     }
 
     public override long Seek(long offset, SeekOrigin origin)
@@ -154,7 +136,7 @@ internal class DiskStream : SparseStream
 
         if (effectiveOffset < 0)
         {
-            throw new IOException("Attempt to move before beginning of disk");
+            throw new ArgumentException("Attempt to move before beginning of disk");
         }
 
         _position = effectiveOffset;
@@ -181,52 +163,36 @@ internal class DiskStream : SparseStream
             throw new IOException("Attempt to write beyond end of stream");
         }
 
+        if (_position % BlockSize != 0
+            || buffer.Length % BlockSize != 0)
+        {
+            throw new ArgumentException("I/O not aligned to block boundaries is not supported");
+        }
+
+        var maxBytesPerWrite = _session.ImmediateData
+            ? _session.FirstBurstLength
+            : (_session.ActiveConnection.MaxTargetReceiveDataSegmentLength ?? _session.ActiveConnection.MaxInitiatorTransmitDataSegmentLength);
+
         var numWritten = 0;
 
         while (numWritten < buffer.Length)
         {
-            var block = _position / _blockSize;
-            var offsetInBlock = (uint)(_position % _blockSize);
-
-            var toWrite = buffer.Length - numWritten;
-
-            // Need to read - we're not handling a full block
-            if (offsetInBlock != 0 || toWrite < _blockSize)
+            checked
             {
-                toWrite = (int)Math.Min(toWrite, _blockSize - offsetInBlock);
+                var currentBlock = _position / _blockSize;
+                var maxWrite = Math.Min(buffer.Length - numWritten, maxBytesPerWrite);
+                var numBlocks = MathUtilities.Ceil(maxWrite, _blockSize);
 
-                var blockBuffer = ArrayPool<byte>.Shared.Rent(_blockSize);
-                try
+                var written = _session.Write(_lun, currentBlock, (int)numBlocks, _blockSize, buffer.Slice(numWritten));
+
+                if (written == 0)
                 {
-                    var numRead = _session.Read(_lun, block, 1, blockBuffer.AsSpan(0, _blockSize));
-
-                    if (numRead != _blockSize)
-                    {
-                        throw new IOException($"Incomplete read, received {numRead} bytes from 1 block");
-                    }
-
-                    // Overlay as much data as we have for this block
-                    buffer.Slice(numWritten, toWrite).CopyTo(blockBuffer.AsSpan((int)offsetInBlock));
-
-                    // Write the block back
-                    _session.Write(_lun, block, 1, _blockSize, blockBuffer.AsSpan(0, _blockSize));
+                    throw new IOException($"Incomplete write, wrote {numWritten} bytes of requested {buffer.Length}");
                 }
-                finally
-                {
-                    ArrayPool<byte>.Shared.Return(blockBuffer);
-                }
-            }
-            else
-            {
-                // Processing at least one whole block, just write (after making sure to trim any partial sectors from the end)...
-                var numBlocks = toWrite / _blockSize;
-                toWrite = numBlocks * _blockSize;
 
-                _session.Write(_lun, block, numBlocks, _blockSize, buffer.Slice(numWritten));
+                numWritten += written;
+                _position += written;
             }
-
-            numWritten += toWrite;
-            _position += toWrite;
         }
     }
 
@@ -245,52 +211,36 @@ internal class DiskStream : SparseStream
             throw new IOException("Attempt to write beyond end of stream");
         }
 
+        if (_position % BlockSize != 0
+            || buffer.Length % BlockSize != 0)
+        {
+            throw new ArgumentException("I/O not aligned to block boundaries is not supported");
+        }
+
+        var maxBytesPerWrite = _session.ImmediateData
+            ? _session.FirstBurstLength
+            : (_session.ActiveConnection.MaxTargetReceiveDataSegmentLength ?? _session.ActiveConnection.MaxInitiatorTransmitDataSegmentLength);
+
         var numWritten = 0;
 
         while (numWritten < buffer.Length)
         {
-            var block = _position / _blockSize;
-            var offsetInBlock = (uint)(_position % _blockSize);
-
-            var toWrite = buffer.Length - numWritten;
-
-            // Need to read - we're not handling a full block
-            if (offsetInBlock != 0 || toWrite < _blockSize)
+            checked
             {
-                toWrite = (int)Math.Min(toWrite, _blockSize - offsetInBlock);
+                var currentBlock = _position / _blockSize;
+                var maxWrite = Math.Min(buffer.Length - numWritten, maxBytesPerWrite);
+                var numBlocks = MathUtilities.Ceil(maxWrite, _blockSize);
 
-                var blockBuffer = ArrayPool<byte>.Shared.Rent(_blockSize);
-                try
+                var written = await _session.WriteAsync(_lun, currentBlock, (int)numBlocks, _blockSize, buffer.Slice(numWritten), cancellationToken).ConfigureAwait(false);
+
+                if (written == 0)
                 {
-                    var numRead = await _session.ReadAsync(_lun, block, 1, blockBuffer.AsMemory(0, _blockSize), cancellationToken).ConfigureAwait(false);
-
-                    if (numRead != _blockSize)
-                    {
-                        throw new IOException($"Incomplete read, received {numRead} bytes from 1 block");
-                    }
-
-                    // Overlay as much data as we have for this block
-                    buffer.Span.Slice(numWritten, toWrite).CopyTo(blockBuffer.AsSpan((int)offsetInBlock));
-
-                    // Write the block back
-                    await _session.WriteAsync(_lun, block, 1, _blockSize, blockBuffer.AsMemory(0, _blockSize), cancellationToken).ConfigureAwait(false);
+                    throw new IOException($"Incomplete write, wrote {numWritten} bytes of requested {buffer.Length}");
                 }
-                finally
-                {
-                    ArrayPool<byte>.Shared.Return(blockBuffer);
-                }
-            }
-            else
-            {
-                // Processing at least one whole block, just write (after making sure to trim any partial sectors from the end)...
-                var numBlocks = (short)(toWrite / _blockSize);
-                toWrite = numBlocks * _blockSize;
 
-                await _session.WriteAsync(_lun, block, numBlocks, _blockSize, buffer.Slice(numWritten), cancellationToken).ConfigureAwait(false);
+                numWritten += written;
+                _position += written;
             }
-
-            numWritten += toWrite;
-            _position += toWrite;
         }
     }
 }

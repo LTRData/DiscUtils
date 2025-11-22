@@ -277,15 +277,18 @@ public sealed class Session : IDisposable
     /// <returns>The number of bytes read.</returns>
     public int Read(long lun, long startBlock, int blockCount, Span<byte> buffer)
     {
-        if (startBlock + blockCount > uint.MaxValue || blockCount > ushort.MaxValue)
+        checked
         {
-            var cmd = checked(new ScsiRead16Command((ulong)lun, startBlock, blockCount));
-            return Send(cmd, default, buffer);
-        }
-        else
-        {
-            var cmd = checked(new ScsiRead10Command((ulong)lun, (uint)startBlock, (ushort)blockCount));
-            return Send(cmd, default, buffer);
+            if (startBlock + blockCount >= uint.MaxValue || blockCount >= ushort.MaxValue)
+            {
+                var cmd = new ScsiRead16Command((ulong)lun, startBlock, blockCount);
+                return Send(cmd, default, buffer);
+            }
+            else
+            {
+                var cmd = new ScsiRead10Command((ulong)lun, (uint)startBlock, (ushort)blockCount);
+                return Send(cmd, default, buffer);
+            }
         }
     }
 
@@ -300,15 +303,18 @@ public sealed class Session : IDisposable
     /// <returns>The number of bytes read.</returns>
     public ValueTask<int> ReadAsync(long lun, long startBlock, int blockCount, Memory<byte> buffer, CancellationToken cancellationToken)
     {
-        if (startBlock + blockCount > uint.MaxValue || blockCount > ushort.MaxValue)
+        checked
         {
-            var cmd = checked(new ScsiRead16Command((ulong)lun, startBlock, blockCount));
-            return SendAsync(cmd, default, buffer, cancellationToken);
-        }
-        else
-        {
-            var cmd = checked(new ScsiRead10Command((ulong)lun, (uint)startBlock, (ushort)blockCount));
-            return SendAsync(cmd, default, buffer, cancellationToken);
+            if (startBlock + blockCount >= uint.MaxValue || blockCount >= ushort.MaxValue)
+            {
+                var cmd = new ScsiRead16Command((ulong)lun, startBlock, blockCount);
+                return SendAsync(cmd, default, buffer, cancellationToken);
+            }
+            else
+            {
+                var cmd = new ScsiRead10Command((ulong)lun, (uint)startBlock, (ushort)blockCount);
+                return SendAsync(cmd, default, buffer, cancellationToken);
+            }
         }
     }
 
@@ -322,15 +328,18 @@ public sealed class Session : IDisposable
     /// <param name="buffer">The data to write.</param>
     public int Write(long lun, long startBlock, int blockCount, int blockSize, ReadOnlySpan<byte> buffer)
     {
-        if (startBlock + blockCount > uint.MaxValue || blockCount > ushort.MaxValue)
+        checked
         {
-            var cmd = checked(new ScsiWrite16Command((ulong)lun, startBlock, blockCount));
-            return Send(cmd, buffer.Slice(0, blockCount * blockSize), default);
-        }
-        else
-        {
-            var cmd = checked(new ScsiWrite10Command((ulong)lun, (uint)startBlock, (ushort)blockCount));
-            return Send(cmd, buffer.Slice(0, blockCount * blockSize), default);
+            if (startBlock + blockCount >= uint.MaxValue || blockCount >= ushort.MaxValue)
+            {
+                var cmd = new ScsiWrite16Command((ulong)lun, startBlock, blockCount);
+                return Send(cmd, buffer.Slice(0, blockCount * blockSize), default);
+            }
+            else
+            {
+                var cmd = new ScsiWrite10Command((ulong)lun, (uint)startBlock, (ushort)blockCount);
+                return Send(cmd, buffer.Slice(0, blockCount * blockSize), default);
+            }
         }
     }
 
@@ -345,15 +354,18 @@ public sealed class Session : IDisposable
     /// <param name="cancellationToken"></param>
     public ValueTask<int> WriteAsync(long lun, long startBlock, int blockCount, int blockSize, ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken)
     {
-        if (startBlock + blockCount > uint.MaxValue || blockCount > ushort.MaxValue)
+        checked
         {
-            var cmd = checked(new ScsiWrite16Command((ulong)lun, startBlock, blockCount));
-            return SendAsync(cmd, buffer.Slice(0, blockCount * blockSize), default, cancellationToken);
-        }
-        else
-        {
-            var cmd = checked(new ScsiWrite10Command((ulong)lun, (uint)startBlock, (ushort)blockCount));
-            return SendAsync(cmd, buffer.Slice(0, blockCount * blockSize), default, cancellationToken);
+            if (startBlock + blockCount >= uint.MaxValue || blockCount >= ushort.MaxValue)
+            {
+                var cmd = new ScsiWrite16Command((ulong)lun, startBlock, blockCount);
+                return SendAsync(cmd, buffer.Slice(0, blockCount * blockSize), default, cancellationToken);
+            }
+            else
+            {
+                var cmd = new ScsiWrite10Command((ulong)lun, (uint)startBlock, (ushort)blockCount);
+                return SendAsync(cmd, buffer.Slice(0, blockCount * blockSize), default, cancellationToken);
+            }
         }
     }
 

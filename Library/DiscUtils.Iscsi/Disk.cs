@@ -39,6 +39,8 @@ public class Disk : VirtualDisk
 
     private DiskStream _stream;
 
+    private AligningStream _aligningStream;
+
     internal Disk(Session session, long lun, FileAccess access)
     {
         _session = session;
@@ -86,7 +88,9 @@ public class Disk : VirtualDisk
         {
             _stream ??= new DiskStream(_session, _lun, _access);
 
-            return _stream;
+            _aligningStream ??= new AligningStream(_stream, Ownership.None, _stream.BlockSize);
+
+            return _aligningStream;
         }
     }
 

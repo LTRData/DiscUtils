@@ -55,7 +55,12 @@ internal sealed class ProtocolKeyAttribute : Attribute
 
     internal static string GetValueAsString(object value, Type valueType)
     {
-        if (valueType == typeof(bool))
+        if (value == null)
+        {
+            return "NotUnderstood";
+        }
+
+        if (valueType == typeof(bool) || valueType == typeof(bool?))
         {
             return (bool)value ? "Yes" : "No";
         }
@@ -65,14 +70,16 @@ internal sealed class ProtocolKeyAttribute : Attribute
             return (string)value;
         }
 
-        if (valueType == typeof(int))
+        if (valueType == typeof(int) || valueType == typeof(int?))
         {
             return ((int)value).ToString(CultureInfo.InvariantCulture);
         }
 
-        if (valueType.IsEnum)
+        if (valueType.IsEnum
+            || (valueType.IsGenericType && valueType.GetGenericTypeDefinition() == typeof(Nullable<>) && valueType.GetGenericArguments()[0].IsEnum))
         {
-            var infos = valueType.GetFields();
+            var infos = valueType.IsEnum ? valueType.GetFields()
+                : valueType.GetGenericArguments()[0].GetFields();
 
             foreach (var info in infos)
             {
@@ -95,7 +102,12 @@ internal sealed class ProtocolKeyAttribute : Attribute
 
     internal static object GetValueAsObject(string value, Type valueType)
     {
-        if (valueType == typeof(bool))
+        if (value == "NotUnderstood")
+        {
+            return null;
+        }
+
+        if (valueType == typeof(bool) || valueType == typeof(bool?))
         {
             return value == "Yes";
         }
@@ -105,17 +117,19 @@ internal sealed class ProtocolKeyAttribute : Attribute
             return value;
         }
 
-        if (valueType == typeof(int))
+        if (valueType == typeof(int) || valueType == typeof(int?))
         {
             return int.Parse(value, CultureInfo.InvariantCulture);
         }
 
-        if (valueType.IsEnum)
+        if (valueType.IsEnum
+            || (valueType.IsGenericType && valueType.GetGenericTypeDefinition() == typeof(Nullable<>) && valueType.GetGenericArguments()[0].IsEnum))
         {
             // Handle comma-separated values (e.g., "CRC32C,None")
             var valuesToTry = value.Split(',');
 
-            var infos = valueType.GetFields();
+            var infos = valueType.IsEnum ? valueType.GetFields()
+                : valueType.GetGenericArguments()[0].GetFields();
 
             // Special case for Digest: prefer "None" if available to avoid CRC32C complexity
             if (valueType.Name == "Digest" && valuesToTry.Any(v => v.Trim().Equals("None", StringComparison.OrdinalIgnoreCase)))
