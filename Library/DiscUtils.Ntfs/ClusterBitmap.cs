@@ -20,12 +20,13 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
+using DiscUtils.Streams;
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using DiscUtils.Streams;
 
 namespace DiscUtils.Ntfs;
 
@@ -35,6 +36,8 @@ internal class ClusterBitmap : IDisposable
     private bool _fragmentedDiskMode;
 
     private long _nextDataCluster;
+
+    private long? _usedClusters;
 
     public ClusterBitmap(File file)
     {
@@ -46,6 +49,35 @@ internal class ClusterBitmap : IDisposable
     }
 
     internal Bitmap Bitmap { get; private set; }
+
+    public long GetUsedClustersCount()
+    {
+        if (_usedClusters is null)
+        {
+            long usedClusters = 0;
+            long processed = 0;
+
+            var bufferSize = (int)Math.Min(4 * Sizes.OneMiB, Bitmap.Size);
+            var buffer = ArrayPool<byte>.Shared.Rent(bufferSize);
+            try
+            {
+                while (processed < Bitmap.Size)
+                {
+                    var count = Bitmap.GetBytes(processed, buffer, 0, bufferSize);
+                    usedClusters += BitCounter.Count(buffer, 0, count);
+                    processed += count;
+                }
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(buffer);
+            }
+
+            _usedClusters = usedClusters;
+        }
+
+        return _usedClusters.Value;
+    }
 
     public void Dispose()
     {
@@ -142,6 +174,8 @@ internal class ClusterBitmap : IDisposable
             _fragmentedDiskMode = numFound / result.Count < 4;
         }
 
+        _usedClusters += total;
+
         return result;
     }
 
@@ -232,12 +266,16 @@ internal class ClusterBitmap : IDisposable
             _fragmentedDiskMode = numFound / result.Count < 4;
         }
 
+        _usedClusters += total;
+
         return result;
     }
 
     internal void MarkAllocated(long first, long count)
     {
         Bitmap.MarkPresentRange(first, count);
+
+        _usedClusters += count;
     }
 
     internal void FreeClusters(IEnumerable<Range<long, long>> runs)
@@ -245,6 +283,8 @@ internal class ClusterBitmap : IDisposable
         foreach (var run in runs)
         {
             Bitmap.MarkAbsentRange(run.Offset, run.Count);
+
+            _usedClusters -= run.Count;
         }
     }
 
@@ -253,17 +293,23 @@ internal class ClusterBitmap : IDisposable
         foreach (var run in runs)
         {
             await Bitmap.MarkAbsentRangeAsync(run.Offset, run.Count, cancellationToken).ConfigureAwait(false);
+
+            _usedClusters -= run.Count;
         }
     }
 
     internal void FreeClusters(Range<long, long> run)
     {
         Bitmap.MarkAbsentRange(run.Offset, run.Count);
+
+        _usedClusters -= run.Count;
     }
 
-    internal ValueTask FreeClustersAsync(Range<long, long> run, CancellationToken cancellationToken)
+    internal async ValueTask FreeClustersAsync(Range<long, long> run, CancellationToken cancellationToken)
     {
-        return Bitmap.MarkAbsentRangeAsync(run.Offset, run.Count, cancellationToken);
+        await Bitmap.MarkAbsentRangeAsync(run.Offset, run.Count, cancellationToken).ConfigureAwait(false);
+
+        _usedClusters -= run.Count;
     }
 
     /// <summary>
@@ -278,6 +324,8 @@ internal class ClusterBitmap : IDisposable
         var actualClusters = Bitmap.SetTotalEntries(numClusters);
         if (actualClusters != numClusters)
         {
+            _usedClusters = null;
+
             MarkAllocated(numClusters, actualClusters - numClusters);
         }
     }
@@ -295,6 +343,9 @@ internal class ClusterBitmap : IDisposable
         if (numFound > 0)
         {
             Bitmap.MarkPresentRange(start, numFound);
+
+            _usedClusters += numFound;
+
             result.Add(new Range<long, long>(start, numFound));
         }
 
@@ -314,6 +365,9 @@ internal class ClusterBitmap : IDisposable
         if (numFound > 0)
         {
             await Bitmap.MarkPresentRangeAsync(start, numFound, cancellationToken).ConfigureAwait(false);
+
+            _usedClusters += numFound;
+
             result.Add(new Range<long, long>(start, numFound));
         }
 

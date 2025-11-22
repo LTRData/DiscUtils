@@ -2632,33 +2632,7 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
     /// <summary>
     /// Used space of the Filesystem in bytes
     /// </summary>
-    public override long UsedSpace
-    {
-        get
-        {
-            long usedCluster = 0;
-            var bitmap = _context.ClusterBitmap.Bitmap;
-            var processed = 0L;
-
-            var bufferSize = (int)Math.Min(4 * Sizes.OneMiB, bitmap.Size);
-            var buffer = ArrayPool<byte>.Shared.Rent(bufferSize);
-            try
-            {
-                while (processed < bitmap.Size)
-                {
-                    var count = bitmap.GetBytes(processed, buffer, 0, bufferSize);
-                    usedCluster += BitCounter.Count(buffer, 0, count);
-                    processed += count;
-                }
-            }
-            finally
-            {
-                ArrayPool<byte>.Shared.Return(buffer);
-            }
-            
-            return usedCluster * ClusterSize;
-        }
-    }
+    public override long UsedSpace => _context.ClusterBitmap.GetUsedClustersCount() * ClusterSize;
 
     /// <summary>
     /// Available space of the Filesystem in bytes
