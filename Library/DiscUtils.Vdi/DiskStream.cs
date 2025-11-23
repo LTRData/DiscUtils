@@ -58,32 +58,11 @@ internal class DiskStream : SparseStream
         ReadBlockTable();
     }
 
-    public override bool CanRead
-    {
-        get
-        {
-            CheckDisposed();
-            return true;
-        }
-    }
+    public override bool CanRead => !_isDisposed;
 
-    public override bool CanSeek
-    {
-        get
-        {
-            CheckDisposed();
-            return true;
-        }
-    }
+    public override bool CanSeek => !_isDisposed;
 
-    public override bool CanWrite
-    {
-        get
-        {
-            CheckDisposed();
-            return _fileStream.CanWrite;
-        }
-    }
+    public override bool CanWrite => !_isDisposed && _fileStream.CanWrite;
 
     public override IEnumerable<StreamExtent> Extents
     {
@@ -671,9 +650,17 @@ internal class DiskStream : SparseStream
         _isDisposed = true;
         try
         {
-            if (disposing && _ownsStream == Ownership.Dispose && _fileStream != null)
+            if (disposing && _fileStream != null)
             {
-                _fileStream.Dispose();
+                if (_ownsStream == Ownership.Dispose)
+                {
+                    _fileStream.Dispose();
+                }
+                else if (_fileStream.CanWrite)
+                {
+                    _fileStream.Flush();
+                }
+
                 _fileStream = null;
             }
         }

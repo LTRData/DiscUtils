@@ -215,7 +215,7 @@ internal sealed class DiscContentBuffer : Buffer
 
                 _authHeader = $"Digest username=\"{_userName}\", realm=\"ODS\", nonce=\"{authParams["nonce"]}\", uri=\"{wr.RequestUri.AbsolutePath}\", response=\"{resp}\"";
 
-                (wresp as IDisposable).Dispose();
+                wresp.Dispose();
 
                 wr = wrc();
                 wr.Headers["Authorization"] = _authHeader;
@@ -256,7 +256,7 @@ internal sealed class DiscContentBuffer : Buffer
 
                 _authHeader = $"Digest username=\"{_userName}\", realm=\"ODS\", nonce=\"{authParams["nonce"]}\", uri=\"{wr.RequestUri.AbsolutePath}\", response=\"{resp}\"";
 
-                (wresp as IDisposable).Dispose();
+                wresp.Dispose();
 
                 wr = wrc();
                 wr.Headers["Authorization"] = _authHeader;

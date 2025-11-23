@@ -266,6 +266,10 @@ public class SubStream : MappedStream
                 {
                     Parent.Dispose();
                 }
+                else if (Parent.CanWrite)
+                {
+                    Parent.Flush();
+                }
             }
         }
         finally

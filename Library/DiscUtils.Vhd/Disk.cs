@@ -52,8 +52,7 @@ public sealed class Disk : VirtualDisk
     {
         _files =
         [
-            (new DiskImageFile(stream, ownsStream),
-            Ownership.Dispose)
+            (new DiskImageFile(stream, ownsStream), Ownership.Dispose)
         ];
 
         if (_files[0].DiakImageFile.NeedsParent)
@@ -255,9 +254,12 @@ public sealed class Disk : VirtualDisk
         }
         else
         {
-            if (parentFile != null && ownsParent == Ownership.Dispose)
+            if (parentFile != null)
             {
-                parentFile.Dispose();
+                if (ownsParent == Ownership.Dispose)
+                {
+                    parentFile.Dispose();
+                }
             }
         }
     }
@@ -537,6 +539,10 @@ public sealed class Disk : VirtualDisk
                         if (record.Ownership == Ownership.Dispose)
                         {
                             record.DiakImageFile.Dispose();
+                        }
+                        else if (record.DiakImageFile.CanWrite)
+                        {
+                            record.DiakImageFile.Flush();
                         }
                     }
 

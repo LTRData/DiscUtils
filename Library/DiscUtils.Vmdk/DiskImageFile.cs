@@ -470,9 +470,12 @@ public sealed class DiskImageFile : VirtualDiskLayer
     {
         if (_descriptor.ParentContentId == uint.MaxValue)
         {
-            if (parent != null && ownsParent == Ownership.Dispose)
+            if (parent != null)
             {
-                parent.Dispose();
+                if (ownsParent == Ownership.Dispose)
+                {
+                    parent.Dispose();
+                }
             }
 
             parent = null;
@@ -623,9 +626,17 @@ public sealed class DiskImageFile : VirtualDiskLayer
                     _contentStream = null;
                 }
 
-                if (_ownsMonolithicStream == Ownership.Dispose && _monolithicStream != null)
+                if (_monolithicStream != null)
                 {
-                    _monolithicStream.Dispose();
+                    if (_ownsMonolithicStream == Ownership.Dispose)
+                    {
+                        _monolithicStream.Dispose();
+                    }
+                    else if (_monolithicStream.CanWrite)
+                    {
+                        _monolithicStream.Flush();
+                    }
+
                     _monolithicStream = null;
                 }
             }
@@ -634,6 +645,12 @@ public sealed class DiskImageFile : VirtualDiskLayer
         {
             base.Dispose(disposing);
         }
+    }
+
+    public override void Flush()
+    {
+        _contentStream?.Flush();
+        _monolithicStream?.Flush();
     }
 
     private static DiskImageFile DoInitialize(FileLocator fileLocator, string file, long capacity,
@@ -948,9 +965,12 @@ public sealed class DiskImageFile : VirtualDiskLayer
 
         if (extent.Type is not ExtentType.Sparse and not ExtentType.VmfsSparse)
         {
-            if (ownsParent == Ownership.Dispose && parent != null)
+            if (parent != null)
             {
-                parent.Dispose();
+                if (ownsParent == Ownership.Dispose)
+                {
+                    parent.Dispose();
+                }
             }
         }
 

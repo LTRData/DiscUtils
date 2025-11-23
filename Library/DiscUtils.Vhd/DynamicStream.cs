@@ -114,32 +114,11 @@ public class DynamicStream : MappedStream
 
     public uint BlockSize => _dynamicHeader.BlockSize;
 
-    public override bool CanRead
-    {
-        get
-        {
-            CheckDisposed();
-            return true;
-        }
-    }
+    public override bool CanRead => _parentStream is not null;
 
-    public override bool CanSeek
-    {
-        get
-        {
-            CheckDisposed();
-            return true;
-        }
-    }
+    public override bool CanSeek => _parentStream is not null;
 
-    public override bool CanWrite
-    {
-        get
-        {
-            CheckDisposed();
-            return _fileStream.CanWrite;
-        }
-    }
+    public override bool CanWrite => _parentStream is not null && _fileStream.CanWrite;
 
     public override IEnumerable<StreamExtent> Extents => GetExtentsInRange(0, Length);
 

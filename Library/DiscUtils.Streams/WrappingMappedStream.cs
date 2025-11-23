@@ -185,9 +185,16 @@ public class WrappingMappedStream<T> : MappedStream
         {
             if (disposing)
             {
-                if (WrappedStream != null && _ownership == Ownership.Dispose)
+                if (WrappedStream != null)
                 {
-                    WrappedStream.Dispose();
+                    if (_ownership == Ownership.Dispose)
+                    {
+                        WrappedStream.Dispose();
+                    }
+                    else if (WrappedStream.CanWrite)
+                    {
+                        WrappedStream.Flush();
+                    }
                 }
 
                 WrappedStream = null!;

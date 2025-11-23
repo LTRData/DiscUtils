@@ -132,9 +132,12 @@ public sealed class DiskImageFile : VirtualDiskLayer
     /// <returns>The content as a stream.</returns>
     public override SparseStream OpenContent(SparseStream parent, Ownership ownsParent)
     {
-        if (ownsParent == Ownership.Dispose && parent != null)
+        if (parent != null)
         {
-            parent.Dispose();
+            if (ownsParent == Ownership.Dispose)
+            {
+                parent.Dispose();
+            }
         }
 
         return SparseStream.FromStream(Content, Ownership.None);
@@ -151,9 +154,16 @@ public sealed class DiskImageFile : VirtualDiskLayer
         {
             if (disposing)
             {
-                if (_ownsContent == Ownership.Dispose && Content != null)
+                if (Content != null)
                 {
-                    Content.Dispose();
+                    if (_ownsContent == Ownership.Dispose)
+                    {
+                        Content.Dispose();
+                    }
+                    else if (Content.CanWrite)
+                    {
+                        Content.Flush();
+                    }
                 }
 
                 Content = null!;
@@ -164,6 +174,8 @@ public sealed class DiskImageFile : VirtualDiskLayer
             base.Dispose(disposing);
         }
     }
+
+    public override void Flush() => Content?.Flush();
 
     /// <summary>
     /// Calculates the best guess geometry of a disk.

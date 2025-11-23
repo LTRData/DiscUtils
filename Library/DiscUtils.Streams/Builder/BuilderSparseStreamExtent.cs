@@ -46,15 +46,19 @@ public class BuilderSparseStreamExtent : BuilderExtent
 
     protected override void Dispose(bool disposing)
     {
-        if (_stream != null && _ownership == Ownership.Dispose)
+        if (_stream != null && disposing)
         {
-            if (disposing)
+            if (_ownership == Ownership.Dispose)
             {
                 _stream.Dispose();
             }
-
-            _stream = null!;
+            else if (_stream.CanWrite)
+            {
+                _stream.Flush();
+            }
         }
+
+        _stream = null!;
     }
 
     public override void PrepareForRead() {}

@@ -155,11 +155,18 @@ internal sealed class VmfsSparseExtentBuilder : StreamBuilder
 
         protected override void Dispose(bool disposing)
         {
-            if (_content != null && _contentOwnership == Ownership.Dispose)
+            if (_content != null)
             {
                 if (disposing)
                 {
-                    _content.Dispose();
+                    if (_contentOwnership == Ownership.Dispose)
+                    {
+                        _content.Dispose();
+                    }
+                    else if (_content.CanWrite)
+                    {
+                        _content.Flush();
+                    }
                 }
 
                 _content = null;

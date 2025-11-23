@@ -97,9 +97,17 @@ public sealed class SdiFile : IDisposable
     /// </summary>
     public void Dispose()
     {
-        if (_ownership == Ownership.Dispose && _stream != null)
+        if (_stream != null)
         {
-            _stream.Dispose();
+            if (_ownership == Ownership.Dispose)
+            {
+                _stream.Dispose();
+            }
+            else if (_stream.CanWrite)
+            {
+                _stream.Flush();
+            }
+
             _stream = null;
         }
     }

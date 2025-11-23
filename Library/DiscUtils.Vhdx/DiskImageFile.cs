@@ -601,9 +601,16 @@ public sealed class DiskImageFile : VirtualDiskLayer
 
                 _logicalStream = null;
 
-                if (_ownsStream == Ownership.Dispose && _fileStream != null)
+                if (_fileStream != null)
                 {
-                    _fileStream.Dispose();
+                    if (_ownsStream == Ownership.Dispose)
+                    {
+                        _fileStream.Dispose();
+                    }
+                    else if (_fileStream.CanWrite)
+                    {
+                        _fileStream.Flush();
+                    }
                 }
 
                 _fileStream = null;
@@ -613,6 +620,12 @@ public sealed class DiskImageFile : VirtualDiskLayer
         {
             base.Dispose(disposing);
         }
+    }
+
+    public override void Flush()
+    {
+        _logicalStream?.Flush();
+        _fileStream?.Flush();
     }
 
     private static void InitializeFixedInternal(Stream stream, long capacity, Geometry? geometry)

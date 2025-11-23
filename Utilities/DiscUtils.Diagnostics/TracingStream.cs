@@ -66,9 +66,16 @@ public sealed class TracingStream : CompatibilityStream
     {
         if (disposing)
         {
-            if (_ownsWrapped == Ownership.Dispose && _wrapped != null)
+            if (_wrapped != null)
             {
-                _wrapped.Dispose();
+                if (_ownsWrapped == Ownership.Dispose)
+                {
+                    _wrapped.Dispose();
+                }
+                else if (_wrapped.CanWrite)
+                {
+                    _wrapped.Flush();
+                }
             }
 
             _wrapped = null;

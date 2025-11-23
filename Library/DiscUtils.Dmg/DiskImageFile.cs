@@ -87,9 +87,12 @@ internal sealed class DiskImageFile : VirtualDiskLayer
 
     public override SparseStream OpenContent(SparseStream parentStream, Ownership ownsStream)
     {
-        if (parentStream is not null && ownsStream == Ownership.Dispose)
+        if (parentStream is not null)
         {
-            parentStream.Dispose();
+            if (ownsStream == Ownership.Dispose)
+            {
+                parentStream.Dispose();
+            }
         }
 
         if (Buffer is not null)
@@ -105,9 +108,16 @@ internal sealed class DiskImageFile : VirtualDiskLayer
     {
         try
         {
-            if (disposing && _stream is not null && _ownsStream == Ownership.Dispose)
+            if (disposing && _stream is not null)
             {
-                _stream.Dispose();
+                if (_ownsStream == Ownership.Dispose)
+                {
+                    _stream.Dispose();
+                }
+                else if (_stream.CanWrite)
+                {
+                    _stream.Flush();
+                }
             }
 
             _stream = null;
@@ -117,4 +127,6 @@ internal sealed class DiskImageFile : VirtualDiskLayer
             base.Dispose(disposing);
         }
     }
+
+    public override void Flush() => _stream?.Flush();
 }

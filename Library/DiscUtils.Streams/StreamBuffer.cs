@@ -91,11 +91,19 @@ public sealed class StreamBuffer : Buffer
     /// </summary>
     protected override void Dispose(bool disposing)
     {
-        if (disposing && _ownership == Ownership.Dispose)
+        if (disposing)
         {
             if (_stream != null)
             {
-                _stream.Dispose();
+                if (_ownership == Ownership.Dispose)
+                {
+                    _stream.Dispose();
+                }
+                else if (_stream.CanWrite)
+                {
+                    _stream.Flush();
+                }
+
                 _stream = null!;
             }
         }

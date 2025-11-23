@@ -26,6 +26,7 @@ using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -104,7 +105,7 @@ public sealed class SnapshotStream : SparseStream
     /// <remarks>This property is orthogonal to Freezing/Thawing, it's
     /// perfectly possible for a stream to be frozen and this method
     /// return <c>true</c>.</remarks>
-    public override bool CanWrite => _diffStream != null || _baseStream.CanWrite;
+    public override bool CanWrite => !_frozen && (_diffStream != null || _baseStream.CanWrite);
 
     /// <summary>
     /// Returns an enumeration over the parts of the stream that contain real data.
@@ -591,9 +592,16 @@ public sealed class SnapshotStream : SparseStream
     {
         if (disposing)
         {
-            if (_baseStreamOwnership == Ownership.Dispose && _baseStream != null)
+            if (_baseStream != null)
             {
-                _baseStream.Dispose();
+                if (_baseStreamOwnership == Ownership.Dispose)
+                {
+                    _baseStream.Dispose();
+                }
+                else if (_baseStream.CanWrite)
+                {
+                    _baseStream.Flush();
+                }
             }
 
             _baseStream = null!;

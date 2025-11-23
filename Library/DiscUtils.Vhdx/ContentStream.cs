@@ -20,13 +20,14 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
+using DiscUtils.Internal;
+using DiscUtils.Streams;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
 using System.Threading.Tasks;
-using DiscUtils.Internal;
-using DiscUtils.Streams;
 
 namespace DiscUtils.Vhdx;
 
@@ -62,35 +63,11 @@ public sealed class ContentStream : MappedStream
         _chunks = new ObjectCache<int, Chunk>();
     }
 
-    public override bool CanRead
-    {
-        get
-        {
-            CheckDisposed();
+    public override bool CanRead => _parentStream is not null;
 
-            return true;
-        }
-    }
+    public override bool CanSeek => _parentStream is not null;
 
-    public override bool CanSeek
-    {
-        get
-        {
-            CheckDisposed();
-
-            return true;
-        }
-    }
-
-    public override bool CanWrite
-    {
-        get
-        {
-            CheckDisposed();
-
-            return _canWrite ?? _fileStream.CanWrite;
-        }
-    }
+    public override bool CanWrite => _parentStream is not null && (_canWrite ?? _fileStream.CanWrite);
 
     public override IEnumerable<StreamExtent> Extents
     {

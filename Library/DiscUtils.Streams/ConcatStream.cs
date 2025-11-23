@@ -55,32 +55,11 @@ public class ConcatStream : SparseStream
         }
     }
 
-    public override bool CanRead
-    {
-        get
-        {
-            CheckDisposed();
-            return true;
-        }
-    }
+    public override bool CanRead => _streams is not null;
 
-    public override bool CanSeek
-    {
-        get
-        {
-            CheckDisposed();
-            return true;
-        }
-    }
+    public override bool CanSeek => _streams is not null;
 
-    public override bool CanWrite
-    {
-        get
-        {
-            CheckDisposed();
-            return _canWrite;
-        }
-    }
+    public override bool CanWrite => _streams is not null && _canWrite;
 
     public override long? GetPositionInBaseStream(Stream baseStream, long virtualPosition)
     {
@@ -364,11 +343,18 @@ public class ConcatStream : SparseStream
     {
         try
         {
-            if (disposing && _ownsStreams == Ownership.Dispose && _streams != null)
+            if (disposing && _streams != null)
             {
                 foreach (var stream in _streams)
                 {
-                    stream.Dispose();
+                    if (_ownsStreams == Ownership.Dispose)
+                    {
+                        stream.Dispose();
+                    }
+                    else if (stream.CanWrite)
+                    {
+                        stream.Flush();
+                    }
                 }
 
                 _streams = null!;

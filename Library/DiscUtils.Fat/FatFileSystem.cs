@@ -1415,8 +1415,13 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
                 if (_ownsData == Ownership.Dispose)
                 {
                     _data.Dispose();
-                    _data = null;
                 }
+                else if (_data.CanWrite)
+                {
+                    _data.Flush();
+                }
+                
+                _data = null;
             }
         }
         finally

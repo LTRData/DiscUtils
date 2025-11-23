@@ -104,9 +104,17 @@ public sealed class VirtualMachine : IDisposable
     /// </summary>
     public void Dispose()
     {
-        if (_ownership == Ownership.Dispose && _fileStream != null)
+        if (_fileStream != null)
         {
-            _fileStream.Dispose();
+            if (_ownership == Ownership.Dispose)
+            {
+                _fileStream.Dispose();
+            }
+            else if (_fileStream.CanWrite)
+            {
+                _fileStream.Flush();
+            }
+
             _fileStream = null;
         }
     }

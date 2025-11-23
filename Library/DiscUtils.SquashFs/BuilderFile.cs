@@ -124,6 +124,10 @@ internal sealed class BuilderFile : BuilderNode
             {
                 _source.Dispose();
             }
+            else
+            {
+                _source.Flush();
+            }
         }
     }
 

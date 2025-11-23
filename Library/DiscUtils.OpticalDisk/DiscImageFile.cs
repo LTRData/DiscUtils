@@ -128,9 +128,12 @@ public sealed class DiscImageFile : VirtualDiskLayer
     /// <returns>The content as a stream.</returns>
     public override SparseStream OpenContent(SparseStream parent, Ownership ownsParent)
     {
-        if (ownsParent == Ownership.Dispose && parent != null)
+        if (parent != null)
         {
-            parent.Dispose();
+            if (ownsParent == Ownership.Dispose)
+            {
+                parent.Dispose();
+            }
         }
 
         return SparseStream.FromStream(Content, Ownership.None);
@@ -164,5 +167,11 @@ public sealed class DiscImageFile : VirtualDiskLayer
         {
             base.Dispose(disposing);
         }
+    }
+
+    public override void Flush()
+    {
+        _toDispose?.Flush();
+        Content?.Flush();
     }
 }

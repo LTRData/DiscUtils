@@ -103,32 +103,11 @@ internal abstract class CommonSparseExtentStream : MappedStream
     /// </summary>
     protected uint[] _redundantGlobalDirectory;
 
-    public override bool CanRead
-    {
-        get
-        {
-            CheckDisposed();
-            return true;
-        }
-    }
+    public override bool CanRead => _fileStream is not null;
 
-    public override bool CanSeek
-    {
-        get
-        {
-            CheckDisposed();
-            return true;
-        }
-    }
+    public override bool CanSeek => _fileStream is not null;
 
-    public override bool CanWrite
-    {
-        get
-        {
-            CheckDisposed();
-            return _fileStream.CanWrite;
-        }
-    }
+    public override bool CanWrite => _fileStream is not null && _fileStream.CanWrite;
 
     public override IEnumerable<StreamExtent> Extents => GetExtentsInRange(0, Length);
 
@@ -452,16 +431,20 @@ internal abstract class CommonSparseExtentStream : MappedStream
         {
             if (disposing)
             {
-                if (_ownsFileStream == Ownership.Dispose && _fileStream != null)
+                if (_ownsFileStream == Ownership.Dispose)
                 {
-                    _fileStream.Dispose();
+                    _fileStream?.Dispose();
+                }
+                else if (_fileStream is not null && _fileStream.CanWrite)
+                {
+                    _fileStream?.Flush();
                 }
 
                 _fileStream = null;
 
-                if (_ownsParentDiskStream == Ownership.Dispose && _parentDiskStream != null)
+                if (_ownsParentDiskStream == Ownership.Dispose)
                 {
-                    _parentDiskStream.Dispose();
+                    _parentDiskStream?.Dispose();
                 }
 
                 _parentDiskStream = null;

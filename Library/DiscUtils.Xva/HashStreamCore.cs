@@ -142,9 +142,17 @@ internal class HashStreamCore : CompatibilityStream
     {
         try
         {
-            if (disposing && _ownWrapped == Ownership.Dispose && _wrapped != null)
+            if (disposing && _wrapped != null)
             {
-                _wrapped.Dispose();
+                if (_ownWrapped == Ownership.Dispose)
+                {
+                    _wrapped.Dispose();
+                }
+                else if (_wrapped.CanWrite)
+                {
+                    _wrapped.Flush();
+                }
+
                 _wrapped = null;
             }
         }

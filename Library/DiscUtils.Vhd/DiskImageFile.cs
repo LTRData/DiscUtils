@@ -20,16 +20,17 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
+using DiscUtils.Internal;
+using DiscUtils.Streams;
+using DiscUtils.Streams.Compatibility;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
 using System.Text;
-using DiscUtils.Internal;
-using DiscUtils.Streams;
-using DiscUtils.Streams.Compatibility;
 
 namespace DiscUtils.Vhd;
 
@@ -403,9 +404,12 @@ public sealed class DiskImageFile : VirtualDiskLayer
     {
         if (_footer.DiskType == FileType.Fixed)
         {
-            if (parent != null && ownsParent == Ownership.Dispose)
+            if (parent != null)
             {
-                parent.Dispose();
+                if (ownsParent == Ownership.Dispose)
+                {
+                    parent.Dispose();
+                }
             }
 
             return new SubStream(_fileStream, 0, _fileStream.Length - 512);
@@ -413,9 +417,12 @@ public sealed class DiskImageFile : VirtualDiskLayer
 
         if (_footer.DiskType == FileType.Dynamic)
         {
-            if (parent != null && ownsParent == Ownership.Dispose)
+            if (parent != null)
             {
-                parent.Dispose();
+                if (ownsParent == Ownership.Dispose)
+                {
+                    parent.Dispose();
+                }
             }
 
             return new DynamicStream(_fileStream, _dynamicHeader, _footer.CurrentSize,
@@ -442,9 +449,16 @@ public sealed class DiskImageFile : VirtualDiskLayer
         {
             if (disposing)
             {
-                if (_ownsStream == Ownership.Dispose && _fileStream != null)
+                if (_fileStream != null)
                 {
-                    _fileStream.Dispose();
+                    if (_ownsStream == Ownership.Dispose)
+                    {
+                        _fileStream.Dispose();
+                    }
+                    else if (_fileStream.CanWrite)
+                    {
+                        _fileStream.Flush();
+                    }
                 }
 
                 _fileStream = null;
@@ -455,6 +469,8 @@ public sealed class DiskImageFile : VirtualDiskLayer
             base.Dispose(disposing);
         }
     }
+
+    public override void Flush() => _fileStream?.Flush();
 
     private static void InitializeFixedInternal(Stream stream, long capacity, Geometry? geometry)
     {

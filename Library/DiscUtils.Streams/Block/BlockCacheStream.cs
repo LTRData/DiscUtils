@@ -773,9 +773,16 @@ public sealed class BlockCacheStream : SparseStream
     {
         if (disposing)
         {
-            if (_wrappedStream != null && _ownWrapped == Ownership.Dispose)
+            if (_wrappedStream != null)
             {
-                _wrappedStream.Dispose();
+                if (_ownWrapped == Ownership.Dispose)
+                {
+                    _wrappedStream.Dispose();
+                }
+                else if (_wrappedStream.CanWrite)
+                {
+                    _wrappedStream.Flush();
+                }
             }
 
             _wrappedStream = null!;

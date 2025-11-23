@@ -218,11 +218,18 @@ public class MirrorStream : SparseStream
     {
         try
         {
-            if (disposing && _ownsWrapped == Ownership.Dispose && _wrapped != null)
+            if (disposing && _wrapped != null)
             {
                 foreach (var stream in _wrapped)
                 {
-                    stream.Dispose();
+                    if (_ownsWrapped == Ownership.Dispose)
+                    {
+                        stream.Dispose();
+                    }
+                    else if (stream.CanWrite)
+                    {
+                        stream.Flush();
+                    }
                 }
 
                 _wrapped = null!;

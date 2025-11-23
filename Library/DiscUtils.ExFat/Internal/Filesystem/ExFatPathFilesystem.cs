@@ -55,7 +55,7 @@ public class ExFatPathFilesystem : IDisposable
     private class Node
     {
         private readonly ExFatPathFilesystem _filesystem;
-        private readonly IDictionary<string, Node> _children = new Dictionary<string, Node>();
+        private readonly Dictionary<string, Node> _children = [];
         private long _generation;
         private Node _parent;
 

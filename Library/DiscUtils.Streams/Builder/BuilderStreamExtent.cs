@@ -45,15 +45,19 @@ public class BuilderStreamExtent : BuilderExtent
 
     protected override void Dispose(bool disposing)
     {
-        if (_source != null && _ownership == Ownership.Dispose)
+        if (_source != null && disposing)
         {
-            if (disposing)
+            if (_ownership == Ownership.Dispose)
             {
                 _source.Dispose();
             }
-
-            _source = null!;
+            else if (_source.CanWrite)
+            {
+                _source.Flush();
+            }
         }
+
+        _source = null!;
     }
 
     public override void PrepareForRead() {}

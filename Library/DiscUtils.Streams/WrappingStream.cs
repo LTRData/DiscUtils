@@ -141,9 +141,16 @@ public class WrappingStream : SparseStream
         {
             if (disposing)
             {
-                if (_wrapped != null && _ownership == Ownership.Dispose)
+                if (_wrapped != null)
                 {
-                    _wrapped.Dispose();
+                    if (_ownership == Ownership.Dispose)
+                    {
+                        _wrapped.Dispose();
+                    }
+                    else if (_wrapped.CanWrite)
+                    {
+                        _wrapped.Flush();
+                    }
                 }
 
                 _wrapped = null!;

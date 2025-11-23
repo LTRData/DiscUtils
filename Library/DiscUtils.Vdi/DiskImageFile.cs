@@ -187,10 +187,13 @@ public sealed class DiskImageFile : VirtualDiskLayer
     /// <returns>The new content stream.</returns>
     public override SparseStream OpenContent(SparseStream parent, Ownership ownsParent)
     {
-        if (parent != null && ownsParent == Ownership.Dispose)
+        if (parent != null)
         {
             // Not needed until differencing disks supported.
-            parent.Dispose();
+            if (ownsParent == Ownership.Dispose)
+            {
+                parent.Dispose();
+            }
         }
 
         var stream = new DiskStream(_stream, Ownership.None, _header);
@@ -209,16 +212,24 @@ public sealed class DiskImageFile : VirtualDiskLayer
         {
             if (disposing)
             {
-                if (_writeOccurred && _stream != null)
+                if (_stream != null)
                 {
-                    _header.ModificationId = Guid.NewGuid();
-                    _stream.Position = PreHeaderRecord.Size;
-                    _header.Write(_stream);
-                }
+                    if (_writeOccurred)
+                    {
+                        _header.ModificationId = Guid.NewGuid();
+                        _stream.Position = PreHeaderRecord.Size;
+                        _header.Write(_stream);
+                    }
 
-                if (_ownsStream == Ownership.Dispose && _stream != null)
-                {
-                    _stream.Dispose();
+                    if (_ownsStream == Ownership.Dispose)
+                    {
+                        _stream.Dispose();
+                    }
+                    else if (_stream.CanWrite)
+                    {
+                        _stream.Flush();
+                    }
+
                     _stream = null;
                 }
             }
@@ -226,6 +237,21 @@ public sealed class DiskImageFile : VirtualDiskLayer
         finally
         {
             base.Dispose(disposing);
+        }
+    }
+
+    public override void Flush()
+    {
+        if (_stream != null)
+        {
+            if (_writeOccurred)
+            {
+                _header.ModificationId = Guid.NewGuid();
+                _stream.Position = PreHeaderRecord.Size;
+                _header.Write(_stream);
+            }
+
+            _stream.Flush();
         }
     }
 

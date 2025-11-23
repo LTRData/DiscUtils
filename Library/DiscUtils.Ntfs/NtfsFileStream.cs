@@ -96,32 +96,11 @@ internal sealed class NtfsFileStream : SparseStream
         return BaseStream.GetPositionInBaseStream(baseStream, virtualPosition);
     }
 
-    public override bool CanRead
-    {
-        get
-        {
-            AssertOpen();
-            return BaseStream.CanRead;
-        }
-    }
+    public override bool CanRead => BaseStream is not null && BaseStream.CanRead;
 
-    public override bool CanSeek
-    {
-        get
-        {
-            AssertOpen();
-            return BaseStream.CanSeek;
-        }
-    }
+    public override bool CanSeek => BaseStream is not null && BaseStream.CanSeek;
 
-    public override bool CanWrite
-    {
-        get
-        {
-            AssertOpen();
-            return BaseStream.CanWrite;
-        }
-    }
+    public override bool CanWrite => BaseStream is not null && BaseStream.CanWrite;
 
     public override IEnumerable<StreamExtent> Extents
     {

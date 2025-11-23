@@ -181,11 +181,18 @@ internal sealed class DynamicDiskBuilder : StreamBuilder
 
         protected override void Dispose(bool disposing)
         {
-            if (_content != null && _ownership == Ownership.Dispose)
+            if (_content != null)
             {
                 if (disposing)
                 {
-                    _content.Dispose();
+                    if (_ownership == Ownership.Dispose)
+                    {
+                        _content.Dispose();
+                    }
+                    else if (_content.CanWrite)
+                    {
+                        _content.Flush();
+                    }
                 }
 
                 _content = null;

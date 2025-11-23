@@ -344,9 +344,16 @@ public abstract class SparseStream : CompatibilityStream
             {
                 Disposing?.Invoke(this, EventArgs.Empty);
 
-                if (disposing && _ownsWrapped == Ownership.Dispose && _wrapped != null)
+                if (disposing && _wrapped != null)
                 {
-                    _wrapped.Dispose();
+                    if (_ownsWrapped == Ownership.Dispose)
+                    {
+                        _wrapped.Dispose();
+                    }
+                    else if (_wrapped.CanWrite)
+                    {
+                        _wrapped.Flush();
+                    }
                 }
 
                 _wrapped = null!;
@@ -397,35 +404,11 @@ public abstract class SparseStream : CompatibilityStream
             return _wrapped.GetPositionInBaseStream(baseStream, virtualPosition);
         }
 
-        public override bool CanRead
-        {
-            get
-            {
-                CheckDisposed();
+        public override bool CanRead => _wrapped is not null && _wrapped.CanRead;
 
-                return _wrapped.CanRead;
-            }
-        }
+        public override bool CanSeek => _wrapped is not null && _wrapped.CanSeek;
 
-        public override bool CanSeek
-        {
-            get
-            {
-                CheckDisposed();
-
-                return _wrapped.CanSeek;
-            }
-        }
-
-        public override bool CanWrite
-        {
-            get
-            {
-                CheckDisposed();
-
-                return _wrapped.CanWrite;
-            }
-        }
+        public override bool CanWrite => _wrapped is not null && _wrapped.CanWrite;
 
         public override IEnumerable<StreamExtent> Extents
         {
@@ -596,9 +579,16 @@ public abstract class SparseStream : CompatibilityStream
             {
                 Disposing?.Invoke(this, EventArgs.Empty);
 
-                if (disposing && _ownsWrapped == Ownership.Dispose && _wrapped != null)
+                if (disposing && _wrapped != null)
                 {
-                    _wrapped.Dispose();
+                    if (_ownsWrapped == Ownership.Dispose)
+                    {
+                        _wrapped.Dispose();
+                    }
+                    else if (_wrapped.CanWrite)
+                    {
+                        _wrapped.Flush();
+                    }
                 }
 
                 _wrapped = null!;

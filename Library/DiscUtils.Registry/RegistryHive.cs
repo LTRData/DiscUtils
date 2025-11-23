@@ -142,7 +142,8 @@ public class RegistryHive : IDisposable
         _ownsStream = ownership;
 
         Span<byte> buffer = stackalloc byte[HiveHeader.HeaderSize];
-        _fileStream.ReadExactly(buffer);
+        var validBufferSize = _fileStream.Read(buffer);
+        buffer.Slice(validBufferSize).Clear();
 
         _header = new();
         var headerSize = _header.ReadFrom(buffer, throwOnInvalidData: false);
@@ -164,11 +165,12 @@ public class RegistryHive : IDisposable
                     _fileStream.Position = 0;
                     _fileStream.CopyTo(mem);
                     mem.Position = 0;
+
                     if (ownership == Ownership.Dispose)
                     {
                         _fileStream.Dispose();
                     }
-
+                    
                     _fileStream = mem;
                 }
 
@@ -318,11 +320,18 @@ public class RegistryHive : IDisposable
     /// </summary>
     public void Dispose(bool disposing)
     {
-        if (_fileStream is not null && _ownsStream == Ownership.Dispose)
+        if (_fileStream is not null)
         {
             if (disposing)
             {
-                _fileStream.Dispose();
+                if (_ownsStream == Ownership.Dispose)
+                {
+                    _fileStream.Dispose();
+                }
+                else if (_fileStream.CanWrite)
+                {
+                    _fileStream.Flush();
+                }
             }
 
             _fileStream = null;

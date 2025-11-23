@@ -70,6 +70,10 @@ public sealed class VirtualMachineBuilder : StreamBuilder, IDisposable
             {
                 r.content.Dispose();
             }
+            else if (r.content.CanWrite)
+            {
+                r.content.Flush();
+            }
         }
     }
 

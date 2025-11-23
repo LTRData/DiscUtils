@@ -361,7 +361,11 @@ public class ThreadSafeStream : SparseStream
                     {
                         _common.WrappedStream?.Dispose();
                     }
-
+                    else if (_common.WrappedStream != null && _common.WrappedStream.CanWrite)
+                    {
+                        _common.WrappedStream.Flush();
+                    }
+                    
                     _common.Dispose();
                 }
             }

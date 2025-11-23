@@ -504,6 +504,10 @@ public sealed class Disk : VirtualDisk
                     {
                         file.VirtualDiskLayer.Dispose();
                     }
+                    else if (file.VirtualDiskLayer.CanWrite)
+                    {
+                        file.VirtualDiskLayer.Flush();
+                    }
                 }
             }
         }

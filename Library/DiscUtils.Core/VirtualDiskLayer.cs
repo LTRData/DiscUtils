@@ -88,6 +88,11 @@ public abstract class VirtualDiskLayer : IDisposable
     }
 
     /// <summary>
+    /// Flush buffers to underlying storage.
+    /// </summary>
+    public virtual void Flush() { }
+
+    /// <summary>
     /// Finalizes an instance of the VirtualDiskLayer class.
     /// </summary>
     ~VirtualDiskLayer()
