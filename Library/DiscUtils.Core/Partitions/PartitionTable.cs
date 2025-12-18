@@ -54,11 +54,13 @@ public abstract class PartitionTable
     /// </summary>
     public abstract Geometry? DiskGeometry { get; }
 
+    private static List<PartitionTableFactory>? _factories;
+
     private static List<PartitionTableFactory> Factories
     {
         get
         {
-            if (field == null)
+            if (_factories == null)
             {
                 var factories = new List<PartitionTableFactory>();
 
@@ -66,17 +68,25 @@ public abstract class PartitionTable
                 {
                     foreach (var attr in type.GetCustomAttributes<PartitionTableFactoryAttribute>(false))
                     {
-                        factories.Add((PartitionTableFactory)Activator.CreateInstance(type)!);
+                        factories.Add((PartitionTableFactory)Activator.CreateInstance(type, true)!);
                     }
                 }
 
-                field = factories;
+                _factories = factories;
             }
 
-            return field;
+            return _factories;
+        }
+    }
+
+    internal static void RegisterPartitionTableFactory(PartitionTableFactory factory)
+    {
+        if (_factories == null)
+        {
+            _factories = new List<PartitionTableFactory>();
         }
 
-        set;
+        _factories.Add(factory);
     }
 
     /// <summary>

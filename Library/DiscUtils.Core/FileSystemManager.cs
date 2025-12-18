@@ -38,14 +38,19 @@ namespace DiscUtils;
 /// </remarks>
 public static class FileSystemManager
 {
-    private static readonly List<VfsFileSystemFactory> _factories;
+    private static List<VfsFileSystemFactory>? _factories;
 
-    /// <summary>
-    /// Initializes a new instance of the FileSystemManager class.
-    /// </summary>
-    static FileSystemManager()
+    private static List<VfsFileSystemFactory> Factories
     {
-        _factories = [];
+        get
+        {
+            if (_factories == null)
+            {
+                _factories = new List<VfsFileSystemFactory>();
+                RegisterFileSystems(typeof(FileSystemManager).Assembly);
+            }
+            return _factories;
+        }
     }
 
     /// <summary>
@@ -54,6 +59,11 @@ public static class FileSystemManager
     /// <param name="factory">The detector for the new file systems.</param>
     public static void RegisterFileSystems(VfsFileSystemFactory factory)
     {
+        if (_factories == null)
+        {
+            _factories = new List<VfsFileSystemFactory>();
+        }
+
         lock (_factories)
         {
             _factories.Add(factory);
@@ -70,6 +80,11 @@ public static class FileSystemManager
     /// </remarks>
     public static void RegisterFileSystems(Assembly assembly)
     {
+        if (_factories == null)
+        {
+            _factories = new List<VfsFileSystemFactory>();
+        }
+
         lock (_factories)
         {
             _factories.AddRange(DetectFactories(assembly));
@@ -99,6 +114,7 @@ public static class FileSystemManager
 
     private static IEnumerable<VfsFileSystemFactory> DetectFactories(Assembly assembly)
     {
+        Console.WriteLine($"FileSystemManager: Scanning assembly {assembly.FullName} for VfsFileSystemFactories");
         foreach (var type in assembly.GetTypes())
         {
             var attrib = type.GetCustomAttribute<VfsFileSystemFactoryAttribute>(false);
@@ -107,7 +123,18 @@ public static class FileSystemManager
                 continue;
             }
 
-            yield return (VfsFileSystemFactory)Activator.CreateInstance(type)!;
+            Console.WriteLine($"FileSystemManager: Found VfsFileSystemFactory: {type.FullName}");
+            VfsFileSystemFactory? factory = null;
+            try
+            {
+                factory = (VfsFileSystemFactory)Activator.CreateInstance(type, true)!;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"FileSystemManager: Error instantiating {type.FullName}: {ex}");
+                throw;
+            }
+            yield return factory;
         }
     }
 
@@ -116,9 +143,10 @@ public static class FileSystemManager
         var detectStream = new BufferedStream(stream);
         var detected = new List<FileSystemInfo>();
 
-        lock (_factories)
+        var factories = Factories;
+        lock (factories)
         {
-            foreach (var factory in _factories)
+            foreach (var factory in factories)
             {
                 detected.AddRange(factory.Detect(detectStream, volume));
             }

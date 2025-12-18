@@ -386,3 +386,19 @@ artifacts-dotnet-releaser/
 # Verify
 *.received.*
 *#
+
+# Build outputs in Library folder
+Library/net*/
+Library/netstandard*/
+net10.0/
+
+# Build outputs in root
+netstandard*/
+
+# Build outputs in Tests folder
+Tests/net*/
+Tests/netstandard*/
+
+# Build outputs in Utilities folder
+Utilities/net*/
+Utilities/netstandard*/

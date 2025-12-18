@@ -86,4 +86,7 @@
     <Project Path="Utilities/VirtualDiskConvert/VirtualDiskConvert.csproj" />
     <Project Path="Utilities/VolInfo/VolInfo.csproj" />
   </Folder>
+  <Folder Name="/SourceGenerator/">
+    <Project Path="SourceGenerator/DiscUtils.SourceGenerator.csproj" />
+  </Folder>
 </Solution>

@@ -82,26 +82,45 @@ public sealed class VolumeManager
 
     private static readonly object _syncObj = new();
 
+    private static ConcurrentBag<LogicalVolumeFactory>? _logicalVolumeFactories;
+
     private static ConcurrentBag<LogicalVolumeFactory> LogicalVolumeFactories
     {
         get
         {
-            if (field == null)
+            if (_logicalVolumeFactories == null)
             {
                 lock (_syncObj)
                 {
-                    if (field == null)
+                    if (_logicalVolumeFactories == null)
                     {
-                        var factories = new ConcurrentBag<LogicalVolumeFactory>(GetLogicalVolumeFactories(_coreAssembly));
-                        field = factories;
+                        _logicalVolumeFactories = new ConcurrentBag<LogicalVolumeFactory>(GetLogicalVolumeFactories(_coreAssembly));
                     }
                 }
             }
 
-            return field;
+            return _logicalVolumeFactories;
+        }
+    }
+
+    /// <summary>
+    /// Register a new LogicalVolumeFactory instance.
+    /// </summary>
+    /// <param name="factory">The factory to register.</param>
+    public static void RegisterLogicalVolumeFactory(LogicalVolumeFactory factory)
+    {
+        if (_logicalVolumeFactories == null)
+        {
+            lock (_syncObj)
+            {
+                if (_logicalVolumeFactories == null)
+                {
+                    _logicalVolumeFactories = new ConcurrentBag<LogicalVolumeFactory>();
+                }
+            }
         }
 
-        set;
+        _logicalVolumeFactories.Add(factory);
     }
 
     private static IEnumerable<LogicalVolumeFactory> GetLogicalVolumeFactories(Assembly assembly)
@@ -110,7 +129,18 @@ public sealed class VolumeManager
         {
             foreach (var attr in type.GetCustomAttributes<LogicalVolumeFactoryAttribute>(false))
             {
-                yield return (LogicalVolumeFactory)Activator.CreateInstance(type)!;
+                Console.WriteLine($"VolumeManager: Found LogicalVolumeFactory {type.FullName} in {assembly.FullName}");
+                LogicalVolumeFactory? factory = null;
+                try
+                {
+                    factory = (LogicalVolumeFactory)Activator.CreateInstance(type, true)!;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"VolumeManager: Error instantiating {type.FullName}: {ex}");
+                    throw;
+                }
+                yield return factory;
             }
         }
     }

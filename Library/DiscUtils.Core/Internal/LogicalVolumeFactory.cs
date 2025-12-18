@@ -24,7 +24,7 @@ using System.Collections.Generic;
 
 namespace DiscUtils.Internal;
 
-internal abstract class LogicalVolumeFactory
+public abstract class LogicalVolumeFactory
 {
     public abstract bool HandlesPhysicalVolume(PhysicalVolumeInfo volume);
 

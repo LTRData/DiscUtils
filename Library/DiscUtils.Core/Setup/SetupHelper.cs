@@ -25,10 +25,12 @@ public static class SetupHelper
     /// <param name="assembly"></param>
     public static void RegisterAssembly(Assembly assembly)
     {
+        Console.WriteLine($"SetupHelper: Registering assembly {assembly.FullName}");
         lock (_alreadyLoaded)
         {
             if (!_alreadyLoaded.Add(assembly.FullName ?? assembly.GetName().FullName))
             {
+                Console.WriteLine($"SetupHelper: Assembly {assembly.FullName} already registered.");
                 return;
             }
 
