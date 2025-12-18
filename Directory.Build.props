@@ -6,7 +6,7 @@
 
     <DebugType>portable</DebugType>
 
-    <PackageProjectUrl>https://github.com/LTRData/DiscUtils</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/Devedse/DiscUtils</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryType>git</RepositoryType>
 
