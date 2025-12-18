@@ -56,6 +56,7 @@ public static class SetupHelper
     }
     public static void SetupCompleteAot()
     {
+        DiskImageBuilder.ShouldUseVirtualDiskManagerTypeMap = true;
         DiscUtils.Setup.GeneratedSetupHelper.RegisterFactories();
     }
 }
