@@ -23,7 +23,7 @@ namespace DiscUtils.Complete;
 
 public static class SetupHelper
 {
- public static void SetupComplete()
+    public static void SetupComplete()
     {
         Setup.SetupHelper.RegisterAssembly(typeof(Store).Assembly);
         Setup.SetupHelper.RegisterAssembly(typeof(Disk).Assembly);
@@ -54,6 +54,7 @@ public static class SetupHelper
         Setup.SetupHelper.RegisterAssembly(typeof(Xva.Disk).Assembly);
         Setup.SetupHelper.RegisterAssembly(typeof(Lvm.LogicalVolumeManager).Assembly);
     }
+
     public static void SetupCompleteAot()
     {
         DiskImageBuilder.ShouldUseVirtualDiskManagerTypeMap = true;

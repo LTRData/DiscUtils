@@ -110,28 +110,23 @@ namespace DiscUtils.SourceGenerator
             sb.AppendLine("    {");
             sb.AppendLine("        public static void Register()");
             sb.AppendLine("        {");
-            sb.AppendLine($"            Console.WriteLine(\"Registering assembly: {assemblyName}\");");
 
             foreach (var classSymbol in classes)
             {
                 if (InheritsFrom(classSymbol, "DiscUtils.Vfs.VfsFileSystemFactory"))
                 {
-                    sb.AppendLine($"            Console.WriteLine(\"Registering FileSystemFactory: {classSymbol.ToDisplayString()}\");");
                     sb.AppendLine($"            DiscUtils.FileSystemManager.RegisterFileSystems(new {classSymbol.ToDisplayString()}());");
                 }
                 else if (InheritsFrom(classSymbol, "DiscUtils.Internal.VirtualDiskFactory"))
                 {
-                    sb.AppendLine($"            Console.WriteLine(\"Registering VirtualDiskFactory: {classSymbol.ToDisplayString()}\");");
                     sb.AppendLine($"            DiscUtils.VirtualDiskManager.RegisterVirtualDiskFactory(new {classSymbol.ToDisplayString()}());");
                 }
                 else if (InheritsFrom(classSymbol, "DiscUtils.Internal.LogicalVolumeFactory"))
                 {
-                    sb.AppendLine($"            Console.WriteLine(\"Registering LogicalVolumeFactory: {classSymbol.ToDisplayString()}\");");
                     sb.AppendLine($"            DiscUtils.VolumeManager.RegisterLogicalVolumeFactory(new {classSymbol.ToDisplayString()}());");
                 }
                 else if (InheritsFrom(classSymbol, "DiscUtils.Partitions.PartitionTableFactory"))
                 {
-                    sb.AppendLine($"            Console.WriteLine(\"Registering PartitionTableFactory: {classSymbol.ToDisplayString()}\");");
                     sb.AppendLine($"            DiscUtils.Partitions.PartitionTable.RegisterPartitionTableFactory(new {classSymbol.ToDisplayString()}());");
                 }
                 else if (InheritsFrom(classSymbol, "DiscUtils.Internal.VirtualDiskTransport"))
@@ -144,7 +139,6 @@ namespace DiscUtils.SourceGenerator
                             string scheme = attr.ConstructorArguments[0].Value?.ToString();
                             if (!string.IsNullOrEmpty(scheme))
                             {
-                                sb.AppendLine($"            Console.WriteLine(\"Registering VirtualDiskTransport: {classSymbol.ToDisplayString()} for scheme {scheme}\");");
                                 sb.AppendLine($"            DiscUtils.VirtualDiskManager.RegisterVirtualDiskTransport(\"{scheme}\", () => new {classSymbol.ToDisplayString()}());");
                             }
                         }
