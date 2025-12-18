@@ -1,9 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+  
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks></TargetFrameworks>
+    <IsSourceGenerator>true</IsSourceGenerator>
+    <Description>Source Generator for DiscUtils</Description>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
-    <IsRoslynComponent>true</IsRoslynComponent>
+    <PackageTags>DiscUtils;SourceGenerator;Analyzer</PackageTags>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

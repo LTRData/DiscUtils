@@ -48,6 +48,7 @@
     <Project Path="Library/DiscUtils.Xfs/DiscUtils.Xfs.csproj" />
     <Project Path="Library/DiscUtils.Xva/DiscUtils.Xva.csproj" />
     <Project Path="Library/DiscUtils/DiscUtils.csproj" />
+    <Project Path="Library/DiscUtils.SourceGenerator/DiscUtils.SourceGenerator.csproj" />
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
@@ -85,8 +86,5 @@
     <Project Path="Utilities/VHDXDump/VHDXDump.csproj" />
     <Project Path="Utilities/VirtualDiskConvert/VirtualDiskConvert.csproj" />
     <Project Path="Utilities/VolInfo/VolInfo.csproj" />
-  </Folder>
-  <Folder Name="/SourceGenerator/">
-    <Project Path="SourceGenerator/DiscUtils.SourceGenerator.csproj" />
   </Folder>
 </Solution>

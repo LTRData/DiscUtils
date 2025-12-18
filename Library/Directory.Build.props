@@ -37,7 +37,10 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <ProjectReference Include="$(MSBuildThisFileDirectory)..\SourceGenerator\DiscUtils.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" GlobalPropertiesToRemove="TargetFramework" SkipGetTargetFrameworkProperties="true" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(IsSourceGenerator)' != 'true'">
+    <ProjectReference Include="$(MSBuildThisFileDirectory)DiscUtils.SourceGenerator\DiscUtils.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" GlobalPropertiesToRemove="TargetFramework" SkipGetTargetFrameworkProperties="true" />
   </ItemGroup>
 
 </Project>
