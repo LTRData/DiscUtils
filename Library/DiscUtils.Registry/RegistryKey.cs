@@ -40,6 +40,8 @@ public enum RegistryValueOptions
 /// </summary>
 public sealed class RegistryKey
 {
+    internal static readonly char[] RegistryPathSeparators = ['\\'];
+
     private readonly KeyNodeCell _cell;
     private readonly RegistryHive _hive;
 
@@ -530,7 +532,7 @@ public sealed class RegistryKey
             return this;
         }
 
-        var split = subkey.Split(Utilities.PathSeparators, 2, StringSplitOptions.RemoveEmptyEntries);
+        var split = subkey.Split(RegistryPathSeparators, 2, StringSplitOptions.RemoveEmptyEntries);
         var cellIndex = FindSubKeyCell(split[0]);
 
         if (cellIndex < 0)
@@ -573,7 +575,7 @@ public sealed class RegistryKey
             return this;
         }
 
-        var split = path.Split(Utilities.PathSeparators, 2, StringSplitOptions.RemoveEmptyEntries);
+        var split = path.Split(RegistryPathSeparators, 2, StringSplitOptions.RemoveEmptyEntries);
         var cellIndex = FindSubKeyCell(split[0]);
 
         if (cellIndex < 0)
@@ -642,7 +644,7 @@ public sealed class RegistryKey
             throw new ArgumentException("Invalid SubKey", nameof(subkey));
         }
 
-        var split = subkey.Split(Utilities.PathSeparators, 2, StringSplitOptions.RemoveEmptyEntries);
+        var split = subkey.Split(RegistryPathSeparators, 2, StringSplitOptions.RemoveEmptyEntries);
 
         var subkeyCellIndex = FindSubKeyCell(split[0]);
         if (subkeyCellIndex < 0)
