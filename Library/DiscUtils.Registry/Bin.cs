@@ -152,14 +152,36 @@ internal sealed class Bin
     {
         var index = cellIndex - _header.FileOffset;
         var len = Math.Abs(EndianUtilities.ToInt32LittleEndian(_buffer, index));
-
+        
         // Check if this is a "big data" cell (signature "db")
         // Big data cells are used for values larger than ~16KB
         if (len >= 6 && _buffer[index + 4] == 0x64 && _buffer[index + 5] == 0x62) // "db"
         {
-            throw new NotSupportedException("Big data cells are not supported in this implementation");
+            // Big data format:
+            // 0x00: signature "db" (2 bytes)
+            // 0x02: number of segments (2 bytes)
+            // 0x04: offset to list of cell indices (4 bytes)
+            var numSegments = EndianUtilities.ToUInt16LittleEndian(_buffer.AsSpan(index + 6));
+            var listOffset = EndianUtilities.ToInt32LittleEndian(_buffer.AsSpan(index + 8));
+            
+            // Read the list of cell indices
+            var listIndex = listOffset - _header.FileOffset;
+            var bytesWritten = 0;
+            
+            for (var i = 0; i < numSegments && bytesWritten < maxBytes.Length; i++)
+            {
+                var segmentCellIndex = EndianUtilities.ToInt32LittleEndian(_buffer.AsSpan(listIndex + i * 4));
+                var segmentIndex = segmentCellIndex - _header.FileOffset;
+                var segmentLen = Math.Abs(EndianUtilities.ToInt32LittleEndian(_buffer, segmentIndex)) - 4;
+                
+                var bytesToCopy = Math.Min(segmentLen, maxBytes.Length - bytesWritten);
+                _buffer.AsSpan(segmentIndex + 4, bytesToCopy).CopyTo(maxBytes.Slice(bytesWritten));
+                bytesWritten += bytesToCopy;
+            }
+            
+            return maxBytes.Slice(0, bytesWritten);
         }
-
+        
         // Regular cell data
         var result = maxBytes.Slice(0, Math.Min(len - 4, maxBytes.Length));
         _buffer.AsSpan(index + 4, result.Length).CopyTo(result);
