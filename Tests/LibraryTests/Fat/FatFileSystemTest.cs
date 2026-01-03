@@ -582,4 +582,31 @@ public class FatFileSystemTest
 
         Assert.True(pattern.SequenceEqual(buffer));
     }
+
+    [Fact]
+    public void CreateDirectoryWithExistingData()
+    {
+        const int highDensitySize = 1474560;
+        using var diskStream = new SparseMemoryStream();
+
+        byte[] existingData = [
+            0x00, 0x00, 0x00, 0x4E, 0x00, 0x0A, 0x7B, 0x9B, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02,
+            0x00, 0x0A, 0x7B, 0xE9, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x0A, 0x7B, 0xEB,
+        ];
+
+        for (var i = 0; i < 1474560 / existingData.Length; i++)
+        {
+            diskStream.Seek(i * existingData.Length, SeekOrigin.Begin);
+            diskStream.Write(existingData, 0, existingData.Length);
+        }
+
+        diskStream.Position = 0;
+        using var fs = FatFileSystem.FormatFloppy(diskStream, FloppyDiskType.HighDensity, "FLOPPY_IMG ");
+
+        fs.CreateDirectory("dir");
+
+        var entries = fs.GetFileSystemEntries("dir").ToList();
+
+        Assert.Empty(entries);
+    }
 }
