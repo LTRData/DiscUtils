@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using DiscUtils.Streams;
 using DiscUtils.Internal;
 using System.Buffers;
+using LTRData.Extensions.Split;
 
 namespace DiscUtils.Registry;
 
@@ -40,7 +41,7 @@ public enum RegistryValueOptions
 /// </summary>
 public sealed class RegistryKey
 {
-    internal static readonly char[] RegistryPathSeparators = ['\\'];
+    public static readonly char RegistryPathSeparator = '\\';
 
     private readonly KeyNodeCell _cell;
     private readonly RegistryHive _hive;
@@ -532,35 +533,45 @@ public sealed class RegistryKey
             return this;
         }
 
-        var split = subkey.Split(RegistryPathSeparators, 2, StringSplitOptions.RemoveEmptyEntries);
-        var cellIndex = FindSubKeyCell(split[0]);
+        var subkeyspan = subkey.AsSpan().TrimStart(RegistryPathSeparator);
+
+        var delim = subkeyspan.IndexOf(RegistryPathSeparator);
+
+        var thisKey = delim >= 0 ? subkeyspan.Slice(0, delim).ToString() : subkeyspan.ToString();
+
+        var nextKey = delim >= 0 ? subkeyspan.Slice(delim + 1).TrimStart(RegistryPathSeparator).ToString() : null;
+
+        var cellIndex = FindSubKeyCell(thisKey);
 
         if (cellIndex < 0)
         {
-            var newKeyCell = new KeyNodeCell(split[0], _cell.Index)
+            var newKeyCell = new KeyNodeCell(thisKey, _cell.Index)
             {
                 SecurityIndex = _cell.SecurityIndex
             };
             ReferenceSecurityCell(newKeyCell.SecurityIndex);
             _hive.UpdateCell(newKeyCell, true);
 
-            LinkSubKey(split[0], newKeyCell.Index);
+            LinkSubKey(thisKey, newKeyCell.Index);
 
-            if (split.Length == 1)
+
+
+            if (string.IsNullOrWhiteSpace(nextKey))
             {
                 return new RegistryKey(_hive, newKeyCell);
             }
 
-            return new RegistryKey(_hive, newKeyCell).CreateSubKey(split[1]);
+            return new RegistryKey(_hive, newKeyCell).CreateSubKey(nextKey);
         }
 
         var cell = _hive.GetCell<KeyNodeCell>(cellIndex);
-        if (split.Length == 1)
+        
+        if (string.IsNullOrWhiteSpace(nextKey))
         {
             return new RegistryKey(_hive, cell);
         }
 
-        return new RegistryKey(_hive, cell).CreateSubKey(split[1]);
+        return new RegistryKey(_hive, cell).CreateSubKey(nextKey);
     }
 
     /// <summary>
@@ -575,8 +586,15 @@ public sealed class RegistryKey
             return this;
         }
 
-        var split = path.Split(RegistryPathSeparators, 2, StringSplitOptions.RemoveEmptyEntries);
-        var cellIndex = FindSubKeyCell(split[0]);
+        var subkeyspan = path.AsSpan().TrimStart(RegistryPathSeparator);
+
+        var delim = subkeyspan.IndexOf(RegistryPathSeparator);
+
+        var thisKey = delim >= 0 ? subkeyspan.Slice(0, delim).ToString() : subkeyspan.ToString();
+
+        var nextKey = delim >= 0 ? subkeyspan.Slice(delim + 1).TrimStart(RegistryPathSeparator).ToString() : null;
+
+        var cellIndex = FindSubKeyCell(thisKey);
 
         if (cellIndex < 0)
         {
@@ -584,12 +602,13 @@ public sealed class RegistryKey
         }
 
         var cell = _hive.GetCell<KeyNodeCell>(cellIndex);
-        if (split.Length == 1)
+        
+        if (string.IsNullOrWhiteSpace(nextKey))
         {
             return new RegistryKey(_hive, cell);
         }
 
-        return new RegistryKey(_hive, cell).OpenSubKey(split[1]);
+        return new RegistryKey(_hive, cell).OpenSubKey(nextKey);
     }
 
     /// <summary>
@@ -644,9 +663,16 @@ public sealed class RegistryKey
             throw new ArgumentException("Invalid SubKey", nameof(subkey));
         }
 
-        var split = subkey.Split(RegistryPathSeparators, 2, StringSplitOptions.RemoveEmptyEntries);
+        var subkeyspan = subkey.AsSpan().TrimStart(RegistryPathSeparator);
 
-        var subkeyCellIndex = FindSubKeyCell(split[0]);
+        var delim = subkeyspan.IndexOf(RegistryPathSeparator);
+
+        var thisKey = delim >= 0 ? subkeyspan.Slice(0, delim).ToString() : subkeyspan.ToString();
+
+        var nextKey = delim >= 0 ? subkeyspan.Slice(delim + 1).TrimStart(RegistryPathSeparator).ToString() : null;
+
+        var subkeyCellIndex = FindSubKeyCell(thisKey);
+
         if (subkeyCellIndex < 0)
         {
             if (throwOnMissingSubKey)
@@ -659,7 +685,7 @@ public sealed class RegistryKey
 
         var subkeyCell = _hive.GetCell<KeyNodeCell>(subkeyCellIndex);
 
-        if (split.Length == 1)
+        if (string.IsNullOrWhiteSpace(nextKey))
         {
             if (subkeyCell.NumSubKeys != 0)
             {
@@ -698,7 +724,7 @@ public sealed class RegistryKey
         else
         {
             return new RegistryKey(_hive, subkeyCell)
-                .DeleteSubKey(split[1], throwOnMissingSubKey);
+                .DeleteSubKey(nextKey, throwOnMissingSubKey);
         }
     }
 

@@ -78,6 +78,34 @@ public class RegistryKeyTest
     }
 
     [Fact]
+    public void SetVeryLargeValue_BigDataCell()
+    {
+        // Test big data cells (used for values >~16KB)
+        // This mimics real-world scenarios like Windows registry ProductPolicy values
+        var buffer = new byte[80 * 1024]; // 80KB - larger than big data threshold
+
+        // Set some distinctive bytes at various positions
+        buffer[0] = 0x12;
+        buffer[100] = 0x34;
+        buffer[16384] = 0x56; // Past first 16KB boundary
+        buffer[32768] = 0x78; // Past second 16KB boundary
+        buffer[buffer.Length - 1] = 0x9A;
+
+        hive.Root.SetValue("verybigvalue", buffer);
+
+        var readVal = (byte[])hive.Root.GetValue("verybigvalue");
+        Assert.Equal(buffer.Length, readVal.Length);
+        Assert.Equal(0x12, readVal[0]);
+        Assert.Equal(0x34, readVal[100]);
+        Assert.Equal(0x56, readVal[16384]);
+        Assert.Equal(0x78, readVal[32768]);
+        Assert.Equal(0x9A, readVal[buffer.Length - 1]);
+
+        // Verify entire buffer matches
+        Assert.Equal(buffer, readVal);
+    }
+
+    [Fact]
     public void SetLongValue()
     {
         var value = long.MaxValue;
@@ -208,7 +236,7 @@ public class RegistryKeyTest
     [Fact]
     public void CreateKey()
     {
-        var newKey = hive.Root.CreateSubKey(@$"Child{Path.DirectorySeparatorChar}Grandchild");
+        var newKey = hive.Root.CreateSubKey(@$"Child{RegistryKey.RegistryPathSeparator}Grandchild");
         Assert.NotNull(newKey);
         Assert.Equal(1, hive.Root.SubKeyCount);
         Assert.Equal(1, hive.Root.OpenSubKey("cHiLd").SubKeyCount);
@@ -217,10 +245,10 @@ public class RegistryKeyTest
     [Fact]
     public void CreateKeyWithInitialSeparator()
     {
-        var newKey = hive.Root.CreateSubKey(@$"{Path.DirectorySeparatorChar}Child{Path.DirectorySeparatorChar}Grandchild");
+        var newKey = hive.Root.CreateSubKey(@$"{RegistryKey.RegistryPathSeparator}Child{RegistryKey.RegistryPathSeparator}Grandchild");
         Assert.NotNull(newKey);
         Assert.Equal(1, hive.Root.SubKeyCount);
-        Assert.Equal(1, hive.Root.OpenSubKey(@$"{Path.DirectorySeparatorChar}cHiLd").SubKeyCount);
+        Assert.Equal(1, hive.Root.OpenSubKey(@$"{RegistryKey.RegistryPathSeparator}cHiLd").SubKeyCount);
     }
 
     [Fact]
@@ -248,14 +276,14 @@ public class RegistryKeyTest
     [Fact]
     public void DeleteNonEmptyKey()
     {
-        var newKey = hive.Root.CreateSubKey(@$"Child{Path.DirectorySeparatorChar}Grandchild");
+        var newKey = hive.Root.CreateSubKey(@$"Child{RegistryKey.RegistryPathSeparator}Grandchild");
         Assert.Throws<InvalidOperationException>(() => hive.Root.DeleteSubKey("Child"));
     }
 
     [Fact]
     public void DeleteKeyTree()
     {
-        var newKey = hive.Root.CreateSubKey($@"Child{Path.DirectorySeparatorChar}Grandchild");
+        var newKey = hive.Root.CreateSubKey($@"Child{RegistryKey.RegistryPathSeparator}Grandchild");
         Assert.Equal(1, hive.Root.SubKeyCount);
         hive.Root.DeleteSubKeyTree("cHiLd");
         Assert.Equal(0, hive.Root.SubKeyCount);

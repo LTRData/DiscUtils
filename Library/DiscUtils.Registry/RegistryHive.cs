@@ -39,7 +39,7 @@ public class RegistryHive : IDisposable
     internal const int BinStart = 4 * Sizes.OneKiB;
     private readonly List<BinHeader> _bins;
 
-    private Stream _fileStream;
+    internal Stream FileStream { get; private set; }
 
     private readonly HiveHeader _header;
     private readonly Ownership _ownsStream;
@@ -137,12 +137,12 @@ public class RegistryHive : IDisposable
     /// <param name="logstreams">LOG1 and LOG2 streams to replay pending changes from</param>
     public RegistryHive(Stream hive, Ownership ownership, params Stream[] logstreams)
     {
-        _fileStream = hive;
-        _fileStream.Position = 0;
+        FileStream = hive;
+        FileStream.Position = 0;
         _ownsStream = ownership;
 
         Span<byte> buffer = stackalloc byte[HiveHeader.HeaderSize];
-        var validBufferSize = _fileStream.Read(buffer);
+        var validBufferSize = FileStream.Read(buffer);
         buffer.Slice(validBufferSize).Clear();
 
         _header = new();
@@ -159,19 +159,19 @@ public class RegistryHive : IDisposable
             {
                 // If we are opening a hive read-only, copy to an in-memory buffer
                 // to be able to replay logs
-                if (!_fileStream.CanWrite)
+                if (!FileStream.CanWrite)
                 {
-                    var mem = new MemoryStream((int)_fileStream.Length);
-                    _fileStream.Position = 0;
-                    _fileStream.CopyTo(mem);
+                    var mem = new MemoryStream((int)FileStream.Length);
+                    FileStream.Position = 0;
+                    FileStream.CopyTo(mem);
                     mem.Position = 0;
 
                     if (ownership == Ownership.Dispose)
                     {
-                        _fileStream.Dispose();
+                        FileStream.Dispose();
                     }
                     
-                    _fileStream = mem;
+                    FileStream = mem;
                 }
 
                 // Open log files
@@ -208,7 +208,7 @@ public class RegistryHive : IDisposable
                 if (logfiles.Length > 0 &&
                     logfiles[0].HiveHeader.Sequence1 >= _header.Sequence2)
                 {
-                    (lastSequenceNumber, maxPosition) = logfiles[0].UpdateHive(_fileStream);
+                    (lastSequenceNumber, maxPosition) = logfiles[0].UpdateHive(FileStream);
 
                     if (maxPosition > _header.Length)
                     {
@@ -222,7 +222,7 @@ public class RegistryHive : IDisposable
                         // If secondary log continues right after last record in first log
                         if (logfiles[1].HiveHeader.Sequence1 == lastSequenceNumber + 1)
                         {
-                            (lastSequenceNumber, maxPosition) = logfiles[1].UpdateHive(_fileStream);
+                            (lastSequenceNumber, maxPosition) = logfiles[1].UpdateHive(FileStream);
 
                             if (maxPosition > _header.Length)
                             {
@@ -246,7 +246,7 @@ public class RegistryHive : IDisposable
                 else if (logfiles.Length > 1 &&
                     logfiles[1].HiveHeader.Sequence1 >= _header.Sequence2)
                 {
-                    (lastSequenceNumber, maxPosition) = logfiles[1].UpdateHive(_fileStream);
+                    (lastSequenceNumber, maxPosition) = logfiles[1].UpdateHive(FileStream);
 
                     if (maxPosition > _header.Length)
                     {
@@ -263,11 +263,11 @@ public class RegistryHive : IDisposable
                 _header.Sequence1 = _header.Sequence2 = lastSequenceNumber + 1;
                 _header.Timestamp = DateTime.UtcNow;
                 _header.WriteTo(buffer);
-                _fileStream.Position = 0;
-                _fileStream.Write(buffer);
-                _fileStream.Position = 0;
+                FileStream.Position = 0;
+                FileStream.Write(buffer);
+                FileStream.Position = 0;
             }
-            else if (_fileStream.CanWrite)
+            else if (FileStream.CanWrite)
             {
                 throw new RegistryCorruptException("Registry hive needs transaction logs to recover pending changes");
             }
@@ -286,8 +286,8 @@ public class RegistryHive : IDisposable
         var pos = 0;
         while (pos < _header.Length)
         {
-            _fileStream.Position = BinStart + pos;
-            _fileStream.ReadExactly(buffer.Slice(0, BinHeader.HeaderSize));
+            FileStream.Position = BinStart + pos;
+            FileStream.ReadExactly(buffer.Slice(0, BinHeader.HeaderSize));
             var header = new BinHeader();
             header.ReadFrom(buffer);
             _bins.Add(header);
@@ -320,21 +320,21 @@ public class RegistryHive : IDisposable
     /// </summary>
     public void Dispose(bool disposing)
     {
-        if (_fileStream is not null)
+        if (FileStream is not null)
         {
             if (disposing)
             {
                 if (_ownsStream == Ownership.Dispose)
                 {
-                    _fileStream.Dispose();
+                    FileStream.Dispose();
                 }
-                else if (_fileStream.CanWrite)
+                else if (FileStream.CanWrite)
                 {
-                    _fileStream.Flush();
+                    FileStream.Flush();
                 }
             }
 
-            _fileStream = null;
+            FileStream = null;
         }
     }
 
@@ -426,8 +426,8 @@ public class RegistryHive : IDisposable
         Span<byte> hiveHeaderBuffer = stackalloc byte[HiveHeader.HeaderSize];
         _header.RootCell = rootCell.Index;
         _header.WriteTo(hiveHeaderBuffer);
-        _fileStream.Position = 0;
-        _fileStream.Write(hiveHeaderBuffer);
+        FileStream.Position = 0;
+        FileStream.Write(hiveHeaderBuffer);
     }
 
     /// <summary>
@@ -573,8 +573,8 @@ public class RegistryHive : IDisposable
 
     private Bin LoadBin(BinHeader binHeader)
     {
-        _fileStream.Position = BinStart + binHeader.FileOffset;
-        return new Bin(this, _fileStream);
+        FileStream.Position = BinStart + binHeader.FileOffset;
+        return new Bin(this, FileStream);
     }
 
     private BinHeader AllocateBin(int minSize)
@@ -591,8 +591,8 @@ public class RegistryHive : IDisposable
         try
         {
             newBinHeader.WriteTo(buffer);
-            _fileStream.Position = BinStart + newBinHeader.FileOffset;
-            _fileStream.Write(buffer, 0, newBinHeader.Size);
+            FileStream.Position = BinStart + newBinHeader.FileOffset;
+            FileStream.Write(buffer, 0, newBinHeader.Size);
         }
         finally
         {
@@ -601,23 +601,23 @@ public class RegistryHive : IDisposable
 
         Span<byte> cellHeader = stackalloc byte[4];
         EndianUtilities.WriteBytesLittleEndian(newBinHeader.BinSize - newBinHeader.Size, cellHeader);
-        _fileStream.Write(cellHeader);
+        FileStream.Write(cellHeader);
 
         // Update hive with new length
         _header.Length = newBinHeader.FileOffset + newBinHeader.BinSize;
         _header.Timestamp = DateTime.UtcNow;
         _header.Sequence1++;
         _header.Sequence2++;
-        _fileStream.Position = 0;
+        FileStream.Position = 0;
         Span<byte> hiveHeader = stackalloc byte[_header.Size];
-        _fileStream.ReadExactly(hiveHeader);
+        FileStream.ReadExactly(hiveHeader);
         _header.WriteTo(hiveHeader);
-        _fileStream.Position = 0;
-        _fileStream.Write(hiveHeader);
+        FileStream.Position = 0;
+        FileStream.Write(hiveHeader);
 
         // Make sure the file is initialized to desired position
-        _fileStream.Position = BinStart + _header.Length - 1;
-        _fileStream.WriteByte(0);
+        FileStream.Position = BinStart + _header.Length - 1;
+        FileStream.WriteByte(0);
 
         _bins.Add(newBinHeader);
         return newBinHeader;

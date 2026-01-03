@@ -152,6 +152,15 @@ internal sealed class Bin
     {
         var index = cellIndex - _header.FileOffset;
         var len = Math.Abs(EndianUtilities.ToInt32LittleEndian(_buffer, index));
+
+        // Check if this is a "big data" cell (signature "db")
+        // Big data cells are used for values larger than ~16KB
+        if (len >= 6 && _buffer[index + 4] == 0x64 && _buffer[index + 5] == 0x62) // "db"
+        {
+            throw new NotSupportedException("Big data cells are not supported in this implementation");
+        }
+
+        // Regular cell data
         var result = maxBytes.Slice(0, Math.Min(len - 4, maxBytes.Length));
         _buffer.AsSpan(index + 4, result.Length).CopyTo(result);
         return result;
