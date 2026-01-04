@@ -532,6 +532,15 @@ internal class Directory : IDisposable
         // Populate new directory with initial (special) entries.  First one is easy, just change the name!
         using var stream = new ClusterStream(FileSystem, FileAccess.Write, newEntry.FirstCluster,
                 uint.MaxValue);
+
+        // Clear cluster with zeroes in case it contains existing data from quick formatting
+        var blankCluster = new byte[FileSystem.ClusterSize];
+        for (var cluster = 0; cluster < stream.Length / FileSystem.ClusterSize; cluster++)
+        {
+            stream.Write(blankCluster);
+        }
+        stream.Position = 0;
+
         // First is the self-referencing entry...
         var selfEntry = new DirectoryEntry(newEntry, FatFileName.SelfEntryName);
         selfEntry.WriteTo(stream, FileSystem.FatOptions.FileNameEncodingTable);
