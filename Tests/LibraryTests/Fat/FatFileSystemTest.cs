@@ -586,7 +586,6 @@ public class FatFileSystemTest
     [Fact]
     public void CreateDirectoryWithExistingData()
     {
-        const int highDensitySize = 1474560;
         using var diskStream = new SparseMemoryStream();
 
         byte[] existingData = [
