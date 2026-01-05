@@ -117,6 +117,11 @@ public class ThreadSafeStream : SparseStream
     {
         get
         {
+            if (_common is null)
+            {
+                return false;
+            }
+
             lock (_common)
             {
                 return Wrapped.CanRead;
@@ -136,6 +141,11 @@ public class ThreadSafeStream : SparseStream
     {
         get
         {
+            if (_common is null)
+            {
+                return false;
+            }
+
             lock (_common)
             {
                 return Wrapped.CanWrite;

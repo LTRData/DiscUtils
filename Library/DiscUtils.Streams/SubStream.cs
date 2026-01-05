@@ -53,11 +53,11 @@ public class SubStream : MappedStream
         MaximumLength = length;
     }
 
-    public override bool CanRead => Parent.CanRead;
+    public override bool CanRead => Parent is not null && Parent.CanRead;
 
-    public override bool CanSeek => Parent.CanSeek;
+    public override bool CanSeek => Parent is not null && Parent.CanSeek;
 
-    public override bool CanWrite => Parent.CanWrite;
+    public override bool CanWrite => Parent is not null && Parent.CanWrite;
 
     public override IEnumerable<StreamExtent> Extents
     {

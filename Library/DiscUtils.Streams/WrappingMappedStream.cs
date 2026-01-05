@@ -65,11 +65,11 @@ public class WrappingMappedStream<T> : MappedStream
         return baseCompatStream.GetPositionInBaseStream(baseStream, virtualPosition);
     }
 
-    public override bool CanRead => WrappedStream.CanRead;
+    public override bool CanRead => WrappedStream is not null && WrappedStream.CanRead;
 
-    public override bool CanSeek => WrappedStream.CanSeek;
+    public override bool CanSeek => WrappedStream is not null && WrappedStream.CanSeek;
 
-    public override bool CanWrite => WrappedStream.CanWrite;
+    public override bool CanWrite => WrappedStream is not null && WrappedStream.CanWrite;
 
     public override IEnumerable<StreamExtent> Extents
     {

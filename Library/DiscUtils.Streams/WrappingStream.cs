@@ -56,11 +56,11 @@ public class WrappingStream : SparseStream
         return _wrapped.GetPositionInBaseStream(baseStream, virtualPosition);
     }
 
-    public override bool CanRead => _wrapped.CanRead;
+    public override bool CanRead => _wrapped is not null && _wrapped.CanRead;
 
-    public override bool CanSeek => _wrapped.CanSeek;
+    public override bool CanSeek => _wrapped is not null && _wrapped.CanSeek;
 
-    public override bool CanWrite => _wrapped.CanWrite;
+    public override bool CanWrite => _wrapped is not null && _wrapped.CanWrite;
 
     public override IEnumerable<StreamExtent> Extents => _wrapped.Extents;
 

@@ -77,10 +77,10 @@ internal sealed class HostedSparseExtentStream : CommonSparseExtentStream
     }
 
     public override bool CanWrite =>
-            // No write support for streamOptimized disks
-            _fileStream.CanWrite &&
-                   (_hostedHeader.Flags &
-                    (HostedSparseExtentFlags.CompressedGrains | HostedSparseExtentFlags.MarkersInUse)) == 0;
+        // No write support for streamOptimized disks
+        _fileStream is not null && _fileStream.CanWrite &&
+            (_hostedHeader.Flags &
+            (HostedSparseExtentFlags.CompressedGrains | HostedSparseExtentFlags.MarkersInUse)) == 0;
 
     public override void Write(byte[] buffer, int offset, int count)
     {
@@ -366,7 +366,9 @@ internal sealed class HostedSparseExtentStream : CommonSparseExtentStream
         var size = (int)Math.Min(_header.GrainSize * Sizes.Sector, _parentDiskStream.Length - _parentDiskStream.Position);
 
         var content = _parentDiskStream.ReadExactly(size);
-        
+
+        _fileStream.Flush();
+
         _fileStream.Position = grainStartPos;
         
         _fileStream.Write(content, 0, content.Length);
@@ -389,6 +391,8 @@ internal sealed class HostedSparseExtentStream : CommonSparseExtentStream
         var size = (int)Math.Min(_header.GrainSize * Sizes.Sector, _parentDiskStream.Length - _parentDiskStream.Position);
 
         var content = await _parentDiskStream.ReadExactlyAsync(size, cancellationToken).ConfigureAwait(false);
+
+        await _fileStream.FlushAsync(cancellationToken).ConfigureAwait(false);
 
         _fileStream.Position = grainStartPos;
 

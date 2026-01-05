@@ -43,11 +43,11 @@ internal class HashStreamCore : CompatibilityStream
         _hashAlg = hashAlg;
     }
 
-    public override bool CanRead => _wrapped.CanRead;
+    public override bool CanRead => _wrapped is not null && _wrapped.CanRead;
 
-    public override bool CanSeek => _wrapped.CanSeek;
+    public override bool CanSeek => _wrapped is not null && _wrapped.CanSeek;
 
-    public override bool CanWrite => _wrapped.CanWrite;
+    public override bool CanWrite => _wrapped is not null && _wrapped.CanWrite;
 
     public override long Length => _wrapped.Length;
 
