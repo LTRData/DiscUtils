@@ -13,7 +13,7 @@
     <Company>LTR Data</Company>
     <Authors>Kenneth Bell;LordMike;Olof Lagerkvist</Authors>
     <OutputPath>..\$(Configuration)</OutputPath>
-    <FileVersion>1.0.72</FileVersion>
+    <FileVersion>1.0.73</FileVersion>
 
 	<GenerateDocumentationFile>true</GenerateDocumentationFile>
 
