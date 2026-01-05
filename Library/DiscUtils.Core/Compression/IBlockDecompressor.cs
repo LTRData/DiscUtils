@@ -1,4 +1,5 @@
-﻿//
+﻿using System;
+//
 // Copyright (c) 2008-2011, Kenneth Bell
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -20,14 +21,9 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-using System;
-
 namespace DiscUtils.Compression;
 
-/// <summary>
-/// Base class for block compression algorithms.
-/// </summary>
-public abstract class BlockCompressor
+public interface IBlockDecompressor
 {
     /// <summary>
     /// Gets or sets the block size parameter to the algorithm.
@@ -36,23 +32,14 @@ public abstract class BlockCompressor
     /// Some algorithms may use this to control both compression and decompression, others may
     /// only use it to control compression.  Some may ignore it entirely.
     /// </remarks>
-    public int BlockSize { get; set; }
-
-    /// <summary>
-    /// Compresses some data.
-    /// </summary>
-    /// <param name="source">The uncompressed input.</param>
-    /// <param name="compressed">The destination for the output compressed data.</param>
-    /// <param name="compressedLength">Actual size used of compressed buffer on output.</param>
-    /// <returns>Indication of success, or indication the data could not compress into the requested space.</returns>
-    public abstract CompressionResult Compress(ReadOnlySpan<byte> source, Span<byte> compressed,
-                                               out int compressedLength);
+    int BlockSize { get; set; }
 
     /// <summary>
     /// Decompresses some data.
     /// </summary>
     /// <param name="source">The compressed input.</param>
     /// <param name="decompressed">The destination for the output decompressed data.</param>
-    /// <returns>The amount of decompressed data.</returns>
-    public abstract int Decompress(ReadOnlySpan<byte> source, Span<byte> decompressed);
+    /// <param name="decompressedSize">The amount of decompressed data.</param>
+    /// <returns>True or false indicating whether the compressed data could be successfully decompressed or not.</returns>
+    public abstract bool TryDecompress(ReadOnlySpan<byte> source, Span<byte> decompressed, out int decompressedSize);
 }

@@ -33,7 +33,7 @@ namespace DiscUtils.Compression;
 /// Some data is read directly from the underlying stream when decoding an Xpress
 /// stream - so it's critical the underlying stream position is in the correct
 /// location.</remarks>
-internal class XpressBitStream : BitStream
+internal class XpressBitStream : IBitStream
 {
     private uint _buffer;
     private int _bufferAvailable;
@@ -46,9 +46,9 @@ internal class XpressBitStream : BitStream
         _byteStream = byteStream;
     }
 
-    public override int MaxReadAhead => 16;
+    public int MaxReadAhead => 16;
 
-    public override uint Read(int count)
+    public uint Read(int count)
     {
         if (count > 16)
         {
@@ -64,7 +64,7 @@ internal class XpressBitStream : BitStream
         return (_buffer >> _bufferAvailable) & mask;
     }
 
-    public override uint Peek(int count)
+    public uint Peek(int count)
     {
         EnsureBufferFilled();
 
@@ -73,7 +73,7 @@ internal class XpressBitStream : BitStream
         return (_buffer >> (_bufferAvailable - count)) & mask;
     }
 
-    public override void Consume(int count)
+    public void Consume(int count)
     {
         EnsureBufferFilled();
 

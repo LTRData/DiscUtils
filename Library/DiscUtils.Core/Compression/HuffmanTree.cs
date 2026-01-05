@@ -60,7 +60,7 @@ internal sealed class HuffmanTree
 
     public uint[] Lengths { get; }
 
-    public uint NextSymbol(BitStream bitStream)
+    public uint NextSymbol(IBitStream bitStream)
     {
         var symbol = _buffer[bitStream.Peek(_numBits)];
 

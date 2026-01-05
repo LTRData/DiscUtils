@@ -35,7 +35,7 @@ public sealed class NtfsOptions : DiscFileSystemOptions
         HideHiddenFiles = true;
         HideSystemFiles = true;
         HideDosFileNames = true;
-        Compressor = new LZNT1();
+        Compressor = LZNT1.Default;
         ReadCacheEnabled = true;
         FileLengthFromDirectoryEntries = true;
     }
@@ -43,7 +43,7 @@ public sealed class NtfsOptions : DiscFileSystemOptions
     /// <summary>
     /// Gets or sets the compression algorithm used for compressing files.
     /// </summary>
-    public BlockCompressor Compressor { get; set; }
+    public IBlockCompressor Compressor { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether file length information comes from directory entries or file data.

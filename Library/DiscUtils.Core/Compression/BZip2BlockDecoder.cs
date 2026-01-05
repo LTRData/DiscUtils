@@ -39,7 +39,7 @@ internal class BZip2BlockDecoder
 
     public uint Crc { get; private set; }
 
-    public int Process(BitStream bitstream, byte[] outputBuffer, int outputBufferOffset)
+    public int Process(IBitStream bitstream, byte[] outputBuffer, int outputBufferOffset)
     {
         Crc = 0;
         for (var i = 0; i < 4; ++i)
@@ -65,7 +65,7 @@ internal class BZip2BlockDecoder
         return thisBlockSize;
     }
 
-    private static int ReadBuffer(BitStream bitstream, byte[] buffer, int offset)
+    private static int ReadBuffer(IBitStream bitstream, byte[] buffer, int offset)
     {
         // The MTF state
         var numInUse = 0;

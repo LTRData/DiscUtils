@@ -35,7 +35,7 @@ namespace DiscUtils.Compression;
 /// <para>It is strongly recommended to use some kind of in memory buffering (such as a
 /// BufferedStream) for the wrapped stream.  This class makes a large number of small
 /// reads.</para>.</remarks>
-internal sealed class LzxBitStream : BitStream
+internal sealed class LzxBitStream : IBitStream
 {
     private uint _buffer;
     private int _bufferAvailable;
@@ -50,9 +50,9 @@ internal sealed class LzxBitStream : BitStream
         _byteStream = byteStream;
     }
 
-    public override int MaxReadAhead => 16;
+    public int MaxReadAhead => 16;
 
-    public override uint Read(int count)
+    public uint Read(int count)
     {
         if (count > 16)
         {
@@ -72,7 +72,7 @@ internal sealed class LzxBitStream : BitStream
         return (_buffer >> _bufferAvailable) & mask;
     }
 
-    public override uint Peek(int count)
+    public uint Peek(int count)
     {
         if (_bufferAvailable < count)
         {
@@ -84,7 +84,7 @@ internal sealed class LzxBitStream : BitStream
         return (_buffer >> (_bufferAvailable - count)) & mask;
     }
 
-    public override void Consume(int count)
+    public void Consume(int count)
     {
         if (_bufferAvailable < count)
         {

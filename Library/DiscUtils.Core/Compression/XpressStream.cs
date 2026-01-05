@@ -29,7 +29,7 @@ using DiscUtils.Streams.Compatibility;
 namespace DiscUtils.Compression;
 
 /// <summary>
-/// Implements the XPRESS decompression algorithm.
+/// Implements the XPRESS Huffman decompression algorithm.
 /// </summary>
 /// <remarks>This class is optimized for the case where the entire stream contents
 /// fit into memory, it is not suitable for unbounded streams.</remarks>

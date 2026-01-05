@@ -37,13 +37,13 @@ namespace DiscUtils.Compression;
 internal class BZip2CombinedHuffmanTrees
 {
     private HuffmanTree? _activeTree;
-    private readonly BitStream _bitstream;
+    private readonly IBitStream _bitstream;
     private int _nextSelector;
     private byte[] _selectors;
     private int _symbolsToNextSelector;
     private HuffmanTree[] _trees;
 
-    public BZip2CombinedHuffmanTrees(BitStream bitstream, int maxSymbols)
+    public BZip2CombinedHuffmanTrees(IBitStream bitstream, int maxSymbols)
     {
         _bitstream = bitstream;
 

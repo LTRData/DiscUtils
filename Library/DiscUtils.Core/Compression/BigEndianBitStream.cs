@@ -27,7 +27,7 @@ namespace DiscUtils.Compression;
 /// <summary>
 /// Converts a byte stream into a bit stream.
 /// </summary>
-internal class BigEndianBitStream : BitStream
+internal class BigEndianBitStream : IBitStream
 {
     private uint _buffer;
     private int _bufferAvailable;
@@ -40,9 +40,9 @@ internal class BigEndianBitStream : BitStream
         _byteStream = byteStream;
     }
 
-    public override int MaxReadAhead => 16;
+    public int MaxReadAhead => 16;
 
-    public override uint Read(int count)
+    public uint Read(int count)
     {
         if (count > 16)
         {
@@ -59,7 +59,7 @@ internal class BigEndianBitStream : BitStream
         return (_buffer >> _bufferAvailable) & mask;
     }
 
-    public override uint Peek(int count)
+    public uint Peek(int count)
     {
         EnsureBufferFilled();
 
@@ -68,7 +68,7 @@ internal class BigEndianBitStream : BitStream
         return (_buffer >> (_bufferAvailable - count)) & mask;
     }
 
-    public override void Consume(int count)
+    public void Consume(int count)
     {
         EnsureBufferFilled();
 

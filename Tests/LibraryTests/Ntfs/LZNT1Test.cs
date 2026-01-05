@@ -23,6 +23,7 @@
 using System;
 using System.Runtime.InteropServices;
 using DiscUtils.Compression;
+using Xunit;
 
 namespace LibraryTests.Ntfs;
 
@@ -58,7 +59,7 @@ public partial class LZNT1Test
     [WindowsOnlyFact]
     public void Compress()
     {
-        var instance = new LZNT1();
+        var instance = LZNT1.Default;
         var compressor = instance;
 
         var compressedLength = 16 * 4096;
@@ -69,7 +70,7 @@ public partial class LZNT1Test
         Assert.Equal(_uncompressedData, NativeDecompress(nativeCompressed, 0, nativeCompressed.Length));
 
         compressor.BlockSize = 4096;
-        var r = compressor.Compress(_uncompressedData, compressedData, out compressedLength);
+        var r = compressor.TryCompress(_uncompressedData, compressedData, out compressedLength);
         Assert.Equal(CompressionResult.Compressed, r);
         Assert.Equal(_uncompressedData, NativeDecompress(compressedData, 0, compressedLength));
 
@@ -79,7 +80,7 @@ public partial class LZNT1Test
     [WindowsOnlyFact]
     public void CompressMidSourceBuffer()
     {
-        var instance = new LZNT1();
+        var instance = LZNT1.Default;
         var compressor = instance;
 
         var inData = new byte[128 * 1024];
@@ -93,7 +94,7 @@ public partial class LZNT1Test
         Assert.Equal(_uncompressedData, NativeDecompress(nativeCompressed, 0, nativeCompressed.Length));
 
         compressor.BlockSize = 4096;
-        var r = compressor.Compress(inData.AsSpan(32 * 1024, _uncompressedData.Length), compressedData, out compressedLength);
+        var r = compressor.TryCompress(inData.AsSpan(32 * 1024, _uncompressedData.Length), compressedData, out compressedLength);
         Assert.Equal(CompressionResult.Compressed, r);
         Assert.Equal(_uncompressedData, NativeDecompress(compressedData, 0, compressedLength));
     }
@@ -101,7 +102,7 @@ public partial class LZNT1Test
     [WindowsOnlyFact]
     public void CompressMidDestBuffer()
     {
-        var instance = new LZNT1();
+        var instance = LZNT1.Default;
         var compressor = instance;
 
         // Double-check, make sure native code round-trips
@@ -112,7 +113,7 @@ public partial class LZNT1Test
         var compressedData = new byte[compressedLength];
 
         compressor.BlockSize = 4096;
-        var r = compressor.Compress(_uncompressedData, compressedData.AsSpan(32 * 1024), out compressedLength);
+        var r = compressor.TryCompress(_uncompressedData, compressedData.AsSpan(32 * 1024), out compressedLength);
         Assert.Equal(CompressionResult.Compressed, r);
         Assert.True(compressedLength < _uncompressedData.Length);
 
@@ -122,7 +123,7 @@ public partial class LZNT1Test
     [WindowsOnlyFact]
     public void Compress1KBlockSize()
     {
-        var instance = new LZNT1();
+        var instance = LZNT1.Default;
         var compressor = instance;
 
         var compressedLength = 16 * 4096;
@@ -133,11 +134,13 @@ public partial class LZNT1Test
         Assert.Equal(_uncompressedData, NativeDecompress(nativeCompressed, 0, nativeCompressed.Length));
 
         compressor.BlockSize = 1024;
-        var r = compressor.Compress(_uncompressedData, compressedData, out compressedLength);
+        var r = compressor.TryCompress(_uncompressedData, compressedData, out compressedLength);
         Assert.Equal(CompressionResult.Compressed, r);
 
         var duDecompressed = new byte[_uncompressedData.Length];
-        var numDuDecompressed = compressor.Decompress(compressedData.AsSpan(0, compressedLength), duDecompressed);
+        var rc = compressor.TryDecompress(compressedData.AsSpan(0, compressedLength), duDecompressed, out var numDuDecompressed);
+
+        Assert.True(rc);
 
         var rightSizedDuDecompressed = new byte[numDuDecompressed];
         Buffer.BlockCopy(duDecompressed, 0, rightSizedDuDecompressed, 0, numDuDecompressed);
@@ -150,7 +153,7 @@ public partial class LZNT1Test
     [WindowsOnlyFact]
     public void Compress1KBlock()
     {
-        var instance = new LZNT1();
+        var instance = LZNT1.Default;
         var compressor = instance;
 
         var uncompressed1K = new byte[1024];
@@ -164,7 +167,7 @@ public partial class LZNT1Test
         Assert.Equal(uncompressed1K, NativeDecompress(nativeCompressed, 0, nativeCompressed.Length));
 
         compressor.BlockSize = 1024;
-        var r = compressor.Compress(uncompressed1K, compressedData, out compressedLength);
+        var r = compressor.TryCompress(uncompressed1K, compressedData, out compressedLength);
         Assert.Equal(CompressionResult.Compressed, r);
         Assert.Equal(uncompressed1K, NativeDecompress(compressedData, 0, compressedLength));
     }
@@ -172,18 +175,18 @@ public partial class LZNT1Test
     [Fact]
     public void CompressAllZeros()
     {
-        var instance = new LZNT1();
+        var instance = LZNT1.Default;
         var compressor = instance;
 
         var compressed = new byte[64 * 1024];
         var numCompressed = 64 * 1024;
-        Assert.Equal(CompressionResult.AllZeros, compressor.Compress(new byte[64 * 1024], compressed, out numCompressed));
+        Assert.Equal(CompressionResult.AllZeros, compressor.TryCompress(new byte[64 * 1024], compressed, out numCompressed));
     }
 
     [Fact]
     public void CompressIncompressible()
     {
-        var instance = new LZNT1();
+        var instance = LZNT1.Default;
         var compressor = instance;
 
         var rng = new Random(6324);
@@ -192,13 +195,14 @@ public partial class LZNT1Test
 
         var compressed = new byte[64 * 1024];
         var numCompressed = 64 * 1024;
-        Assert.Equal(CompressionResult.Incompressible, compressor.Compress(uncompressed, compressed, out numCompressed));
+
+        Assert.Equal(CompressionResult.Incompressible, compressor.TryCompress(uncompressed, compressed, out numCompressed));
     }
 
     [WindowsOnlyFact]
     public void Decompress()
     {
-        var instance = new LZNT1();
+        var instance = LZNT1.Default;
         var compressor = instance;
 
         var compressed = NativeCompress(_uncompressedData, 0, _uncompressedData.Length, 4096);
@@ -207,7 +211,8 @@ public partial class LZNT1Test
         Assert.Equal(_uncompressedData, NativeDecompress(compressed, 0, compressed.Length));
 
         var decompressed = new byte[_uncompressedData.Length];
-        var numDecompressed = compressor.Decompress(compressed, decompressed);
+        var rc = compressor.TryDecompress(compressed, decompressed, out var numDecompressed);
+        Assert.True(rc);
         Assert.Equal(numDecompressed, _uncompressedData.Length);
 
         Assert.Equal(_uncompressedData, decompressed);
@@ -216,7 +221,7 @@ public partial class LZNT1Test
     [WindowsOnlyFact]
     public void DecompressMidSourceBuffer()
     {
-        var instance = new LZNT1();
+        var instance = LZNT1.Default;
         var compressor = instance;
 
         var compressed = NativeCompress(_uncompressedData, 0, _uncompressedData.Length, 4096);
@@ -228,7 +233,8 @@ public partial class LZNT1Test
         Assert.Equal(_uncompressedData, NativeDecompress(inData, 32 * 1024, compressed.Length));
 
         var decompressed = new byte[_uncompressedData.Length];
-        var numDecompressed = compressor.Decompress(inData.AsSpan(32 * 1024, compressed.Length), decompressed);
+        var rc = compressor.TryDecompress(inData.AsSpan(32 * 1024, compressed.Length), decompressed, out var numDecompressed);
+        Assert.True(rc);
         Assert.Equal(numDecompressed, _uncompressedData.Length);
 
         Assert.Equal(_uncompressedData, decompressed);
@@ -237,7 +243,7 @@ public partial class LZNT1Test
     [WindowsOnlyFact]
     public void DecompressMidDestBuffer()
     {
-        var instance = new LZNT1();
+        var instance = LZNT1.Default;
         var compressor = instance;
 
         var compressed = NativeCompress(_uncompressedData, 0, _uncompressedData.Length, 4096);
@@ -246,7 +252,8 @@ public partial class LZNT1Test
         Assert.Equal(_uncompressedData, NativeDecompress(compressed, 0, compressed.Length));
 
         var outData = new byte[128 * 1024];
-        var numDecompressed = compressor.Decompress(compressed, outData.AsSpan(32 * 1024));
+        var rc = compressor.TryDecompress(compressed, outData.AsSpan(32 * 1024), out var numDecompressed);
+        Assert.True(rc);
         Assert.Equal(numDecompressed, _uncompressedData.Length);
 
         var decompressed = new byte[_uncompressedData.Length];
@@ -257,7 +264,7 @@ public partial class LZNT1Test
     [WindowsOnlyFact]
     public void Decompress1KBlockSize()
     {
-        var instance = new LZNT1();
+        var instance = LZNT1.Default;
         var compressor = instance;
 
         var compressed = NativeCompress(_uncompressedData, 0, _uncompressedData.Length, 1024);
@@ -265,7 +272,8 @@ public partial class LZNT1Test
         Assert.Equal(_uncompressedData, NativeDecompress(compressed, 0, compressed.Length));
 
         var decompressed = new byte[_uncompressedData.Length];
-        var numDecompressed = compressor.Decompress(compressed, decompressed);
+        var rc = compressor.TryDecompress(compressed, decompressed, out var numDecompressed);
+        Assert.True(rc);
         Assert.Equal(numDecompressed, _uncompressedData.Length);
 
         Assert.Equal(_uncompressedData, decompressed);

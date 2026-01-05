@@ -392,7 +392,7 @@ internal sealed class CompressedClusterStream : ClusterStream
 
         var totalAllocated = 0;
 
-        var result = compressor.Compress(buffer.Slice(_attr.CompressionUnitSize * _bytesPerCluster), _ioBuffer,
+        var result = compressor.TryCompress(buffer.Slice(_attr.CompressionUnitSize * _bytesPerCluster), _ioBuffer,
             out var compressedLength);
         if (result == CompressionResult.AllZeros)
         {
@@ -423,7 +423,7 @@ internal sealed class CompressedClusterStream : ClusterStream
 
         var totalAllocated = 0;
 
-        var result = compressor.Compress(buffer.Span.Slice(_attr.CompressionUnitSize * _bytesPerCluster), _ioBuffer,
+        var result = compressor.TryCompress(buffer.Span.Slice(_attr.CompressionUnitSize * _bytesPerCluster), _ioBuffer,
             out var compressedLength);
         if (result == CompressionResult.AllZeros)
         {
@@ -471,8 +471,7 @@ internal sealed class CompressedClusterStream : ClusterStream
                     (int)
                     Math.Min(_attr.Length - vcn * _bytesPerCluster, _attr.CompressionUnitSize * _bytesPerCluster);
 
-                var decomp = _context.Options.Compressor.Decompress(_ioBuffer, _cacheBuffer);
-                if (decomp < expected)
+                if (!_context.Options.Compressor.TryDecompress(_ioBuffer, _cacheBuffer, out var decomp) || decomp < expected)
                 {
                     throw new IOException("Decompression returned too little data");
                 }
@@ -506,8 +505,7 @@ internal sealed class CompressedClusterStream : ClusterStream
                     (int)
                     Math.Min(_attr.Length - vcn * _bytesPerCluster, _attr.CompressionUnitSize * _bytesPerCluster);
 
-                var decomp = _context.Options.Compressor.Decompress(_ioBuffer, _cacheBuffer);
-                if (decomp < expected)
+                if (_context.Options.Compressor.TryDecompress(_ioBuffer, _cacheBuffer, out var decomp) || decomp < expected)
                 {
                     throw new IOException("Decompression returned too little data");
                 }

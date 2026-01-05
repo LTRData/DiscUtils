@@ -42,7 +42,7 @@ namespace DiscUtils.Compression;
 /// Due to apparent bugs in Window's LZNT1 decompressor, it is <b>strongly</b> recommended that
 /// only the block size of 4096 is used.  Other block sizes corrupt data on decompression.
 /// </remarks>
-public sealed class LZNT1 : BlockCompressor
+public sealed class LZNT1 : IBlockCompressor
 {
     private const ushort SubBlockIsCompressedFlag = 0x8000;
     private const ushort SubBlockSizeMask = 0x0fff;
@@ -52,15 +52,13 @@ public sealed class LZNT1 : BlockCompressor
     // we assume each block is 4KB on decode also.
     private const int FixedBlockSize = 0x1000;
 
-    private static readonly ImmutableArray<byte> _compressionBits = CalcCompressionBits();
+    public static LZNT1 Default => field ??= new();
 
-    public LZNT1()
-    {
-        BlockSize = 4096;
-    }
+    private static ImmutableArray<byte> _compressionBits => field.IsDefault ? field = CalcCompressionBits() : field;
 
-    public override CompressionResult Compress(ReadOnlySpan<byte> source, Span<byte> compressed,
-                                               out int compressedLength)
+    public int BlockSize { get; set; } = 4096;
+
+    public CompressionResult TryCompress(ReadOnlySpan<byte> source, Span<byte> compressed, out int compressedLength)
     {
         var sourcePointer = 0;
         var destPointer = 0;
@@ -206,10 +204,10 @@ public sealed class LZNT1 : BlockCompressor
         return CompressionResult.AllZeros;
     }
 
-    public override int Decompress(ReadOnlySpan<byte> source, Span<byte> decompressed)
+    public bool TryDecompress(ReadOnlySpan<byte> source, Span<byte> decompressed, out int decompressedSize)
     {
         var sourceIdx = 0;
-        var destIdx = 0;
+        decompressedSize = 0;
 
         while (sourceIdx < source.Length)
         {
@@ -225,14 +223,14 @@ public sealed class LZNT1 : BlockCompressor
             if ((header & SubBlockIsCompressedFlag) == 0)
             {
                 var blockSize = (header & SubBlockSizeMask) + 1;
-                source.Slice(sourceIdx, blockSize).CopyTo(decompressed.Slice(destIdx));
+                source.Slice(sourceIdx, blockSize).CopyTo(decompressed.Slice(decompressedSize));
                 sourceIdx += blockSize;
-                destIdx += blockSize;
+                decompressedSize += blockSize;
             }
             else
             {
                 // compressed
-                var destSubBlockStart = destIdx;
+                var destSubBlockStart = decompressedSize;
                 var srcSubBlockEnd = sourceIdx + (header & SubBlockSizeMask) + 1;
                 while (sourceIdx < srcSubBlockEnd)
                 {
@@ -250,29 +248,29 @@ public sealed class LZNT1 : BlockCompressor
 
                         if ((tag & 1) == 0)
                         {
-                            if (destIdx >= decompressed.Length)
+                            if (decompressedSize >= decompressed.Length)
                             {
-                                return destIdx;
+                                return true;
                             }
 
-                            decompressed[destIdx] = source[sourceIdx];
-                            ++destIdx;
+                            decompressed[decompressedSize] = source[sourceIdx];
+                            ++decompressedSize;
                             ++sourceIdx;
                         }
                         else
                         {
-                            var lengthBits = (ushort)(16 - _compressionBits[destIdx - destSubBlockStart]);
+                            var lengthBits = (ushort)(16 - _compressionBits[decompressedSize - destSubBlockStart]);
                             var lengthMask = (ushort)((1 << lengthBits) - 1);
 
                             var phraseToken = EndianUtilities.ToUInt16LittleEndian(source.Slice(sourceIdx));
                             sourceIdx += 2;
 
-                            var destBackAddr = destIdx - (phraseToken >> lengthBits) - 1;
+                            var destBackAddr = decompressedSize - (phraseToken >> lengthBits) - 1;
                             var length = (phraseToken & lengthMask) + 3;
 
                             for (var i = 0; i < length; ++i)
                             {
-                                decompressed[destIdx++] =
+                                decompressed[decompressedSize++] =
                                     decompressed[destBackAddr++];
                             }
                         }
@@ -283,21 +281,21 @@ public sealed class LZNT1 : BlockCompressor
 
                 // Bug-compatible - if we decompressed less than 4KB, jump to next 4KB boundary.  If
                 // that would leave less than a 4KB remaining, abort with data decompressed so far.
-                if (destIdx + FixedBlockSize > decompressed.Length)
+                if (decompressedSize + FixedBlockSize > decompressed.Length)
                 {
-                    return destIdx;
+                    return true;
                 }
 
-                if (destIdx < destSubBlockStart + FixedBlockSize)
+                if (decompressedSize < destSubBlockStart + FixedBlockSize)
                 {
-                    var skip = destSubBlockStart + FixedBlockSize - destIdx;
-                    decompressed.Slice(destIdx, skip).Clear();
-                    destIdx += skip;
+                    var skip = destSubBlockStart + FixedBlockSize - decompressedSize;
+                    decompressed.Slice(decompressedSize, skip).Clear();
+                    decompressedSize += skip;
                 }
             }
         }
 
-        return destIdx;
+        return true;
     }
 
     private static ImmutableArray<byte> CalcCompressionBits()
