@@ -187,7 +187,7 @@ public class XpressStream : ReadOnlyCompatibilityStream
                 len += 3;
 
                 // Simply do the copy
-                for (var i = 0; i < len; ++i)
+                for (var i = 0; i < len && numRead < count; ++i)
                 {
                     buffer[numRead] = buffer[numRead - offset - 1];
                     numRead++;

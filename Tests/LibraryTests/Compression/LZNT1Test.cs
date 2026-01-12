@@ -21,13 +21,13 @@
 //
 
 using System;
-using System.Runtime.InteropServices;
 using DiscUtils.Compression;
 using Xunit;
+using static LibraryTests.Compression.NativeCompression;
 
-namespace LibraryTests.Ntfs;
+namespace LibraryTests.Compression;
 
-public partial class LZNT1Test
+public class LZNT1Test
 {
     private byte[] _uncompressedData;
 
@@ -66,13 +66,13 @@ public partial class LZNT1Test
         var compressedData = new byte[compressedLength];
 
         // Double-check, make sure native code round-trips
-        var nativeCompressed = NativeCompress(_uncompressedData, 0, _uncompressedData.Length, 4096);
-        Assert.Equal(_uncompressedData, NativeDecompress(nativeCompressed, 0, nativeCompressed.Length));
+        var nativeCompressed = NativeCompress(_uncompressedData, 0, _uncompressedData.Length, 4096, CompressionFormat.Lznt1);
+        Assert.Equal(_uncompressedData, NativeDecompress(nativeCompressed, 0, nativeCompressed.Length, CompressionFormat.Lznt1));
 
         compressor.BlockSize = 4096;
         var r = compressor.TryCompress(_uncompressedData, compressedData, out compressedLength);
         Assert.Equal(CompressionResult.Compressed, r);
-        Assert.Equal(_uncompressedData, NativeDecompress(compressedData, 0, compressedLength));
+        Assert.Equal(_uncompressedData, NativeDecompress(compressedData, 0, compressedLength, CompressionFormat.Lznt1));
 
         Assert.True(compressedLength < _uncompressedData.Length * 0.66);
     }
@@ -90,13 +90,13 @@ public partial class LZNT1Test
         var compressedData = new byte[compressedLength];
 
         // Double-check, make sure native code round-trips
-        var nativeCompressed = NativeCompress(inData, 32 * 1024, _uncompressedData.Length, 4096);
-        Assert.Equal(_uncompressedData, NativeDecompress(nativeCompressed, 0, nativeCompressed.Length));
+        var nativeCompressed = NativeCompress(inData, 32 * 1024, _uncompressedData.Length, 4096, CompressionFormat.Lznt1);
+        Assert.Equal(_uncompressedData, NativeDecompress(nativeCompressed, 0, nativeCompressed.Length, CompressionFormat.Lznt1));
 
         compressor.BlockSize = 4096;
         var r = compressor.TryCompress(inData.AsSpan(32 * 1024, _uncompressedData.Length), compressedData, out compressedLength);
         Assert.Equal(CompressionResult.Compressed, r);
-        Assert.Equal(_uncompressedData, NativeDecompress(compressedData, 0, compressedLength));
+        Assert.Equal(_uncompressedData, NativeDecompress(compressedData, 0, compressedLength, CompressionFormat.Lznt1));
     }
 
     [WindowsOnlyFact]
@@ -106,8 +106,8 @@ public partial class LZNT1Test
         var compressor = instance;
 
         // Double-check, make sure native code round-trips
-        var nativeCompressed = NativeCompress(_uncompressedData, 0, _uncompressedData.Length, 4096);
-        Assert.Equal(_uncompressedData, NativeDecompress(nativeCompressed, 0, nativeCompressed.Length));
+        var nativeCompressed = NativeCompress(_uncompressedData, 0, _uncompressedData.Length, 4096, CompressionFormat.Lznt1);
+        Assert.Equal(_uncompressedData, NativeDecompress(nativeCompressed, 0, nativeCompressed.Length, CompressionFormat.Lznt1));
 
         var compressedLength = 128 * 1024;
         var compressedData = new byte[compressedLength];
@@ -117,7 +117,7 @@ public partial class LZNT1Test
         Assert.Equal(CompressionResult.Compressed, r);
         Assert.True(compressedLength < _uncompressedData.Length);
 
-        Assert.Equal(_uncompressedData, NativeDecompress(compressedData, 32 * 1024, compressedLength));
+        Assert.Equal(_uncompressedData, NativeDecompress(compressedData, 32 * 1024, compressedLength, CompressionFormat.Lznt1));
     }
 
     [WindowsOnlyFact]
@@ -130,8 +130,8 @@ public partial class LZNT1Test
         var compressedData = new byte[compressedLength];
 
         // Double-check, make sure native code round-trips
-        var nativeCompressed = NativeCompress(_uncompressedData, 0, _uncompressedData.Length, 1024);
-        Assert.Equal(_uncompressedData, NativeDecompress(nativeCompressed, 0, nativeCompressed.Length));
+        var nativeCompressed = NativeCompress(_uncompressedData, 0, _uncompressedData.Length, 1024, CompressionFormat.Lznt1);
+        Assert.Equal(_uncompressedData, NativeDecompress(nativeCompressed, 0, nativeCompressed.Length, CompressionFormat.Lznt1));
 
         compressor.BlockSize = 1024;
         var r = compressor.TryCompress(_uncompressedData, compressedData, out compressedLength);
@@ -147,7 +147,7 @@ public partial class LZNT1Test
 
         // Note: Due to bug in Windows LZNT1, we compare against native decompression, not the original data, since
         // Windows LZNT1 corrupts data on decompression when block size != 4096.
-        Assert.Equal(rightSizedDuDecompressed, NativeDecompress(compressedData, 0, compressedLength));
+        Assert.Equal(rightSizedDuDecompressed, NativeDecompress(compressedData, 0, compressedLength, CompressionFormat.Lznt1));
     }
 
     [WindowsOnlyFact]
@@ -163,13 +163,13 @@ public partial class LZNT1Test
         var compressedData = new byte[compressedLength];
 
         // Double-check, make sure native code round-trips
-        var nativeCompressed = NativeCompress(uncompressed1K, 0, 1024, 1024);
-        Assert.Equal(uncompressed1K, NativeDecompress(nativeCompressed, 0, nativeCompressed.Length));
+        var nativeCompressed = NativeCompress(uncompressed1K, 0, 1024, 1024, CompressionFormat.Lznt1);
+        Assert.Equal(uncompressed1K, NativeDecompress(nativeCompressed, 0, nativeCompressed.Length, CompressionFormat.Lznt1));
 
         compressor.BlockSize = 1024;
         var r = compressor.TryCompress(uncompressed1K, compressedData, out compressedLength);
         Assert.Equal(CompressionResult.Compressed, r);
-        Assert.Equal(uncompressed1K, NativeDecompress(compressedData, 0, compressedLength));
+        Assert.Equal(uncompressed1K, NativeDecompress(compressedData, 0, compressedLength, CompressionFormat.Lznt1));
     }
 
     [Fact]
@@ -205,10 +205,10 @@ public partial class LZNT1Test
         var instance = LZNT1.Default;
         var compressor = instance;
 
-        var compressed = NativeCompress(_uncompressedData, 0, _uncompressedData.Length, 4096);
+        var compressed = NativeCompress(_uncompressedData, 0, _uncompressedData.Length, 4096, CompressionFormat.Lznt1);
 
         // Double-check, make sure native code round-trips
-        Assert.Equal(_uncompressedData, NativeDecompress(compressed, 0, compressed.Length));
+        Assert.Equal(_uncompressedData, NativeDecompress(compressed, 0, compressed.Length, CompressionFormat.Lznt1));
 
         var decompressed = new byte[_uncompressedData.Length];
         var rc = compressor.TryDecompress(compressed, decompressed, out var numDecompressed);
@@ -224,13 +224,13 @@ public partial class LZNT1Test
         var instance = LZNT1.Default;
         var compressor = instance;
 
-        var compressed = NativeCompress(_uncompressedData, 0, _uncompressedData.Length, 4096);
+        var compressed = NativeCompress(_uncompressedData, 0, _uncompressedData.Length, 4096, CompressionFormat.Lznt1);
 
         var inData = new byte[128 * 1024];
         Buffer.BlockCopy(compressed, 0, inData, 32 * 1024, compressed.Length);
 
         // Double-check, make sure native code round-trips
-        Assert.Equal(_uncompressedData, NativeDecompress(inData, 32 * 1024, compressed.Length));
+        Assert.Equal(_uncompressedData, NativeDecompress(inData, 32 * 1024, compressed.Length, CompressionFormat.Lznt1));
 
         var decompressed = new byte[_uncompressedData.Length];
         var rc = compressor.TryDecompress(inData.AsSpan(32 * 1024, compressed.Length), decompressed, out var numDecompressed);
@@ -246,10 +246,10 @@ public partial class LZNT1Test
         var instance = LZNT1.Default;
         var compressor = instance;
 
-        var compressed = NativeCompress(_uncompressedData, 0, _uncompressedData.Length, 4096);
+        var compressed = NativeCompress(_uncompressedData, 0, _uncompressedData.Length, 4096, CompressionFormat.Lznt1);
 
         // Double-check, make sure native code round-trips
-        Assert.Equal(_uncompressedData, NativeDecompress(compressed, 0, compressed.Length));
+        Assert.Equal(_uncompressedData, NativeDecompress(compressed, 0, compressed.Length, CompressionFormat.Lznt1));
 
         var outData = new byte[128 * 1024];
         var rc = compressor.TryDecompress(compressed, outData.AsSpan(32 * 1024), out var numDecompressed);
@@ -267,9 +267,9 @@ public partial class LZNT1Test
         var instance = LZNT1.Default;
         var compressor = instance;
 
-        var compressed = NativeCompress(_uncompressedData, 0, _uncompressedData.Length, 1024);
+        var compressed = NativeCompress(_uncompressedData, 0, _uncompressedData.Length, 1024, CompressionFormat.Lznt1);
 
-        Assert.Equal(_uncompressedData, NativeDecompress(compressed, 0, compressed.Length));
+        Assert.Equal(_uncompressedData, NativeDecompress(compressed, 0, compressed.Length, CompressionFormat.Lznt1));
 
         var decompressed = new byte[_uncompressedData.Length];
         var rc = compressor.TryDecompress(compressed, decompressed, out var numDecompressed);
@@ -278,104 +278,4 @@ public partial class LZNT1Test
 
         Assert.Equal(_uncompressedData, decompressed);
     }
-
-    private static byte[] NativeCompress(byte[] data, int offset, int length, int chunkSize)
-    {
-        var compressedBuffer = IntPtr.Zero;
-        var uncompressedBuffer = IntPtr.Zero;
-        var workspaceBuffer = IntPtr.Zero;
-        try
-        {
-            uncompressedBuffer = Marshal.AllocHGlobal(length);
-            Marshal.Copy(data, offset, uncompressedBuffer, length);
-
-            compressedBuffer = Marshal.AllocHGlobal(length);
-
-            var ntStatus = RtlGetCompressionWorkSpaceSize(2, out var bufferWorkspaceSize, out var fragmentWorkspaceSize);
-
-            Assert.Equal(0, ntStatus);
-
-            workspaceBuffer = Marshal.AllocHGlobal((int)bufferWorkspaceSize);
-
-            ntStatus = RtlCompressBuffer(2, uncompressedBuffer, (uint)length, compressedBuffer, (uint)length, (uint)chunkSize, out var compressedSize, workspaceBuffer);
-            Assert.Equal(0, ntStatus);
-
-            var result = new byte[compressedSize];
-
-            Marshal.Copy(compressedBuffer, result, 0, (int)compressedSize);
-
-            return result;
-        }
-        finally
-        {
-            if (compressedBuffer != IntPtr.Zero)
-            {
-                Marshal.FreeHGlobal(compressedBuffer);
-            }
-
-            if (uncompressedBuffer != IntPtr.Zero)
-            {
-                Marshal.FreeHGlobal(uncompressedBuffer);
-            }
-
-            if (workspaceBuffer != IntPtr.Zero)
-            {
-                Marshal.FreeHGlobal(workspaceBuffer);
-            }
-        }
-    }
-
-    private static byte[] NativeDecompress(byte[] data, int offset, int length)
-    {
-        var compressedBuffer = IntPtr.Zero;
-        var uncompressedBuffer = IntPtr.Zero;
-        try
-        {
-            compressedBuffer = Marshal.AllocHGlobal(length);
-            Marshal.Copy(data, offset, compressedBuffer, length);
-
-            uncompressedBuffer = Marshal.AllocHGlobal(64 * 1024);
-
-            var ntStatus = RtlDecompressBuffer(2, uncompressedBuffer, 64 * 1024, compressedBuffer, (uint)length, out var uncompressedSize);
-            Assert.Equal(0, ntStatus);
-
-            var result = new byte[uncompressedSize];
-
-            Marshal.Copy(uncompressedBuffer, result, 0, (int)uncompressedSize);
-
-            return result;
-        }
-        finally
-        {
-            if (compressedBuffer != IntPtr.Zero)
-            {
-                Marshal.FreeHGlobal(compressedBuffer);
-            }
-
-            if (uncompressedBuffer != IntPtr.Zero)
-            {
-                Marshal.FreeHGlobal(uncompressedBuffer);
-            }
-        }
-    }
-
-#if NET7_0_OR_GREATER
-    [LibraryImport("ntdll")]
-    private static partial int RtlGetCompressionWorkSpaceSize(ushort formatAndEngine, out uint bufferWorkspaceSize, out uint fragmentWorkspaceSize);
-
-    [LibraryImport("ntdll")]
-    private static partial int RtlCompressBuffer(ushort formatAndEngine, IntPtr uncompressedBuffer, uint uncompressedBufferSize, IntPtr compressedBuffer, uint compressedBufferSize, uint uncompressedChunkSize, out uint finalCompressedSize, IntPtr workspace);
-
-    [LibraryImport("ntdll")]
-    private static partial int RtlDecompressBuffer(ushort formatAndEngine, IntPtr uncompressedBuffer, uint uncompressedBufferSize, IntPtr compressedBuffer, uint compressedBufferSize, out uint finalUncompressedSize);
-#else
-    [DllImport("ntdll")]
-    private static extern int RtlGetCompressionWorkSpaceSize(ushort formatAndEngine, out uint bufferWorkspaceSize, out uint fragmentWorkspaceSize);
-
-    [DllImport("ntdll")]
-    private static extern int RtlCompressBuffer(ushort formatAndEngine, IntPtr uncompressedBuffer, uint uncompressedBufferSize, IntPtr compressedBuffer, uint compressedBufferSize, uint uncompressedChunkSize, out uint finalCompressedSize, IntPtr workspace);
-
-    [DllImport("ntdll")]
-    private static extern int RtlDecompressBuffer(ushort formatAndEngine, IntPtr uncompressedBuffer, uint uncompressedBufferSize, IntPtr compressedBuffer, uint compressedBufferSize, out uint finalUncompressedSize);
-#endif
 }
