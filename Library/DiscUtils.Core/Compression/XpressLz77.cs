@@ -65,6 +65,11 @@ public sealed class XpressLz77 : IBlockDecompressor
                     continue;
                 }
 
+                if (src == compressed.Length)
+                {
+                    return true;
+                }
+                
                 // Match: first 2 bytes are the primary token
                 if (src + 2 > compressed.Length)
                 {
