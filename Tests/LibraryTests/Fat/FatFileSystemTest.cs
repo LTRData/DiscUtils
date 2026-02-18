@@ -608,4 +608,72 @@ public class FatFileSystemTest
 
         Assert.Empty(entries);
     }
+
+    [Fact]
+    public void CreateFilesInSubdirectoryUsingFatFileSystemPerFile()
+    {
+        using var diskStream = new SparseMemoryStream();
+
+        diskStream.Position = 0;
+        using (var fsFormat = FatFileSystem.FormatFloppy(diskStream, FloppyDiskType.HighDensity, "FLOPPY_IMG "))
+        {
+            fsFormat.CreateDirectory("dir");            
+        }
+
+        for (var i = 0; i < 20; i++)
+        {
+            using (var fsCreate = new FatFileSystem(diskStream))
+            {
+                using (var fileStream = fsCreate.OpenFile($"dir{Path.DirectorySeparatorChar}file{i}.txt", FileMode.Create))
+                {
+                    fileStream.Write(new byte[10]);
+                }
+            }            
+        }
+
+        using var fsAssert = new FatFileSystem(diskStream);
+        {
+            var entries = fsAssert.GetFileSystemEntries("").ToList();
+            Assert.Single(entries);
+            Assert.Equal("dir", entries[0]);
+
+            entries = fsAssert.GetFileSystemEntries("dir").ToList();
+            Assert.Equal(20, entries.Count);
+            Assert.Equal(Enumerable.Range(0, 20).Select(i => $"dir\\file{i}.txt"), entries);
+        }
+    }
+
+    [Fact]
+    public void CreateFilesInSubdirectoryUsingOneFatFileSystem()
+    {
+        using var diskStream = new SparseMemoryStream();
+
+        diskStream.Position = 0;
+        using (var fsFormat = FatFileSystem.FormatFloppy(diskStream, FloppyDiskType.HighDensity, "FLOPPY_IMG "))
+        {
+            fsFormat.CreateDirectory("dir");            
+        }
+
+        using (var fsCreate = new FatFileSystem(diskStream))
+        {
+            for (var i = 0; i < 20; i++)
+            {
+                using (var fileStream = fsCreate.OpenFile($"dir{Path.DirectorySeparatorChar}file{i}.txt", FileMode.Create))
+                {
+                    fileStream.Write(new byte[10]);
+                }
+            }            
+        }
+
+        using var fsAssert = new FatFileSystem(diskStream);
+        {
+            var entries = fsAssert.GetFileSystemEntries("").ToList();
+            Assert.Single(entries);
+            Assert.Equal("dir", entries[0]);
+
+            entries = fsAssert.GetFileSystemEntries("dir").ToList();
+            Assert.Equal(20, entries.Count);
+            Assert.Equal(Enumerable.Range(0, 20).Select(i => $"dir\\file{i}.txt"), entries);
+        }
+    }
 }

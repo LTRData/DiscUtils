@@ -471,6 +471,8 @@ internal class Directory : IDisposable
             {
                 AddEntryRaw(streamPos, entry);
             }
+
+            _endOfEntries = _dirStream.Position;
         }
 
         // Record any pending free entry
