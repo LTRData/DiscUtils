@@ -622,13 +622,9 @@ public class FatFileSystemTest
 
         for (var i = 0; i < 20; i++)
         {
-            using (var fsCreate = new FatFileSystem(diskStream))
-            {
-                using (var fileStream = fsCreate.OpenFile($"dir{Path.DirectorySeparatorChar}file{i}.txt", FileMode.Create))
-                {
-                    fileStream.Write(new byte[10]);
-                }
-            }            
+            using var fsCreate = new FatFileSystem(diskStream);
+            using var fileStream = fsCreate.OpenFile($"dir{Path.DirectorySeparatorChar}file{i}.txt", FileMode.Create);
+            fileStream.Write(new byte[10]);
         }
 
         using var fsAssert = new FatFileSystem(diskStream);
@@ -639,7 +635,7 @@ public class FatFileSystemTest
 
             entries = fsAssert.GetFileSystemEntries("dir").ToList();
             Assert.Equal(20, entries.Count);
-            Assert.Equal(Enumerable.Range(0, 20).Select(i => $"dir\\file{i}.txt"), entries);
+            Assert.Equal(Enumerable.Range(0, 20).Select(i => $"dir{Path.DirectorySeparatorChar}file{i}.txt"), entries);
         }
     }
 
@@ -658,10 +654,8 @@ public class FatFileSystemTest
         {
             for (var i = 0; i < 20; i++)
             {
-                using (var fileStream = fsCreate.OpenFile($"dir{Path.DirectorySeparatorChar}file{i}.txt", FileMode.Create))
-                {
-                    fileStream.Write(new byte[10]);
-                }
+                using var fileStream = fsCreate.OpenFile($"dir{Path.DirectorySeparatorChar}file{i}.txt", FileMode.Create);
+                fileStream.Write(new byte[10]);
             }            
         }
 
@@ -673,7 +667,7 @@ public class FatFileSystemTest
 
             entries = fsAssert.GetFileSystemEntries("dir").ToList();
             Assert.Equal(20, entries.Count);
-            Assert.Equal(Enumerable.Range(0, 20).Select(i => $"dir\\file{i}.txt"), entries);
+            Assert.Equal(Enumerable.Range(0, 20).Select(i => $"dir{Path.DirectorySeparatorChar}file{i}.txt"), entries);
         }
     }
 }
