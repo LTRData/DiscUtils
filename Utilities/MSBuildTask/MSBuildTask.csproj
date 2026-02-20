@@ -4,8 +4,8 @@
     <TargetFrameworks>net48</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Build.Framework" Version="17.14.*" />
-    <PackageReference Include="Microsoft.Build.Tasks.Core" Version="17.14.*" />
+    <PackageReference Include="Microsoft.Build.Framework" Version="18.3.*" />
+    <PackageReference Include="Microsoft.Build.Tasks.Core" Version="18.3.*" />
     <PackageReference Include="Microsoft.IO.Redist" Version="*" />
   </ItemGroup>
   <ItemGroup>
