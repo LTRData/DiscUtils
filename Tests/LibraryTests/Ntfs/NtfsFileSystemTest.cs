@@ -975,4 +975,32 @@ public class NtfsFileSystemTest
 
         Assert.Equal(pattern, buffer);
     }
+
+    [Fact]
+    public void TestNameWithInitialSpace()
+    {
+        var ntfs = FileSystemSource.NtfsFileSystem();
+        
+        using (var s = ntfs.OpenFile(" AFILE.TXT", FileMode.CreateNew))
+        {
+        }
+        
+        Assert.True(ntfs.FileExists(" AFILE.TXT"));
+    }
+
+    [Fact]
+    public void TestDirectoryEntryWithInitialSpace()
+    {
+        var ntfs = FileSystemSource.NtfsFileSystem();
+        
+        ntfs.CreateDirectory($"A{Path.DirectorySeparatorChar} DIR{Path.DirectorySeparatorChar}B");
+        
+        Assert.True(ntfs.DirectoryExists($"A{Path.DirectorySeparatorChar} DIR{Path.DirectorySeparatorChar}B"));
+
+        using (var s = ntfs.OpenFile($"A{Path.DirectorySeparatorChar} DIR{Path.DirectorySeparatorChar}B{Path.DirectorySeparatorChar}AFILE.TXT", FileMode.CreateNew))
+        {
+        }
+
+        Assert.True(ntfs.FileExists($"A{Path.DirectorySeparatorChar} DIR{Path.DirectorySeparatorChar}B{Path.DirectorySeparatorChar}AFILE.TXT"));
+    }
 }

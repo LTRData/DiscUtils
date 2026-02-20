@@ -129,40 +129,36 @@ public static class Utilities
 
         foreach (var entry in a.AsMemory().TokenEnum('\\', '/', StringSplitOptions.RemoveEmptyEntries))
         {
-            var trimmed = entry.Trim();
-
-            if (trimmed.Span.Equals("..".AsSpan(), StringComparison.Ordinal)
+            if (entry.Span.Equals("..".AsSpan(), StringComparison.Ordinal)
                 && buffer.Count > 0)
             {
                 buffer.RemoveAt(buffer.Count - 1);
                 continue;
             }
 
-            if (trimmed.Span.Equals(".".AsSpan(), StringComparison.Ordinal))
+            if (entry.Span.Equals(".".AsSpan(), StringComparison.Ordinal))
             {
                 continue;
             }
 
-            buffer.Add(trimmed);
+            buffer.Add(entry);
         }
 
         foreach (var entry in b.AsMemory().TokenEnum('\\', '/', StringSplitOptions.RemoveEmptyEntries))
         {
-            var trimmed = entry.Trim();
-
-            if (trimmed.Span.Equals("..".AsSpan(), StringComparison.Ordinal)
+            if (entry.Span.Equals("..".AsSpan(), StringComparison.Ordinal)
                 && buffer.Count > 0)
             {
                 buffer.RemoveAt(buffer.Count - 1);
                 continue;
             }
 
-            if (trimmed.Span.Equals(".".AsSpan(), StringComparison.Ordinal))
+            if (entry.Span.Equals(".".AsSpan(), StringComparison.Ordinal))
             {
                 continue;
             }
 
-            buffer.Add(trimmed);
+            buffer.Add(entry);
         }
 
         return string.Join(DirectorySeparatorString, buffer);
@@ -195,40 +191,36 @@ public static class Utilities
 
         foreach (var entry in a.TokenEnum('\\', '/', StringSplitOptions.RemoveEmptyEntries))
         {
-            var trimmed = entry.Trim();
-
-            if (trimmed.Equals("..".AsSpan(), StringComparison.Ordinal)
+            if (entry.Equals("..".AsSpan(), StringComparison.Ordinal)
                 && buffer.Count > 0)
             {
                 buffer.RemoveAt(buffer.Count - 1);
                 continue;
             }
 
-            if (trimmed.Equals(".".AsSpan(), StringComparison.Ordinal))
+            if (entry.Equals(".".AsSpan(), StringComparison.Ordinal))
             {
                 continue;
             }
 
-            buffer.Add(trimmed.ToString());
+            buffer.Add(entry.ToString());
         }
 
         foreach (var entry in b.TokenEnum('\\', '/', StringSplitOptions.RemoveEmptyEntries))
         {
-            var trimmed = entry.Trim();
-
-            if (trimmed.Equals("..".AsSpan(), StringComparison.Ordinal)
+            if (entry.Equals("..".AsSpan(), StringComparison.Ordinal)
                 && buffer.Count > 0)
             {
                 buffer.RemoveAt(buffer.Count - 1);
                 continue;
             }
 
-            if (trimmed.Equals(".".AsSpan(), StringComparison.Ordinal))
+            if (entry.Equals(".".AsSpan(), StringComparison.Ordinal))
             {
                 continue;
             }
 
-            buffer.Add(trimmed.ToString());
+            buffer.Add(entry.ToString());
         }
 
         return string.Join(DirectorySeparatorString, buffer);
