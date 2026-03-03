@@ -174,7 +174,7 @@ internal class ClusterBitmap : IDisposable
             _fragmentedDiskMode = numFound / result.Count < 4;
         }
 
-        _usedClusters += total;
+        _usedClusters += count;
 
         return result;
     }
@@ -343,8 +343,6 @@ internal class ClusterBitmap : IDisposable
         if (numFound > 0)
         {
             Bitmap.MarkPresentRange(start, numFound);
-
-            _usedClusters += numFound;
 
             result.Add(new Range<long, long>(start, numFound));
         }

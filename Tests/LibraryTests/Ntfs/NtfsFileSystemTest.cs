@@ -30,6 +30,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
 using System;
+using System.Diagnostics;
 
 namespace LibraryTests.Ntfs;
 
@@ -60,7 +61,7 @@ public class NtfsFileSystemTest
         info.Delete(recursive: true);
 
         info = ntfs.GetDirectoryInfo("Dir");
-        
+
         Assert.False(info.Exists);
     }
 
@@ -529,16 +530,16 @@ public class NtfsFileSystemTest
 
         var buffer = new byte[4096];
 
-        for(var i = 0; i < 2500; ++i)
+        for (var i = 0; i < 2500; ++i)
         {
-            using(var stream = ntfs.OpenFile(@$"DIR{Path.DirectorySeparatorChar}file{i}.bin", FileMode.Create, FileAccess.ReadWrite))
+            using (var stream = ntfs.OpenFile(@$"DIR{Path.DirectorySeparatorChar}file{i}.bin", FileMode.Create, FileAccess.ReadWrite))
             {
-                stream.Write(buffer, 0,buffer.Length);
+                stream.Write(buffer, 0, buffer.Length);
             }
 
-            using(var stream = ntfs.OpenFile(@$"DIR{Path.DirectorySeparatorChar}{i}.bin", FileMode.Create, FileAccess.ReadWrite))
+            using (var stream = ntfs.OpenFile(@$"DIR{Path.DirectorySeparatorChar}{i}.bin", FileMode.Create, FileAccess.ReadWrite))
             {
-                stream.Write(buffer, 0,buffer.Length);
+                stream.Write(buffer, 0, buffer.Length);
             }
         }
 
@@ -980,11 +981,11 @@ public class NtfsFileSystemTest
     public void TestNameWithInitialSpace()
     {
         var ntfs = FileSystemSource.NtfsFileSystem();
-        
+
         using (var s = ntfs.OpenFile(" AFILE.TXT", FileMode.CreateNew))
         {
         }
-        
+
         Assert.True(ntfs.FileExists(" AFILE.TXT"));
     }
 
@@ -992,9 +993,9 @@ public class NtfsFileSystemTest
     public void TestDirectoryEntryWithInitialSpace()
     {
         var ntfs = FileSystemSource.NtfsFileSystem();
-        
+
         ntfs.CreateDirectory($"A{Path.DirectorySeparatorChar} DIR{Path.DirectorySeparatorChar}B");
-        
+
         Assert.True(ntfs.DirectoryExists($"A{Path.DirectorySeparatorChar} DIR{Path.DirectorySeparatorChar}B"));
 
         using (var s = ntfs.OpenFile($"A{Path.DirectorySeparatorChar} DIR{Path.DirectorySeparatorChar}B{Path.DirectorySeparatorChar}AFILE.TXT", FileMode.CreateNew))
@@ -1002,5 +1003,68 @@ public class NtfsFileSystemTest
         }
 
         Assert.True(ntfs.FileExists($"A{Path.DirectorySeparatorChar} DIR{Path.DirectorySeparatorChar}B{Path.DirectorySeparatorChar}AFILE.TXT"));
+    }
+
+    [Fact]
+    public void AvailableSpace_AfterWritingData_ShouldNotBeNegative()
+    {
+        var mb = new SparseMemoryBuffer(chunkSize: 4096);
+        var ms = new SparseMemoryStream(mb, FileAccess.ReadWrite);
+
+        long partitionSizeInBytes = 1500L * 1024 * 1024;     // 1500 MB
+        long desiredFreeSpaceInBytes = 1200L * 1024 * 1024;  // 1200 MB
+
+        var diskGeometry = Geometry.FromCapacity(partitionSizeInBytes);
+
+        using var ntfsFs = NtfsFileSystem.Format(ms, "", diskGeometry, 0, diskGeometry.TotalSectorsLong);
+        
+        long availableBefore = ntfsFs.AvailableSpace;
+
+        Trace.WriteLine($"Cluster size:         {ntfsFs.ClusterSize:N0} bytes");
+        Trace.WriteLine($"Available before:     {availableBefore:N0} bytes");
+
+        // Calculate how much data to write to leave the desired free space
+        long dataToWrite = availableBefore - desiredFreeSpaceInBytes;
+        Trace.WriteLine($"Data to write:        {dataToWrite:N0} bytes");
+
+        Assert.True(dataToWrite > 0, "Not enough available space to write data.");
+
+        // Write dummy data in 1 MB chunks (same pattern as VirtualHardDiskSteps)
+        using (var file = ntfsFs.OpenFile("dummy.bin", FileMode.Create, FileAccess.Write))
+        {
+            byte[] buffer = new byte[1024 * 1024]; // 1 MB chunks
+            long remaining = dataToWrite;
+
+            while (remaining > 0)
+            {
+                int toWrite = (int)Math.Min(buffer.Length, remaining);
+                file.Write(buffer, 0, toWrite);
+                remaining -= toWrite;
+            }
+        }
+
+        // Read AvailableSpace after writing — this is where the bug manifests
+        long availableAfter = ntfsFs.AvailableSpace;
+        long usedSpace = ntfsFs.UsedSpace;
+        long totalSpace = ntfsFs.Size;
+
+        Trace.WriteLine($"Available after:      {availableAfter:N0} bytes");
+        Trace.WriteLine($"Used space:           {usedSpace:N0} bytes");
+        Trace.WriteLine($"Total space (Size):   {totalSpace:N0} bytes");
+        Trace.WriteLine($"Used + Available:     {usedSpace + availableAfter:N0} bytes");
+
+        // The bug: AvailableSpace becomes negative because ClusterBitmap._usedClusters
+        // is inflated far beyond the actual number of allocated clusters.
+        Assert.True(
+            availableAfter >= 0,
+            $"AvailableSpace should be non-negative but was {availableAfter:N0} bytes. " +
+            $"UsedSpace ({usedSpace:N0}) exceeds TotalSpace ({totalSpace:N0}) by {usedSpace - totalSpace:N0} bytes, " +
+            $"indicating that the internal _usedClusters counter is inflated.");
+
+        // Secondary check: UsedSpace should never exceed TotalSpace
+        Assert.True(
+            usedSpace <= totalSpace,
+            $"UsedSpace ({usedSpace:N0}) should not exceed TotalSpace ({totalSpace:N0}). " +
+            $"Overflow: {usedSpace - totalSpace:N0} bytes.");
     }
 }

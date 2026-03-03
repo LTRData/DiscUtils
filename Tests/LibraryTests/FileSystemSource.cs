@@ -68,7 +68,7 @@ public static class FileSystemSource
     public static DiscUtils.Ntfs.NtfsFileSystem NtfsFileSystem()
     {
         var buffer = new SparseMemoryBuffer(4096);
-        var ms = new SparseMemoryStream();
+        var ms = new SparseMemoryStream(buffer, System.IO.FileAccess.ReadWrite);
         var diskGeometry = Geometry.FromCapacity(30 * 1024 * 1024);
         return DiscUtils.Ntfs.NtfsFileSystem.Format(ms, "", diskGeometry, 0, diskGeometry.TotalSectorsLong);
     }
