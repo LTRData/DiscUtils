@@ -461,7 +461,10 @@ public abstract class SparseStream : CompatibilityStream
         {
             CheckDisposed();
 
-            _wrapped.Flush();
+            if (CanWrite)
+            {
+                _wrapped.Flush();
+            }
         }
 
         public override int Read(byte[] buffer, int offset, int count)

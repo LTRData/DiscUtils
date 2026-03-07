@@ -564,7 +564,11 @@ public sealed class BlockCacheStream : SparseStream
     public override void Flush()
     {
         CheckDisposed();
-        _wrappedStream.Flush();
+
+        if (CanWrite)
+        {
+            _wrappedStream.Flush();
+        }
     }
 
     /// <summary>
