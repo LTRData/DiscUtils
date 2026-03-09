@@ -5,6 +5,7 @@ using DokanNet.Logging;
 using LTRData.Extensions.Buffers;
 using LTRData.Extensions.Formatting;
 using LTRData.Extensions.Native.Memory;
+using LTRData.Extensions.Split;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
@@ -1091,24 +1092,28 @@ public class DokanDiscUtils : IDokanOperations2, IDisposable
     public NtStatus GetVolumeInformation(NativeMemory<char> volumeLabel, out FileSystemFeatures features,
         NativeMemory<char> fileSystemName, out uint maximumComponentLength, ref uint volumeSerialNumber, ref DokanFileInfo info)
     {
-        var label = (FileSystem as DiscFileSystem)?.VolumeLabel;
-
-        if (string.IsNullOrWhiteSpace(label))
+        if ((FileSystem as DiscFileSystem)?.VolumeLabel is { Length: > 0 } label)
         {
-            label = "NO NAME";
+            volumeLabel.SetString(label);
         }
 
-        volumeLabel.SetString(label);
+        var fsName = ((FileSystem as DiscFileSystem)?.FriendlyName)
+            .AsSpan()
+            .TokenEnum(' ', StringSplitOptions.RemoveEmptyEntries)
+            .LastOrDefault();
 
-        var fsName = FileSystem.GetType().Name.AsSpan();
+        if (fsName.IsEmpty)
+        {
+            fsName = FileSystem.GetType().Name.AsSpan();
 
-        if (fsName.EndsWith("FileSystem".AsSpan(), StringComparison.Ordinal))
-        {
-            fsName = fsName.Slice(0, fsName.Length - "FileSystem".Length);
-        }
-        else if (fsName.EndsWith("Reader".AsSpan(), StringComparison.Ordinal))
-        {
-            fsName = fsName.Slice(0, fsName.Length - "Reader".Length);
+            if (fsName.EndsWith("FileSystem".AsSpan(), StringComparison.Ordinal))
+            {
+                fsName = fsName.Slice(0, fsName.Length - "FileSystem".Length);
+            }
+            else if (fsName.EndsWith("Reader".AsSpan(), StringComparison.Ordinal))
+            {
+                fsName = fsName.Slice(0, fsName.Length - "Reader".Length);
+            }
         }
 
         if (fsName.Length <= 5)
