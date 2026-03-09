@@ -47,4 +47,14 @@ public interface IDosFileSystem : IFileSystem
     /// available, and so it can be assumed the file has no hard links.
     /// </remarks>
     long GetFileId(string path);
+
+    /// <summary>
+    /// Gets volume label for file system.
+    /// </summary>
+    string? VolumeLabel { get; }
+
+    /// <summary>
+    /// Gets volume id for file system.
+    /// </summary>
+    uint VolumeId { get; }
 }
