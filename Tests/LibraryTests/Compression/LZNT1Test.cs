@@ -22,7 +22,6 @@
 
 using System;
 using DiscUtils.Compression;
-using Xunit;
 using static LibraryTests.Compression.NativeCompression;
 
 namespace LibraryTests.Compression;

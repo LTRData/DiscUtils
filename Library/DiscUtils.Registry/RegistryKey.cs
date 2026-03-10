@@ -23,9 +23,7 @@
 using System;
 using System.Collections.Generic;
 using DiscUtils.Streams;
-using DiscUtils.Internal;
 using System.Buffers;
-using LTRData.Extensions.Split;
 
 namespace DiscUtils.Registry;
 

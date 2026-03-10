@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace DiscUtils.Iscsi;
+﻿namespace DiscUtils.Iscsi;
 
 #pragma warning disable CA1069 // Enums values should not be duplicated
 
