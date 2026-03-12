@@ -7,7 +7,7 @@ namespace DiscUtils.Compression;
 /// <summary>
 /// XPRESS Huffman decompressor that operates directly on spans.
 /// </summary>
-internal static class XpressHuffman
+public static class XpressHuffman
 {
     private const int SymbolCount = 512;
     private const int MaxCodeLength = 15;
@@ -377,7 +377,7 @@ internal static class XpressHuffman
             _bitsAvailable = 0;
         }
 
-        public int BytesConsumed => _rawPos;
+        public readonly int BytesConsumed => _rawPos;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool EnsureBufferFilled()
