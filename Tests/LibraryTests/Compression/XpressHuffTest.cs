@@ -58,7 +58,7 @@ public class XpressHuffTest
     }
 
     [WindowsOnlyFact]
-    public void Decompress()
+    public void Decompress_Stream()
     {
         var compressed = NativeCompress(_uncompressedData, 0, _uncompressedData.Length, 4096, CompressionFormat.XpressHuff);
 
@@ -73,7 +73,26 @@ public class XpressHuffTest
     }
 
     [WindowsOnlyFact]
-    public void DecompressMidSourceBuffer()
+    public void Decompress_Span()
+    {
+        var compressed = NativeCompress(_uncompressedData, 0, _uncompressedData.Length, 4096, CompressionFormat.XpressHuff);
+
+        // Double-check, make sure native code round-trips
+        //Assert.Equal(_uncompressedData, NativeDecompress(compressed, 0, compressed.Length, CompressionFormat.XpressHuff));
+
+        var decompressed = new byte[_uncompressedData.Length];
+
+        XpressHuffman.TryDecompress(compressed, decompressed, out var bytesConsumed, out var bytesWritten);
+
+        Assert.InRange(bytesConsumed, compressed.Length - 2, compressed.Length);
+
+        Assert.Equal(_uncompressedData.Length, bytesWritten);
+
+        Assert.Equal(_uncompressedData, decompressed);
+    }
+
+    [WindowsOnlyFact]
+    public void DecompressMidSourceBuffer_Stream()
     {
         var compressed = NativeCompress(_uncompressedData, 0, _uncompressedData.Length, 4096, CompressionFormat.XpressHuff);
 
@@ -91,7 +110,29 @@ public class XpressHuffTest
     }
 
     [WindowsOnlyFact]
-    public void Decompress1KBlockSize()
+    public void DecompressMidSourceBuffer_Span()
+    {
+        var compressed = NativeCompress(_uncompressedData, 0, _uncompressedData.Length, 4096, CompressionFormat.XpressHuff);
+
+        var inData = new byte[128 * 1024];
+        System.Buffer.BlockCopy(compressed, 0, inData, 32 * 1024, compressed.Length);
+
+        // Double-check, make sure native code round-trips
+        //Assert.Equal(_uncompressedData, NativeDecompress(inData, 32 * 1024, compressed.Length, CompressionFormat.XpressHuff));
+
+        var decompressed = new byte[_uncompressedData.Length];
+
+        XpressHuffman.TryDecompress(inData.AsSpan(32 * 1024, compressed.Length), decompressed, out var bytesConsumed, out var bytesWritten);
+
+        Assert.InRange(bytesConsumed, compressed.Length - 2, compressed.Length);
+
+        Assert.Equal(_uncompressedData.Length, bytesWritten);
+
+        Assert.Equal(_uncompressedData, decompressed);
+    }
+
+    [WindowsOnlyFact]
+    public void Decompress1KBlockSize_Stream()
     {
         var compressed = NativeCompress(_uncompressedData, 0, _uncompressedData.Length, 1024, CompressionFormat.XpressHuff);
 
@@ -100,6 +141,24 @@ public class XpressHuffTest
         var decompressed = new byte[_uncompressedData.Length];
 
         new XpressStream(new MemoryStream(compressed), _uncompressedData.Length).ReadExactly(decompressed);
+
+        Assert.Equal(_uncompressedData, decompressed);
+    }
+
+    [WindowsOnlyFact]
+    public void Decompress1KBlockSize_Span()
+    {
+        var compressed = NativeCompress(_uncompressedData, 0, _uncompressedData.Length, 1024, CompressionFormat.XpressHuff);
+
+        //Assert.Equal(_uncompressedData, NativeDecompress(compressed, 0, compressed.Length, CompressionFormat.XpressHuff));
+
+        var decompressed = new byte[_uncompressedData.Length];
+
+        XpressHuffman.TryDecompress(compressed, decompressed, out var bytesConsumed, out var bytesWritten);
+
+        Assert.InRange(bytesConsumed, compressed.Length - 2, compressed.Length);
+
+        Assert.Equal(_uncompressedData.Length, bytesWritten);
 
         Assert.Equal(_uncompressedData, decompressed);
     }
