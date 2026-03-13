@@ -6,7 +6,7 @@ namespace DiscUtils.Compression;
 
 public sealed class XpressLz77 : IBlockDecompressor
 {
-    public static XpressLz77 Default { get; } = new();
+    public static XpressLz77 Default => field ??= new();
 
     int IBlockDecompressor.BlockSize { get; set; }
 

@@ -7,11 +7,15 @@ namespace DiscUtils.Compression;
 /// <summary>
 /// XPRESS Huffman decompressor that operates directly on spans.
 /// </summary>
-public static class XpressHuffman
+public class XpressHuffman : IBlockDecompressor
 {
     private const int SymbolCount = 512;
     private const int MaxCodeLength = 15;
     private const int FastBits = 10;
+
+    public static XpressHuffman Default => field ??= new();
+
+    int IBlockDecompressor.BlockSize { get; set; }
 
     /// <summary>
     /// Decompresses an XPRESS Huffman block into a caller-provided destination buffer.
@@ -361,6 +365,9 @@ public static class XpressHuffman
 
         return true;
     }
+
+    bool IBlockDecompressor.TryDecompress(ReadOnlySpan<byte> source, Span<byte> decompressed, out int decompressedSize)
+        => TryDecompress(source, decompressed, out _, out decompressedSize);
 
     private ref struct XpressBitReader
     {
