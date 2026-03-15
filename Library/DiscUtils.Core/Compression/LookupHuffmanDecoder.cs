@@ -21,7 +21,7 @@ internal ref struct LookupHuffmanDecoder
         _numBits = 0;
     }
 
-    public bool Build(scoped ReadOnlySpan<byte> codeLengths)
+    public bool Build(ReadOnlySpan<byte> codeLengths)
     {
         if (codeLengths.Length < _symbolCount)
         {
@@ -42,9 +42,14 @@ internal ref struct LookupHuffmanDecoder
 
         _numBits = maxLength;
 
-        if (_numBits <= 0 || _numBits > 16)
+        if (_numBits > 16)
         {
             return false;
+        }
+
+        if (_numBits == 0)
+        {
+            return true;
         }
 
         int tableSize = 1 << _numBits;
@@ -54,12 +59,10 @@ internal ref struct LookupHuffmanDecoder
         }
 
         var table = _table.Slice(0, tableSize);
-        table.Clear();
+        table.Fill(ushort.MaxValue);
 
         int position = 0;
 
-        // Mirrors legacy HuffmanTree table construction:
-        // iterate bit length first, then symbol order, filling a flat lookup table.
         for (int bitLength = 1; bitLength <= _numBits; bitLength++)
         {
             for (ushort symbol = 0; symbol < _symbolCount; symbol++)
@@ -78,23 +81,28 @@ internal ref struct LookupHuffmanDecoder
             }
         }
 
-        if (position != tableSize)
-        {
-            return false;
-        }
-
         return true;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int Decode(scoped ref LzxBitReader reader)
     {
+        if (_numBits == 0)
+        {
+            return -1;
+        }
+
         if (!reader.TryPeekBits(_numBits, out uint peek))
         {
             return -1;
         }
 
         ushort symbol = _table[(int)peek];
+        if (symbol == ushort.MaxValue)
+        {
+            return -1;
+        }
+
         int len = _lengths[symbol];
         if (len <= 0)
         {
