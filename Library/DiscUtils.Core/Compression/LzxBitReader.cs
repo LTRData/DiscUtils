@@ -10,6 +10,7 @@ internal ref struct LzxBitReader
     private int _rawPos;
     private uint _bitBuffer;
     private int _bitsAvailable;
+    private long _positionBits;
 
     public LzxBitReader(ReadOnlySpan<byte> source)
     {
@@ -17,29 +18,32 @@ internal ref struct LzxBitReader
         _rawPos = 0;
         _bitBuffer = 0;
         _bitsAvailable = 0;
+        _positionBits = 0;
     }
 
     public int BytesConsumed => _rawPos;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool EnsureBufferFilled()
+    private void Need(int count)
     {
-        // Match the old style bit-reader behavior:
-        // pull another 16 bits whenever fewer than 16 remain.
-        if (_bitsAvailable < 16)
+        while (_bitsAvailable < count)
         {
-            if ((uint)(_rawPos + 1) >= (uint)_source.Length)
+            byte lo = 0;
+            byte hi = 0;
+
+            if ((uint)_rawPos < (uint)_source.Length)
             {
-                return false;
+                lo = _source[_rawPos++];
             }
 
-            ushort word = BinaryPrimitives.ReadUInt16LittleEndian(_source.Slice(_rawPos, 2));
-            _rawPos += 2;
-            _bitBuffer = (_bitBuffer << 16) | word;
+            if ((uint)_rawPos < (uint)_source.Length)
+            {
+                hi = _source[_rawPos++];
+            }
+
+            _bitBuffer = (_bitBuffer << 16) | (uint)(lo | (hi << 8));
             _bitsAvailable += 16;
         }
-
-        return true;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -52,14 +56,9 @@ internal ref struct LzxBitReader
             return false;
         }
 
-        if (!EnsureBufferFilled())
-        {
-            return false;
-        }
-
         if (_bitsAvailable < count)
         {
-            return false;
+            Need(count);
         }
 
         if (count == 0)
@@ -82,17 +81,13 @@ internal ref struct LzxBitReader
             return false;
         }
 
-        if (!EnsureBufferFilled())
-        {
-            return false;
-        }
-
         if (_bitsAvailable < count)
         {
-            return false;
+            Need(count);
         }
 
         _bitsAvailable -= count;
+        _positionBits += count;
 
         if (count == 0)
         {
@@ -112,30 +107,34 @@ internal ref struct LzxBitReader
             return false;
         }
 
-        if (!EnsureBufferFilled())
-        {
-            return false;
-        }
-
         if (_bitsAvailable < count)
         {
-            return false;
+            Need(count);
         }
 
         _bitsAvailable -= count;
+        _positionBits += count;
         return true;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool AlignTo16Bits()
     {
-        int discard = _bitsAvailable & 0x0F;
-        return TryConsumeBits(discard);
+        // Match legacy Align(16): consumes 1..16 bits, never 0.
+        int offset = (int)(_positionBits % 16);
+        int consume = 16 - offset;
+        return TryConsumeBits(consume);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool TryReadRawByte(out byte value)
     {
+        if ((_positionBits & 7) != 0)
+        {
+            value = 0;
+            return false;
+        }
+
         if ((uint)_rawPos >= (uint)_source.Length)
         {
             value = 0;
@@ -143,26 +142,39 @@ internal ref struct LzxBitReader
         }
 
         value = _source[_rawPos++];
+        _positionBits += 8;
         return true;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool TryReadRawUInt32(out uint value)
     {
+        value = 0;
+
+        if ((_positionBits & 7) != 0)
+        {
+            return false;
+        }
+
         if ((uint)(_rawPos + 3) >= (uint)_source.Length)
         {
-            value = 0;
             return false;
         }
 
         value = BinaryPrimitives.ReadUInt32LittleEndian(_source.Slice(_rawPos, 4));
         _rawPos += 4;
+        _positionBits += 32;
         return true;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool TryReadRawBytes(scoped Span<byte> destination)
     {
+        if ((_positionBits & 7) != 0)
+        {
+            return false;
+        }
+
         if ((uint)_rawPos > (uint)_source.Length || destination.Length > _source.Length - _rawPos)
         {
             return false;
@@ -170,6 +182,7 @@ internal ref struct LzxBitReader
 
         _source.Slice(_rawPos, destination.Length).CopyTo(destination);
         _rawPos += destination.Length;
+        _positionBits += destination.Length * 8L;
         return true;
     }
 }

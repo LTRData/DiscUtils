@@ -4,15 +4,17 @@ using System.Runtime.CompilerServices;
 
 namespace DiscUtils.Compression;
 
-internal ref struct LzxDecoder : IBlockDecompressor
+internal ref struct LzxDecoder
 {
     private static readonly uint[] s_positionSlots;
     private static readonly uint[] s_extraBits;
 
     private readonly int _windowBits;
     private readonly int _windowSize;
-    private readonly int _fileSize;
+    private readonly int _E8FixupMaxSize;
     private readonly int _numPositionSlots;
+
+    private readonly LzxWorkspace _workspace;
 
     private Span<byte> _window;
     private int _windowPos;
@@ -25,10 +27,6 @@ internal ref struct LzxDecoder : IBlockDecompressor
     private Span<byte> _lengthLengths;
     private Span<byte> _alignedLengths;
     private Span<byte> _preTreeLengths;
-
-    private LzxWorkspace _workspace;
-
-    int IBlockDecompressor.BlockSize { get; set; }
 
     static LzxDecoder()
     {
@@ -55,12 +53,12 @@ internal ref struct LzxDecoder : IBlockDecompressor
         s_extraBits = extraBits;
     }
 
-    public LzxDecoder(int windowBits, int fileSize, LzxWorkspace workspace)
+    public LzxDecoder(int windowBits, int e8FixupMaxSize, LzxWorkspace workspace)
     {
         _windowBits = windowBits;
         _windowSize = 1 << windowBits;
-        _fileSize = fileSize;
-        _numPositionSlots = windowBits * 2;
+        _E8FixupMaxSize = e8FixupMaxSize;
+        _numPositionSlots = _windowBits * 2;
 
         _workspace = workspace;
 
@@ -81,12 +79,6 @@ internal ref struct LzxDecoder : IBlockDecompressor
         _r1 = 1;
         _r2 = 1;
     }
-
-    bool IBlockDecompressor.TryDecompress(
-        ReadOnlySpan<byte> source,
-        Span<byte> destination,
-        out int bytesWritten)
-    => TryDecompress(source, destination, out _, out bytesWritten);
 
     public bool TryDecompress(
         ReadOnlySpan<byte> source,
@@ -116,13 +108,10 @@ internal ref struct LzxDecoder : IBlockDecompressor
                 return false;
             }
 
-            int remaining = destination.Length - dstPos;
-            int outputThisBlock = Math.Min(blockSize, remaining);
-
             switch (blockType)
             {
                 case BlockType.Uncompressed:
-                    if (!DecodeUncompressedBlock(ref reader, destination.Slice(dstPos, outputThisBlock), blockSize))
+                    if (!DecodeUncompressedBlock(ref reader, destination, ref dstPos, blockSize))
                     {
                         bytesConsumed = reader.BytesConsumed;
                         bytesWritten = dstPos;
@@ -146,8 +135,6 @@ internal ref struct LzxDecoder : IBlockDecompressor
                     return false;
             }
 
-            dstPos += outputThisBlock;
-
             if (!reader.TryReadBits(3, out blockTypeValue))
             {
                 bytesConsumed = reader.BytesConsumed;
@@ -158,7 +145,10 @@ internal ref struct LzxDecoder : IBlockDecompressor
             blockType = (BlockType)blockTypeValue;
         }
 
-        ApplyE8Fixup(destination.Slice(0, dstPos), _fileSize);
+        if (_E8FixupMaxSize > 0)
+        {
+            ApplyE8Fixup(destination.Slice(0, dstPos), _E8FixupMaxSize);
+        }
 
         bytesConsumed = reader.BytesConsumed;
         bytesWritten = dstPos;
@@ -189,7 +179,11 @@ internal ref struct LzxDecoder : IBlockDecompressor
         return true;
     }
 
-    private bool DecodeUncompressedBlock(scoped ref LzxBitReader reader, Span<byte> output, int declaredBlockSize)
+    private bool DecodeUncompressedBlock(
+        scoped ref LzxBitReader reader,
+        Span<byte> output,
+        ref int dstPos,
+        int blockSize)
     {
         if (!reader.AlignTo16Bits())
         {
@@ -203,21 +197,26 @@ internal ref struct LzxDecoder : IBlockDecompressor
             return false;
         }
 
-        int bytesToCopy = Math.Min(declaredBlockSize, output.Length);
-        if (!reader.TryReadRawBytes(output.Slice(0, bytesToCopy)))
+        int remainingOutput = output.Length - dstPos;
+        int bytesToStore = Math.Min(blockSize, remainingOutput);
+
+        if (!reader.TryReadRawBytes(output.Slice(dstPos, bytesToStore)))
         {
             return false;
         }
 
-        for (int i = 0; i < bytesToCopy; i++)
+        for (int i = 0; i < bytesToStore; i++)
         {
-            WriteWindowByte(output[i]);
+            WriteWindowByte(output[dstPos + i]);
         }
 
-        int skipped = declaredBlockSize - bytesToCopy;
+        dstPos += bytesToStore;
+
+        int skipped = blockSize - bytesToStore;
         if (skipped > 0)
         {
             Span<byte> scratch = stackalloc byte[256];
+
             while (skipped > 0)
             {
                 int chunk = Math.Min(skipped, scratch.Length);
@@ -235,7 +234,7 @@ internal ref struct LzxDecoder : IBlockDecompressor
             }
         }
 
-        if ((declaredBlockSize & 1) != 0)
+        if ((blockSize & 1) != 0)
         {
             if (!reader.TryReadRawByte(out _))
             {
@@ -246,43 +245,153 @@ internal ref struct LzxDecoder : IBlockDecompressor
         return true;
     }
 
-    private bool ReadMainTree(scoped ref LzxBitReader reader)
+    private bool DecodeCompressedBlock(
+        scoped ref LzxBitReader reader,
+        BlockType blockType,
+        Span<byte> output,
+        ref int dstPos,
+        int blockSize)
     {
-        var preTree = CreateDecoder(20, 16, 10);
+        LookupHuffmanDecoder alignedTree = default;
+        bool haveAlignedTree = false;
+
+        if (blockType == BlockType.AlignedOffset)
+        {
+            if (!ReadAlignedTree(ref reader, out alignedTree))
+            {
+                return false;
+            }
+
+            haveAlignedTree = true;
+        }
+
+        if (!ReadMainTree(ref reader, out var mainTree))
+        {
+            return false;
+        }
+
+        if (!ReadLengthTree(ref reader, out var lengthTree))
+        {
+            return false;
+        }
+
+        int blockRemaining = blockSize;
+
+        while (blockRemaining > 0)
+        {
+            int symbol = mainTree.Decode(ref reader);
+            if (symbol < 0)
+            {
+                return false;
+            }
+
+            if (symbol < 256)
+            {
+                WriteLiteral(output, ref dstPos, (byte)symbol);
+                blockRemaining--;
+                continue;
+            }
+
+            int footer = symbol - 256;
+            int lengthHeader = footer & 7;
+            int positionSlot = footer >> 3;
+
+            int matchLength = lengthHeader + 2;
+            if (lengthHeader == 7)
+            {
+                int extraLen = lengthTree.Decode(ref reader);
+                if (extraLen < 0)
+                {
+                    return false;
+                }
+
+                matchLength += extraLen;
+            }
+
+            if (!TryDecodeMatchOffset(
+                ref reader,
+                blockType,
+                positionSlot,
+                haveAlignedTree,
+                ref alignedTree,
+                out uint matchOffset))
+            {
+                return false;
+            }
+
+            if (!CopyMatchFromWindow(output, ref dstPos, matchOffset, matchLength, ref blockRemaining))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private bool ReadMainTree(scoped ref LzxBitReader reader, out LookupHuffmanDecoder mainTree)
+    {
+        var preTree = CreatePreTreeDecoder();
         if (!ReadFixedTree(ref reader, _preTreeLengths, 20, 4, ref preTree))
         {
+            mainTree = default;
             return false;
         }
 
         if (!ReadLengths(ref reader, ref preTree, _mainLengths, 0, 256))
         {
+            mainTree = default;
             return false;
         }
 
-        preTree = CreateDecoder(20, 16, 10);
+        preTree = CreatePreTreeDecoder();
         if (!ReadFixedTree(ref reader, _preTreeLengths, 20, 4, ref preTree))
         {
+            mainTree = default;
             return false;
         }
 
-        return ReadLengths(ref reader, ref preTree, _mainLengths, 256, 8 * _numPositionSlots);
+        if (!ReadLengths(ref reader, ref preTree, _mainLengths, 256, 8 * _numPositionSlots))
+        {
+            mainTree = default;
+            return false;
+        }
+
+        mainTree = CreateMainDecoder();
+        return mainTree.Build(_mainLengths);
     }
 
-    private bool ReadLengthTree(scoped ref LzxBitReader reader)
+    private bool ReadLengthTree(scoped ref LzxBitReader reader, out LookupHuffmanDecoder lengthTree)
     {
-        var preTree = CreateDecoder(20, 16, 10);
+        var preTree = CreatePreTreeDecoder();
         if (!ReadFixedTree(ref reader, _preTreeLengths, 20, 4, ref preTree))
         {
+            lengthTree = default;
             return false;
         }
 
-        return ReadLengths(ref reader, ref preTree, _lengthLengths, 0, 249);
+        if (!ReadLengths(ref reader, ref preTree, _lengthLengths, 0, 249))
+        {
+            lengthTree = default;
+            return false;
+        }
+
+        lengthTree = CreateLengthDecoder();
+        return lengthTree.Build(_lengthLengths);
     }
 
-    private bool ReadAlignedTree(scoped ref LzxBitReader reader)
+    private bool ReadAlignedTree(scoped ref LzxBitReader reader, out LookupHuffmanDecoder alignedTree)
     {
-        var decoder = CreateDecoder(8, 16, 8);
-        return ReadFixedTree(ref reader, _alignedLengths, 8, 3, ref decoder);
+        var decoder = CreateAlignedDecoder();
+
+        if (!ReadFixedTree(ref reader, _alignedLengths, 8, 3, ref decoder))
+        {
+            alignedTree = default;
+            return false;
+        }
+
+        alignedTree = decoder;
+
+        return true;
     }
 
     private static bool ReadFixedTree(
@@ -290,7 +399,7 @@ internal ref struct LzxDecoder : IBlockDecompressor
         Span<byte> codeLengths,
         int symbolCount,
         int bitsPerLength,
-        scoped ref CanonicalHuffmanDecoder decoder)
+        scoped ref LookupHuffmanDecoder decoder)
     {
         for (int i = 0; i < symbolCount; i++)
         {
@@ -307,7 +416,7 @@ internal ref struct LzxDecoder : IBlockDecompressor
 
     private static bool ReadLengths(
         scoped ref LzxBitReader reader,
-        scoped ref CanonicalHuffmanDecoder preTree,
+        scoped ref LookupHuffmanDecoder preTree,
         Span<byte> lengths,
         int offset,
         int count)
@@ -379,63 +488,12 @@ internal ref struct LzxDecoder : IBlockDecompressor
         return true;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private CanonicalHuffmanDecoder CreateDecoder(int symbolCount, int maxCodeLength, int fastBits)
-    {
-        return new CanonicalHuffmanDecoder(
-            symbolCount,
-            maxCodeLength,
-            fastBits,
-            _workspace.SortedSymbols,
-            _workspace.LengthCounts,
-            _workspace.FirstCode,
-            _workspace.FirstSymbol,
-            _workspace.NextSymbol,
-            _workspace.FastSymbols,
-            _workspace.FastLengths);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void WriteWindowByte(byte value)
-    {
-        _window[_windowPos] = value;
-        _windowPos++;
-        if (_windowPos == _windowSize)
-        {
-            _windowPos = 0;
-        }
-    }
-
-    private static void ApplyE8Fixup(Span<byte> buffer, int fileSize)
-    {
-        int i = 0;
-        while (i < buffer.Length - 10)
-        {
-            if (buffer[i] == 0xE8)
-            {
-                int absoluteValue = BinaryPrimitives.ReadInt32LittleEndian(buffer.Slice(i + 1, 4));
-                if (absoluteValue >= -i && absoluteValue < fileSize)
-                {
-                    int offsetValue = absoluteValue >= 0
-                        ? absoluteValue - i
-                        : absoluteValue + fileSize;
-
-                    BinaryPrimitives.WriteInt32LittleEndian(buffer.Slice(i + 1, 4), offsetValue);
-                }
-
-                i += 4;
-            }
-
-            i++;
-        }
-    }
-
     private bool TryDecodeMatchOffset(
         scoped ref LzxBitReader reader,
         BlockType blockType,
         int positionSlot,
         bool haveAlignedTree,
-        scoped ref CanonicalHuffmanDecoder alignedTree,
+        scoped ref LookupHuffmanDecoder alignedTree,
         out uint matchOffset)
     {
         matchOffset = 0;
@@ -521,7 +579,6 @@ internal ref struct LzxDecoder : IBlockDecompressor
         _r2 = _r1;
         _r1 = _r0;
         _r0 = matchOffset;
-
         return true;
     }
 
@@ -571,109 +628,67 @@ internal ref struct LzxDecoder : IBlockDecompressor
         return true;
     }
 
-    private bool DecodeCompressedBlock(
-        scoped ref LzxBitReader reader,
-        BlockType blockType,
-        Span<byte> output,
-        ref int dstPos,
-        int blockSize)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void WriteLiteral(Span<byte> output, ref int dstPos, byte value)
     {
-        CanonicalHuffmanDecoder alignedTree = default;
-        bool haveAlignedTree = false;
-
-        if (blockType == BlockType.AlignedOffset)
+        if ((uint)dstPos < (uint)output.Length)
         {
-            alignedTree = CreateDecoder(8, 16, 8);
-            if (!ReadFixedTree(ref reader, _alignedLengths, 8, 3, ref alignedTree))
+            output[dstPos] = value;
+        }
+
+        dstPos++;
+        WriteWindowByte(value);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private LookupHuffmanDecoder CreateMainDecoder()
+        => new(_mainLengths.Length, _mainLengths, _workspace.MainTable);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private LookupHuffmanDecoder CreateLengthDecoder()
+        => new(249, _lengthLengths, _workspace.LengthTable);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private LookupHuffmanDecoder CreateAlignedDecoder()
+        => new(8, _alignedLengths, _workspace.AlignedTable);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private LookupHuffmanDecoder CreatePreTreeDecoder()
+        => new(20, _preTreeLengths, _workspace.PreTreeTable);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void WriteWindowByte(byte value)
+    {
+        _window[_windowPos] = value;
+        _windowPos++;
+        if (_windowPos == _windowSize)
+        {
+            _windowPos = 0;
+        }
+    }
+
+    private static void ApplyE8Fixup(Span<byte> buffer, int fileSize)
+    {
+        int i = 0;
+        while (i < buffer.Length - 10)
+        {
+            if (buffer[i] == 0xE8)
             {
-                return false;
-            }
-
-            haveAlignedTree = true;
-        }
-
-        if (!ReadMainTree(ref reader))
-        {
-            return false;
-        }
-
-        if (!ReadLengthTree(ref reader))
-        {
-            return false;
-        }
-
-        var mainTree = CreateDecoder(_mainLengths.Length, 16, 10);
-        if (!mainTree.Build(_mainLengths))
-        {
-            return false;
-        }
-
-        var lengthTree = CreateDecoder(249, 16, 10);
-        if (!lengthTree.Build(_lengthLengths))
-        {
-            return false;
-        }
-
-        int blockRemaining = blockSize;
-
-        while (blockRemaining > 0)
-        {
-            int symbol = mainTree.Decode(ref reader);
-            if (symbol < 0)
-            {
-                return false;
-            }
-
-            if (symbol < 256)
-            {
-                byte value = (byte)symbol;
-
-                if ((uint)dstPos < (uint)output.Length)
+                int absoluteValue = BinaryPrimitives.ReadInt32LittleEndian(buffer.Slice(i + 1, 4));
+                if (absoluteValue >= -i && absoluteValue < fileSize)
                 {
-                    output[dstPos] = value;
+                    int offsetValue = absoluteValue >= 0
+                        ? absoluteValue - i
+                        : absoluteValue + fileSize;
+
+                    BinaryPrimitives.WriteInt32LittleEndian(buffer.Slice(i + 1, 4), offsetValue);
                 }
 
-                dstPos++;
-                blockRemaining--;
-                WriteWindowByte(value);
-                continue;
+                i += 4;
             }
 
-            int footer = symbol - 256;
-            int lengthHeader = footer & 7;
-            int positionSlot = footer >> 3;
-
-            int matchLength = lengthHeader + 2;
-            if (lengthHeader == 7)
-            {
-                int extraLen = lengthTree.Decode(ref reader);
-                if (extraLen < 0)
-                {
-                    return false;
-                }
-
-                matchLength += extraLen;
-            }
-
-            uint matchOffset;
-            if (!TryDecodeMatchOffset(
-                ref reader,
-                blockType,
-                positionSlot,
-                haveAlignedTree,
-                ref alignedTree,
-                out matchOffset))
-            {
-                return false;
-            }
-
-            if (!CopyMatchFromWindow(output, ref dstPos, matchOffset, matchLength, ref blockRemaining))
-            {
-                return false;
-            }
+            i++;
         }
-
-        return true;
     }
 
     private enum BlockType
