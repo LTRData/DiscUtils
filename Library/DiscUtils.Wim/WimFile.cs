@@ -20,6 +20,7 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
+using DiscUtils.Compression;
 using DiscUtils.Streams;
 using System;
 using System.Collections.Generic;
@@ -194,12 +195,13 @@ public class WimFile
     {
         SparseStream fileSectionStream = new SubStream(FileStream, Ownership.None, hdr.FileOffset,
             hdr.CompressedSize);
+
         if ((hdr.Flags & ResourceFlags.Compressed) == 0)
         {
             return fileSectionStream;
         }
 
-        return new FileResourceStream(fileSectionStream, hdr, (_fileHeader.Flags & FileFlags.LzxCompression) != 0,
+        return new FileResourceStream(fileSectionStream, hdr, _fileHeader.Flags,
             _fileHeader.CompressionSize);
     }
 
