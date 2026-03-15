@@ -1295,7 +1295,8 @@ public class DokanDiscUtils : IDokanOperations2, IDisposable
 
     public IEnumerable<FindFileInformation> FindFilesHelper(ReadOnlyNativeMemory<char> pathPtr, string searchPattern)
     {
-        var OSPath = pathPtr.Span.Trim('\\').ToString();
+        var pathTrimmed = pathPtr.Span.Trim('\\');
+        var OSPath = pathTrimmed.IsEmpty ? string.Empty : pathTrimmed.ToString();
         var path = TranslatePath(OSPath);
 
         searchPattern ??= "*";
