@@ -25,6 +25,7 @@ using System.IO;
 using System.Text;
 using DiscUtils.Streams;
 using DiscUtils.Streams.Compatibility;
+using LTRData.Extensions.Buffers;
 
 namespace DiscUtils.Ntfs;
 
@@ -62,6 +63,20 @@ internal class FileNameRecord : IByteArraySerializable, IDiagnosticTraceable, IE
     public FileAttributes FileAttributes => ConvertFlags(Flags);
 
     public int Size => 0x42 + FileName.Length * 2;
+
+    public string SearchName
+    {
+        get
+        {
+            var fileName = FileName;
+            if (!fileName.Contains('.'))
+            {
+                return $"{fileName}.";
+            }
+
+            return fileName;
+        }
+    }
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {

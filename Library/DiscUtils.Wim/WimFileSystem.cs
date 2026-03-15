@@ -238,6 +238,11 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
         var dirEntry = GetEntry(path)
             ?? throw new FileNotFoundException("File or directory not found", path);
 
+        if (dirEntry.Hash.IsDefaultOrEmpty)
+        {
+            return -1;
+        }
+
         return MemoryMarshal.Read<long>(dirEntry.Hash.AsSpan())
             ^ MemoryMarshal.Read<long>(dirEntry.Hash.AsSpan().Slice(8))
             ^ MemoryMarshal.Read<int>(dirEntry.Hash.AsSpan().Slice(16));
@@ -347,7 +352,7 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
         var parentDir = GetDirectory(parentDirEntry.SubdirOffset);
 
         var result = parentDir
-            .Where(dirEntry => filter is null || filter(dirEntry.FileName))
+            .Where(dirEntry => filter is null || filter(dirEntry.SearchName))
             .Select(dirEntry => Utilities.CombinePaths(path, dirEntry.FileName));
 
         return result;
