@@ -605,23 +605,76 @@ internal ref struct LzxDecoder
             src += _windowSize;
         }
 
-        for (int i = 0; i < matchLength; i++)
+        while (matchLength > 0)
         {
-            byte value = _window[src];
+            // How much can we read contiguously from current source position
+            // before wrapping the circular window?
+            int srcRun = _windowSize - src;
 
-            if ((uint)dstPos < (uint)output.Length)
+            // How much can we write contiguously to current window position
+            // before wrapping the circular window?
+            int dstRun = _windowSize - _windowPos;
+
+            int chunk = Math.Min(matchLength, Math.Min(srcRun, dstRun));
+
+            // If source and destination are safely separated inside the current
+            // contiguous chunk, we can copy the whole chunk with Span.CopyTo.
+            // Otherwise fall back to byte-serial copying to preserve overlap behavior.
+            if (chunk > 0 && (src + chunk <= _windowPos || _windowPos + chunk <= src))
             {
-                output[dstPos] = value;
+                var srcSlice = _window.Slice(src, chunk);
+                var dstSlice = _window.Slice(_windowPos, chunk);
+
+                srcSlice.CopyTo(dstSlice);
+
+                int outChunk = Math.Min(chunk, output.Length - dstPos);
+                if (outChunk > 0)
+                {
+                    dstSlice.Slice(0, outChunk).CopyTo(output.Slice(dstPos, outChunk));
+                }
+
+                dstPos += chunk;
+                blockRemaining -= chunk;
+                matchLength -= chunk;
+
+                _windowPos += chunk;
+                if (_windowPos == _windowSize)
+                {
+                    _windowPos = 0;
+                }
+
+                src += chunk;
+                if (src == _windowSize)
+                {
+                    src = 0;
+                }
             }
-
-            dstPos++;
-            blockRemaining--;
-            WriteWindowByte(value);
-
-            src++;
-            if (src == _windowSize)
+            else
             {
-                src = 0;
+                byte value = _window[src];
+
+                if ((uint)dstPos < (uint)output.Length)
+                {
+                    output[dstPos] = value;
+                }
+
+                _window[_windowPos] = value;
+
+                dstPos++;
+                blockRemaining--;
+                matchLength--;
+
+                src++;
+                if (src == _windowSize)
+                {
+                    src = 0;
+                }
+
+                _windowPos++;
+                if (_windowPos == _windowSize)
+                {
+                    _windowPos = 0;
+                }
             }
         }
 
