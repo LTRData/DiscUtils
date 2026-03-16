@@ -42,6 +42,29 @@ internal class WofStream(long uncompressedSize,
                          Wof.CompressionFormat compressionFormat,
                          SparseStream compressedData) : SparseStream
 {
+    private readonly IBlockDecompressor _blockDecompressor = GetDecompressor(compressionFormat);
+
+    public bool IsDisposed { get; private set; }
+
+    protected override void Dispose(bool disposing)
+    {
+        IsDisposed = true;
+
+        if (disposing)
+        {
+            if (_blockDecompressor is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
+
+            compressedData.Dispose();
+        }
+
+        compressedData = null;
+
+        base.Dispose(disposing);
+    }
+
     private (long offset, int size, int chunkSize) PrepareReadChunk(int chunkIndex)
     {
         long offset = chunkTableSize;
@@ -70,27 +93,12 @@ internal class WofStream(long uncompressedSize,
         return (offset, size, chunkSize);
     }
 
-    private Stream GetDecompressStream(int chunkSize, Stream compressedData, long offset, int size)
+    private static IBlockDecompressor GetDecompressor(Wof.CompressionFormat compressionFormat) => compressionFormat switch
     {
-        var compressed = new SubStream(compressedData, Ownership.None, offset, size);
-
-        if (compressionFormat == Wof.CompressionFormat.LZX)
-        {
-            return new LzxStream(compressed, windowBits: 15, chunkSize);
-        }
-
-        return new XpressStream(compressed, chunkSize);
-    }
-
-    private IBlockDecompressor GetDecompressor()
-    {
-        if (compressionFormat == Wof.CompressionFormat.LZX)
-        {
-            return null;
-        }
-
-        return XpressHuffman.Default;
-    }
+        Wof.CompressionFormat.LZX => new Lzx(windowBits: 15),
+        Wof.CompressionFormat.XPress4K or Wof.CompressionFormat.XPress8K or Wof.CompressionFormat.XPress16K => XpressHuffman.Default,
+        _ => null,
+    };
 
     private int ReadChunk(Span<byte> uncompressedData, int chunkIndex)
     {
@@ -98,33 +106,24 @@ internal class WofStream(long uncompressedSize,
 
         compressedData.Position = offset;
 
-        if (size == chunkSize)
+        if (size == chunkSize || _blockDecompressor is null)
         {
             return compressedData.Read(uncompressedData.Slice(0, chunkSize));
         }
 
-        if (GetDecompressor() is { } decompressor)
+        var compressed = ArrayPool<byte>.Shared.Rent(size);
+
+        try
         {
-            var compressed = ArrayPool<byte>.Shared.Rent(size);
+            compressedData.ReadExactly(compressed, 0, size);
 
-            try
-            {
-                compressedData.ReadExactly(compressed, 0, size);
+            _blockDecompressor.TryDecompress(compressed.AsSpan(0, size), uncompressedData.Slice(0, chunkSize), out var decompressedSize);
 
-                decompressor.TryDecompress(compressed.AsSpan(0, size), uncompressedData.Slice(0, chunkSize), out var decompressedSize);
-
-                return decompressedSize;
-            }
-            finally
-            {
-                ArrayPool<byte>.Shared.Return(compressed);
-            }
+            return decompressedSize;
         }
-        else
+        finally
         {
-            using var decompressStream = GetDecompressStream(chunkSize, compressedData, offset, size);
-
-            return decompressStream.Read(uncompressedData.Slice(0, chunkSize));
+            ArrayPool<byte>.Shared.Return(compressed);
         }
     }
 
@@ -134,33 +133,24 @@ internal class WofStream(long uncompressedSize,
 
         compressedData.Position = offset;
 
-        if (size == chunkSize)
+        if (size == chunkSize || _blockDecompressor is null)
         {
             return await compressedData.ReadAsync(uncompressedData.Slice(0, chunkSize), cancellationToken).ConfigureAwait(false);
         }
 
-        if (GetDecompressor() is { } decompressor)
+        var compressed = ArrayPool<byte>.Shared.Rent(size);
+
+        try
         {
-            var compressed = ArrayPool<byte>.Shared.Rent(size);
+            await compressedData.ReadExactlyAsync(compressed.AsMemory(0, size), cancellationToken).ConfigureAwait(false);
 
-            try
-            {
-                await compressedData.ReadExactlyAsync(compressed.AsMemory(0, size), cancellationToken).ConfigureAwait(false);
+            _blockDecompressor.TryDecompress(compressed.AsSpan(0, size), uncompressedData.Span.Slice(0, chunkSize), out var decompressedSize);
 
-                decompressor.TryDecompress(compressed.AsSpan(0, size), uncompressedData.Span.Slice(0, chunkSize), out var decompressedSize);
-
-                return decompressedSize;
-            }
-            finally
-            {
-                ArrayPool<byte>.Shared.Return(compressed);
-            }
+            return decompressedSize;
         }
-        else
+        finally
         {
-            using var decompressStream = GetDecompressStream(chunkSize, compressedData, offset, size);
-
-            return await decompressStream.ReadAsync(uncompressedData.Slice(0, chunkSize), cancellationToken).ConfigureAwait(false);
+            ArrayPool<byte>.Shared.Return(compressed);
         }
     }
 
@@ -170,33 +160,24 @@ internal class WofStream(long uncompressedSize,
 
         compressedData.Position = offset;
 
-        if (size == chunkSize)
+        if (size == chunkSize || _blockDecompressor is null)
         {
             return compressedData.Read(uncompressedData, byteOffset, chunkSize);
         }
 
-        if (GetDecompressor() is { } decompressor)
+        var compressed = ArrayPool<byte>.Shared.Rent(size);
+
+        try
         {
-            var compressed = ArrayPool<byte>.Shared.Rent(size);
+            compressedData.ReadExactly(compressed, 0, size);
 
-            try
-            {
-                compressedData.ReadExactly(compressed, 0, size);
+            _blockDecompressor.TryDecompress(compressed.AsSpan(0, size), uncompressedData.AsSpan(byteOffset, chunkSize), out var decompressedSize);
 
-                decompressor.TryDecompress(compressed.AsSpan(0, size), uncompressedData.AsSpan(byteOffset, chunkSize), out var decompressedSize);
-
-                return decompressedSize;
-            }
-            finally
-            {
-                ArrayPool<byte>.Shared.Return(compressed);
-            }
+            return decompressedSize;
         }
-        else
+        finally
         {
-            using var decompressStream = GetDecompressStream(chunkSize, compressedData, offset, size);
-
-            return decompressStream.Read(uncompressedData, byteOffset, chunkSize);
+            ArrayPool<byte>.Shared.Return(compressed);
         }
     }
 

@@ -600,7 +600,7 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
             var parentDir = GetDirectory(parentDirEntry.Reference);
 
             var results = parentDir.GetAllEntries(FilterEntry)
-                .Where(dirEntry => filter is null || filter(dirEntry.Details.FileName))
+                .Where(dirEntry => filter is null || filter(dirEntry.Details.SearchName))
                 .Select(dirEntry => Utilities.CombinePaths(path, dirEntry.Details.FileName));
 
             foreach (var result in results)

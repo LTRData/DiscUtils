@@ -20,15 +20,15 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
+using DiscUtils.Compression;
+using DiscUtils.Streams;
+using LTRData.Extensions.Buffers;
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using DiscUtils.Compression;
-using DiscUtils.Streams;
-using DiscUtils.Streams.Compatibility;
-using LTRData.Extensions.Buffers;
 
 namespace DiscUtils.Wim;
 
@@ -38,8 +38,6 @@ namespace DiscUtils.Wim;
 /// <remarks>Stream access must be strictly sequential.</remarks>
 internal class FileResourceStream : SparseStream.ReadOnlySparseStream
 {
-    private const int E8DecodeFileSize = 12000000;
-
     private readonly Stream _baseStream;
     private readonly long[] _chunkLength;
 
@@ -47,18 +45,19 @@ internal class FileResourceStream : SparseStream.ReadOnlySparseStream
     private readonly int _chunkSize;
 
     private int _currentChunk;
-    private Stream? _currentChunkStream;
+    private byte[]? _chunkBuffer;
+    private ReadOnlyMemory<byte> _currentChunkData;
     private readonly ShortResourceHeader _header;
-    private readonly bool _lzxCompression;
+    private readonly IBlockDecompressor? _blockDecompressor;
     private readonly long _offsetDelta;
 
     private long _position;
 
-    public FileResourceStream(Stream baseStream, ShortResourceHeader header, bool lzxCompression, int chunkSize)
+    public FileResourceStream(Stream baseStream, ShortResourceHeader header, FileFlags fileFlags, int chunkSize)
     {
         _baseStream = baseStream;
         _header = header;
-        _lzxCompression = lzxCompression;
+        _blockDecompressor = GetDecompressor(fileFlags);
         _chunkSize = chunkSize;
 
         if (baseStream.Length > uint.MaxValue)
@@ -84,6 +83,41 @@ internal class FileResourceStream : SparseStream.ReadOnlySparseStream
         _currentChunk = -1;
     }
 
+    private static IBlockDecompressor? GetDecompressor(FileFlags flags)
+    {
+        if ((flags & FileFlags.LzxCompression) != 0)
+        {
+            return new Lzx(windowBits: 15);
+        }
+        else if ((flags & FileFlags.XpressCompression) != 0)
+        {
+            return XpressHuffman.Default;
+        }
+
+        return null;
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        IsDisposed = true;
+
+        if (disposing)
+        {
+            if (_blockDecompressor is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
+
+            if (_chunkBuffer is not null)
+            {
+                ArrayPool<byte>.Shared.Return(_chunkBuffer);
+                _chunkBuffer = null;
+            }
+        }
+
+        base.Dispose(disposing);
+    }
+
     public override bool CanRead => true;
 
     public override bool CanSeek => false;
@@ -99,9 +133,20 @@ internal class FileResourceStream : SparseStream.ReadOnlySparseStream
 
         set => _position = value;
     }
+    
+    public bool IsDisposed { get; private set; }
 
     public override int Read(byte[] buffer, int offset, int count)
     {
+#if NET7_0_OR_GREATER
+        ObjectDisposedException.ThrowIf(IsDisposed, this);
+#else
+        if (IsDisposed)
+        {
+            throw new ObjectDisposedException(nameof(FileResourceStream));
+        }
+#endif
+
         if (_position >= Length)
         {
             return 0;
@@ -110,27 +155,29 @@ internal class FileResourceStream : SparseStream.ReadOnlySparseStream
         var maxToRead = (int)Math.Min(Length - _position, count);
 
         var totalRead = 0;
+
         while (totalRead < maxToRead)
         {
             var chunk = (int)(_position / _chunkSize);
             var chunkOffset = (int)(_position % _chunkSize);
             var numToRead = Math.Min(maxToRead - totalRead, _chunkSize - chunkOffset);
 
-            if (_currentChunk != chunk || _currentChunkStream is null)
-            {
-                _currentChunkStream = OpenChunkStream(chunk);
-                _currentChunk = chunk;
-            }
-
-            _currentChunkStream.Position = chunkOffset;
-            var numRead = _currentChunkStream.Read(buffer, offset + totalRead, numToRead);
-            if (numRead == 0)
+            if (numToRead == 0)
             {
                 return totalRead;
             }
 
-            _position += numRead;
-            totalRead += numRead;
+            if (_currentChunk != chunk || _currentChunkData.IsEmpty)
+            {
+                _chunkBuffer ??= ArrayPool<byte>.Shared.Rent(_chunkSize);
+                _currentChunkData = new(_chunkBuffer, 0, DecompressChunk(chunk, _chunkBuffer));
+                _currentChunk = chunk;
+            }
+
+            _currentChunkData.Span.Slice(chunkOffset, numToRead).CopyTo(buffer.AsSpan(offset + totalRead, numToRead));
+
+            _position += numToRead;
+            totalRead += numToRead;
         }
 
         return totalRead;
@@ -138,6 +185,15 @@ internal class FileResourceStream : SparseStream.ReadOnlySparseStream
 
     public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken)
     {
+#if NET7_0_OR_GREATER
+        ObjectDisposedException.ThrowIf(IsDisposed, this);
+#else
+        if (IsDisposed)
+        {
+            throw new ObjectDisposedException(nameof(FileResourceStream));
+        }
+#endif
+
         if (_position >= Length)
         {
             return 0;
@@ -146,27 +202,29 @@ internal class FileResourceStream : SparseStream.ReadOnlySparseStream
         var maxToRead = (int)Math.Min(Length - _position, buffer.Length);
 
         var totalRead = 0;
+
         while (totalRead < maxToRead)
         {
             var chunk = (int)(_position / _chunkSize);
             var chunkOffset = (int)(_position % _chunkSize);
             var numToRead = Math.Min(maxToRead - totalRead, _chunkSize - chunkOffset);
 
-            if (_currentChunk != chunk || _currentChunkStream is null)
-            {
-                _currentChunkStream = OpenChunkStream(chunk);
-                _currentChunk = chunk;
-            }
-
-            _currentChunkStream.Position = chunkOffset;
-            var numRead = await _currentChunkStream.ReadAsync(buffer.Slice(totalRead, numToRead), cancellationToken).ConfigureAwait(false);
-            if (numRead == 0)
+            if (numToRead == 0)
             {
                 return totalRead;
             }
 
-            _position += numRead;
-            totalRead += numRead;
+            if (_currentChunk != chunk || _currentChunkData.IsEmpty)
+            {
+                _chunkBuffer ??= ArrayPool<byte>.Shared.Rent(_chunkSize);
+                _currentChunkData = new(_chunkBuffer, 0, await DecompressChunkAsync(chunk, _chunkBuffer, cancellationToken).ConfigureAwait(false));
+                _currentChunk = chunk;
+            }
+
+            _currentChunkData.Slice(chunkOffset, numToRead).CopyTo(buffer.Slice(totalRead, numToRead));
+
+            _position += numToRead;
+            totalRead += numToRead;
         }
 
         return totalRead;
@@ -174,6 +232,15 @@ internal class FileResourceStream : SparseStream.ReadOnlySparseStream
 
     public override int Read(Span<byte> buffer)
     {
+#if NET7_0_OR_GREATER
+        ObjectDisposedException.ThrowIf(IsDisposed, this);
+#else
+        if (IsDisposed)
+        {
+            throw new ObjectDisposedException(nameof(FileResourceStream));
+        }
+#endif
+
         if (_position >= Length)
         {
             return 0;
@@ -182,27 +249,29 @@ internal class FileResourceStream : SparseStream.ReadOnlySparseStream
         var maxToRead = (int)Math.Min(Length - _position, buffer.Length);
 
         var totalRead = 0;
+
         while (totalRead < maxToRead)
         {
             var chunk = (int)(_position / _chunkSize);
             var chunkOffset = (int)(_position % _chunkSize);
             var numToRead = Math.Min(maxToRead - totalRead, _chunkSize - chunkOffset);
 
-            if (_currentChunk != chunk || _currentChunkStream is null)
-            {
-                _currentChunkStream = OpenChunkStream(chunk);
-                _currentChunk = chunk;
-            }
-
-            _currentChunkStream.Position = chunkOffset;
-            var numRead = _currentChunkStream.Read(buffer.Slice(totalRead, numToRead));
-            if (numRead == 0)
+            if (numToRead == 0)
             {
                 return totalRead;
             }
 
-            _position += numRead;
-            totalRead += numRead;
+            if (_currentChunk != chunk || _currentChunkData.IsEmpty)
+            {
+                _chunkBuffer ??= ArrayPool<byte>.Shared.Rent(_chunkSize);
+                _currentChunkData = new(_chunkBuffer, 0, DecompressChunk(chunk, _chunkBuffer));
+                _currentChunk = chunk;
+            }
+
+            _currentChunkData.Span.Slice(chunkOffset, numToRead).CopyTo(buffer.Slice(totalRead, numToRead));
+
+            _position += numToRead;
+            totalRead += numToRead;
         }
 
         return totalRead;
@@ -213,7 +282,7 @@ internal class FileResourceStream : SparseStream.ReadOnlySparseStream
         throw new NotSupportedException();
     }
 
-    private Stream OpenChunkStream(int chunk)
+    private int DecompressChunk(int chunk, Memory<byte> buffer)
     {
         var targetUncompressed = _chunkSize;
         if (chunk == _chunkLength.Length - 1)
@@ -221,17 +290,71 @@ internal class FileResourceStream : SparseStream.ReadOnlySparseStream
             targetUncompressed = (int)(Length - _position);
         }
 
-        Stream rawChunkStream = new SubStream(_baseStream, _offsetDelta + _chunkOffsets[chunk], _chunkLength[chunk]);
-        if ((_header.Flags & ResourceFlags.Compressed) != 0 && _chunkLength[chunk] != targetUncompressed)
-        {
-            if (_lzxCompression)
-            {
-                return new LzxStream(rawChunkStream, windowBits: 15, E8DecodeFileSize);
-            }
+        var compressedSize = (int)_chunkLength[chunk];
 
-            return new XpressStream(rawChunkStream, targetUncompressed);
+        _baseStream.Position = _offsetDelta + _chunkOffsets[chunk];
+
+        if (_blockDecompressor is null
+            || (_header.Flags & ResourceFlags.Compressed) == 0 || _chunkLength[chunk] == targetUncompressed)
+        {
+            return _baseStream.ReadMaximum(buffer.Span.Slice(0, compressedSize));
         }
 
-        return rawChunkStream;
+        var rawChunk = ArrayPool<byte>.Shared.Rent(compressedSize);
+        try
+        {
+            _baseStream.ReadExactly(rawChunk.AsSpan(0, compressedSize));
+
+            var bufferSpan = buffer.Span;
+
+            bufferSpan.Clear();
+
+            if (!_blockDecompressor.TryDecompress(rawChunk.AsSpan(0, compressedSize), bufferSpan.Slice(0, targetUncompressed), out var bytesWritten))
+            {
+                throw new IOException($"Failed to decompress chunk {chunk} in resource at location {_header.FileOffset}");
+            }
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(rawChunk);
+        }
+
+        return targetUncompressed;
+    }
+
+    private async ValueTask<int> DecompressChunkAsync(int chunk, Memory<byte> buffer, CancellationToken cancellationToken)
+    { 
+        var targetUncompressed = _chunkSize;
+        if (chunk == _chunkLength.Length - 1)
+        {
+            targetUncompressed = (int)(Length - _position);
+        }
+
+        var compressedSize = (int)_chunkLength[chunk];
+
+        _baseStream.Position = _offsetDelta + _chunkOffsets[chunk];
+
+        if (_blockDecompressor is null
+            || (_header.Flags & ResourceFlags.Compressed) == 0 || _chunkLength[chunk] == targetUncompressed)
+        {
+            return await _baseStream.ReadMaximumAsync(buffer.Slice(0, compressedSize), cancellationToken).ConfigureAwait(false);
+        }
+
+        var rawChunk = ArrayPool<byte>.Shared.Rent(compressedSize);
+        try
+        {
+            await _baseStream.ReadExactlyAsync(rawChunk.AsMemory(0, compressedSize), cancellationToken).ConfigureAwait(false);
+
+            if (!_blockDecompressor.TryDecompress(rawChunk.AsSpan(0, compressedSize), buffer.Span.Slice(0, targetUncompressed), out var bytesWritten))
+            {
+                throw new IOException($"Failed to decompress chunk {chunk} in resource at location {_header.FileOffset}");
+            }
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(rawChunk);
+        }
+
+        return targetUncompressed;
     }
 }

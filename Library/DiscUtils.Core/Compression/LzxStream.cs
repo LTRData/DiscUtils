@@ -202,8 +202,7 @@ public class LzxStream : ReadOnlyCompatibilityStream
     /// conversion.</remarks>
     private void FixupBlockBuffer()
     {
-        var i = 0;
-        while (i < _bufferCount - 10)
+        for (var i = 0; i < _bufferCount - 10; i++)
         {
             if (_buffer[i] == 0xE8)
             {
@@ -212,6 +211,7 @@ public class LzxStream : ReadOnlyCompatibilityStream
                 if (absoluteValue >= -i && absoluteValue < _fileSize)
                 {
                     int offsetValue;
+
                     if (absoluteValue >= 0)
                     {
                         offsetValue = absoluteValue - i;
@@ -226,8 +226,6 @@ public class LzxStream : ReadOnlyCompatibilityStream
 
                 i += 4;
             }
-
-            ++i;
         }
     }
 
