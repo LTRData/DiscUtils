@@ -20,6 +20,7 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
+using LTRData.Extensions.Buffers;
 using System;
 using System.IO;
 
@@ -32,6 +33,13 @@ internal sealed class LocalFileLocator : FileLocator
 
     public LocalFileLocator(string dir, bool useAsync = false)
     {
+        if (!string.IsNullOrWhiteSpace(dir)
+            && !dir.EndsWith(Path.DirectorySeparatorChar)
+            && !dir.EndsWith(Path.AltDirectorySeparatorChar))
+        {
+            dir += Path.DirectorySeparatorChar;
+        }
+
         _dir = dir;
         _useAsync = useAsync;
     }
