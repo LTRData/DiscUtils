@@ -46,6 +46,17 @@ internal sealed class Connection : IDisposable
 
     private readonly NetworkStream _stream;
 
+    /// <summary>
+    /// Semaphore to synchronize access to the network stream. NOP-Out responses from the
+    /// keepalive timer and normal Send/ReadPdu traffic must not interleave.
+    /// </summary>
+    private readonly SemaphoreSlim _streamSemaphore = new(1, 1);
+
+    /// <summary>
+    /// Timer that periodically sends NOP-Out pings to keep the iSCSI session alive.
+    /// </summary>
+    private Timer _keepAliveTimer;
+
     public Connection(Session session, TargetAddress address, Authenticator[] authenticators)
     {
         Session = session;
@@ -80,6 +91,11 @@ internal sealed class Connection : IDisposable
         _negotiatedParameters = [];
         NegotiateSecurity();
         NegotiateFeatures();
+
+        // Start keepalive timer after login completes.
+        // Send a NOP-Out every 10 seconds to prevent the target from
+        // timing out the session during idle periods.
+        _keepAliveTimer = new Timer(KeepAliveCallback, null, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(10));
     }
 
     internal LoginStages CurrentLoginStage { get; private set; } = LoginStages.SecurityNegotiation;
@@ -106,17 +122,30 @@ internal sealed class Connection : IDisposable
     {
         try
         {
-            var req = new LogoutRequest(this);
-            var packet = req.GetBytes(reason);
-            _stream.Write(packet, 0, packet.Length);
-            _stream.Flush();
-
-            var pdu = ReadPdu();
-            var resp = ParseResponse<LogoutResponse>(pdu);
-
-            if (resp.Response != LogoutResponseCode.ClosedSuccessfully)
+            _streamSemaphore.Wait();
+            try
             {
-                throw new InvalidProtocolException($"Target indicated failure during logout: {resp.Response}");
+                // Stop the keepalive timer while holding the semaphore
+                // to ensure no callback is in-flight.
+                _keepAliveTimer?.Dispose();
+                _keepAliveTimer = null;
+
+                var req = new LogoutRequest(this);
+                var packet = req.GetBytes(reason);
+                _stream.Write(packet, 0, packet.Length);
+                _stream.Flush();
+
+                var pdu = ReadPdu();
+                var resp = ParseResponse<LogoutResponse>(pdu);
+
+                if (resp.Response != LogoutResponseCode.ClosedSuccessfully)
+                {
+                    throw new InvalidProtocolException($"Target indicated failure during logout: {resp.Response}");
+                }
+            }
+            finally
+            {
+                _streamSemaphore.Release();
             }
         }
         catch (EndOfStreamException)
@@ -134,6 +163,61 @@ internal sealed class Connection : IDisposable
     }
 
     /// <summary>
+    /// Timer callback: sends a NOP-Out to keep the iSCSI session alive.
+    /// Uses ITT=0xFFFFFFFF and TTT=0xFFFFFFFF so the target does not send a NOP-In response
+    /// (RFC 3720 §10.18), avoiding read-side contention with the main Send path.
+    /// </summary>
+    private void KeepAliveCallback(object state)
+    {
+        if (!_streamSemaphore.Wait(0))
+        {
+            // A Send or Close is in progress; skip this ping and retry on the next timer tick.
+            return;
+        }
+
+        try
+        {
+            SendNopOut();
+        }
+        catch (IOException)
+        {
+            // Connection is dead — the next Send will surface the error.
+        }
+        catch (ObjectDisposedException)
+        {
+            // Stream was disposed — connection is shutting down.
+        }
+        finally
+        {
+            _streamSemaphore.Release();
+        }
+    }
+
+    /// <summary>
+    /// Sends an initiator-initiated NOP-Out with ITT=0xFFFFFFFF and TTT=0xFFFFFFFF.
+    /// This is a "ping" that keeps the iSCSI session alive without requiring a response.
+    /// </summary>
+    private void SendNopOut()
+    {
+        var nopOut = new byte[48];
+        // Byte 0: Immediate (0x40) | OpCode NopOut (0x00)
+        nopOut[0] = 0x40;
+        // Byte 1: Final bit
+        nopOut[1] = 0x80;
+        // Bytes 16-19: ITT = 0xFFFFFFFF (no response expected)
+        EndianUtilities.WriteBytesBigEndian(0xFFFFFFFF, nopOut, 16);
+        // Bytes 20-23: TTT = 0xFFFFFFFF
+        EndianUtilities.WriteBytesBigEndian(0xFFFFFFFF, nopOut, 20);
+        // Bytes 24-27: CmdSN (not incremented for immediate PDUs)
+        EndianUtilities.WriteBytesBigEndian(Session.CommandSequenceNumber, nopOut, 24);
+        // Bytes 28-31: ExpStatSN
+        EndianUtilities.WriteBytesBigEndian(ExpectedStatusSequenceNumber, nopOut, 28);
+
+        _stream.Write(nopOut, 0, nopOut.Length);
+        _stream.Flush();
+    }
+
+    /// <summary>
     /// Sends an SCSI command (aka task) to a LUN via the connected target.
     /// </summary>
     /// <param name="cmd">The command to send.</param>
@@ -142,6 +226,9 @@ internal sealed class Connection : IDisposable
     /// <returns>The number of bytes received.</returns>
     public int Send(ScsiCommand cmd, ReadOnlySpan<byte> outBuffer, Span<byte> inBuffer)
     {
+        _streamSemaphore.Wait();
+        try
+        {
         for (var i = 0; ; i++)
         {
             try
@@ -281,6 +368,11 @@ internal sealed class Connection : IDisposable
             {
             }
         }
+        }
+        finally
+        {
+            _streamSemaphore.Release();
+        }
     }
 
     /// <summary>
@@ -293,6 +385,9 @@ internal sealed class Connection : IDisposable
     /// <returns>The number of bytes received.</returns>
     public async ValueTask<int> SendAsync(ScsiCommand cmd, ReadOnlyMemory<byte> outBuffer, Memory<byte> inBuffer, CancellationToken cancellationToken)
     {
+        await _streamSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
         for (var i = 0; ; i++)
         {
             try
@@ -409,6 +504,11 @@ internal sealed class Connection : IDisposable
             retry:
             {
             }
+        }
+        }
+        finally
+        {
+            _streamSemaphore.Release();
         }
     }
 
@@ -816,32 +916,115 @@ internal sealed class Connection : IDisposable
 
     private ProtocolDataUnit ReadPdu()
     {
-        var pdu = ProtocolDataUnit.ReadFrom(_stream, HeaderDigest != Digest.None, DataDigest != Digest.None);
-
-        if (pdu.OpCode == OpCode.Reject)
+        const int MaxNopInRetries = 16;
+        for (var nopCount = 0; ; nopCount++)
         {
-            var pkt = new RejectPacket();
-            pkt.Parse(pdu);
+            var pdu = ProtocolDataUnit.ReadFrom(_stream, HeaderDigest != Digest.None, DataDigest != Digest.None);
 
-            throw new IscsiException($"Target sent reject packet, reason {pkt.Reason}");
+            if (pdu.OpCode == OpCode.Reject)
+            {
+                var pkt = new RejectPacket();
+                pkt.Parse(pdu);
+
+                throw new IscsiException($"Target sent reject packet, reason {pkt.Reason}");
+            }
+
+            // RFC 3720 §10.19: Handle target-initiated NOP-In (ping).
+            // Respond with NOP-Out echoing the Target Transfer Tag, then
+            // continue reading the next PDU.
+            if (pdu.OpCode == OpCode.NopIn)
+            {
+                if (nopCount >= MaxNopInRetries)
+                {
+                    throw new InvalidProtocolException($"Received {nopCount} consecutive NOP-In PDUs without a command response");
+                }
+
+                HandleNopIn(pdu);
+                continue;
+            }
+
+            return pdu;
         }
-
-        return pdu;
     }
 
     private async ValueTask<ProtocolDataUnit> ReadPduAsync(CancellationToken cancellationToken)
     {
-        var pdu = await ProtocolDataUnit.ReadFromAsync(_stream, HeaderDigest != Digest.None, DataDigest != Digest.None, cancellationToken).ConfigureAwait(false);
-
-        if (pdu.OpCode == OpCode.Reject)
+        const int MaxNopInRetries = 16;
+        for (var nopCount = 0; ; nopCount++)
         {
-            var pkt = new RejectPacket();
-            pkt.Parse(pdu);
+            var pdu = await ProtocolDataUnit.ReadFromAsync(_stream, HeaderDigest != Digest.None, DataDigest != Digest.None, cancellationToken).ConfigureAwait(false);
 
-            throw new IscsiException($"Target sent reject packet, reason {pkt.Reason}");
+            if (pdu.OpCode == OpCode.Reject)
+            {
+                var pkt = new RejectPacket();
+                pkt.Parse(pdu);
+
+                throw new IscsiException($"Target sent reject packet, reason {pkt.Reason}");
+            }
+
+            if (pdu.OpCode == OpCode.NopIn)
+            {
+                if (nopCount >= MaxNopInRetries)
+                {
+                    throw new InvalidProtocolException($"Received {nopCount} consecutive NOP-In PDUs without a command response");
+                }
+
+                HandleNopIn(pdu);
+                continue;
+            }
+
+            return pdu;
+        }
+    }
+
+    /// <summary>
+    /// Responds to a target-initiated NOP-In with a NOP-Out (RFC 3720 §10.18/10.19).
+    /// Target-initiated NOP-In has TTT != 0xFFFFFFFF and requires a NOP-Out reply.
+    /// The StatSN in a target-initiated NOP-In is informational and does NOT consume
+    /// a sequence number, so we must NOT call SeenStatusSequenceNumber here.
+    /// </summary>
+    private void HandleNopIn(ProtocolDataUnit pdu)
+    {
+        var headerData = pdu.HeaderData;
+
+        // Target Transfer Tag at offset 20
+        var targetTransferTag = EndianUtilities.ToUInt32BigEndian(headerData.AsSpan(20));
+
+        // If TTT is 0xFFFFFFFF, this is a response to our own NOP-Out (unsolicited);
+        // no reply needed.
+        if (targetTransferTag == 0xFFFFFFFF)
+        {
+            return;
         }
 
-        return pdu;
+        // LUN at offset 8
+        var lun = EndianUtilities.ToUInt64BigEndian(headerData.AsSpan(8));
+
+        // NOTE: We intentionally do NOT call SeenStatusSequenceNumber() here.
+        // RFC 3720 §10.19: A target-initiated NOP-In carries a StatSN, but this
+        // StatSN is NOT consumed — it's the same value the target will use for the
+        // next real command response. Advancing ExpectedStatusSequenceNumber here
+        // would cause the next ParseResponse to fail with a sequence mismatch.
+
+        // Build NOP-Out response (RFC 3720 §10.18)
+        var nopOut = new byte[48];
+        // Byte 0: Immediate bit (0x40) | OpCode NopOut (0x00)
+        nopOut[0] = 0x40;
+        // Byte 1: Final bit (0x80)
+        nopOut[1] = 0x80;
+        // Bytes 8-15: LUN (copy from NOP-In)
+        EndianUtilities.WriteBytesBigEndian(lun, nopOut, 8);
+        // Bytes 16-19: Initiator Task Tag = 0xFFFFFFFF (response to target ping)
+        EndianUtilities.WriteBytesBigEndian(0xFFFFFFFF, nopOut, 16);
+        // Bytes 20-23: Target Transfer Tag (echo from NOP-In)
+        EndianUtilities.WriteBytesBigEndian(targetTransferTag, nopOut, 20);
+        // Bytes 24-27: CmdSN (not consumed for immediate PDUs with ITT=0xFFFFFFFF)
+        EndianUtilities.WriteBytesBigEndian(Session.CommandSequenceNumber, nopOut, 24);
+        // Bytes 28-31: ExpStatSN
+        EndianUtilities.WriteBytesBigEndian(ExpectedStatusSequenceNumber, nopOut, 28);
+
+        _stream.Write(nopOut, 0, nopOut.Length);
+        _stream.Flush();
     }
 
     private void GetParametersToNegotiate(TextBuffer parameters, KeyUsagePhase phase, SessionType sessionType)
