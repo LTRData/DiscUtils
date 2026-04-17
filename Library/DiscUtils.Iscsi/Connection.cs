@@ -26,6 +26,7 @@ using LTRData.Extensions.Buffers;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
@@ -95,7 +96,10 @@ internal sealed class Connection : IDisposable
         // Start keepalive timer after login completes.
         // Send a NOP-Out every 10 seconds to prevent the target from
         // timing out the session during idle periods.
-        _keepAliveTimer = new Timer(KeepAliveCallback, null, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(10));
+        _keepAliveTimer = new Timer(callback: KeepAliveCallback,
+                                    state: null,
+                                    dueTime: TimeSpan.FromSeconds(10),
+                                    period: TimeSpan.FromSeconds(10));
     }
 
     internal LoginStages CurrentLoginStage { get; private set; } = LoginStages.SecurityNegotiation;
@@ -167,7 +171,7 @@ internal sealed class Connection : IDisposable
     /// Uses ITT=0xFFFFFFFF and TTT=0xFFFFFFFF so the target does not send a NOP-In response
     /// (RFC 3720 §10.18), avoiding read-side contention with the main Send path.
     /// </summary>
-    private void KeepAliveCallback(object state)
+    private async void KeepAliveCallback(object _)
     {
         if (!_streamSemaphore.Wait(0))
         {
@@ -177,7 +181,11 @@ internal sealed class Connection : IDisposable
 
         try
         {
-            SendNopOut();
+#if DEBUG
+            Trace.WriteLine("Sending keep-alive...");
+#endif
+
+            await SendNopOutAsync().ConfigureAwait(false);
         }
         catch (IOException)
         {
@@ -193,28 +201,36 @@ internal sealed class Connection : IDisposable
         }
     }
 
+    private byte[] nopOut;
+
     /// <summary>
     /// Sends an initiator-initiated NOP-Out with ITT=0xFFFFFFFF and TTT=0xFFFFFFFF.
     /// This is a "ping" that keeps the iSCSI session alive without requiring a response.
     /// </summary>
-    private void SendNopOut()
+    private async ValueTask SendNopOutAsync()
     {
-        var nopOut = new byte[48];
-        // Byte 0: Immediate (0x40) | OpCode NopOut (0x00)
-        nopOut[0] = 0x40;
-        // Byte 1: Final bit
-        nopOut[1] = 0x80;
-        // Bytes 16-19: ITT = 0xFFFFFFFF (no response expected)
-        EndianUtilities.WriteBytesBigEndian(0xFFFFFFFF, nopOut, 16);
-        // Bytes 20-23: TTT = 0xFFFFFFFF
-        EndianUtilities.WriteBytesBigEndian(0xFFFFFFFF, nopOut, 20);
+        if (nopOut is null)
+        {
+            nopOut = new byte[48];
+
+            // Byte 0: Immediate (0x40) | OpCode NopOut (0x00)
+            nopOut[0] = 0x40;
+            // Byte 1: Final bit
+            nopOut[1] = 0x80;
+            // Bytes 16-19: ITT = 0xFFFFFFFF (no response expected)
+            EndianUtilities.WriteBytesBigEndian(0xFFFFFFFF, nopOut, 16);
+            // Bytes 20-23: TTT = 0xFFFFFFFF
+            EndianUtilities.WriteBytesBigEndian(0xFFFFFFFF, nopOut, 20);
+        }
+
         // Bytes 24-27: CmdSN (not incremented for immediate PDUs)
         EndianUtilities.WriteBytesBigEndian(Session.CommandSequenceNumber, nopOut, 24);
         // Bytes 28-31: ExpStatSN
         EndianUtilities.WriteBytesBigEndian(ExpectedStatusSequenceNumber, nopOut, 28);
 
-        _stream.Write(nopOut, 0, nopOut.Length);
-        _stream.Flush();
+        await _stream.WriteAsync(nopOut).ConfigureAwait(false);
+
+        await _stream.FlushAsync().ConfigureAwait(false);
     }
 
     /// <summary>
@@ -227,147 +243,148 @@ internal sealed class Connection : IDisposable
     public int Send(ScsiCommand cmd, ReadOnlySpan<byte> outBuffer, Span<byte> inBuffer)
     {
         _streamSemaphore.Wait();
+
         try
         {
-        for (var i = 0; ; i++)
-        {
-            try
+            for (var i = 0; ; i++)
             {
-                // RFC 3720 Bug #8a: Allocate new Task Tag for this command
-                // Originally added because we thought each command must have a unique ITT
-                // TESTING RESULT: NOT NECESSARY - Test passes without this call
-                // The Session already maintains ITT correctly without explicit increment here
-                // Leaving commented for reference in case unique ITT per command is needed in future
-                //Session.NextTaskTag();
-
-                // RFC 3720: DataSN starts at 0 for each new command
-                var expectedDataSN = 0u;
-
-                var req = new CommandRequest(this, cmd.TargetLun);
-
-                var outBufferCount = outBuffer.Length;
-                var inBufferMax = inBuffer.Length;
-
-                var toSend = Math.Min(outBufferCount, Session.ImmediateData ? Session.FirstBurstLength : 0);
-
-                // F bit (isFinalData) = true means "no more unsolicited Data-Out PDUs will follow".
-                // Even if we're sending < outBufferCount, we set F=1 because any remaining data
-                // will be sent via solicited Data-Out (after R2T), not more unsolicited Data-Out.
-
-                // Simpler logic: Use buffer sizes directly
-                var expectedTransferLength = outBufferCount != 0 ? (uint)outBufferCount : (uint)inBufferMax;
-
-                var packet = req.GetBytes(cmd,
-                                          immediateData: outBuffer.Slice(0, toSend),
-                                          isFinalData: true,
-                                          willRead: inBufferMax != 0,
-                                          willWrite: outBufferCount != 0,
-                                          expected: expectedTransferLength);
-
-                _stream.Write(packet, 0, packet.Length);
-                _stream.Flush();
-
-                var numSent = toSend;
-                while (numSent < outBufferCount)
+                try
                 {
-                    var pdu = ReadPdu();
+                    // RFC 3720 Bug #8a: Allocate new Task Tag for this command
+                    // Originally added because we thought each command must have a unique ITT
+                    // TESTING RESULT: NOT NECESSARY - Test passes without this call
+                    // The Session already maintains ITT correctly without explicit increment here
+                    // Leaving commented for reference in case unique ITT per command is needed in future
+                    //Session.NextTaskTag();
 
-                    var resp = ParseResponse<ReadyToTransferPacket>(pdu);
-                    var numApproved = (int)resp.DesiredTransferLength;
-                    var targetTransferTag = resp.TargetTransferTag;
+                    // RFC 3720: DataSN starts at 0 for each new command
+                    var expectedDataSN = 0u;
 
-                    // DataSN resets to 0 for each R2T (not continuous across multiple R2Ts)
-                    var pktsSent = 0;
-                    while (numApproved > 0)
+                    var req = new CommandRequest(this, cmd.TargetLun);
+
+                    var outBufferCount = outBuffer.Length;
+                    var inBufferMax = inBuffer.Length;
+
+                    var toSend = Math.Min(outBufferCount, Session.ImmediateData ? Session.FirstBurstLength : 0);
+
+                    // F bit (isFinalData) = true means "no more unsolicited Data-Out PDUs will follow".
+                    // Even if we're sending < outBufferCount, we set F=1 because any remaining data
+                    // will be sent via solicited Data-Out (after R2T), not more unsolicited Data-Out.
+
+                    // Simpler logic: Use buffer sizes directly
+                    var expectedTransferLength = outBufferCount != 0 ? (uint)outBufferCount : (uint)inBufferMax;
+
+                    var packet = req.GetBytes(cmd,
+                                              immediateData: outBuffer.Slice(0, toSend),
+                                              isFinalData: true,
+                                              willRead: inBufferMax != 0,
+                                              willWrite: outBufferCount != 0,
+                                              expected: expectedTransferLength);
+
+                    _stream.Write(packet, 0, packet.Length);
+                    _stream.Flush();
+
+                    var numSent = toSend;
+                    while (numSent < outBufferCount)
                     {
-                        toSend = Math.Min(Math.Min(outBufferCount - numSent, numApproved), MaxTargetReceiveDataSegmentLength ?? MaxInitiatorTransmitDataSegmentLength);
+                        var pdu = ReadPdu();
 
-                        var pkt = new DataOutPacket(this, cmd.TargetLun);
-                        var currentDataSN = pktsSent++;
-                        
-                        packet = pkt.GetBytes(data: outBuffer.Slice(numSent, toSend),
-                                              isFinalData: toSend == numApproved,
-                                              dataSeqNumber: currentDataSN,
-                                              bufferOffset: (uint)numSent,
-                                              targetTransferTag: targetTransferTag);
+                        var resp = ParseResponse<ReadyToTransferPacket>(pdu);
+                        var numApproved = (int)resp.DesiredTransferLength;
+                        var targetTransferTag = resp.TargetTransferTag;
 
-                        _stream.Write(packet, 0, packet.Length);
-                        _stream.Flush();
-
-                        numApproved -= toSend;
-                        numSent += toSend;
-                    }
-                }
-
-                var isFinal = false;
-                var numRead = 0;
-                while (!isFinal)
-                {
-                    var pdu = ReadPdu();
-
-                    if (pdu.OpCode == OpCode.ScsiResponse)
-                    {
-                        var resp = ParseResponse<Response>(pdu);
-
-                        if (resp.StatusPresent && resp.Status == ScsiStatus.CheckCondition)
+                        // DataSN resets to 0 for each R2T (not continuous across multiple R2Ts)
+                        var pktsSent = 0;
+                        while (numApproved > 0)
                         {
-                            var senseLength = EndianUtilities.ToUInt16BigEndian(pdu.ContentData, 0);
-                            var senseData = pdu.ContentData.AsSpan(2, senseLength).ToArray();
+                            toSend = Math.Min(Math.Min(outBufferCount - numSent, numApproved), MaxTargetReceiveDataSegmentLength ?? MaxInitiatorTransmitDataSegmentLength);
 
-                            if (i == 0 && ScsiSenseParser.TryParse(senseData, out var sense) && sense.IndicatesRetryRequired)
+                            var pkt = new DataOutPacket(this, cmd.TargetLun);
+                            var currentDataSN = pktsSent++;
+
+                            packet = pkt.GetBytes(data: outBuffer.Slice(numSent, toSend),
+                                                  isFinalData: toSend == numApproved,
+                                                  dataSeqNumber: currentDataSN,
+                                                  bufferOffset: (uint)numSent,
+                                                  targetTransferTag: targetTransferTag);
+
+                            _stream.Write(packet, 0, packet.Length);
+                            _stream.Flush();
+
+                            numApproved -= toSend;
+                            numSent += toSend;
+                        }
+                    }
+
+                    var isFinal = false;
+                    var numRead = 0;
+                    while (!isFinal)
+                    {
+                        var pdu = ReadPdu();
+
+                        if (pdu.OpCode == OpCode.ScsiResponse)
+                        {
+                            var resp = ParseResponse<Response>(pdu);
+
+                            if (resp.StatusPresent && resp.Status == ScsiStatus.CheckCondition)
                             {
-                                goto retry;
+                                var senseLength = EndianUtilities.ToUInt16BigEndian(pdu.ContentData, 0);
+                                var senseData = pdu.ContentData.AsSpan(2, senseLength).ToArray();
+
+                                if (i == 0 && ScsiSenseParser.TryParse(senseData, out var sense) && sense.IndicatesRetryRequired)
+                                {
+                                    goto retry;
+                                }
+
+                                throw new ScsiCommandException(resp.Status, senseData);
                             }
 
-                            throw new ScsiCommandException(resp.Status, senseData);
-                        }
+                            if (resp.StatusPresent && resp.Status != ScsiStatus.Good)
+                            {
+                                throw new ScsiCommandException(resp.Status, "Target indicated SCSI failure");
+                            }
 
-                        if (resp.StatusPresent && resp.Status != ScsiStatus.Good)
+                            isFinal = resp.Header.FinalPdu;
+                        }
+                        else if (pdu.OpCode == OpCode.ScsiDataIn)
                         {
-                            throw new ScsiCommandException(resp.Status, "Target indicated SCSI failure");
-                        }
+                            var resp = ParseResponse<DataInPacket>(pdu);
 
-                        isFinal = resp.Header.FinalPdu;
+                            // RFC 3720 Section 10.7.4: Validate DataSN sequence
+                            if (resp.DataSequenceNumber != expectedDataSN)
+                            {
+                                throw new InvalidProtocolException($"DataSN mismatch: received {resp.DataSequenceNumber}, expected {expectedDataSN}");
+                            }
+
+                            if (resp.StatusPresent && resp.Status != ScsiStatus.Good)
+                            {
+                                throw new ScsiCommandException(resp.Status, "Target indicated SCSI failure");
+                            }
+
+                            if (resp.ReadData != null)
+                            {
+                                resp.ReadData.AsSpan().CopyTo(inBuffer.Slice((int)resp.BufferOffset));
+                                numRead += resp.ReadData.Length;
+                            }
+
+                            isFinal = resp.Header.FinalPdu;
+
+                            expectedDataSN++;
+                        }
                     }
-                    else if (pdu.OpCode == OpCode.ScsiDataIn)
-                    {
-                        var resp = ParseResponse<DataInPacket>(pdu);
 
-                        // RFC 3720 Section 10.7.4: Validate DataSN sequence
-                        if (resp.DataSequenceNumber != expectedDataSN)
-                        {
-                            throw new InvalidProtocolException($"DataSN mismatch: received {resp.DataSequenceNumber}, expected {expectedDataSN}");
-                        }
-
-                        if (resp.StatusPresent && resp.Status != ScsiStatus.Good)
-                        {
-                            throw new ScsiCommandException(resp.Status, "Target indicated SCSI failure");
-                        }
-
-                        if (resp.ReadData != null)
-                        {
-                            resp.ReadData.AsSpan().CopyTo(inBuffer.Slice((int)resp.BufferOffset));
-                            numRead += resp.ReadData.Length;
-                        }
-
-                        isFinal = resp.Header.FinalPdu;
-
-                        expectedDataSN++;
-                    }
+                    return Math.Max(numRead, numSent);
+                }
+                finally
+                {
+                    Session.NextTaskTag();
+                    Session.NextCommandSequenceNumber();
                 }
 
-                return Math.Max(numRead, numSent);
+                retry:
+                {
+                }
             }
-            finally
-            {
-                Session.NextTaskTag();
-                Session.NextCommandSequenceNumber();
-            }
-
-            retry:
-            {
-            }
-        }
         }
         finally
         {
@@ -386,125 +403,126 @@ internal sealed class Connection : IDisposable
     public async ValueTask<int> SendAsync(ScsiCommand cmd, ReadOnlyMemory<byte> outBuffer, Memory<byte> inBuffer, CancellationToken cancellationToken)
     {
         await _streamSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
+
         try
         {
-        for (var i = 0; ; i++)
-        {
-            try
+            for (var i = 0; ; i++)
             {
-                // RFC 3720: DataSN starts at 0 for each new command
-                var expectedDataSN = 0u;
-
-                var req = new CommandRequest(this, cmd.TargetLun);
-
-                var outBufferCount = outBuffer.Length;
-                var inBufferMax = inBuffer.Length;
-
-                var toSend = Math.Min(outBufferCount, Session.ImmediateData ? Session.FirstBurstLength : 0);
-
-                // F bit (isFinalData) = true means "no more unsolicited Data-Out PDUs will follow".
-                // Even if we're sending < outBufferCount, we set F=1 because any remaining data
-                // will be sent via solicited Data-Out (after R2T), not more unsolicited Data-Out.
-
-                // Simpler logic: Use buffer sizes directly
-                var expectedTransferLength = outBufferCount != 0 ? (uint)outBufferCount : (uint)inBufferMax;
-
-                var packet = req.GetBytes(cmd, outBuffer.Span.Slice(0, toSend), true, inBufferMax != 0, outBufferCount != 0, expectedTransferLength);
-                await _stream.WriteAsync(packet, cancellationToken).ConfigureAwait(false);
-                await _stream.FlushAsync(cancellationToken).ConfigureAwait(false);
-                var numSent = toSend;
-                var pktsSent = 0;
-                while (numSent < outBufferCount)
+                try
                 {
-                    var pdu = await ReadPduAsync(cancellationToken).ConfigureAwait(false);
+                    // RFC 3720: DataSN starts at 0 for each new command
+                    var expectedDataSN = 0u;
 
-                    var resp = ParseResponse<ReadyToTransferPacket>(pdu);
-                    var numApproved = (int)resp.DesiredTransferLength;
-                    var targetTransferTag = resp.TargetTransferTag;
+                    var req = new CommandRequest(this, cmd.TargetLun);
 
-                    while (numApproved > 0)
+                    var outBufferCount = outBuffer.Length;
+                    var inBufferMax = inBuffer.Length;
+
+                    var toSend = Math.Min(outBufferCount, Session.ImmediateData ? Session.FirstBurstLength : 0);
+
+                    // F bit (isFinalData) = true means "no more unsolicited Data-Out PDUs will follow".
+                    // Even if we're sending < outBufferCount, we set F=1 because any remaining data
+                    // will be sent via solicited Data-Out (after R2T), not more unsolicited Data-Out.
+
+                    // Simpler logic: Use buffer sizes directly
+                    var expectedTransferLength = outBufferCount != 0 ? (uint)outBufferCount : (uint)inBufferMax;
+
+                    var packet = req.GetBytes(cmd, outBuffer.Span.Slice(0, toSend), true, inBufferMax != 0, outBufferCount != 0, expectedTransferLength);
+                    await _stream.WriteAsync(packet, cancellationToken).ConfigureAwait(false);
+                    await _stream.FlushAsync(cancellationToken).ConfigureAwait(false);
+                    var numSent = toSend;
+                    var pktsSent = 0;
+                    while (numSent < outBufferCount)
                     {
-                        toSend = Math.Min(Math.Min(outBufferCount - numSent, numApproved), MaxTargetReceiveDataSegmentLength ?? MaxInitiatorTransmitDataSegmentLength);
+                        var pdu = await ReadPduAsync(cancellationToken).ConfigureAwait(false);
 
-                        var pkt = new DataOutPacket(this, cmd.TargetLun);
-                        var currentDataSN = pktsSent++;
-                        packet = pkt.GetBytes(outBuffer.Span.Slice(numSent, toSend), toSend == numApproved, currentDataSN, (uint)numSent, targetTransferTag);
-                        await _stream.WriteAsync(packet, cancellationToken).ConfigureAwait(false);
-                        await _stream.FlushAsync(cancellationToken).ConfigureAwait(false);
+                        var resp = ParseResponse<ReadyToTransferPacket>(pdu);
+                        var numApproved = (int)resp.DesiredTransferLength;
+                        var targetTransferTag = resp.TargetTransferTag;
 
-                        numApproved -= toSend;
-                        numSent += toSend;
-                    }
-                }
-
-                var isFinal = false;
-                var numRead = 0;
-                while (!isFinal)
-                {
-                    var pdu = await ReadPduAsync(cancellationToken).ConfigureAwait(false);
-
-                    if (pdu.OpCode == OpCode.ScsiResponse)
-                    {
-                        var resp = ParseResponse<Response>(pdu);
-
-                        if (resp.StatusPresent && resp.Status == ScsiStatus.CheckCondition)
+                        while (numApproved > 0)
                         {
-                            var senseLength = EndianUtilities.ToUInt16BigEndian(pdu.ContentData, 0);
-                            var senseData = pdu.ContentData.AsSpan(2, senseLength).ToArray();
+                            toSend = Math.Min(Math.Min(outBufferCount - numSent, numApproved), MaxTargetReceiveDataSegmentLength ?? MaxInitiatorTransmitDataSegmentLength);
 
-                            if (i == 0 && ScsiSenseParser.TryParse(senseData, out var sense) && sense.IndicatesRetryRequired)
+                            var pkt = new DataOutPacket(this, cmd.TargetLun);
+                            var currentDataSN = pktsSent++;
+                            packet = pkt.GetBytes(outBuffer.Span.Slice(numSent, toSend), toSend == numApproved, currentDataSN, (uint)numSent, targetTransferTag);
+                            await _stream.WriteAsync(packet, cancellationToken).ConfigureAwait(false);
+                            await _stream.FlushAsync(cancellationToken).ConfigureAwait(false);
+
+                            numApproved -= toSend;
+                            numSent += toSend;
+                        }
+                    }
+
+                    var isFinal = false;
+                    var numRead = 0;
+                    while (!isFinal)
+                    {
+                        var pdu = await ReadPduAsync(cancellationToken).ConfigureAwait(false);
+
+                        if (pdu.OpCode == OpCode.ScsiResponse)
+                        {
+                            var resp = ParseResponse<Response>(pdu);
+
+                            if (resp.StatusPresent && resp.Status == ScsiStatus.CheckCondition)
                             {
-                                goto retry;
+                                var senseLength = EndianUtilities.ToUInt16BigEndian(pdu.ContentData, 0);
+                                var senseData = pdu.ContentData.AsSpan(2, senseLength).ToArray();
+
+                                if (i == 0 && ScsiSenseParser.TryParse(senseData, out var sense) && sense.IndicatesRetryRequired)
+                                {
+                                    goto retry;
+                                }
+
+                                throw new ScsiCommandException(resp.Status, senseData);
                             }
 
-                            throw new ScsiCommandException(resp.Status, senseData);
-                        }
+                            if (resp.StatusPresent && resp.Status != ScsiStatus.Good)
+                            {
+                                throw new ScsiCommandException(resp.Status, "Target indicated SCSI failure");
+                            }
 
-                        if (resp.StatusPresent && resp.Status != ScsiStatus.Good)
+                            isFinal = resp.Header.FinalPdu;
+                        }
+                        else if (pdu.OpCode == OpCode.ScsiDataIn)
                         {
-                            throw new ScsiCommandException(resp.Status, "Target indicated SCSI failure");
-                        }
+                            var resp = ParseResponse<DataInPacket>(pdu);
 
-                        isFinal = resp.Header.FinalPdu;
+                            // RFC 3720 Section 10.7.4: Validate DataSN sequence
+                            if (resp.DataSequenceNumber != expectedDataSN)
+                            {
+                                throw new InvalidProtocolException($"DataSN mismatch: received {resp.DataSequenceNumber}, expected {expectedDataSN}");
+                            }
+                            expectedDataSN++;
+
+                            if (resp.StatusPresent && resp.Status != ScsiStatus.Good)
+                            {
+                                throw new ScsiCommandException(resp.Status, "Target indicated SCSI failure");
+                            }
+
+                            if (resp.ReadData != null)
+                            {
+                                resp.ReadData.CopyTo(inBuffer.Slice((int)resp.BufferOffset));
+                                numRead += resp.ReadData.Length;
+                            }
+
+                            isFinal = resp.Header.FinalPdu;
+                        }
                     }
-                    else if (pdu.OpCode == OpCode.ScsiDataIn)
-                    {
-                        var resp = ParseResponse<DataInPacket>(pdu);
 
-                        // RFC 3720 Section 10.7.4: Validate DataSN sequence
-                        if (resp.DataSequenceNumber != expectedDataSN)
-                        {
-                            throw new InvalidProtocolException($"DataSN mismatch: received {resp.DataSequenceNumber}, expected {expectedDataSN}");
-                        }
-                        expectedDataSN++;
-
-                        if (resp.StatusPresent && resp.Status != ScsiStatus.Good)
-                        {
-                            throw new ScsiCommandException(resp.Status, "Target indicated SCSI failure");
-                        }
-
-                        if (resp.ReadData != null)
-                        {
-                            resp.ReadData.CopyTo(inBuffer.Slice((int)resp.BufferOffset));
-                            numRead += resp.ReadData.Length;
-                        }
-
-                        isFinal = resp.Header.FinalPdu;
-                    }
+                    return Math.Max(numRead, numSent);
+                }
+                finally
+                {
+                    Session.NextTaskTag();
+                    Session.NextCommandSequenceNumber();
                 }
 
-                return Math.Max(numRead, numSent);
+                retry:
+                {
+                }
             }
-            finally
-            {
-                Session.NextTaskTag();
-                Session.NextCommandSequenceNumber();
-            }
-
-            retry:
-            {
-            }
-        }
         }
         finally
         {
