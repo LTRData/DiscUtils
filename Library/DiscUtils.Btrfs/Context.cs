@@ -72,9 +72,14 @@ internal class Context : VfsContext
 
     internal ulong MapToPhysical(ulong logical)
     {
-        if (ChunkTreeRoot != null)
+        // If chunk tree is a leaf, or if it's an internal node but the root tree is present,
+        // then we can search the chunk tree for a matching chunk item. Otherwise, we have to
+        // search the system chunk array in the superblock.
+        if (ChunkTreeRoot is LeafNode
+            || (ChunkTreeRoot is InternalNode && RootTreeRoot is not null))
         {
             var nodes = ChunkTreeRoot.Find<ChunkItem>(new Key(ReservedObjectId.FirstChunkTree, ItemType.ChunkItem), this);
+
             foreach(var chunk in nodes)
             {
                 if (chunk.Key.ItemType != ItemType.ChunkItem)
