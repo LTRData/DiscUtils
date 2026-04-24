@@ -20,6 +20,8 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
+#if NET462_OR_GREATER || NETSTANDARD || NETCOREAPP
+
 using System;
 using System.IO;
 using System.Linq;
@@ -304,3 +306,5 @@ public sealed class SquashFileSystemBuilderTest
         public override long Position { get; set; }
     }
 }
+
+#endif

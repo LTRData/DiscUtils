@@ -28,10 +28,7 @@
   </ItemGroup>
 
   <ItemGroup Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'netstandard2.0'))">
-    <PackageReference Include="K4os.Compression.LZ4" Version="1.2.*" />
-    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="5.*" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.*" />
-    <PackageReference Include="System.IO.Compression" Version="*" />
     <PackageReference Include="xunit" Version="2.9.*" />
     <PackageReference Include="xunit.extensibility.core" Version="2.9.*" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
