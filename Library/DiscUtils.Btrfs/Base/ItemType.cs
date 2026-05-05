@@ -22,7 +22,7 @@
 
 namespace DiscUtils.Btrfs.Base;
 
-internal enum ItemType:byte
+internal enum ItemType : byte
 {
     InodeItem = 0x01,
     InodeRef = 0x0c,

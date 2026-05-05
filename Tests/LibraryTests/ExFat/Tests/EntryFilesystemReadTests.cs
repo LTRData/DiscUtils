@@ -8,6 +8,7 @@ using LibraryTests.ExFat.Environment;
 using System.IO;
 
 namespace LibraryTests.ExFat.Tests;
+
 [Trait("Category", "EntryFilesystem")]
 public class EntryFilesystemReadTests
 {

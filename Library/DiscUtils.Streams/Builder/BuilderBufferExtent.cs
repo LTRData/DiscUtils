@@ -33,7 +33,7 @@ public class BuilderBufferExtent : BuilderExtent
     private readonly bool _fixedBuffer;
 
     public BuilderBufferExtent(long start, long length)
-        : base(start, length) {}
+        : base(start, length) { }
 
     public BuilderBufferExtent(long start, byte[] buffer)
         : base(start, buffer.Length)
@@ -42,7 +42,7 @@ public class BuilderBufferExtent : BuilderExtent
         _buffer = buffer;
     }
 
-    protected override void Dispose(bool disposing) {}
+    protected override void Dispose(bool disposing) { }
 
     [MemberNotNull(nameof(_buffer))]
     public sealed override void PrepareForRead()

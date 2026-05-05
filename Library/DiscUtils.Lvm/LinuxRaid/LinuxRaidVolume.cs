@@ -25,6 +25,7 @@ using DiscUtils.Partitions;
 using DiscUtils.Streams;
 
 namespace DiscUtils.Lvm.LinuxRaid;
+
 using LogicalVolumeStatus = DiscUtils.LogicalVolumeStatus;
 internal class LinuxRaidVolume
 {

@@ -26,12 +26,13 @@ using System.IO;
 using System;
 
 namespace DiscUtils.Xfs;
+
 internal class BTreeInodeLeaf : BtreeHeader
 {
     public BTreeInodeRecord[] Records { get; private set; }
     public override int Size => base.Size + (NumberOfRecords * 0x10);
 
-    public BTreeInodeLeaf(uint superBlockVersion) : base(superBlockVersion){}
+    public BTreeInodeLeaf(uint superBlockVersion) : base(superBlockVersion) { }
 
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {
@@ -55,6 +56,6 @@ internal class BTreeInodeLeaf : BtreeHeader
 
     public override void LoadBtree(AllocationGroup ag)
     {
-        
+
     }
 }

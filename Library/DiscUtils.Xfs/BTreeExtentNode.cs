@@ -28,6 +28,7 @@ using System.IO;
 using System.Linq;
 
 namespace DiscUtils.Xfs;
+
 internal class BTreeExtentNode : BTreeExtentHeader
 {
     public ulong[] Keys { get; protected set; }

@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 
 namespace LibraryTests.ExFat.Tests;
+
 [Trait("Category", "Partition")]
 public class PartitionWriteTests
 {
@@ -82,13 +83,13 @@ public class PartitionWriteTests
         var dataDescriptor = fileEntry.DataDescriptor;
         using (var append = partition.OpenDataStream(dataDescriptor, FileAccess.ReadWrite))
         {
-            var offset = (ulong) append.Seek(0, SeekOrigin.End);
+            var offset = (ulong)append.Seek(0, SeekOrigin.End);
             EndianUtilities.WriteBytesLittleEndian(getOffsetValue(offset), buffer);
             append.Write(buffer, 0, 8);
         }
 
         Assert.NotNull(dataDescriptor);
-        
+
         using var read = partition.OpenDataStream(
             new DataDescriptor(dataDescriptor.Value.FirstCluster, false, DiskContent.LongFileSize + 8,
                 DiskContent.LongFileSize + 8), FileAccess.Read);

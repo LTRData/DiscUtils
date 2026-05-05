@@ -24,6 +24,7 @@
 using System;
 
 namespace DiscUtils.Lvm;
+
 [Flags]
 internal enum RawLocationFlags : uint
 {

@@ -46,7 +46,7 @@ internal class PathTable : BuilderExtent
         _locations = locations;
     }
 
-    protected override void Dispose(bool disposing) {}
+    protected override void Dispose(bool disposing) { }
 
     public override void PrepareForRead()
     {

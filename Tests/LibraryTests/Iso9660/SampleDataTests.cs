@@ -27,7 +27,7 @@ public class SampleDataTests
     public void MultiExtentFiles()
     {
         using var iso = Helpers.Helpers.LoadTestDataFileFromGZipFile(nameof(Iso9660), "multiextent.iso_header.gz");
-        using var cr = new CDReader(iso, joliet: true,  hideVersions: true);
+        using var cr = new CDReader(iso, joliet: true, hideVersions: true);
 
         var pathToMultiextentFiles = @$"{Path.DirectorySeparatorChar}PS3_GAME{Path.DirectorySeparatorChar}USRDIR{Path.DirectorySeparatorChar}Resource{Path.DirectorySeparatorChar}Common";
         var fsEntries = cr.GetFileSystemEntries(pathToMultiextentFiles).ToList();
@@ -41,7 +41,7 @@ public class SampleDataTests
         var misc1 = files.First(static f => f.Name is "Misc1.FPK");
         Assert.Equal(1464404972, misc0.Length);
         Assert.Equal(1585521232, misc1.Length);
-        
+
         var meClusters = cr.PathToClusters(misc0.FullName).ToList();
         Assert.Equal(2, meClusters.Count);
     }

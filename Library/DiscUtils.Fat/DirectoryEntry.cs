@@ -184,7 +184,7 @@ internal class DirectoryEntry
             throw new IOException("Failed to replace short name", ex);
         }
     }
-    
+
     internal void WriteTo(Stream stream, FastEncodingTable encodingTable)
     {
         Span<byte> buffer = stackalloc byte[EntryCount * SizeOf];

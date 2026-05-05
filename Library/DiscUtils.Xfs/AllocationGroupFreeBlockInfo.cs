@@ -26,6 +26,7 @@ using DiscUtils.Streams;
 using System;
 
 namespace DiscUtils.Xfs;
+
 internal class AllocationGroupFreeBlockInfo : IByteArraySerializable
 {
     public const uint AgfMagic = 0x58414746;

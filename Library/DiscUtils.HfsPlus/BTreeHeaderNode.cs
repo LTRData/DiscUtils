@@ -29,7 +29,7 @@ namespace DiscUtils.HfsPlus;
 internal class BTreeHeaderNode : BTreeNode
 {
     public BTreeHeaderNode(BTree tree, BTreeNodeDescriptor descriptor)
-        : base(tree, descriptor) {}
+        : base(tree, descriptor) { }
 
     public BTreeHeaderRecord HeaderRecord => Records[0] as BTreeHeaderRecord;
 

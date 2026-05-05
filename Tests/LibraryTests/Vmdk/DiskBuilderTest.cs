@@ -30,7 +30,7 @@ namespace LibraryTests.Vmdk;
 public class DiskBuilderTest
 {
     private SparseStream diskContent;
-    
+
     public DiskBuilderTest()
     {
         var fileStream = new MemoryStream();

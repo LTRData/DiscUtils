@@ -33,7 +33,7 @@ public class BuilderSparseStreamExtent : BuilderExtent
     private SparseStream _stream;
 
     public BuilderSparseStreamExtent(long start, SparseStream stream)
-        : this(start, stream, Ownership.None) {}
+        : this(start, stream, Ownership.None) { }
 
     public BuilderSparseStreamExtent(long start, SparseStream stream, Ownership ownership)
         : base(start, stream.Length)
@@ -61,7 +61,7 @@ public class BuilderSparseStreamExtent : BuilderExtent
         _stream = null!;
     }
 
-    public override void PrepareForRead() {}
+    public override void PrepareForRead() { }
 
     public override int Read(long diskOffset, byte[] block, int offset, int count)
     {
@@ -84,5 +84,5 @@ public class BuilderSparseStreamExtent : BuilderExtent
         return _stream.Read(block);
     }
 
-    public override void DisposeReadState() {}
+    public override void DisposeReadState() { }
 }

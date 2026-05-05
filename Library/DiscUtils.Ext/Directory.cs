@@ -32,7 +32,7 @@ namespace DiscUtils.Ext;
 internal class Directory : File, IVfsDirectory<DirEntry, File>
 {
     public Directory(Context context, uint inodeNum, Inode inode)
-        : base(context, inodeNum, inode) {}
+        : base(context, inodeNum, inode) { }
 
     FastDictionary<DirEntry> dirEntries;
 

@@ -41,7 +41,7 @@ internal sealed class LogicalVolumeDescriptor : TaggedDescriptor<LogicalVolumeDe
     public uint VolumeDescriptorSequenceNumber;
 
     public LogicalVolumeDescriptor()
-        : base(TagIdentifier.LogicalVolumeDescriptor) {}
+        : base(TagIdentifier.LogicalVolumeDescriptor) { }
 
     public LongAllocationDescriptor FileSetDescriptorLocation
     {

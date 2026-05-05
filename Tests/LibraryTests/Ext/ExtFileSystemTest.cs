@@ -96,17 +96,17 @@ public class ExtFileSystemTest
         Assert.Single(dir4.GetFiles("file4"));
 
         var dir1 = fs.GetDirectoryInfo("dir1");
-        
+
         Assert.True(dir1.Exists);
 
         var dir1_link4rel = dir1.GetDirectories("link4rel").ToArray();
-        
+
         Assert.Single(dir1_link4rel);
 
         Assert.Single(dir1_link4rel[0].GetFiles("file4"));
 
         var dir1_link4abs = dir1.GetDirectories("link4abs").ToArray();
-        
+
         Assert.Single(dir1_link4abs[0].GetFiles("file4"));
 
         Assert.Equal(4, fs.GetDirectories("link1rel").Count());
@@ -114,35 +114,35 @@ public class ExtFileSystemTest
         Assert.Equal(4, fs.GetDirectories("link1abs").Count());
 
         var link1rel = fs.GetDirectoryInfo("link1rel");
-        
+
         Assert.True(link1rel.Exists);
 
         var link1rel_dir3 = link1rel.GetDirectories("dir3").ToArray();
-        
+
         Assert.Single(link1rel_dir3);
-        
+
         Assert.Single(link1rel_dir3[0].GetDirectories("link2abs"));
 
         var link1abs = fs.GetDirectoryInfo("link1abs");
-        
+
         Assert.True(link1abs.Exists);
 
         var link1abs_dir3 = link1abs.GetDirectories("dir3").ToArray();
-        
+
         Assert.Single(link1abs_dir3);
-        
+
         Assert.Single(link1abs_dir3[0].GetDirectories("link2abs"));
 
         var link1rel_link4abs = link1rel.GetDirectories("link4abs").ToArray();
-        
+
         Assert.Single(link1rel_link4abs);
-        
+
         Assert.Single(link1rel_link4abs[0].GetFiles("file4"));
 
         var link1abs_link4rel = link1abs.GetDirectories("link4rel").ToArray();
-        
+
         Assert.Single(link1abs_link4rel);
-        
+
         Assert.Single(link1abs_link4rel[0].GetFiles("file4"));
     }
 

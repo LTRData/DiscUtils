@@ -211,7 +211,7 @@ internal sealed class MonolithicSparseExtentBuilder : StreamBuilder
         private readonly long _grainSize;
 
         public GrainTableDataExtent(long start, SparseStream content, long grainSize)
-            : this(start, content, Ownership.None, grainSize) {}
+            : this(start, content, Ownership.None, grainSize) { }
 
         public GrainTableDataExtent(long start, SparseStream content, Ownership contentOwnership, long grainSize)
             : base(start, SectorsPresent(content, grainSize) * Sizes.Sector)

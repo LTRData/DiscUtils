@@ -162,7 +162,7 @@ public sealed class BiosPartitionTable : PartitionTable
             disk.Position = 0;
             Span<byte> bootSector = stackalloc byte[Sizes.Sector];
             disk.ReadExactly(bootSector);
-            
+
             if (bootSector[510] == 0x55 && bootSector[511] == 0xAA)
             {
                 byte maxHead = 0;
@@ -709,8 +709,8 @@ public sealed class BiosPartitionTable : PartitionTable
                 return BiosPartitionTypes.Ntfs;
             case WellKnownPartitionType.Linux:
                 return BiosPartitionTypes.LinuxNative;
-			case WellKnownPartitionType.LinuxAutoRaid:
-				return BiosPartitionTypes.LinuxRaidAutoDetect;
+            case WellKnownPartitionType.LinuxAutoRaid:
+                return BiosPartitionTypes.LinuxRaidAutoDetect;
             case WellKnownPartitionType.LinuxSwap:
                 return BiosPartitionTypes.LinuxSwap;
             case WellKnownPartitionType.LinuxLvm:

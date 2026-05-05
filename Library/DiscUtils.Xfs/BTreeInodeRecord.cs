@@ -26,7 +26,8 @@ using DiscUtils.Streams;
 using System;
 
 namespace DiscUtils.Xfs;
-internal class BTreeInodeRecord: IByteArraySerializable
+
+internal class BTreeInodeRecord : IByteArraySerializable
 {
     /// <summary>
     /// specifies the starting inode number for the chunk

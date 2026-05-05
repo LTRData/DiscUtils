@@ -27,6 +27,7 @@ using Microsoft.Build.Utilities;
 using DiscUtils.SquashFs;
 
 namespace MSBuildTask;
+
 public class CreateSquashFileSystem : Task
 {
     public CreateSquashFileSystem()

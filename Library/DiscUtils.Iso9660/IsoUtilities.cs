@@ -435,7 +435,7 @@ internal static class IsoUtilities
         EncodingUtilities
             .GetLatin1Encoding()
             .GetBytes(strForm, buffer.Slice(0, 16));
-        
+
         buffer[16] = 0;
     }
 

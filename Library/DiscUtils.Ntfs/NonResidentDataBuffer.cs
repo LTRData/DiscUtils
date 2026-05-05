@@ -42,7 +42,7 @@ internal class NonResidentDataBuffer : Buffer, IMappedBuffer
     protected RawClusterStream _rawStream;
 
     public NonResidentDataBuffer(INtfsContext context, NonResidentAttributeRecord record)
-        : this(context, new CookedDataRuns(record.DataRuns, record), false) {}
+        : this(context, new CookedDataRuns(record.DataRuns, record), false) { }
 
     public NonResidentDataBuffer(INtfsContext context, CookedDataRuns cookedRuns, bool isMft)
     {

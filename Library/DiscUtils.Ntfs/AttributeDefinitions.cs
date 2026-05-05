@@ -86,7 +86,7 @@ public sealed class AttributeDefinitions
 
         using var s = file.OpenStream(AttributeType.Data, null, FileAccess.ReadWrite);
         Span<byte> buffer = stackalloc byte[AttributeDefinitionRecord.Size];
-        
+
         foreach (var attrib in attribs)
         {
             buffer.Clear();

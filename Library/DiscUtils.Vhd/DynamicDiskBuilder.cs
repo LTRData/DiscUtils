@@ -167,7 +167,7 @@ internal sealed class DynamicDiskBuilder : StreamBuilder
         private readonly Ownership _ownership;
 
         public DataBlockExtent(long start, SparseStream content)
-            : this(start, content, Ownership.None) {}
+            : this(start, content, Ownership.None) { }
 
         public DataBlockExtent(long start, SparseStream content, Ownership ownership)
             : base(

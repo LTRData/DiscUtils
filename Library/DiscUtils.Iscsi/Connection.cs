@@ -105,7 +105,7 @@ internal sealed class Connection : IDisposable
     internal LoginStages CurrentLoginStage { get; private set; } = LoginStages.SecurityNegotiation;
 
     internal uint ExpectedStatusSequenceNumber { get; private set; } = 1;
-    
+
     internal ushort Id { get; }
 
     internal LoginStages NextLoginStage => CurrentLoginStage switch

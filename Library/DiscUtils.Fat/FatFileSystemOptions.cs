@@ -66,7 +66,7 @@ public sealed class FatFileSystemOptions : DiscFileSystemOptions
                 throw new ArgumentException($"{value.EncodingName} is not a single byte encoding");
             }
 
-            FileNameEncodingTable =  new FastEncodingTable(value);
+            FileNameEncodingTable = new FastEncodingTable(value);
         }
     }
 }

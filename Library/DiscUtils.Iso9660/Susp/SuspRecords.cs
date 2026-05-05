@@ -39,7 +39,7 @@ internal sealed class SuspRecords
         {
             context.RawStream.Position = contEntry.Block * (long)context.VolumeDescriptor.LogicalBlockSize +
                                           contEntry.BlockOffset;
-            
+
             var contData = context.RawStream.ReadExactly((int)contEntry.Length);
 
             contEntry = Parse(context, contData);

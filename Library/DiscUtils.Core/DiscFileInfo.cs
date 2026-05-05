@@ -30,7 +30,7 @@ namespace DiscUtils;
 public class DiscFileInfo : DiscFileSystemInfo
 {
     internal DiscFileInfo(DiscFileSystem fileSystem, string path)
-        : base(fileSystem, path) {}
+        : base(fileSystem, path) { }
 
     /// <summary>
     /// Gets an instance of the parent directory.

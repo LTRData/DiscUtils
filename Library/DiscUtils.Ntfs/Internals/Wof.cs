@@ -160,7 +160,7 @@ internal static class Wof
         // If opened for writing, we decompress all into primary stream and remove the compressed data stream
 
         var stream = attr.Open(access);
-        
+
         aligningStream.CopyTo(stream);
 
         aligningStream.Dispose();

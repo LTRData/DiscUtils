@@ -13,6 +13,7 @@ using DiscUtils.ExFat.Internal.IO;
 using LibraryTests.ExFat.Environment;
 
 namespace LibraryTests.ExFat.Tests;
+
 [Trait("Category", "Partition")]
 public class PartitionReadTests
 {

@@ -28,7 +28,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DiscUtils.Compression;
 using DiscUtils.Streams;
-using Buffer=DiscUtils.Streams.Buffer;
+using Buffer = DiscUtils.Streams.Buffer;
 
 namespace DiscUtils.Dmg;
 

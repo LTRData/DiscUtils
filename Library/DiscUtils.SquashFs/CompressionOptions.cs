@@ -80,64 +80,64 @@ public abstract class CompressionOptions : IByteArraySerializable
         switch (block.Compression)
         {
             case SquashFileSystemCompressionKind.Lz4:
-            {
-                // LZ4 always has options
-                Lz4CompressionOptions opts = new();
-                var size = ReadCompressionSize(stream);
-                if (size < opts.Size)
                 {
-                    throw new InvalidDataException($"Invalid LZ4 options size {size}. Expecting at least {opts.Size}");
-                }
-
-                opts.ReadFrom(stream, size);
-                if (opts.Version != Lz4CompressionFormatVersion.Legacy)
-                {
-                    throw new NotSupportedException($"Unsupported LZ4 version {(uint)opts.Version}");
-                }
-
-                return new Lz4CompressionOptions();
-            }
-
-            case SquashFileSystemCompressionKind.Xz:
-            {
-                XzCompressionOptions opts = new(Math.Max(Metablock.SQUASHFS_METADATA_SIZE, (int)block.BlockSize));
-                if (hasOptions)
-                {
+                    // LZ4 always has options
+                    Lz4CompressionOptions opts = new();
                     var size = ReadCompressionSize(stream);
                     if (size < opts.Size)
                     {
-                        throw new InvalidDataException($"Invalid Xz options size {size}. Expecting at least {opts.Size}");
+                        throw new InvalidDataException($"Invalid LZ4 options size {size}. Expecting at least {opts.Size}");
                     }
 
                     opts.ReadFrom(stream, size);
+                    if (opts.Version != Lz4CompressionFormatVersion.Legacy)
+                    {
+                        throw new NotSupportedException($"Unsupported LZ4 version {(uint)opts.Version}");
+                    }
+
+                    return new Lz4CompressionOptions();
                 }
-                return opts;
-            }
+
+            case SquashFileSystemCompressionKind.Xz:
+                {
+                    XzCompressionOptions opts = new(Math.Max(Metablock.SQUASHFS_METADATA_SIZE, (int)block.BlockSize));
+                    if (hasOptions)
+                    {
+                        var size = ReadCompressionSize(stream);
+                        if (size < opts.Size)
+                        {
+                            throw new InvalidDataException($"Invalid Xz options size {size}. Expecting at least {opts.Size}");
+                        }
+
+                        opts.ReadFrom(stream, size);
+                    }
+                    return opts;
+                }
 
             case SquashFileSystemCompressionKind.ZLib:
-            {
-                ThrowIfHasOptions();
-                return new ZLibCompressionOptions();
-            }
+                {
+                    ThrowIfHasOptions();
+                    return new ZLibCompressionOptions();
+                }
             case SquashFileSystemCompressionKind.Lzo:
-            {
-                ThrowIfHasOptions();
-                return new LzoCompressionOptions();
-            }
+                {
+                    ThrowIfHasOptions();
+                    return new LzoCompressionOptions();
+                }
             case SquashFileSystemCompressionKind.Lzma:
-            {
-                ThrowIfHasOptions();
-                return new LzmaCompressionOptions();
-            }
+                {
+                    ThrowIfHasOptions();
+                    return new LzmaCompressionOptions();
+                }
             case SquashFileSystemCompressionKind.ZStd:
-            {
-                ThrowIfHasOptions();
-                return new ZStdCompressionOptions();
-            }
+                {
+                    ThrowIfHasOptions();
+                    return new ZStdCompressionOptions();
+                }
             default:
-            {
-                throw new NotSupportedException($"Unsupported compression mode {(uint)block.Compression}");
-            }
+                {
+                    throw new NotSupportedException($"Unsupported compression mode {(uint)block.Compression}");
+                }
         }
 
         void ThrowIfHasOptions()

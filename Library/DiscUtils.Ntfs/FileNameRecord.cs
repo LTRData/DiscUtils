@@ -43,7 +43,7 @@ internal class FileNameRecord : IByteArraySerializable, IDiagnosticTraceable, IE
     public FileRecordReference ParentDirectory;
     public ulong RealSize;
 
-    public FileNameRecord() {}
+    public FileNameRecord() { }
 
     public FileNameRecord(FileNameRecord toCopy)
     {

@@ -62,7 +62,7 @@ internal class ObjectCache<K, V> where V : class where K : notnull
             for (var i = 0; i < _recent.Count; ++i)
             {
                 var recentEntry = _recent[i];
-                
+
                 if (recentEntry.Key.Equals(key))
                 {
                     MakeMostRecent(i);

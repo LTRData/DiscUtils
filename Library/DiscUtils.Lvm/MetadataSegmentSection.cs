@@ -27,6 +27,7 @@ using System.Linq;
 using LTRData.Extensions.Buffers;
 
 namespace DiscUtils.Lvm;
+
 internal class MetadataSegmentSection
 {
     public string Name;

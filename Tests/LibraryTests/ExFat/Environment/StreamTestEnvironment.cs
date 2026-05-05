@@ -10,6 +10,7 @@ using DiscUtils.Streams;
 using DiscUtils.Vhdx;
 
 namespace LibraryTests.ExFat.Environment;
+
 internal class StreamTestEnvironment : TestEnvironment
 {
     public Stream? PartitionStream { get; private set; }

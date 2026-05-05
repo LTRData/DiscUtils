@@ -26,7 +26,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using DiscUtils.Streams;
-using Buffer=DiscUtils.Streams.Buffer;
+using Buffer = DiscUtils.Streams.Buffer;
 
 namespace DiscUtils.Ntfs;
 

@@ -66,7 +66,7 @@ internal static partial class NativeMethods
        IntPtr template);
 
     [LibraryImport("kernel32.dll", SetLastError = true)]
-    [return:MarshalAs(UnmanagedType.Bool)]
+    [return: MarshalAs(UnmanagedType.Bool)]
     internal static partial bool DeviceIoControl(
         SafeFileHandle hDevice,
 
@@ -110,7 +110,7 @@ internal static partial class NativeMethods
     internal const uint FORMAT_MESSAGE_FROM_SYSTEM = 0x00001000;
 
     [LibraryImport("kernel32.dll", SetLastError = true)]
-    [return:MarshalAs(UnmanagedType.Bool)]
+    [return: MarshalAs(UnmanagedType.Bool)]
     internal static partial bool GetFileSizeEx(
         SafeFileHandle handle,
         out long size
@@ -151,7 +151,7 @@ internal static partial class NativeMethods
        IntPtr template);
 
     [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-    [return:MarshalAs(UnmanagedType.Bool)]
+    [return: MarshalAs(UnmanagedType.Bool)]
     internal static extern bool DeviceIoControl(
         SafeFileHandle hDevice,
 
@@ -195,7 +195,7 @@ internal static partial class NativeMethods
     internal const uint FORMAT_MESSAGE_FROM_SYSTEM = 0x00001000;
 
     [DllImport("kernel32.dll", SetLastError = true)]
-    [return:MarshalAs(UnmanagedType.Bool)]
+    [return: MarshalAs(UnmanagedType.Bool)]
     internal static extern bool GetFileSizeEx(
         SafeFileHandle handle,
         out long size

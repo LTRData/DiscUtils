@@ -25,18 +25,19 @@ using DiscUtils.Streams;
 using System;
 
 namespace DiscUtils.Xfs;
+
 internal abstract class BTreeExtentHeaderV5 : BTreeExtentHeader
 {
     public const uint BtreeMagicV5 = 0x424d4133;
-    
+
     public ulong BlockNumber { get; private set; }
-    
+
     public ulong LogSequenceNumber { get; private set; }
-    
+
     public Guid Uuid { get; private set; }
-    
+
     public ulong Owner { get; private set; }
-    
+
     public uint Crc { get; private set; }
 
     public override int Size => base.Size + 48;

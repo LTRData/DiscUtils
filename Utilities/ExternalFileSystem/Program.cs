@@ -41,7 +41,7 @@ class Program
         SetupHelper.RegisterAssembly(typeof(Program).Assembly);
 
         var dummyFileSystemData = new MemoryStream(Encoding.ASCII.GetBytes("MYFS"));
-        
+
         VirtualDisk dummyDisk = new DiscUtils.Raw.Disk(dummyFileSystemData, Ownership.None);
         var volMgr = new VolumeManager(dummyDisk);
 

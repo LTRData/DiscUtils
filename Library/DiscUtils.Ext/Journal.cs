@@ -26,6 +26,7 @@ using System;
 using System.IO;
 
 namespace DiscUtils.Ext;
+
 internal class JournalSuperBlock : IByteArraySerializable
 {
     public uint BlockSize;

@@ -488,7 +488,7 @@ public sealed class SquashFileSystemBuilder : StreamBuilder, IFileSystemBuilder
 
         // Add optional compression options
         CompressionOptions.WriteTo(output, superBlock, Options.CompressionOptions);
-        
+
         output.Position = end;
     }
 
@@ -566,9 +566,9 @@ public sealed class SquashFileSystemBuilder : StreamBuilder, IFileSystemBuilder
     private BuilderDirectory GetRoot()
     {
         _rootDir ??= new BuilderDirectory
-            {
-                Mode = DefaultDirectoryPermissions
-            };
+        {
+            Mode = DefaultDirectoryPermissions
+        };
 
         return _rootDir;
     }

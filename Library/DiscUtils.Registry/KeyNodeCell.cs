@@ -71,7 +71,7 @@ internal sealed class KeyNodeCell : Cell
     }
 
     public KeyNodeCell(int index)
-        : base(index) {}
+        : base(index) { }
 
     public override int Size => 0x4C + Name.Length;
 

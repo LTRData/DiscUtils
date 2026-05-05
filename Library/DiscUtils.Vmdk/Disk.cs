@@ -64,7 +64,7 @@ public sealed class Disk : VirtualDisk
     /// <param name="access">The access requested to the disk.</param>
     /// <param name="useAsync">Underlying files will be opened optimized for async use.</param>
     public Disk(string path, FileAccess access, bool useAsync)
-        : this(new LocalFileLocator(Path.GetDirectoryName(path), useAsync), path, access) {}
+        : this(new LocalFileLocator(Path.GetDirectoryName(path), useAsync), path, access) { }
 
     /// <summary>
     /// Initializes a new instance of the Disk class.
@@ -76,7 +76,7 @@ public sealed class Disk : VirtualDisk
     {
         _path = path;
         FileLocator fileLocator = new DiscFileLocator(fileSystem, Utilities.GetDirectoryFromPath(path));
-        
+
         _files =
         [
             (new DiskImageFile(fileLocator, Utilities.GetFileFromPath(path), access), Ownership.Dispose)
@@ -143,7 +143,7 @@ public sealed class Disk : VirtualDisk
             {
                 return file.BiosGeometry.Value;
             }
-            
+
             return
                  DiscUtils.Geometry.MakeBiosSafe(_files[_files.Count - 1].VirtualDiskLayer.Geometry, Capacity);
         }

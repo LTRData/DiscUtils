@@ -25,6 +25,7 @@ using System;
 using DiscUtils.Streams;
 
 namespace DiscUtils.Xfs;
+
 internal class BlockDirectoryV5 : BlockDirectory
 {
     public const uint HeaderMagicV5 = 0x58444233;
@@ -32,7 +33,7 @@ internal class BlockDirectoryV5 : BlockDirectory
     public uint Crc { get; private set; }
 
     public ulong BlockNumber { get; private set; }
-    
+
     public ulong LogSequenceNumber { get; private set; }
 
     public Guid Uuid { get; private set; }

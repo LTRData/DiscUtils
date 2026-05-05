@@ -26,6 +26,7 @@ using System;
 using System.IO;
 
 namespace DiscUtils.Lvm;
+
 internal class MetadataPhysicalVolumeSection
 {
     public string Name;

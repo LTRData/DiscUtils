@@ -111,7 +111,8 @@ internal sealed class OnDemandVirtualDisk : VirtualDisk
 
     public override VirtualDiskTypeInfo DiskTypeInfo
     {
-        get {
+        get
+        {
             using var disk = OpenDisk();
             return disk.DiskTypeInfo;
         }

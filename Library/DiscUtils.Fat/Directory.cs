@@ -278,7 +278,7 @@ internal class Directory : IDisposable
         _shortFileNameToEntry.Add(entry.Name.ShortName, id);
         _fullFileNameToEntry.Add(entry.Name.FullName, id);
     }
-    
+
     private bool CheckIfShortNameExistsImpl(string shortName) => _shortFileNameToEntry.ContainsKey(shortName);
 
     internal FatFileStream OpenFile(string name, FileMode mode, FileAccess fileAccess)
@@ -361,7 +361,7 @@ internal class Directory : IDisposable
 
         // Update internal structures to reflect new entry (as if read from disk)
         AddEntryRaw(pos, newEntry);
-        
+
         HandleAccessed(forWrite: true);
 
         return pos;
@@ -395,7 +395,7 @@ internal class Directory : IDisposable
             // Remove from the short and full name lookup tables
             _shortFileNameToEntry.Remove(entry.Name.ShortName);
             _fullFileNameToEntry.Remove(entry.Name.FullName);
-            
+
             HandleAccessed(true);
         }
         finally
@@ -439,8 +439,8 @@ internal class Directory : IDisposable
         {
             var streamPos = _dirStream.Position;
             var entry = new DirectoryEntry(FileSystem.FatOptions, _dirStream, FileSystem.FatVariant);
-            
-            if ((entry.Attributes & FatAttributes.LongFileNameMask) ==  FatAttributes.LongFileName)
+
+            if ((entry.Attributes & FatAttributes.LongFileNameMask) == FatAttributes.LongFileName)
             {
                 // Orphaned Long File Name entry
                 AddFreeEntry(streamPos);
@@ -498,7 +498,7 @@ internal class Directory : IDisposable
         }
     }
 
-    private void AddFreeRange(long position, int count) 
+    private void AddFreeRange(long position, int count)
         => _freeDirectoryEntryTable.AddFreeRange(position, count);
 
     private void HandleAccessed(bool forWrite)

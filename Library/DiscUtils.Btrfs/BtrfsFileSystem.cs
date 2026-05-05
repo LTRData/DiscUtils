@@ -49,9 +49,9 @@ public sealed class BtrfsFileSystem : VfsFileSystemFacade, IUnixFileSystem, IAll
     /// <param name="stream">The stream containing the btrfs file system.</param>
     /// <param name="options">Options for opening the file system</param>
     public BtrfsFileSystem(Stream stream, BtrfsFileSystemOptions options)
-        :base(new VfsBtrfsFileSystem(stream, options))
+        : base(new VfsBtrfsFileSystem(stream, options))
     {
-        
+
     }
 
     internal static bool Detect(Stream stream)

@@ -163,7 +163,7 @@ public class NfsFileSystem : DiscFileSystem
                     Math.Max(1 * Sizes.OneMiB,
                         Math.Min(_client.FileSystemInfo.WritePreferredBytes,
                             _client.FileSystemInfo.ReadPreferredBytes));
-                
+
                 var buffer = ArrayPool<byte>.Shared.Rent(bufferSize);
                 try
                 {

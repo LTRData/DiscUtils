@@ -29,7 +29,7 @@ namespace DiscUtils.Ntfs;
 
 internal sealed class SecurityDescriptor : IByteArraySerializable, IDiagnosticTraceable
 {
-    public SecurityDescriptor() {}
+    public SecurityDescriptor() { }
 
     public SecurityDescriptor(RawSecurityDescriptor secDesc)
     {

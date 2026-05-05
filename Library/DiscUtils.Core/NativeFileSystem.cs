@@ -748,7 +748,7 @@ public class NativeFileSystem : DiscFileSystem
     {
         return new DiscFileSystemInfo(this, path);
     }
-     
+
     /// <summary>
     /// Size of the Filesystem in bytes
     /// </summary>

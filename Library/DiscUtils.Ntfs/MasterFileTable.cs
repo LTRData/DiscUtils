@@ -544,7 +544,7 @@ internal class MasterFileTable : IDiagnosticTraceable, IDisposable
                 }
             }
         }
-        
+
         return clusters;
     }
 

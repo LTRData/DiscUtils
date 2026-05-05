@@ -42,7 +42,7 @@ public sealed class DiscImageFile : VirtualDiskLayer
     /// </summary>
     /// <param name="stream">The stream to interpret.</param>
     public DiscImageFile(Stream stream)
-        : this(stream, Ownership.None, OpticalFormat.None) {}
+        : this(stream, Ownership.None, OpticalFormat.None) { }
 
     /// <summary>
     /// Initializes a new instance of the DiscImageFile class.

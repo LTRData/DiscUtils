@@ -52,7 +52,7 @@ public sealed class RpcUnixCredential : RpcCredentials
     /// <param name="user">The user's unique id (UID).</param>
     /// <param name="primaryGroup">The user's primary group id (GID).</param>
     public RpcUnixCredential(int user, int primaryGroup)
-        : this(user, primaryGroup, []) {}
+        : this(user, primaryGroup, []) { }
 
     /// <summary>
     /// Initializes a new instance of the RpcUnixCredential class.

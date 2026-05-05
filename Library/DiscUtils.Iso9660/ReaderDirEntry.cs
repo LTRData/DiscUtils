@@ -157,7 +157,7 @@ internal sealed class ReaderDirEntry : VfsDirEntry
                 }
             }
         }
-        
+
         _records.Add(dirRecord);
     }
 
@@ -173,7 +173,7 @@ internal sealed class ReaderDirEntry : VfsDirEntry
             {
                 // If Rock Ridge PX info is present, derive the attributes from the RR info.
                 var pfi = SuspRecords.GetEntry<PosixFileInfoSystemUseEntry>(_context.RockRidgeIdentifier, "PX");
-                
+
                 if (pfi != null)
                 {
                     attrs = Utilities.FileAttributesFromUnixFileType((UnixFileType)((pfi.FileMode >> 12) & 0xF));

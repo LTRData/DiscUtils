@@ -28,10 +28,11 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace DiscUtils.Xfs;
+
 internal class ExtentStream : BuiltStream
 {
     /// <inheritdoc />
-    public ExtentStream(long length, List<BuilderExtent> extents) 
+    public ExtentStream(long length, List<BuilderExtent> extents)
         : base(length, extents)
     {
     }

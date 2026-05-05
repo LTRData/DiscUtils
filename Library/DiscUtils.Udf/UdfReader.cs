@@ -39,7 +39,7 @@ public sealed class UdfReader : VfsFileSystemFacade
     /// </summary>
     /// <param name="data">The stream containing the UDF file system.</param>
     public UdfReader(Stream data)
-        : base(new VfsUdfReader(data)) {}
+        : base(new VfsUdfReader(data)) { }
 
     /// <summary>
     /// Initializes a new instance of the UdfReader class.
@@ -47,7 +47,7 @@ public sealed class UdfReader : VfsFileSystemFacade
     /// <param name="data">The stream containing the UDF file system.</param>
     /// <param name="sectorSize">The sector size of the physical media.</param>
     public UdfReader(Stream data, int sectorSize)
-        : base(new VfsUdfReader(data, sectorSize)) {}
+        : base(new VfsUdfReader(data, sectorSize)) { }
 
     /// <summary>
     /// Detects if a stream contains a valid UDF file system.

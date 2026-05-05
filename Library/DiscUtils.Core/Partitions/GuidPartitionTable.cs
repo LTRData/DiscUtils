@@ -362,7 +362,7 @@ public sealed class GuidPartitionTable : PartitionTable
         var sector = diskGeometry.BytesPerSector <= 1024
             ? stackalloc byte[diskGeometry.BytesPerSector]
             : StreamUtilities.GetUninitializedArray<byte>(diskGeometry.BytesPerSector);
-        
+
         disk.ReadExactly(sector);
 
         _primaryHeader = new GptHeader(diskGeometry.BytesPerSector);
@@ -405,9 +405,9 @@ public sealed class GuidPartitionTable : PartitionTable
             _secondaryHeader = new GptHeader(diskGeometry.BytesPerSector);
 
             disk.Position = _primaryHeader.AlternateHeaderLba * diskGeometry.BytesPerSector;
-            
+
             disk.ReadExactly(sector);
-            
+
             if (!_secondaryHeader.ReadFrom(sector) || !ReadEntries(_secondaryHeader))
             {
                 // Generate from the secondary table from the primary one

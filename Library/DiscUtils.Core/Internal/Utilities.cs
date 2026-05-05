@@ -93,7 +93,7 @@ public static class Utilities
     public static ReadOnlySpan<char> GetFileName(ReadOnlySpan<char> path)
     {
         var index = path.LastIndexOfAny(PathSeparators);
-        
+
         if (index < 0)
         {
             return path; // No directory, just a file name
@@ -362,7 +362,7 @@ public static class Utilities
         }
 
         var i = name.LastIndexOf('.');
-        
+
         // Check for more than one dot
         if (i >= 0 && name.Slice(0, i).LastIndexOf('.') >= 0)
         {

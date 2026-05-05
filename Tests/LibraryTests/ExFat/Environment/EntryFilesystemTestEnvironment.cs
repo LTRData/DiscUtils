@@ -13,6 +13,7 @@ using DiscUtils.ExFat.Internal;
 using DiscUtils;
 
 namespace LibraryTests.ExFat.Environment;
+
 internal class EntryFilesystemTestEnvironment : TestEnvironment
 {
     public ExFatEntryFilesystem FileSystem { get; private set; } = null!;

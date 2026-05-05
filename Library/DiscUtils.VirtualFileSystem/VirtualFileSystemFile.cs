@@ -4,6 +4,7 @@ using System.IO;
 using DiscUtils.Streams;
 
 namespace DiscUtils.VirtualFileSystem;
+
 public sealed class VirtualFileSystemFile : VirtualFileSystemDirectoryEntry
 {
     public override FileAttributes Attributes

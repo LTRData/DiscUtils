@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 
 namespace LibraryTests.ExFat.Tests;
+
 [Trait("Category", "DiscUtils")]
 public class DiscFilesystemTests
 {

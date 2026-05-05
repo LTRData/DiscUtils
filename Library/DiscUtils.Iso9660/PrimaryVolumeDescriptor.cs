@@ -29,7 +29,7 @@ namespace DiscUtils.Iso9660;
 internal class PrimaryVolumeDescriptor : CommonVolumeDescriptor
 {
     public PrimaryVolumeDescriptor(ReadOnlySpan<byte> src)
-        : base(src, Encoding.ASCII) {}
+        : base(src, Encoding.ASCII) { }
 
     public PrimaryVolumeDescriptor(
         uint volumeSpaceSize,
@@ -41,7 +41,8 @@ internal class PrimaryVolumeDescriptor : CommonVolumeDescriptor
         DateTime buildTime)
         : base(
             VolumeDescriptorType.Primary, 1, volumeSpaceSize, pathTableSize, typeLPathTableLocation,
-            typeMPathTableLocation, rootDirExtentLocation, rootDirDataLength, buildTime, Encoding.ASCII) {}
+            typeMPathTableLocation, rootDirExtentLocation, rootDirDataLength, buildTime, Encoding.ASCII)
+    { }
 
     internal override void WriteTo(Span<byte> buffer)
     {

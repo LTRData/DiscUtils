@@ -35,14 +35,14 @@ internal sealed class VfsBtrfsFileSystem : VfsReadOnlyFileSystem<DirEntry, File,
 {
     public override bool IsCaseSensitive => true;
 
-    public VfsBtrfsFileSystem(Stream stream) 
-        :this(stream, new BtrfsFileSystemOptions())
+    public VfsBtrfsFileSystem(Stream stream)
+        : this(stream, new BtrfsFileSystemOptions())
     {
-        
+
     }
 
     public VfsBtrfsFileSystem(Stream stream, BtrfsFileSystemOptions options)
-        :base(options)
+        : base(options)
     {
         Context = new Context(options)
         {
@@ -50,7 +50,7 @@ internal sealed class VfsBtrfsFileSystem : VfsReadOnlyFileSystem<DirEntry, File,
         };
 
         var dirEntry = Context.Initialize();
-        
+
         RootDirectory = new Directory(dirEntry, Context);
     }
 

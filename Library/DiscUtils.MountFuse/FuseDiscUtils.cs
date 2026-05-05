@@ -62,7 +62,7 @@ public class FuseDiscUtils : IFuseOperations
     public FuseDiscUtils(IFileSystem fileSystem, FuseDiscUtilsOptions options, ILogger? logger = null)
     {
         FileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
-        
+
         if (fileSystem is IUnixFileSystem ||
             (fileSystem is VirtualFileSystem.VirtualFileSystem vfs && vfs.Options.CaseSensitive))
         {
@@ -295,7 +295,7 @@ public class FuseDiscUtils : IFuseOperations
         => PosixResult.ENOSYS;
 
     public PosixResult Link(ReadOnlyNativeMemory<byte> from, ReadOnlyNativeMemory<byte> to)
-		=> PosixResult.ENOSYS;
+        => PosixResult.ENOSYS;
 
     public PosixResult MkDir(ReadOnlyNativeMemory<byte> fileNamePtr, PosixFileMode mode)
     {
@@ -459,7 +459,7 @@ public class FuseDiscUtils : IFuseOperations
     }
 
     public PosixResult ReadLink(ReadOnlyNativeMemory<byte> fileNamePtr, NativeMemory<byte> target)
-		=> PosixResult.ENOSYS;
+        => PosixResult.ENOSYS;
 
     public PosixResult Release(ReadOnlyNativeMemory<byte> fileNamePtr, ref FuseFileInfo fileInfo)
     {
@@ -473,7 +473,7 @@ public class FuseDiscUtils : IFuseOperations
     }
 
     public PosixResult ReleaseDir(ReadOnlyNativeMemory<byte> fileNamePtr, ref FuseFileInfo fileInfo)
-		=> PosixResult.Success;
+        => PosixResult.Success;
 
     public PosixResult Rename(ReadOnlyNativeMemory<byte> from, ReadOnlyNativeMemory<byte> to)
     {
@@ -533,7 +533,7 @@ public class FuseDiscUtils : IFuseOperations
     }
 
     public PosixResult SymLink(ReadOnlyNativeMemory<byte> from, ReadOnlyNativeMemory<byte> to)
-		=> PosixResult.ENOSYS;
+        => PosixResult.ENOSYS;
 
     public PosixResult Truncate(ReadOnlyNativeMemory<byte> fileNamePtr, long size)
     {

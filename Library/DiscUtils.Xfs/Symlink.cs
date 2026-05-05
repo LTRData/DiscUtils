@@ -26,6 +26,7 @@ using DiscUtils.Vfs;
 using DiscUtils.Streams;
 
 namespace DiscUtils.Xfs;
+
 internal class Symlink : File, IVfsSymlink<DirEntry, File>
 {
     public Symlink(Context context, Inode inode)

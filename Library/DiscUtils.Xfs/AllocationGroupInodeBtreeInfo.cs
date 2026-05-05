@@ -26,6 +26,7 @@ using DiscUtils.Streams;
 using System;
 
 namespace DiscUtils.Xfs;
+
 internal class AllocationGroupInodeBtreeInfo : IByteArraySerializable
 {
     public const uint AgiMagic = 0x58414749;
@@ -124,7 +125,7 @@ internal class AllocationGroupInodeBtreeInfo : IByteArraySerializable
         Unlinked = new int[64];
         for (var i = 0; i < Unlinked.Length; i++)
         {
-            Unlinked[i] = EndianUtilities.ToInt32BigEndian(buffer.Slice(0x28 + i*0x4));
+            Unlinked[i] = EndianUtilities.ToInt32BigEndian(buffer.Slice(0x28 + i * 0x4));
         }
 
         if (SbVersion >= 5)
@@ -136,11 +137,11 @@ internal class AllocationGroupInodeBtreeInfo : IByteArraySerializable
 
         return Size;
     }
-    
+
     public void LoadBtree(Context context, long offset)
     {
         var data = context.RawStream;
-        data.Position = offset + context.SuperBlock.Blocksize*(long)Root;
+        data.Position = offset + context.SuperBlock.Blocksize * (long)Root;
         if (Level == 1)
         {
             RootInodeBtree = new BTreeInodeLeaf(SbVersion);
@@ -150,7 +151,7 @@ internal class AllocationGroupInodeBtreeInfo : IByteArraySerializable
             RootInodeBtree = new BTreeInodeNode(SbVersion);
         }
 
-        RootInodeBtree.ReadFrom(data, (int) context.SuperBlock.Blocksize);
+        RootInodeBtree.ReadFrom(data, (int)context.SuperBlock.Blocksize);
     }
 
     void IByteArraySerializable.WriteTo(Span<byte> buffer)

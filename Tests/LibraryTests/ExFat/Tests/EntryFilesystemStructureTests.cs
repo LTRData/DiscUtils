@@ -7,6 +7,7 @@ using LibraryTests.ExFat.Environment;
 using System.Linq;
 
 namespace LibraryTests.ExFat.Tests;
+
 [Trait("Category", "EntryFilesystem")]
 public class EntryFilesystemStructureTests
 {

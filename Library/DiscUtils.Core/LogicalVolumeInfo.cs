@@ -94,7 +94,7 @@ public sealed class LogicalVolumeInfo : VolumeInfo
     /// Gets the status of the logical volume, indicating volume health.
     /// </summary>
     public LogicalVolumeStatus Status { get; }
-    
+
     /// <summary>
     /// Type of volume
     /// </summary>

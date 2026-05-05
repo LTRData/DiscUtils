@@ -11,7 +11,7 @@ public class RawSecurityDescriptor : GenericSecurityDescriptor
     internal override GenericAcl? InternalDacl => DiscretionaryAcl;
     internal override GenericAcl? InternalSacl => SystemAcl;
     internal override byte InternalReservedField => ResourceManagerControl;
-    
+
     public override ControlFlags ControlFlags => _controlFlags;
 
     public RawAcl? DiscretionaryAcl { get; set; }
@@ -19,7 +19,7 @@ public class RawSecurityDescriptor : GenericSecurityDescriptor
     public override SecurityIdentifier? Owner { get; set; }
     public byte ResourceManagerControl { get; set; }
     public RawAcl? SystemAcl { get; set; }
-    
+
     public RawSecurityDescriptor(string sddlForm)
     {
 #if NET6_0_OR_GREATER

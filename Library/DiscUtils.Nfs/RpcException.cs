@@ -36,14 +36,14 @@ public sealed class RpcException : IOException
     /// <summary>
     /// Initializes a new instance of the RpcException class.
     /// </summary>
-    public RpcException() {}
+    public RpcException() { }
 
     /// <summary>
     /// Initializes a new instance of the RpcException class.
     /// </summary>
     /// <param name="message">The exception message.</param>
     public RpcException(string message)
-        : base(message) {}
+        : base(message) { }
 
     /// <summary>
     /// Initializes a new instance of the RpcException class.
@@ -51,14 +51,14 @@ public sealed class RpcException : IOException
     /// <param name="message">The exception message.</param>
     /// <param name="innerException">The inner exception.</param>
     public RpcException(string message, Exception innerException)
-        : base(message, innerException) {}
+        : base(message, innerException) { }
 
     /// <summary>
     /// Initializes a new instance of the RpcException class.
     /// </summary>
     /// <param name="reply">The RPC reply from the server.</param>
     internal RpcException(RpcReplyHeader reply)
-        : base(GenerateMessage(reply)) {}
+        : base(GenerateMessage(reply)) { }
 
     /// <summary>
     /// Initializes a new instance of the RpcException class.

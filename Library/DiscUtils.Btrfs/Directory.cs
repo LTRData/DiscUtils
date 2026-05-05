@@ -33,7 +33,7 @@ internal class Directory : File, IVfsDirectory<DirEntry, File>
 {
     public Directory(DirEntry dirEntry, Context context) : base(dirEntry, context)
     {
-        
+
     }
 
     private FastDictionary<DirEntry> _allEntries;

@@ -170,13 +170,13 @@ public class RegistryHive : IDisposable
                     {
                         FileStream.Dispose();
                     }
-                    
+
                     FileStream = mem;
                 }
 
                 // Open log files
                 var logfiles = new LogFile[Math.Min(2, logs.Length)];
-                
+
                 logfiles[0] = new(logs[0]);
 
                 if (logs.Length > 1)

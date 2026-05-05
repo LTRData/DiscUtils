@@ -6,6 +6,7 @@ using System.Reflection;
 using DiscUtils.Setup;
 
 namespace DiscUtils.ExFat;
+
 public static class ExFatSetupHelper
 {
     public static void SetupFileSystems() => SetupHelper.RegisterAssembly(Assembly.GetExecutingAssembly());

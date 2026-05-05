@@ -43,7 +43,7 @@ public sealed class Disk : VirtualDisk
     /// <param name="stream">The stream to read.</param>
     /// <param name="ownsStream">Indicates if the new instance should control the lifetime of the stream.</param>
     public Disk(Stream stream, Ownership ownsStream)
-        : this(stream, ownsStream, null) {}
+        : this(stream, ownsStream, null) { }
 
     /// <summary>
     /// Initializes a new instance of the Disk class.

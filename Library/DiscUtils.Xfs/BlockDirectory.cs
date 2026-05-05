@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using DiscUtils.Streams;
 
 namespace DiscUtils.Xfs;
+
 internal class BlockDirectory : IByteArraySerializable
 {
     private readonly Context _context;
@@ -74,7 +75,7 @@ internal class BlockDirectory : IByteArraySerializable
         LeafStale = EndianUtilities.ToUInt32BigEndian(buffer.Slice(buffer.Length - 0x4));
         LeafCount = EndianUtilities.ToUInt32BigEndian(buffer.Slice(buffer.Length - 0x8));
         var entries = new List<BlockDirectoryData>();
-        var eof = buffer.Length - 0x8 - LeafCount*0x8;
+        var eof = buffer.Length - 0x8 - LeafCount * 0x8;
         while (offset < eof)
         {
             BlockDirectoryData entry;

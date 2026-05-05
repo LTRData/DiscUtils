@@ -40,7 +40,7 @@ public class SquashFileSystemReader : VfsFileSystemFacade, IUnixFileSystem
     /// </summary>
     /// <param name="data">The stream to read the file system image from.</param>
     public SquashFileSystemReader(Stream data)
-        : base(new VfsSquashFileSystemReader(data)) {}
+        : base(new VfsSquashFileSystemReader(data)) { }
 
     /// <summary>
     /// Initializes a new instance of the SquashFileSystemReader class.

@@ -510,7 +510,7 @@ public class DokanDiscUtils : IDokanOperations2, IDisposable
         try
         {
             fileInfo = FileSystem.GetFileSystemInfo(fileName);
-            
+
             pathExists = fileInfo.Exists;
 
             if (pathExists)
@@ -1388,7 +1388,7 @@ public class DokanDiscUtils : IDokanOperations2, IDisposable
         return Trace(nameof(FindFilesWithPattern), fileNamePtr, info, DokanResult.Success);
     }
 
-#region IDisposable Support
+    #region IDisposable Support
     public bool IsDisposed { get; private set; } // To detect redundant calls
 
     int IDokanOperations2.DirectoryListingTimeoutResetIntervalMs => 0;
@@ -1442,7 +1442,7 @@ public class DokanDiscUtils : IDokanOperations2, IDisposable
         GC.SuppressFinalize(this);
     }
 
-#endregion
+    #endregion
 
-#endregion Implementation of IDokanOperations
+    #endregion Implementation of IDokanOperations
 }

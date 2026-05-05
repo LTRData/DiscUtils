@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.IO;
 
 namespace DiscUtils.Xfs;
+
 internal class BTreeExtentLeafV5 : BTreeExtentHeaderV5
 {
     public Extent[] Extents { get; private set; }

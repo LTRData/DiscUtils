@@ -28,6 +28,7 @@ using DiscUtils.Vfs;
 using LTRData.Extensions.Buffers;
 
 namespace DiscUtils.Xfs;
+
 [VfsFileSystemFactory]
 internal class FileSystemFactory : VfsFileSystemFactory
 {

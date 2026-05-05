@@ -26,7 +26,7 @@ namespace DiscUtils.Ntfs;
 
 public class DataRun
 {
-    public DataRun() {}
+    public DataRun() { }
 
     public DataRun(long offset, long length, bool isSparse)
     {

@@ -1017,7 +1017,7 @@ public class NtfsFileSystemTest
         var diskGeometry = Geometry.FromCapacity(partitionSizeInBytes);
 
         using var ntfsFs = NtfsFileSystem.Format(ms, "", diskGeometry, 0, diskGeometry.TotalSectorsLong);
-        
+
         long availableBefore = ntfsFs.AvailableSpace;
 
         Trace.WriteLine($"Cluster size:         {ntfsFs.ClusterSize:N0} bytes");

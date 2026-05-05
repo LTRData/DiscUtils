@@ -34,7 +34,7 @@ internal class BootInitialEntry
     public ushort SectorCount;
     public byte SystemType;
 
-    public BootInitialEntry() {}
+    public BootInitialEntry() { }
 
     public BootInitialEntry(byte[] buffer, int offset)
     {

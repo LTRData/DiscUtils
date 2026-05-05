@@ -286,7 +286,7 @@ public sealed class CDBuilder : StreamBuilder, IFileSystemBuilder
         var suppEncoding = _buildParams.UseJoliet ? Encoding.BigEndianUnicode : Encoding.ASCII;
 
         var primaryLocationTable = new Dictionary<BuildDirectoryMember, uint>();
-        
+
         var supplementaryLocationTable = new Dictionary<BuildDirectoryMember, uint>();
 
         checked

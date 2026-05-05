@@ -34,7 +34,7 @@ namespace DiscUtils.Nfs;
 public sealed class XdrDataWriter : BigEndianDataWriter
 {
     public XdrDataWriter(Stream stream)
-        : base(stream) {}
+        : base(stream) { }
 
     public void Write(bool value)
     {

@@ -283,7 +283,7 @@ public class FatFileSystemTest
             Assert.Equal(Path.DirectorySeparatorChar + "BAR", entries[2]);
         }
     }
-    
+
     [Fact]
     public void TestLongNameDeletedEntries()
     {
@@ -617,7 +617,7 @@ public class FatFileSystemTest
         diskStream.Position = 0;
         using (var fsFormat = FatFileSystem.FormatFloppy(diskStream, FloppyDiskType.HighDensity, "FLOPPY_IMG "))
         {
-            fsFormat.CreateDirectory("dir");            
+            fsFormat.CreateDirectory("dir");
         }
 
         for (var i = 0; i < 20; i++)
@@ -647,7 +647,7 @@ public class FatFileSystemTest
         diskStream.Position = 0;
         using (var fsFormat = FatFileSystem.FormatFloppy(diskStream, FloppyDiskType.HighDensity, "FLOPPY_IMG "))
         {
-            fsFormat.CreateDirectory("dir");            
+            fsFormat.CreateDirectory("dir");
         }
 
         using (var fsCreate = new FatFileSystem(diskStream))
@@ -656,7 +656,7 @@ public class FatFileSystemTest
             {
                 using var fileStream = fsCreate.OpenFile($"dir{Path.DirectorySeparatorChar}file{i}.txt", FileMode.Create);
                 fileStream.Write(new byte[10]);
-            }            
+            }
         }
 
         using var fsAssert = new FatFileSystem(diskStream);

@@ -36,14 +36,14 @@ public sealed class Nfs3Exception : IOException
     /// <summary>
     /// Initializes a new instance of the Nfs3Exception class.
     /// </summary>
-    public Nfs3Exception() {}
+    public Nfs3Exception() { }
 
     /// <summary>
     /// Initializes a new instance of the Nfs3Exception class.
     /// </summary>
     /// <param name="message">The exception message.</param>
     public Nfs3Exception(string message)
-        : base(message) {}
+        : base(message) { }
 
     /// <summary>
     /// Initializes a new instance of the Nfs3Exception class.
@@ -62,7 +62,7 @@ public sealed class Nfs3Exception : IOException
     /// <param name="message">The exception message.</param>
     /// <param name="innerException">The inner exception.</param>
     public Nfs3Exception(string message, Exception innerException)
-        : base(message, innerException) {}
+        : base(message, innerException) { }
 
     /// <summary>
     /// Initializes a new instance of the Nfs3Exception class.

@@ -30,7 +30,7 @@ internal abstract class TaggedDescriptor<T> : BaseTaggedDescriptor
     where T : BaseTaggedDescriptor, new()
 {
     protected TaggedDescriptor(TagIdentifier id)
-        : base(id) {}
+        : base(id) { }
 
     public static T FromStream(Stream stream, uint sector, uint sectorSize)
     {

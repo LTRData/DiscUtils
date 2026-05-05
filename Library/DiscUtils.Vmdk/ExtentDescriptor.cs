@@ -30,7 +30,7 @@ namespace DiscUtils.Vmdk;
 
 internal class ExtentDescriptor
 {
-    public ExtentDescriptor() {}
+    public ExtentDescriptor() { }
 
     public ExtentDescriptor(ExtentAccess access, long size, ExtentType type, string fileName, long offset)
     {

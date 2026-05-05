@@ -13,9 +13,9 @@ public class WellKnownAccount
 
     [MemberNotNullWhen(true, nameof(Sid))]
     public bool IsAbsolute { get; init; }
-    
+
     public SecurityIdentifier? Sid { get; init; }
-    
+
     public string SidStr
     {
         get => sidStr!;
@@ -27,7 +27,7 @@ public class WellKnownAccount
             Sid = new(sidStr);
         }
     }
-    
+
     public uint Rid { get; init; }
 
     public string RidStr
@@ -180,8 +180,8 @@ public class WellKnownAccount
         new() { WellKnownValue = (WellKnownSidType)74, IsAbsolute = false, RidStr = "521", SddlForm = "RO" },
         new() { WellKnownValue = (WellKnownSidType)78, IsAbsolute = false, RidStr = "574", SddlForm = "CD" },
     ];
-    
+
     private string? sidStr;
-    
+
     private string? ridStr;
 }

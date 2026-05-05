@@ -116,14 +116,14 @@ class InMemoryFileSystem : DiscFileSystem
     {
         if (_files.TryGetValue(path, out var buffer))
         {
-            if(mode == FileMode.CreateNew)
+            if (mode == FileMode.CreateNew)
             {
                 throw new IOException("File already exists");
             }
 
             return new SparseMemoryStream(buffer, access);
         }
-        else if(mode is FileMode.Create or FileMode.CreateNew or FileMode.OpenOrCreate or FileMode.Truncate)
+        else if (mode is FileMode.Create or FileMode.CreateNew or FileMode.OpenOrCreate or FileMode.Truncate)
         {
             _files[path] = new SparseMemoryBuffer(16 * 1024);
             return new SparseMemoryStream(_files[path], access);

@@ -32,8 +32,8 @@ public class RpcMismatchInfoTest
     {
         var info = new RpcMismatchInfo()
         {
-             High = 1,
-             Low = 2
+            High = 1,
+            Low = 2
         };
 
         RpcMismatchInfo? clone = null;

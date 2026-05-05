@@ -30,9 +30,9 @@ internal abstract class VolumeDescriptorDiskRegion : BuilderExtent
     private byte[] _readCache;
 
     public VolumeDescriptorDiskRegion(long start)
-        : base(start, IsoUtilities.SectorSize) {}
+        : base(start, IsoUtilities.SectorSize) { }
 
-    protected override void Dispose(bool disposing) {}
+    protected override void Dispose(bool disposing) { }
 
     public override void PrepareForRead()
     {

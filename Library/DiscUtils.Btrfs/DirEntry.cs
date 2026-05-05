@@ -72,7 +72,7 @@ internal class DirEntry : VfsDirEntry
                 DirItemChildType.ExtendedAttribute => UnixFileType.None,
                 _ => throw new ArgumentOutOfRangeException(),
             };
-            
+
             var result = Utilities.FileAttributesFromUnixFileType(unixFileType);
 
             if (_inode is not null && _inode.Flags.HasFlag(InodeFlag.Readonly))
@@ -99,7 +99,7 @@ internal class DirEntry : VfsDirEntry
             unchecked
             {
                 var result = _inode is null ? 0 : (long)_inode.TransId;
-                
+
                 if (_item is not null)
                 {
                     result = (result * 397) ^ (long)_item.TransId;

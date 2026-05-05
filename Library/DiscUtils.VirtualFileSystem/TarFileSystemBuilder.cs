@@ -5,6 +5,7 @@ using System.IO;
 using LTRData.Extensions.Buffers;
 
 namespace DiscUtils.VirtualFileSystem;
+
 public class TarFileSystemBuilder : TarFileBuilder, IFileSystemBuilder
 {
     // Progress reporting event

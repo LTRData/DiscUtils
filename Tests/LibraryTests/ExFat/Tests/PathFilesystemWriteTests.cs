@@ -8,6 +8,7 @@ using System;
 using System.IO;
 
 namespace LibraryTests.ExFat.Tests;
+
 [Trait("Category", "PathFilesystem")]
 public class PathFilesystemWriteTests
 {

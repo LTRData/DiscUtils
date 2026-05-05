@@ -29,6 +29,7 @@ using DiscUtils.Streams;
 using System.Collections.Generic;
 
 namespace DiscUtils.Xfs;
+
 internal sealed class VfsXfsFileSystem : VfsReadOnlyFileSystem<DirEntry, File, Directory, Context>,
     IUnixFileSystem, IAllocationExtentsFileSystem
 {
@@ -39,7 +40,7 @@ internal sealed class VfsXfsFileSystem : VfsReadOnlyFileSystem<DirEntry, File, D
     private static readonly int BBSHIFT = 9;
 
     public VfsXfsFileSystem(Stream stream, FileSystemParameters parameters)
-        :base(new XfsFileSystemOptions(parameters))
+        : base(new XfsFileSystemOptions(parameters))
     {
         stream.Position = 0;
         Span<byte> superblockData = stackalloc byte[264];
@@ -57,7 +58,7 @@ internal sealed class VfsXfsFileSystem : VfsReadOnlyFileSystem<DirEntry, File, D
         {
             RawStream = stream,
             SuperBlock = superblock,
-            Options = (XfsFileSystemOptions) Options
+            Options = (XfsFileSystemOptions)Options
         };
 
         var allocationGroups = new AllocationGroup[superblock.AgCount];
@@ -66,7 +67,7 @@ internal sealed class VfsXfsFileSystem : VfsReadOnlyFileSystem<DirEntry, File, D
         {
             var ag = new AllocationGroup(Context, offset);
             allocationGroups[ag.InodeBtreeInfo.SequenceNumber] = ag;
-            offset = (XFS_AG_DADDR(Context.SuperBlock, i+1, XFS_AGF_DADDR(Context.SuperBlock)) << BBSHIFT) - superblock.SectorSize;
+            offset = (XFS_AG_DADDR(Context.SuperBlock, i + 1, XFS_AGF_DADDR(Context.SuperBlock)) << BBSHIFT) - superblock.SectorSize;
         }
 
         Context.AllocationGroups = allocationGroups;
@@ -99,7 +100,7 @@ internal sealed class VfsXfsFileSystem : VfsReadOnlyFileSystem<DirEntry, File, D
             throw new NotSupportedException($"Type {dirEntry.Inode.FileType} is not supported in XFS");
         }
     }
-    
+
     /// <summary>
     /// Size of the Filesystem in bytes
     /// </summary>
@@ -109,7 +110,7 @@ internal sealed class VfsXfsFileSystem : VfsReadOnlyFileSystem<DirEntry, File, D
         {
             var superblock = Context.SuperBlock;
             var lsize = superblock.Logstart != 0 ? superblock.LogBlocks : 0;
-            return (long) ((superblock.DataBlocks - lsize) * superblock.Blocksize);
+            return (long)((superblock.DataBlocks - lsize) * superblock.Blocksize);
         }
     }
 
@@ -144,7 +145,7 @@ internal sealed class VfsXfsFileSystem : VfsReadOnlyFileSystem<DirEntry, File, D
                 alloc_set_aside += superblock.AgCount * rmapMaxlevels;
             }
 
-            return (long) ((fdblocks - alloc_set_aside) * superblock.Blocksize);
+            return (long)((fdblocks - alloc_set_aside) * superblock.Blocksize);
         }
     }
 

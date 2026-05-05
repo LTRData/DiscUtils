@@ -28,6 +28,7 @@ using DiscUtils.Streams;
 using System;
 
 namespace DiscUtils.Xfs;
+
 internal class BTreeInodeNode : BtreeHeader
 {
     public uint[] Keys { get; private set; }
@@ -66,7 +67,7 @@ internal class BTreeInodeNode : BtreeHeader
 
     public override void LoadBtree(AllocationGroup ag)
     {
-        Children = new Dictionary<uint,BtreeHeader>(NumberOfRecords);
+        Children = new Dictionary<uint, BtreeHeader>(NumberOfRecords);
         for (var i = 0; i < NumberOfRecords; i++)
         {
             BtreeHeader child;

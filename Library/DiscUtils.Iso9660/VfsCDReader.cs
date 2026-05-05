@@ -52,7 +52,7 @@ internal class VfsCDReader : VfsReadOnlyFileSystem<ReaderDirEntry, File, ReaderD
     /// <param name="joliet">Whether to read Joliet extensions.</param>
     /// <param name="hideVersions">Hides version numbers (e.g. ";1") from the end of files.</param>
     public VfsCDReader(Stream data, bool joliet, bool hideVersions)
-        : this(data, joliet ? DefaultVariantsWithJoliet : DefaultVariantsNoJoliet, hideVersions) {}
+        : this(data, joliet ? DefaultVariantsWithJoliet : DefaultVariantsNoJoliet, hideVersions) { }
 
     /// <summary>
     /// Initializes a new instance of the VfsCDReader class.
@@ -440,9 +440,9 @@ internal class VfsCDReader : VfsReadOnlyFileSystem<ReaderDirEntry, File, ReaderD
 
         Span<byte> bytes = stackalloc byte[512];
         stream.ReadExactly(bytes);
-        
+
         var bpbBytesPerSec = EndianUtilities.ToUInt16LittleEndian(bytes.Slice(11));
-        
+
         if (bpbBytesPerSec != 512)
         {
             return 0;
@@ -619,7 +619,7 @@ internal class VfsCDReader : VfsReadOnlyFileSystem<ReaderDirEntry, File, ReaderD
     {
         context.RawStream.Position = context.VolumeDescriptor.RootDirectory.LocationOfExtent *
                                       context.VolumeDescriptor.LogicalBlockSize;
-        
+
         var firstSector = ArrayPool<byte>.Shared.Rent(context.VolumeDescriptor.LogicalBlockSize);
         try
         {

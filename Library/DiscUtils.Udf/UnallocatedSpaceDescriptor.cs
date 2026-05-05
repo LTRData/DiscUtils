@@ -31,7 +31,7 @@ internal sealed class UnallocatedSpaceDescriptor : TaggedDescriptor<UnallocatedS
     public uint VolumeDescriptorSequenceNumber;
 
     public UnallocatedSpaceDescriptor()
-        : base(TagIdentifier.UnallocatedSpaceDescriptor) {}
+        : base(TagIdentifier.UnallocatedSpaceDescriptor) { }
 
     public override int Parse(ReadOnlySpan<byte> buffer)
     {

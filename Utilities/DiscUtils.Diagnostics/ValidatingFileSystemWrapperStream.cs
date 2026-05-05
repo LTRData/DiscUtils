@@ -54,7 +54,7 @@ internal sealed class ValidatingFileSystemWrapperStream<Tfs, Tc> : SparseStream
         if (disposing && !_disposed && !_fileSystem.InLockdown)
         {
             var pos = _shadowPosition;
-            Activity<Tfs, object> fn = delegate(Tfs fs, Dictionary<string, object> context)
+            Activity<Tfs, object> fn = delegate (Tfs fs, Dictionary<string, object> context)
             {
                 GetNativeStream(fs, context, pos).Dispose();
                 _disposed = true;
@@ -76,7 +76,7 @@ internal sealed class ValidatingFileSystemWrapperStream<Tfs, Tc> : SparseStream
         {
             var pos = _shadowPosition;
 
-            Activity<Tfs, bool> fn = delegate(Tfs fs, Dictionary<string, object> context)
+            Activity<Tfs, bool> fn = delegate (Tfs fs, Dictionary<string, object> context)
             {
                 return GetNativeStream(fs, context, pos).CanRead;
             };
@@ -91,7 +91,7 @@ internal sealed class ValidatingFileSystemWrapperStream<Tfs, Tc> : SparseStream
         {
             var pos = _shadowPosition;
 
-            Activity<Tfs, bool> fn = delegate(Tfs fs, Dictionary<string, object> context)
+            Activity<Tfs, bool> fn = delegate (Tfs fs, Dictionary<string, object> context)
             {
                 return GetNativeStream(fs, context, pos).CanSeek;
             };
@@ -106,7 +106,7 @@ internal sealed class ValidatingFileSystemWrapperStream<Tfs, Tc> : SparseStream
         {
             var pos = _shadowPosition;
 
-            Activity<Tfs, bool> fn = delegate(Tfs fs, Dictionary<string, object> context)
+            Activity<Tfs, bool> fn = delegate (Tfs fs, Dictionary<string, object> context)
             {
                 return GetNativeStream(fs, context, pos).CanWrite;
             };
@@ -119,7 +119,7 @@ internal sealed class ValidatingFileSystemWrapperStream<Tfs, Tc> : SparseStream
     {
         var pos = _shadowPosition;
 
-        Activity<Tfs, object> fn = delegate(Tfs fs, Dictionary<string, object> context)
+        Activity<Tfs, object> fn = delegate (Tfs fs, Dictionary<string, object> context)
         {
             GetNativeStream(fs, context, pos).Flush();
             return null;
@@ -134,7 +134,7 @@ internal sealed class ValidatingFileSystemWrapperStream<Tfs, Tc> : SparseStream
         {
             var pos = _shadowPosition;
 
-            Activity<Tfs, long> fn = delegate(Tfs fs, Dictionary<string, object> context)
+            Activity<Tfs, long> fn = delegate (Tfs fs, Dictionary<string, object> context)
             {
                 return GetNativeStream(fs, context, pos).Length;
             };
@@ -149,7 +149,7 @@ internal sealed class ValidatingFileSystemWrapperStream<Tfs, Tc> : SparseStream
         {
             var pos = _shadowPosition;
 
-            Activity<Tfs, long> fn = delegate(Tfs fs, Dictionary<string, object> context)
+            Activity<Tfs, long> fn = delegate (Tfs fs, Dictionary<string, object> context)
             {
                 return GetNativeStream(fs, context, pos).Position;
             };
@@ -160,7 +160,7 @@ internal sealed class ValidatingFileSystemWrapperStream<Tfs, Tc> : SparseStream
         {
             var pos = _shadowPosition;
 
-            Activity<Tfs, object> fn = delegate(Tfs fs, Dictionary<string, object> context)
+            Activity<Tfs, object> fn = delegate (Tfs fs, Dictionary<string, object> context)
             {
                 GetNativeStream(fs, context, pos).Position = value;
                 return null;
@@ -178,7 +178,7 @@ internal sealed class ValidatingFileSystemWrapperStream<Tfs, Tc> : SparseStream
         {
             var pos = _shadowPosition;
 
-            Activity<Tfs, IEnumerable<StreamExtent>> fn = delegate(Tfs fs, Dictionary<string, object> context)
+            Activity<Tfs, IEnumerable<StreamExtent>> fn = delegate (Tfs fs, Dictionary<string, object> context)
             {
                 return GetNativeStream(fs, context, pos).Extents;
             };
@@ -194,7 +194,7 @@ internal sealed class ValidatingFileSystemWrapperStream<Tfs, Tc> : SparseStream
         // Avoid stomping on buffers we know nothing about by ditching the writes into gash buffer.
         var tempBuffer = new byte[buffer.Length];
 
-        Activity<Tfs, int> fn = delegate(Tfs fs, Dictionary<string, object> context)
+        Activity<Tfs, int> fn = delegate (Tfs fs, Dictionary<string, object> context)
         {
             return GetNativeStream(fs, context, pos).Read(tempBuffer, offset, count);
         };
@@ -233,7 +233,7 @@ internal sealed class ValidatingFileSystemWrapperStream<Tfs, Tc> : SparseStream
     {
         var pos = _shadowPosition;
 
-        Activity<Tfs, long> fn = delegate(Tfs fs, Dictionary<string, object> context)
+        Activity<Tfs, long> fn = delegate (Tfs fs, Dictionary<string, object> context)
         {
             return GetNativeStream(fs, context, pos).Seek(offset, origin);
         };
@@ -247,7 +247,7 @@ internal sealed class ValidatingFileSystemWrapperStream<Tfs, Tc> : SparseStream
     {
         var pos = _shadowPosition;
 
-        Activity<Tfs, object> fn = delegate(Tfs fs, Dictionary<string, object> context)
+        Activity<Tfs, object> fn = delegate (Tfs fs, Dictionary<string, object> context)
         {
             GetNativeStream(fs, context, pos).SetLength(value);
             return null;
@@ -264,7 +264,7 @@ internal sealed class ValidatingFileSystemWrapperStream<Tfs, Tc> : SparseStream
         var tempBuffer = new byte[buffer.Length];
         System.Buffer.BlockCopy(buffer, 0, tempBuffer, 0, buffer.Length);
 
-        Activity<Tfs, object> fn = delegate(Tfs fs, Dictionary<string, object> context)
+        Activity<Tfs, object> fn = delegate (Tfs fs, Dictionary<string, object> context)
         {
             GetNativeStream(fs, context, pos).Write(tempBuffer, offset, count);
             return null;

@@ -11,7 +11,7 @@ public class XfsTests
         var context = new Context
         {
             SuperBlock = new SuperBlock(),
-            Options = new XfsFileSystemOptions { FileNameEncoding = Encoding.UTF8}
+            Options = new XfsFileSystemOptions { FileNameEncoding = Encoding.UTF8 }
         };
 
         var inode = new Inode(1, context);

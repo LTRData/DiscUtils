@@ -26,6 +26,7 @@ using DiscUtils.Internal;
 using System.Collections.Generic;
 
 namespace DiscUtils.Lvm;
+
 [LogicalVolumeFactory]
 internal class LogicalVolumeManagerFactory : LogicalVolumeFactory
 {

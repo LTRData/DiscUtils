@@ -43,7 +43,7 @@ public class SampleDataTests
             Assert.Equal(256UL, subvolumes[0].Id);
             Assert.Equal("subvolume", subvolumes[0].Name);
 
-            Assert.Equal("text\n", GetFileContent(Path.Combine("folder","subfolder", "file"), btrfs));
+            Assert.Equal("text\n", GetFileContent(Path.Combine("folder", "subfolder", "file"), btrfs));
             Assert.Equal("f64464c2024778f347277de6fa26fe87", GetFileChecksum(Path.Combine("folder", "subfolder", "f64464c2024778f347277de6fa26fe87"), btrfs));
             Assert.Equal("fa121c8b73cf3b01a4840b1041b35e9f", GetFileChecksum(Path.Combine("folder", "subfolder", "fa121c8b73cf3b01a4840b1041b35e9f"), btrfs));
             AssertAllZero(Path.Combine("folder", "subfolder", "sparse"), btrfs);

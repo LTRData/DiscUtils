@@ -271,7 +271,7 @@ public sealed class Provider : NavigationCmdletProvider, IDynamicPropertyCmdletP
 
         var foundProp = false;
         var key = FindItemByPath(path);
-        foreach(var valueName in key.GetValueNames())
+        foreach (var valueName in key.GetValueNames())
         {
             var propName = valueName;
             if (string.IsNullOrEmpty(valueName))
@@ -370,12 +370,12 @@ public sealed class Provider : NavigationCmdletProvider, IDynamicPropertyCmdletP
                 type = (RegistryValueType)Enum.Parse(typeof(RegistryValueType), propertyTypeName, ignoreCase: true);
 #endif
             }
-            catch(ArgumentException)
+            catch (ArgumentException)
             {
             }
         }
 
-        if(string.Equals(propertyName, DefaultValueName, StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(propertyName, DefaultValueName, StringComparison.OrdinalIgnoreCase))
         {
             propertyName = "";
         }
@@ -423,7 +423,7 @@ public sealed class Provider : NavigationCmdletProvider, IDynamicPropertyCmdletP
         return null;
     }
 
-#endregion
+    #endregion
 
     private VirtualRegistryPSDriveInfo DriveInfo => PSDriveInfo as VirtualRegistryPSDriveInfo;
 

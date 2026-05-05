@@ -551,7 +551,7 @@ public sealed class Provider : NavigationCmdletProvider, IContentCmdletProvider
         }
 
         var disk = Disk;
-        if( disk == null )
+        if (disk == null)
         {
             var odvd = new OnDemandVirtualDisk(Utilities.DenormalizePath(diskPath), fileAccess);
             if (odvd.IsValid)
@@ -822,7 +822,7 @@ public sealed class Provider : NavigationCmdletProvider, IContentCmdletProvider
             }
 
             var sd = srcWindowsFs.GetSecurity(srcPath);
-            if(sd != null)
+            if (sd != null)
             {
                 destWindowsFs.SetSecurity(destPath, sd);
             }

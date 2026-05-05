@@ -50,7 +50,7 @@ internal class File : IVfsFile
         var suspRecords = new SuspRecords(_context, SystemUseData);
 
         var pfi = suspRecords.GetEntry<PosixFileInfoSystemUseEntry>(_context.RockRidgeIdentifier, "PX");
-        
+
         return pfi;
     }
 
@@ -131,7 +131,7 @@ internal class File : IVfsFile
                     Ownership.Dispose
                 );
             }
-            
+
             return new StreamBuffer(
                 new ConcatStream(
                     Ownership.Dispose,

@@ -29,7 +29,7 @@ namespace DiscUtils.Iso9660;
 internal class SupplementaryVolumeDescriptor : CommonVolumeDescriptor
 {
     public SupplementaryVolumeDescriptor(ReadOnlySpan<byte> src)
-        : base(src, IsoUtilities.EncodingFromBytes(src.Slice(88))) {}
+        : base(src, IsoUtilities.EncodingFromBytes(src.Slice(88))) { }
 
     public SupplementaryVolumeDescriptor(
         uint volumeSpaceSize,
@@ -42,7 +42,8 @@ internal class SupplementaryVolumeDescriptor : CommonVolumeDescriptor
         Encoding enc)
         : base(
             VolumeDescriptorType.Supplementary, 1, volumeSpaceSize, pathTableSize, typeLPathTableLocation,
-            typeMPathTableLocation, rootDirExtentLocation, rootDirDataLength, buildTime, enc) {}
+            typeMPathTableLocation, rootDirExtentLocation, rootDirDataLength, buildTime, enc)
+    { }
 
     internal override void WriteTo(Span<byte> buffer)
     {

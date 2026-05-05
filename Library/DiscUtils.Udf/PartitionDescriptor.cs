@@ -39,7 +39,7 @@ internal class PartitionDescriptor : TaggedDescriptor<PartitionDescriptor>
     public uint VolumeDescriptorSequenceNumber;
 
     public PartitionDescriptor()
-        : base(TagIdentifier.PartitionDescriptor) {}
+        : base(TagIdentifier.PartitionDescriptor) { }
 
     public override int Parse(ReadOnlySpan<byte> buffer)
     {

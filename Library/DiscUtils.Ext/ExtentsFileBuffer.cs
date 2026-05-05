@@ -203,7 +203,7 @@ internal class ExtentsFileBuffer : Buffer, IFileBuffer
                     (int)
                     Math.Min(totalBytesRemaining,
                         (extent.Value.FirstLogicalBlock - logicalBlock) * blockSize - blockOffset);
-                
+
                 Array.Clear(buffer, offset + totalRead, numRead);
             }
             else

@@ -203,7 +203,7 @@ internal sealed class Metadata
 #if !NET5_0_OR_GREATER
     [SecurityPermission(SecurityAction.Demand, UnmanagedCode = true)]
 #endif
-    private static async ValueTask <uint> AddEntryValueAsync<T>(T data, Writer<T> writer, Guid id, MetadataEntryFlags flags,
+    private static async ValueTask<uint> AddEntryValueAsync<T>(T data, Writer<T> writer, Guid id, MetadataEntryFlags flags,
                                          MetadataTable table, uint dataOffset, Stream stream, CancellationToken cancellationToken)
     {
         var key = new MetadataEntryKey(id, (flags & MetadataEntryFlags.IsUser) != 0);

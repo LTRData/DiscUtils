@@ -194,7 +194,7 @@ internal class BiosParameterBlock
         {
             return 1 << -(sbyte)rawSize;
         }
-        
+
         return rawSize;
     }
 
@@ -221,7 +221,7 @@ internal class BiosParameterBlock
         {
             return 1 << -(sbyte)rawSize;
         }
-        
+
         return rawSize * SectorsPerCluster * BytesPerSector;
     }
 

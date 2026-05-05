@@ -1023,7 +1023,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
                     hdr.DescriptorSize * Sizes.Sector);
 
                 _descriptor = new DescriptorFile(descriptorStream);
-                
+
                 if (_access != FileAccess.Read)
                 {
                     _descriptor.ContentId = (uint)_rng.Next();

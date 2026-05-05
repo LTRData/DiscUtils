@@ -31,7 +31,7 @@ internal sealed class ExtentKey : BTreeKey, IComparable<ExtentKey>
     private ushort _keyLength;
     private uint _startBlock;
 
-    public ExtentKey() {}
+    public ExtentKey() { }
 
     public ExtentKey(CatalogNodeId cnid, uint startBlock, bool resource_fork = false)
     {

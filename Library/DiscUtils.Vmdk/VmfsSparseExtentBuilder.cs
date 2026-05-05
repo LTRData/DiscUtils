@@ -142,7 +142,7 @@ internal sealed class VmfsSparseExtentBuilder : StreamBuilder
         private readonly ServerSparseExtentHeader _header;
 
         public GrainTableExtent(long outputStart, SparseStream content, ServerSparseExtentHeader header)
-            : this(outputStart, content, Ownership.None, header) {}
+            : this(outputStart, content, Ownership.None, header) { }
 
         public GrainTableExtent(long outputStart, SparseStream content, Ownership contentOwnership,
                                 ServerSparseExtentHeader header)

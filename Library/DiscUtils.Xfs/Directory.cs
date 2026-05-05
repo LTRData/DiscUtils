@@ -31,6 +31,7 @@ using DiscUtils.Internal;
 using DiscUtils.CoreCompat;
 
 namespace DiscUtils.Xfs;
+
 internal class Directory : File, IVfsDirectory<DirEntry, File>
 {
     public Directory(Context context, Inode inode)
@@ -109,7 +110,7 @@ internal class Directory : File, IVfsDirectory<DirEntry, File>
             {
                 for (long i = 0; i < extent.BlockCount; i++)
                 {
-                    var buffer = extent.GetData(Context, i* Context.SuperBlock.DirBlockSize, Context.SuperBlock.DirBlockSize);
+                    var buffer = extent.GetData(Context, i * Context.SuperBlock.DirBlockSize, Context.SuperBlock.DirBlockSize);
                     var leafDir = new LeafDirectory(Context);
                     if (Context.SuperBlock.SbVersion == 5)
                     {

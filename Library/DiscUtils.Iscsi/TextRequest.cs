@@ -52,7 +52,7 @@ internal class TextRequest
         };
 
         _continue = !isFinalData;
-        
+
         _commandSequenceNumber = _connection.Session.CommandSequenceNumber;
         _expectedStatusSequenceNumber = _connection.ExpectedStatusSequenceNumber;
 

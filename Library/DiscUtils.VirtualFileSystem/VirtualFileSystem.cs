@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace DiscUtils.VirtualFileSystem;
+
 public partial class VirtualFileSystem : DiscFileSystem, IWindowsFileSystem, IUnixFileSystem, IFileSystemBuilder
 {
     public delegate Stream FileOpenDelegate(FileMode mode, FileAccess access);
@@ -77,7 +78,7 @@ public partial class VirtualFileSystem : DiscFileSystem, IWindowsFileSystem, IUn
         : base(options)
     {
         _root = new VirtualFileSystemDirectory(this);
-        
+
         RawStream = referenceStream;
     }
 

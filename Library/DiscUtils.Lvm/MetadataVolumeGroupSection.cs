@@ -28,6 +28,7 @@ using System.IO;
 using System.Linq;
 
 namespace DiscUtils.Lvm;
+
 internal class MetadataVolumeGroupSection
 {
     public string Name;

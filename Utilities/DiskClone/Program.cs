@@ -61,7 +61,7 @@ class Program : ProgramBase
 
     protected override StandardSwitches DefineCommandLine(CommandLineParser parser)
     {
-        _translation = new CommandLineEnumSwitch<GeometryTranslation>("t", "translation", "mode", GeometryTranslation.Auto,"Indicates the geometry adjustment to apply.  Set this parameter to match the translation configured in the BIOS of the machine that will boot from the disk - auto should work in most cases for modern BIOS.");
+        _translation = new CommandLineEnumSwitch<GeometryTranslation>("t", "translation", "mode", GeometryTranslation.Auto, "Indicates the geometry adjustment to apply.  Set this parameter to match the translation configured in the BIOS of the machine that will boot from the disk - auto should work in most cases for modern BIOS.");
         _volumes = new CommandLineMultiParameter("volume", "Volumes to clone.  The volumes should all be on the same disk.", false);
         _destDisk = new CommandLineParameter("out_file", "Path to the output disk image.", false);
 
@@ -215,7 +215,7 @@ class Program : ProgramBase
         // Write out the disk images
         var dir = Path.GetDirectoryName(_destDisk.Value);
         var file = Path.GetFileNameWithoutExtension(_destDisk.Value);
-        
+
         builder.Content = contentStream;
         var fileSpecs = builder.Build(file).ToArray();
 

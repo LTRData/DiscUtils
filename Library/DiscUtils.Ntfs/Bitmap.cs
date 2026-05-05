@@ -97,7 +97,7 @@ internal sealed class Bitmap : IDisposable
             Array.Clear(buffer, 0, bufferSize);
 
             buffer[0] = GetByte(firstByte);
-            
+
             if (bufferSize != 1)
             {
                 buffer[bufferSize - 1] = GetByte(lastByte);

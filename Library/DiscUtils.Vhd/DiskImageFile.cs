@@ -103,7 +103,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
     /// <param name="access">Controls how the file can be accessed.</param>
     /// <param name="useAsync">Underlying files will be opened optimized for async use.</param>
     public DiskImageFile(string path, FileAccess access, bool useAsync = false)
-        : this(new LocalFileLocator(Path.GetDirectoryName(path), useAsync), Path.GetFileName(path), access) {}
+        : this(new LocalFileLocator(Path.GetDirectoryName(path), useAsync), Path.GetFileName(path), access) { }
 
     internal DiskImageFile(FileLocator locator, string path, Stream stream, Ownership ownsStream)
         : this(stream, ownsStream)
@@ -579,7 +579,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
         Encoding.Unicode.GetBytes(parentRelativePath.AsSpan(), platformLocator2);
 
         byte[] batAlloc = null;
-        
+
         var bat = batSize <= 1024
             ? stackalloc byte[batSize]
             : (batAlloc = ArrayPool<byte>.Shared.Rent(batSize)).AsSpan(0, batSize);

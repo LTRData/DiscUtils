@@ -6,7 +6,7 @@ public sealed class CommonAce : QualifiedAce
 {
     public override int BinaryLength => 8 + SecurityIdentifier!.BinaryLength
                                           + OpaqueLength;
-    
+
     public CommonAce(AceFlags flags, AceQualifier qualifier,
                      int accessMask, SecurityIdentifier sid,
                      bool isCallback, byte[] opaque)

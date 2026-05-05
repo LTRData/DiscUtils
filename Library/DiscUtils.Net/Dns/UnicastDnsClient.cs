@@ -47,7 +47,7 @@ public sealed class UnicastDnsClient : DnsClient
     /// OS, and use those servers.
     /// </remarks>
     public UnicastDnsClient()
-        : this(GetDefaultDnsServers()) {}
+        : this(GetDefaultDnsServers()) { }
 
     /// <summary>
     /// Initializes a new instance of the UnicastDnsClient class, using nominated DNS servers.

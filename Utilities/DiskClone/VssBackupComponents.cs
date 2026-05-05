@@ -404,7 +404,7 @@ public interface IVssBackupComponents
     void GetWriteComponents(uint iWriter, out IntPtr ppWriter);
 
     void InitializeForBackup(
-        [MarshalAs(UnmanagedType.BStr)]string bstrXml
+        [MarshalAs(UnmanagedType.BStr)] string bstrXml
         );
 
     void SetBackupState(
@@ -689,7 +689,7 @@ public interface IVssBackupComponents
     void DeleteSnapshots(
         Guid sourceObjectId,
         int eSourceObjectType,
-        [MarshalAs(UnmanagedType.Bool)]bool bForceDelete,
+        [MarshalAs(UnmanagedType.Bool)] bool bForceDelete,
         out long plDeletedSnapshots,
         out Guid pNondeletedSnapshotId
         );

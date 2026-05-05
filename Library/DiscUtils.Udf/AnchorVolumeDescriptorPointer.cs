@@ -30,7 +30,7 @@ internal class AnchorVolumeDescriptorPointer : TaggedDescriptor<AnchorVolumeDesc
     public ExtentDescriptor ReserveDescriptorSequence;
 
     public AnchorVolumeDescriptorPointer()
-        : base(TagIdentifier.AnchorVolumeDescriptorPointer) {}
+        : base(TagIdentifier.AnchorVolumeDescriptorPointer) { }
 
     public override int Parse(ReadOnlySpan<byte> buffer)
     {

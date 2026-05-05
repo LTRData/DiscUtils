@@ -25,6 +25,7 @@ using DiscUtils.Streams;
 using System;
 
 namespace DiscUtils.Xfs;
+
 internal abstract class BlockDirectoryData : IByteArraySerializable
 {
     public abstract int Size { get; }

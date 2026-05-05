@@ -25,6 +25,7 @@ using DiscUtils.Streams;
 using System;
 
 namespace DiscUtils.Archives;
+
 internal sealed class TarHeaderExtent : BuilderBufferExtent
 {
     private string _fileName;

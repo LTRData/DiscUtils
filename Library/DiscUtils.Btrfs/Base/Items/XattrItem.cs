@@ -27,5 +27,5 @@ namespace DiscUtils.Btrfs.Base.Items;
 /// </summary>
 internal class XattrItem : DirItem
 {
-    public XattrItem(Key key) : base(key) {}
+    public XattrItem(Key key) : base(key) { }
 }

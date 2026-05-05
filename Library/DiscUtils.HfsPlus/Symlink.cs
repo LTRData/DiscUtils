@@ -7,7 +7,7 @@ namespace DiscUtils.HfsPlus;
 internal class Symlink : File, IVfsSymlink<DirEntry, File>
 {
     public Symlink(Context context, CatalogNodeId nodeId, CommonCatalogFileInfo catalogInfo)
-        : base(context, nodeId, catalogInfo) {}
+        : base(context, nodeId, catalogInfo) { }
 
     public string TargetPath
     {

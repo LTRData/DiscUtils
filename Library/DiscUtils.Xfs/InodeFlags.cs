@@ -24,6 +24,7 @@
 using System;
 
 namespace DiscUtils.Xfs;
+
 [Flags]
 internal enum InodeFlags : ushort
 {

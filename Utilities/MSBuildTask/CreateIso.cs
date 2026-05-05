@@ -28,6 +28,7 @@ using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 
 namespace MSBuildTask;
+
 public class CreateIso : Task
 {
     public CreateIso()
@@ -121,7 +122,7 @@ public class CreateIso : Task
                 bootImageStream?.Dispose();
             }
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             Log.LogErrorFromException(e, true, true, null);
             return false;

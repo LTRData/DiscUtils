@@ -275,8 +275,8 @@ class Program : ProgramBase
                         {
                             Console.WriteLine($"    {fsi.Name} Volume Label: {fs.VolumeLabel}");
                             Console.WriteLine($"    Files ({fsi.Name})...");
-							if (fs.Root.Exists)
-								ShowDir(fs.Root, 6);
+                            if (fs.Root.Exists)
+                                ShowDir(fs.Root, 6);
                         }
 
                         Console.WriteLine();

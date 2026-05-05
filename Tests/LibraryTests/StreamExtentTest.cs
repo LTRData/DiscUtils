@@ -189,7 +189,7 @@ public class StreamExtentTest
             new(11, 4)
         };
 
-        var ranges = new List<Range<long,long>>(StreamExtent.Blocks(s, 10));
+        var ranges = new List<Range<long, long>>(StreamExtent.Blocks(s, 10));
 
         Assert.Single(ranges);
         Assert.Equal(0, ranges[0].Offset);

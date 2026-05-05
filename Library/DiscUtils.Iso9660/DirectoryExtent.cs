@@ -44,7 +44,7 @@ internal class DirectoryExtent : BuilderExtent
         _enc = enc;
     }
 
-    protected override void Dispose(bool disposing) {}
+    protected override void Dispose(bool disposing) { }
 
     public override void PrepareForRead()
     {

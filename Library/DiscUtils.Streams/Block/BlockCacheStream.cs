@@ -50,7 +50,7 @@ public sealed class BlockCacheStream : SparseStream
     /// <param name="toWrap">The stream to wrap.</param>
     /// <param name="ownership">Whether to assume ownership of <c>toWrap</c>.</param>
     public BlockCacheStream(SparseStream toWrap, Ownership ownership)
-        : this(toWrap, ownership, new BlockCacheSettings()) {}
+        : this(toWrap, ownership, new BlockCacheSettings()) { }
 
     /// <summary>
     /// Initializes a new instance of the BlockCacheStream class.
@@ -173,7 +173,7 @@ public sealed class BlockCacheStream : SparseStream
         CheckDisposed();
         return _wrappedStream.GetExtentsInRange(start, count);
     }
-    
+
     /// <summary>
     /// Reads data from the stream.
     /// </summary>

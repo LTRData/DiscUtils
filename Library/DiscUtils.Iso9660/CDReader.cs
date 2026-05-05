@@ -49,7 +49,7 @@ public class CDReader : VfsFileSystemFacade, IClusterBasedFileSystem,
     /// <param name="joliet">Whether to read Joliet extensions.</param>
     /// <param name="hideVersions">Hides version numbers (e.g. ";1") from the end of files.</param>
     public CDReader(Stream data, bool joliet, bool hideVersions)
-        : base(new VfsCDReader(data, joliet, hideVersions)) {}
+        : base(new VfsCDReader(data, joliet, hideVersions)) { }
 
     /// <summary>
     /// Gets which of the Iso9660 variants is being used.
@@ -215,13 +215,13 @@ public class CDReader : VfsFileSystemFacade, IClusterBasedFileSystem,
 
     public void SetShortName(string path, string shortName)
         => GetRealFileSystem<VfsCDReader>().SetShortName(path, shortName);
-    
+
     public WindowsFileInformation GetFileStandardInformation(string path)
         => GetRealFileSystem<VfsCDReader>().GetFileStandardInformation(path);
-    
+
     public void SetFileStandardInformation(string path, WindowsFileInformation info)
         => GetRealFileSystem<VfsCDReader>().SetFileStandardInformation(path, info);
-    
+
     public long GetFileId(string path)
         => GetRealFileSystem<VfsCDReader>().GetFileId(path);
 }

@@ -13,7 +13,7 @@ public sealed class AceEnumerator : IEnumerator
     }
 
     public GenericAce? Current => _current < 0 ? null : _owner[_current];
-    
+
     object? IEnumerator.Current => Current;
 
     public bool MoveNext()

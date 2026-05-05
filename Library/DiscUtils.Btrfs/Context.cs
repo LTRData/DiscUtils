@@ -313,7 +313,7 @@ internal class Context : VfsContext
 
     internal BaseItem FindKey(ulong objectId, ItemType type)
     {
-        var key = new Key(objectId,type);
+        var key = new Key(objectId, type);
         return FindKey(key);
     }
 
@@ -337,7 +337,7 @@ internal class Context : VfsContext
         };
     }
 
-    internal IEnumerable<T> FindKey<T>(ulong treeId, Key key) where T:BaseItem
+    internal IEnumerable<T> FindKey<T>(ulong treeId, Key key) where T : BaseItem
     {
         var tree = GetFsTree(treeId);
         return key.ItemType switch

@@ -66,7 +66,7 @@ public class LzxStream : ReadOnlyCompatibilityStream
 
         uint numBits = 0;
         positionSlots[1] = 1;
-        
+
         for (var i = 2; i < 50; i += 2)
         {
             extraBits[i] = numBits;

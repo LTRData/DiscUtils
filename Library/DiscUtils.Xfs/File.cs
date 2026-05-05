@@ -30,6 +30,7 @@ using DiscUtils.Streams;
 using System.Collections.Generic;
 
 namespace DiscUtils.Xfs;
+
 internal class File : IVfsFile
 {
     protected readonly Context Context;

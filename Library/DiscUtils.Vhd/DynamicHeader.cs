@@ -45,7 +45,7 @@ internal class DynamicHeader
     public Guid ParentUniqueId;
     public long TableOffset;
 
-    public DynamicHeader() {}
+    public DynamicHeader() { }
 
     public DynamicHeader(long dataOffset, long tableOffset, uint blockSize, long diskSize)
     {

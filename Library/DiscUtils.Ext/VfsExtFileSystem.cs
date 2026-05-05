@@ -51,7 +51,7 @@ internal sealed class VfsExtFileSystem : VfsReadOnlyFileSystem<DirEntry, File, D
         stream.Position = 1024;
 
         Span<byte> superblockData = stackalloc byte[1024];
-        
+
         stream.ReadExactly(superblockData);
 
         var superblock = new SuperBlock();
@@ -189,7 +189,7 @@ internal sealed class VfsExtFileSystem : VfsReadOnlyFileSystem<DirEntry, File, D
                                      blockOffset * superBlock.InodeSize;
 
         Span<byte> inodeData = stackalloc byte[superBlock.InodeSize];
-        
+
         Context.RawStream.ReadExactly(inodeData);
 
         return EndianUtilities.ToStruct<Inode>(inodeData);
@@ -220,15 +220,15 @@ internal sealed class VfsExtFileSystem : VfsReadOnlyFileSystem<DirEntry, File, D
             ulong journalSize = 0;
             if (superBlock.OverheadBlocksCount != 0)
             {
-                overhead = superBlock.OverheadBlocksCount* superBlock.BlockSize;
+                overhead = superBlock.OverheadBlocksCount * superBlock.BlockSize;
             }
 
             if (Context.JournalSuperblock != null)
             {
-                journalSize = Context.JournalSuperblock.MaxLength* Context.JournalSuperblock.BlockSize;
+                journalSize = Context.JournalSuperblock.MaxLength * Context.JournalSuperblock.BlockSize;
             }
 
-            return (long) (superBlock.BlockSize* blockCount - (inodeSize + overhead + journalSize));
+            return (long)(superBlock.BlockSize * blockCount - (inodeSize + overhead + journalSize));
         }
     }
 
@@ -251,10 +251,10 @@ internal sealed class VfsExtFileSystem : VfsReadOnlyFileSystem<DirEntry, File, D
                 //ext4 64Bit Feature
                 foreach (BlockGroup64 blockGroup in _blockGroups)
                 {
-                    free += (uint) (blockGroup.FreeBlocksCountHigh << 16 | blockGroup.FreeBlocksCount);
+                    free += (uint)(blockGroup.FreeBlocksCountHigh << 16 | blockGroup.FreeBlocksCount);
                 }
 
-                return (long) (superBlock.BlockSize* free);
+                return (long)(superBlock.BlockSize * free);
             }
             else
             {
@@ -265,7 +265,7 @@ internal sealed class VfsExtFileSystem : VfsReadOnlyFileSystem<DirEntry, File, D
                     free += blockGroup.FreeBlocksCount;
                 }
 
-                return (long) (superBlock.BlockSize* free);
+                return (long)(superBlock.BlockSize * free);
             }
         }
     }

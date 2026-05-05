@@ -51,7 +51,7 @@ public enum WellKnownPartitionType
     /// Linux Logical Volume Manager (LVM).
     /// </summary>
     LinuxLvm = 4,
-	/// <summary>
+    /// <summary>
     /// Linux raid autodetect
     /// </summary>
     LinuxAutoRaid = 5,

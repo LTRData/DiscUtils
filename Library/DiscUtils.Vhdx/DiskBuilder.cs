@@ -172,7 +172,7 @@ public sealed class DiskBuilder : DiskImageBuilder
                     Flags = FileParametersFlags.LeaveBlocksAllocated
                 };
             }
-            else if(_diskType == DiskType.Differencing)
+            else if (_diskType == DiskType.Differencing)
             {
                 fileParams = new FileParameters
                 {
@@ -180,7 +180,7 @@ public sealed class DiskBuilder : DiskImageBuilder
                     Flags = FileParametersFlags.HasParent
                 };
             }
-            else if(_diskType == DiskType.Dynamic)
+            else if (_diskType == DiskType.Dynamic)
             {
                 // Metadata
                 fileParams = new FileParameters
