@@ -22,12 +22,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using DiscUtils.Btrfs.Base.Items;
 
 namespace DiscUtils.Btrfs.Base;
 
-internal class LeafNode:NodeHeader
+internal class LeafNode : NodeHeader
 {
     /// <summary>
     /// key pointers
@@ -84,9 +85,11 @@ internal class LeafNode:NodeHeader
             ItemType.RootBackref => new RootBackref(item.Key),
             ItemType.XattrItem => new XattrItem(item.Key),
             ItemType.OrphanItem => new OrphanItem(item.Key),
-            _ => throw new IOException($"Unsupported item type {item.Key.ItemType}"),
+            _ => new UnknownItem(item.Key)
         };
+
         result.ReadFrom(data, physicalPosition);
+
         return result;
     }
 

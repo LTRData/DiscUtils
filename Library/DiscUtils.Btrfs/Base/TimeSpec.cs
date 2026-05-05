@@ -27,7 +27,7 @@ namespace DiscUtils.Btrfs.Base;
 
 internal class TimeSpec : IByteArraySerializable
 {
-    public static readonly int Length = 0xc;
+    public const int Length = 0xc;
 
     /// <summary>
     /// Number of seconds since 1970-01-01T00:00:00Z. 

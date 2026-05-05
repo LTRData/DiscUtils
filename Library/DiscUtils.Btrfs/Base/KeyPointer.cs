@@ -27,7 +27,7 @@ namespace DiscUtils.Btrfs.Base;
 
 internal class KeyPointer : IByteArraySerializable
 {
-    public static readonly int Length = 0x21;
+    public const int Length = 0x21;
 
     /// <summary>
     /// key

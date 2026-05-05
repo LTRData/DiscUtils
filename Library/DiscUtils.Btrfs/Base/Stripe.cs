@@ -30,7 +30,7 @@ namespace DiscUtils.Btrfs.Base;
 /// </summary>
 internal class Stripe : IByteArraySerializable
 {
-    public static readonly int Length = 0x20;
+    public const int Length = 0x20;
 
     /// <summary>
     /// device id

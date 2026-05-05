@@ -34,7 +34,7 @@ internal class InodeItem : BaseItem
 
     public InodeItem() : this(null) { }
 
-    public static readonly int Length = 160;
+    public const int Length = 160;
 
     public ulong Generation { get; private set; }
     public ulong TransId { get; private set; }

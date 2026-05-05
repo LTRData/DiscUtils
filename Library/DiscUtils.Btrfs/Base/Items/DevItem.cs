@@ -30,7 +30,7 @@ namespace DiscUtils.Btrfs.Base.Items;
 /// </summary>
 internal class DevItem : BaseItem
 {
-    public static readonly int Length = 0x62;
+    public const int Length = 0x62;
     public DevItem(Key key) : base(key) { }
 
     /// <summary>

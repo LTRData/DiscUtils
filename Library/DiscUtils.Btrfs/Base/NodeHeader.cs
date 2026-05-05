@@ -29,7 +29,7 @@ namespace DiscUtils.Btrfs.Base;
 
 internal abstract class NodeHeader : IByteArraySerializable
 {
-    public static readonly int Length = 0x65;
+    public const int Length = 0x65;
 
     /// <summary>
     /// Node position within physical volume

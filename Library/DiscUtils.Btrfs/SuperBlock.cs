@@ -32,7 +32,7 @@ namespace DiscUtils.Btrfs;
 
 internal class SuperBlock : IByteArraySerializable
 {
-    public static readonly int Length = 0x1000;
+    public const int Length = 0x1000;
     public static readonly ulong BtrfsMagic = EndianUtilities.ToUInt64LittleEndian("_BHRfS_M"u8);
 
     /// <summary>
@@ -188,7 +188,7 @@ internal class SuperBlock : IByteArraySerializable
         Flags = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x38));
         Generation = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x48));
         Root = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x50));
-        
+
         ChunkRoot = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x58));
         LogRoot = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x60));
         LogRootTransId = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x68));
@@ -200,7 +200,7 @@ internal class SuperBlock : IByteArraySerializable
         NodeSize = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x94));
         LeafSize = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x98));
         StripeSize = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x9c));
-        
+
         ChunkRootGeneration = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0xa4));
         CompatFlags = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0xac));
         CompatRoFlags = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0xb4));
