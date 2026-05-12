@@ -90,12 +90,7 @@ internal abstract class FixupRecordBase
         }
         else
         {
-            if (diskMagic != Magic && ignoreMagic)
-            {
-                return;
-            }
-
-            if (diskMagic != Magic)
+            if (diskMagic != Magic && !ignoreMagic)
             {
                 throw new IOException("Corrupt record");
             }
