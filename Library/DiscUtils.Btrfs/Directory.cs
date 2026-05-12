@@ -61,7 +61,18 @@ internal class Directory : File, IVfsDirectory<DirEntry, File>
             var items = tree.Find<DirIndex>(new Key(objectId, ItemType.DirIndex), Context);
             foreach (var item in items)
             {
-                var inode = tree.FindFirst(item.ChildLocation, Context);
+                BaseItem inode;
+
+                if (item.ChildLocation.ItemType == ItemType.RootItem)
+                {
+                    var subtree = Context.GetFsTree(item.ChildLocation.ObjectId);
+                    inode = subtree.FindFirst(new Key(objectId: (ulong)ReservedObjectId.FirstChunkTree, ItemType.InodeItem, offset: 0), Context);
+                }
+                else
+                {
+                    inode = tree.FindFirst(item.ChildLocation, Context);
+                }
+
                 result.Add(new DirEntry(treeId, item, (InodeItem)inode));
             }
 
