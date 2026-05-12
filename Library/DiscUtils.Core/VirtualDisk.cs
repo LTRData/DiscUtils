@@ -687,6 +687,13 @@ public abstract class VirtualDisk :
     /// <returns>The newly created disk.</returns>
     public abstract VirtualDisk CreateDifferencingDisk(string path, bool useAsync);
 
+    /// <summary>
+    /// Create a thread-safe wrapper around this disk, allowing multiple threads to safely access the disk concurrently.
+    /// </summary>
+    /// <param name="ownership">Indicates whether the returned wrapper should dispose of the underlying disk when it is disposed.</param>
+    /// <returns>The created synchronized wrapper around this instance</returns>
+    public virtual VirtualDisk AsSynchronized(Ownership ownership) => new SynchronizedVirtualDiskWrapper(this, ownership);
+
     internal static VirtualDiskLayer? OpenDiskLayer(FileLocator locator, string path, FileAccess access)
     {
         var extension = Path.GetExtension(path);
@@ -755,5 +762,56 @@ public abstract class VirtualDisk :
         }
 
         return new Uri(path);
+    }
+
+    private sealed class SynchronizedVirtualDiskWrapper(VirtualDisk inner, Ownership ownership) : VirtualDisk
+    {
+        public override Geometry? Geometry => inner.Geometry;
+
+        public override long Capacity => inner.Capacity;
+
+        public override SparseStream Content => field ??= SparseStream.Synchronized(inner.Content, Ownership.None);
+
+        public override bool CanWrite => inner.CanWrite;
+
+        public override VirtualDiskClass DiskClass => inner.DiskClass;
+
+        public override IEnumerable<VirtualDiskLayer> Layers => inner.Layers;
+
+        public override VirtualDiskTypeInfo DiskTypeInfo => inner.DiskTypeInfo;
+
+        public override VirtualDisk CreateDifferencingDisk(DiscFileSystem fileSystem, string path) => inner.CreateDifferencingDisk(fileSystem, path);
+
+        public override VirtualDisk CreateDifferencingDisk(string path, bool useAsync) => inner.CreateDifferencingDisk(path, useAsync);
+
+        public override Geometry BiosGeometry => inner.BiosGeometry;
+
+        public override int BlockSize => inner.BlockSize;
+
+        public override void GetMasterBootRecord(Span<byte> sector) => inner.GetMasterBootRecord(sector);
+
+        public override ValueTask GetMasterBootRecordAsync(Memory<byte> sector, CancellationToken cancellationToken) => inner.GetMasterBootRecordAsync(sector, cancellationToken);
+
+        public override bool IsPartitioned => inner.IsPartitioned;
+
+        public override VirtualDiskParameters Parameters => inner.Parameters;
+
+        public override PartitionTable? Partitions => inner.Partitions;
+
+        public override void SetMasterBootRecord(ReadOnlySpan<byte> data) => inner.SetMasterBootRecord(data);
+
+        public override ValueTask SetMasterBootRecordAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken) => inner.SetMasterBootRecordAsync(data, cancellationToken);
+
+        public override int Signature { get => inner.Signature; set => inner.Signature = value; }
+
+        public override string ToString() => $"Syncrhonized[{inner}]";
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && ownership == Ownership.Dispose)
+            {
+                inner.Dispose();
+            }
+        }
     }
 }

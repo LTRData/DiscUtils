@@ -109,12 +109,28 @@ public abstract class SparseStream : CompatibilityStream
     /// <returns>The read-only stream.</returns>
     public static SparseStream ReadOnly(SparseStream toWrap, Ownership ownership)
     {
-        if (toWrap is SparseReadOnlyWrapperStream)
+        if (ownership == Ownership.Dispose && toWrap is SparseReadOnlyWrapperStream)
         {
             return toWrap;
         }
 
         return new SparseReadOnlyWrapperStream(toWrap, ownership);
+    }
+
+    /// <summary>
+    /// Wraps a sparse stream in a synchronized wrapper, ensuring that all operations are thread-safe.
+    /// </summary>
+    /// <param name="toWrap">The stream to make synchronized.</param>
+    /// <param name="ownership">Whether to transfer responsibility for calling Dispose on <c>toWrap</c>.</param>
+    /// <returns>The synchronized stream.</returns>
+    public static SparseStream Synchronized(SparseStream toWrap, Ownership ownership)
+    {
+        if (ownership == Ownership.Dispose && toWrap is SynchronizedSparseStream)
+        {
+            return toWrap;
+        }
+        
+        return new SynchronizedSparseStream(toWrap, ownership);
     }
 
     /// <summary>
@@ -606,5 +622,319 @@ public abstract class SparseStream : CompatibilityStream
                 }
             }
         }
+    }
+
+    private sealed class SynchronizedSparseStream(SparseStream content, Ownership ownership) : SparseStream
+    {
+        public SparseStream WrappedStream => content;
+
+        public override long? GetPositionInBaseStream(Stream baseStream, long virtualPosition)
+        {
+            if (ReferenceEquals(baseStream, this))
+            {
+                return virtualPosition;
+            }
+
+            return content.GetPositionInBaseStream(baseStream, virtualPosition);
+        }
+
+#if NET9_0_OR_GREATER
+        private readonly Lock sync = new();
+#else
+        private readonly object sync = new();
+#endif
+
+        public override IEnumerable<StreamExtent> Extents => content.Extents;
+
+        public override IEnumerable<StreamExtent> GetExtentsInRange(long start, long count) => content.GetExtentsInRange(start, count);
+
+        public override bool CanRead => content.CanRead;
+
+        public override bool CanSeek => content.CanSeek;
+
+        public override bool CanWrite => content.CanWrite;
+
+        public override long Length => content.Length;
+
+        public override long Position { get; set; }
+
+        public override void Flush()
+        {
+            lock (sync)
+            {
+                content.Flush();
+            }
+        }
+
+        public override Task FlushAsync(CancellationToken cancellationToken)
+        {
+            lock (sync)
+            {
+                return content.FlushAsync(cancellationToken);
+            }
+        }
+
+        public override int Read(Span<byte> buffer)
+        {
+            lock (sync)
+            {
+                content.Position = Position;
+                return content.Read(buffer);
+            }
+        }
+
+        public override int Read(byte[] buffer, int offset, int count)
+        {
+            lock (sync)
+            {
+                content.Position = Position;
+                return content.Read(buffer, offset, count);
+            }
+        }
+
+        public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        {
+            lock (sync)
+            {
+                content.Position = Position;
+                return content.ReadAsync(buffer, offset, count, cancellationToken);
+            }
+        }
+
+        public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
+        {
+            lock (sync)
+            {
+                content.Position = Position;
+                return content.ReadAsync(buffer, cancellationToken);
+            }
+        }
+
+        public override int ReadByte()
+        {
+            lock (sync)
+            {
+                content.Position = Position;
+                return content.ReadByte();
+            }
+        }
+
+        public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback? callback, object? state)
+        {
+            lock (sync)
+            {
+                content.Position = Position;
+                return content.BeginRead(buffer, offset, count, callback, state);
+            }
+        }
+
+        public override int EndRead(IAsyncResult asyncResult)
+        {
+            lock (sync)
+            {
+                return content.EndRead(asyncResult);
+            }
+        }
+
+        public override int ReadTimeout { get => content.ReadTimeout; set => content.ReadTimeout = value; }
+
+        public override long Seek(long offset, SeekOrigin origin)
+        {
+            switch (origin)
+            {
+                case SeekOrigin.Begin:
+                    Position = offset;
+                    break;
+
+                case SeekOrigin.Current:
+                    Position += offset;
+                    break;
+
+                case SeekOrigin.End:
+                    Position = Length + offset;
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(origin), origin, null);
+            }
+
+            return Position;
+        }
+
+        public override void SetLength(long value)
+        {
+            lock (sync)
+            {
+                content.SetLength(value);
+            }
+        }
+
+        public override void Write(ReadOnlySpan<byte> buffer)
+        {
+            lock (sync)
+            {
+                content.Position = Position;
+                content.Write(buffer);
+            }
+        }
+
+        public override void Write(byte[] buffer, int offset, int count)
+        {
+            lock (sync)
+            {
+                content.Position = Position;
+                content.Write(buffer, offset, count);
+            }
+        }
+
+        public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        {
+            lock (sync)
+            {
+                content.Position = Position;
+                return content.WriteAsync(buffer, offset, count, cancellationToken);
+            }
+        }
+
+        public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
+        {
+            lock (sync)
+            {
+                content.Position = Position;
+                return content.WriteAsync(buffer, cancellationToken);
+            }
+        }
+
+        public override void WriteByte(byte value)
+        {
+            lock (sync)
+            {
+                content.Position = Position;
+                content.WriteByte(value);
+            }
+        }
+
+        public override IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback? callback, object? state)
+        {
+            lock (sync)
+            {
+                content.Position = Position;
+                return content.BeginWrite(buffer, offset, count, callback, state);
+            }
+        }
+
+        public override void EndWrite(IAsyncResult asyncResult)
+        {
+            lock (sync)
+            {
+                content.EndWrite(asyncResult);
+            }
+        }
+
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP
+        public override void CopyTo(Stream destination, int bufferSize)
+        {
+            lock (sync)
+            {
+                content.Position = Position;
+                content.CopyTo(destination, bufferSize);
+            }
+        }
+
+        public override Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken)
+        {
+            lock (sync)
+            {
+                content.Position = Position;
+                return content.CopyToAsync(destination, bufferSize, cancellationToken);
+            }
+        }
+#endif
+
+        public override int WriteTimeout { get => content.WriteTimeout; set => content.WriteTimeout = value; }
+
+        public override bool CanTimeout => content.CanTimeout;
+
+        public override void Clear(int count)
+        {
+            lock (sync)
+            {
+                content.Position = Position;
+                content.Clear(count);
+            }
+        }
+
+        public override ValueTask ClearAsync(int count, CancellationToken cancellationToken)
+        {
+            lock (sync)
+            {
+                content.Position = Position;
+                return content.ClearAsync(count, cancellationToken);
+            }
+        }
+
+        public override void Close()
+        {
+            if (ownership == Ownership.Dispose)
+            {
+                lock (sync)
+                {
+                    content.Close();
+                }
+            }
+            else if (content.CanWrite)
+            {
+                lock (sync)
+                {
+                    content.Flush();
+                }
+            }
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (ownership == Ownership.Dispose)
+                {
+                    lock (sync)
+                    {
+                        content.Dispose();
+                    }
+                }
+                else if (content.CanWrite)
+                {
+                    lock (sync)
+                    {
+                        content.Flush();
+                    }
+                }
+            }
+        }
+
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP
+        public override ValueTask DisposeAsync()
+        {
+            if (ownership == Ownership.Dispose)
+            {
+                lock (sync)
+                {
+                    return content.DisposeAsync();
+                }
+            }
+            
+            if (content.CanWrite)
+            {
+                lock (sync)
+                {
+                    return new(content.FlushAsync());
+                }
+            }
+
+            return default;
+        }
+#endif
+
+        public override string ToString() => $"Syncrhonized[{content}]";
     }
 }
