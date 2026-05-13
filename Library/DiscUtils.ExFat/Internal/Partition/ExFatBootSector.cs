@@ -177,7 +177,7 @@ public class ExFatBootSector
     /// <value>
     ///   <c>true</c> if this instance is valid; otherwise, <c>false</c>.
     /// </value>
-    public bool IsValid => IsExFat && _bytes[BytesPerSector.Value - 2] == 0x55 && _bytes[BytesPerSector.Value - 1] == 0xAA && IsChecksumValid();
+    public bool IsValid => IsExFat && _bytes[510] == 0x55 && _bytes[511] == 0xAA && IsChecksumValid();
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ExFatBootSector"/> class.
