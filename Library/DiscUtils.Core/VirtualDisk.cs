@@ -770,7 +770,7 @@ public abstract class VirtualDisk :
 
         public override long Capacity => inner.Capacity;
 
-        public override SparseStream Content => field ??= SparseStream.Synchronized(inner.Content, Ownership.None);
+        public override SparseStream Content => SparseStream.Synchronized(inner.Content, Ownership.None);
 
         public override bool CanWrite => inner.CanWrite;
 
@@ -792,11 +792,7 @@ public abstract class VirtualDisk :
 
         public override ValueTask GetMasterBootRecordAsync(Memory<byte> sector, CancellationToken cancellationToken) => inner.GetMasterBootRecordAsync(sector, cancellationToken);
 
-        public override bool IsPartitioned => inner.IsPartitioned;
-
         public override VirtualDiskParameters Parameters => inner.Parameters;
-
-        public override PartitionTable? Partitions => inner.Partitions;
 
         public override void SetMasterBootRecord(ReadOnlySpan<byte> data) => inner.SetMasterBootRecord(data);
 

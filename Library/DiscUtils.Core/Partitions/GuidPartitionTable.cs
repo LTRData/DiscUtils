@@ -84,7 +84,8 @@ public sealed class GuidPartitionTable : PartitionTable
     /// <summary>
     /// Gets a collection of the partitions for storing Operating System file-systems.
     /// </summary>
-    public override ReadOnlyCollection<PartitionInfo> Partitions => GetAllEntries().Select(e => new GuidPartitionInfo(this, e) as PartitionInfo).ToList().AsReadOnly();
+    public override ReadOnlyCollection<PartitionInfo> Partitions
+        => GetAllEntries().Select(e => new GuidPartitionInfo(this, e) as PartitionInfo).ToList().AsReadOnly();
 
     /// <summary>
     /// Creates a new partition table on a disk.
