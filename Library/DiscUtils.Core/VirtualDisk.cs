@@ -804,9 +804,24 @@ public abstract class VirtualDisk :
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing && ownership == Ownership.Dispose)
+            try
             {
-                inner.Dispose();
+                if (disposing)
+                {
+                    Disposing?.Invoke(this, EventArgs.Empty);
+
+                    if (ownership == Ownership.Dispose)
+                    {
+                        inner.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposing)
+                {
+                    Disposed?.Invoke(this, EventArgs.Empty);
+                }
             }
         }
     }
