@@ -764,7 +764,7 @@ public abstract class VirtualDisk :
         return new Uri(path);
     }
 
-    private sealed class SynchronizedVirtualDiskWrapper(VirtualDisk inner, Ownership ownership) : VirtualDisk
+    protected class SynchronizedVirtualDiskWrapper(VirtualDisk inner, Ownership ownership) : VirtualDisk
     {
         public override Geometry? Geometry => inner.Geometry;
 

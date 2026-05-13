@@ -29,10 +29,10 @@ namespace DiscUtils.Dmg;
 internal class UdifPartitionInfo : PartitionInfo
 {
     private readonly CompressedBlock _block;
-    private readonly Disk _disk;
+    private readonly VirtualDisk _disk;
     private readonly UdifPartitionTable _table;
 
-    public UdifPartitionInfo(Disk disk, CompressedBlock block, UdifPartitionTable table)
+    public UdifPartitionInfo(VirtualDisk disk, CompressedBlock block, UdifPartitionTable table)
     {
         _block = block;
         _disk = disk;

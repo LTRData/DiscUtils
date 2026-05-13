@@ -98,6 +98,13 @@ public class Disk : VirtualDisk
     public override IEnumerable<VirtualDiskLayer> Layers
         => SingleValueEnumerable.Get(_file);
 
+    /// <summary>
+    /// Create a thread-safe wrapper around this disk, allowing multiple threads to safely access the disk concurrently.
+    /// </summary>
+    /// <param name="ownership">Indicates whether the returned wrapper should dispose of the underlying disk when it is disposed.</param>
+    /// <returns>The created synchronized wrapper around this instance</returns>
+    public override VirtualDisk AsSynchronized(Ownership ownership) => new SynchronizedDmgWrapper(this, ownership);
+
     public override PartitionTable Partitions
     {
         get
@@ -161,6 +168,24 @@ public class Disk : VirtualDisk
         finally
         {
             base.Dispose(disposing);
+        }
+    }
+
+    protected class SynchronizedDmgWrapper(Disk disk, Ownership ownership) : SynchronizedVirtualDiskWrapper(disk, ownership)
+    {
+        public override PartitionTable Partitions
+        {
+            get
+            {
+                if (disk._file.Buffer is not null)
+                {
+                    return new UdifPartitionTable(this, disk._file.Buffer);
+                }
+                else
+                {
+                    return base.Partitions;
+                }
+            }
         }
     }
 }
