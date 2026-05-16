@@ -1,3 +1,6 @@
+# Repository URL issue, 16 May 2026
+In an attempt to make a separate organization account and rename my private account, the URL for this repository unfortunately got changed to my private account. I am in contact with GitHub support to try to get them to accept to transfer it to the organization name LTRData in order to get the original URL https://github.com/LTRData/DiscUtils back. I apologize for the confusion this might cause until this issue is resolved.
+
 # Project Description
 
 DiscUtils is a .NET library to read and write ISO files and Virtual Machine disk files (VHD, VDI, XVA, VMDK, etc). DiscUtils is developed in C# with no native code (or P/Invoke).
