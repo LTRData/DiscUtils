@@ -1,5 +1,5 @@
-# Repository URL issue, 16 May 2026
-In an attempt to make a separate organization account and rename my private account, the URL for this repository unfortunately got changed to my private account. I am in contact with GitHub support to try to get them to accept to transfer it to the organization name LTRData in order to get the original URL https://github.com/LTRData/DiscUtils back. I apologize for the confusion this might cause until this issue is resolved.
+# Repository URL issue, 16-18 May 2026
+In an attempt to make a separate organization account and rename my private account, the URL for this repository unfortunately got changed to my private account for about two days. This issue is now resolved and the original repository name `LTRData/DiscUtils` has been restored.
 
 # Project Description
 
