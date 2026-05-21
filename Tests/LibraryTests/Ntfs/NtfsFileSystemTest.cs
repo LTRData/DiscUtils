@@ -20,17 +20,17 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-using System.Collections.Generic;
-using System.IO;
-using DiscUtils.Core.WindowsSecurity.AccessControl;
 using DiscUtils;
+using DiscUtils.Core.WindowsSecurity.AccessControl;
 using DiscUtils.Ntfs;
 using DiscUtils.Streams;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Threading;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace LibraryTests.Ntfs;
 
@@ -1066,5 +1066,35 @@ public class NtfsFileSystemTest
             usedSpace <= totalSpace,
             $"UsedSpace ({usedSpace:N0}) should not exceed TotalSpace ({totalSpace:N0}). " +
             $"Overflow: {usedSpace - totalSpace:N0} bytes.");
+    }
+
+    [Fact]
+    public void Create4KSectorFileSystem()
+    {
+        const long outerFsSize = 8_650_752;
+        const long volumeSize = outerFsSize + 512 + 512; // MBR + NTFS header
+        const long dummyFileSize = 4_404_019;
+
+        const int bytesPerSector = 4096;
+
+        var outerFsStream = new SparseMemoryStream();
+
+        outerFsStream.SetLength(volumeSize);
+
+        var geometry = new Geometry(outerFsSize, 1, 17, bytesPerSector);
+
+        using (var fs = NtfsFileSystem.Format(outerFsStream, "test_ntfs", geometry, 0, outerFsSize / geometry.BytesPerSector, new NtfsFormatOptions()))
+        {
+            using var internalFile = fs.OpenFile("test.bin", FileMode.CreateNew);
+            internalFile.SetLength(dummyFileSize);
+        }
+
+        outerFsStream.Seek(0, SeekOrigin.Begin);
+
+        using (var fs = new NtfsFileSystem(outerFsStream))
+        {
+            Assert.Equal(bytesPerSector, fs.SectorSize);
+            Assert.Equal(dummyFileSize, fs.GetFileLength("test.bin"));
+        }
     }
 }

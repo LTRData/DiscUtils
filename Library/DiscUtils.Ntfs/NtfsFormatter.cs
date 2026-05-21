@@ -67,11 +67,11 @@ internal class NtfsFormatter
 
         using (NtfsTransaction.Begin())
         {
-            _clusterSize = 4096;
+            _clusterSize = Math.Max(4096, DiskGeometry.BytesPerSector);
             _mftRecordSize = 1024;
             _indexBufferSize = 4096;
 
-            var totalClusters = (SectorCount - 1) * Sizes.Sector / _clusterSize;
+            var totalClusters = (SectorCount - 1) * DiskGeometry.BytesPerSector / _clusterSize;
 
             // Allocate a minimum of 8KB for the boot loader, but allow for more
             var numBootClusters =
@@ -380,7 +380,7 @@ internal class NtfsFormatter
             stream.Write(bootSectors, 0, bootFileSize);
 
             // Backup goes at the end of the data in the partition
-            stream.Position = (SectorCount - 1) * Sizes.Sector;
+            stream.Position = SectorCount * DiskGeometry.BytesPerSector - Sizes.Sector;
             stream.Write(bootSectors, 0, Sizes.Sector);
 
             _context.BiosParameterBlock = bpb;
