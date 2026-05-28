@@ -59,23 +59,9 @@ internal class DirEntry : VfsDirEntry
     {
         get
         {
-            var unixFileType = _item?.ChildType switch
-            {
-                DirItemChildType.Unknown => UnixFileType.None,
-                DirItemChildType.RegularFile => UnixFileType.Regular,
-                DirItemChildType.Directory or null => UnixFileType.Directory,
-                DirItemChildType.CharDevice => UnixFileType.Character,
-                DirItemChildType.BlockDevice => UnixFileType.Block,
-                DirItemChildType.Fifo => UnixFileType.Fifo,
-                DirItemChildType.Socket => UnixFileType.Socket,
-                DirItemChildType.Symlink => UnixFileType.Link,
-                DirItemChildType.ExtendedAttribute => UnixFileType.None,
-                _ => throw new ArgumentOutOfRangeException(),
-            };
+            var result = Utilities.FileAttributesFromUnixFileType(FileType);
 
-            var result = Utilities.FileAttributesFromUnixFileType(unixFileType);
-
-            if (_inode is not null && _inode.Flags.HasFlag(InodeFlag.Readonly))
+            if (IsReadOnly)
             {
                 result |= FileAttributes.ReadOnly;
             }
@@ -84,13 +70,48 @@ internal class DirEntry : VfsDirEntry
         }
     }
 
+    public bool IsReadOnly => _inode?.Flags.HasFlag(InodeFlag.Readonly) ?? false;
+
+    public UnixFileType FileType
+    {
+        get
+        {
+            UnixFileType unixFileType;
+
+            if (_inode is not null)
+            {
+                unixFileType = _inode.FileType;
+            }
+            else
+            {
+                unixFileType = _item?.ChildType switch
+                {
+                    DirItemChildType.Unknown => UnixFileType.None,
+                    DirItemChildType.RegularFile => UnixFileType.Regular,
+                    DirItemChildType.Directory or null => UnixFileType.Directory,
+                    DirItemChildType.CharDevice => UnixFileType.Character,
+                    DirItemChildType.BlockDevice => UnixFileType.Block,
+                    DirItemChildType.Fifo => UnixFileType.Fifo,
+                    DirItemChildType.Socket => UnixFileType.Socket,
+                    DirItemChildType.Symlink => UnixFileType.Link,
+                    DirItemChildType.ExtendedAttribute => UnixFileType.None,
+                    _ => throw new ArgumentOutOfRangeException(),
+                };
+            }
+
+            return unixFileType;
+        }
+    }
+
     public override bool HasVfsFileAttributes => _item != null;
 
     public override string FileName => _item?.Name ?? "/";
 
-    public override bool IsDirectory => _item is null || _item.ChildType == DirItemChildType.Directory;
+    public override bool IsDirectory => FileType == UnixFileType.Directory;
 
-    public override bool IsSymlink => _item is not null && _item.ChildType == DirItemChildType.Symlink;
+    public override bool IsSymlink => FileType == UnixFileType.Link;
+
+    public bool IsRegularFile => FileType == UnixFileType.Regular;
 
     public override long UniqueCacheId
     {
@@ -112,8 +133,6 @@ internal class DirEntry : VfsDirEntry
     }
 
     internal Directory CachedDirectory { get; set; }
-
-    internal DirItemChildType Type => _item?.ChildType ?? DirItemChildType.Directory;
 
     internal ulong ObjectId { get; private set; }
 

@@ -93,13 +93,13 @@ internal sealed class VfsBtrfsFileSystem : VfsReadOnlyFileSystem<DirEntry, File,
         {
             return new Symlink(dirEntry, Context);
         }
-        else if (dirEntry.Type == DirItemChildType.RegularFile)
+        else if (dirEntry.IsRegularFile)
         {
             return new File(dirEntry, Context);
         }
         else
         {
-            throw new NotSupportedException($"Type {dirEntry.Type} is not supported in btrfs");
+            throw new NotSupportedException($"Type {dirEntry.FileType} is not supported in btrfs");
         }
     }
 

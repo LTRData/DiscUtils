@@ -75,6 +75,11 @@ internal class InodeItem : BaseItem
     public uint Mode { get; private set; }
 
     /// <summary>
+    /// File type part of <see cref="Mode"/>
+    /// </summary>
+    public UnixFileType FileType => (UnixFileType)((Mode & 0xF000) >> 12);
+
+    /// <summary>
     /// stat.st_rdev
     /// </summary>
     public ulong RDev { get; private set; }
