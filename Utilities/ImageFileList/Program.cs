@@ -21,7 +21,6 @@
 //
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using DiscUtils;
@@ -115,10 +114,12 @@ class Program : ProgramBase
 
         foreach (var entry in dir.GetFileSystemInfos(_Pattern.IsPresent ? _Pattern.Value : "*"))
         {
-            var fileLength = entry.Attributes.HasFlag(FileAttributes.Directory) ? "<DIR>" : entry.FileSystem.GetFileLength(entry.FullName).ToString("N0");
+            var isDir = entry.Attributes.HasFlag(FileAttributes.Directory);
 
-            var fileAllocLength = entry.FileSystem is IAllocationExtentsFileSystem allocFs
-                ? $"({allocFs.PathToExtents(entry.FullName).Sum(extent => extent.Length).ToString("N0")})"
+            var fileLength = isDir ? "<DIR>" : entry.FileSystem.GetFileLength(entry.FullName).ToString("N0");
+
+            var fileAllocLength = !isDir && entry.FileSystem is IAllocationExtentsFileSystem allocFs
+                ? $"({allocFs.PathToExtents(entry.FullName).Sum(extent => extent.Length):N0})"
                 : "";
 
             Console.WriteLine($"{entry.LastWriteTime}  {fileLength,16}  {fileAllocLength,18}  {entry.Name}");
