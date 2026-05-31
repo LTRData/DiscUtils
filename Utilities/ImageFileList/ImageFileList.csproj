@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  
+
+  <PropertyGroup>
+    
+    <OutputType>Exe</OutputType>
+
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Library\DiscUtils.Transports\DiscUtils.Transports.csproj" />
+    <ProjectReference Include="..\DiscUtils.Common\DiscUtils.Common.csproj" />
+    <ProjectReference Include="..\..\Library\DiscUtils.Core\DiscUtils.Core.csproj" />
+    <ProjectReference Include="..\..\Library\DiscUtils.FileSystems\DiscUtils.FileSystems.csproj" />
+    <ProjectReference Include="..\..\Library\DiscUtils.Containers\DiscUtils.Containers.csproj" />
+  </ItemGroup>
+
+</Project>
