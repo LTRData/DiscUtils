@@ -59,10 +59,7 @@ internal class NtfsAttributeBuffer : Buffer, IMappedBuffer
         var attrStart = _file.GetAttributeOffset(_attribute.Reference);
         var mftPos = attrStart + attrRecord.DataOffset + pos;
 
-        return
-            _file.Context.GetFileByIndex(MasterFileTable.MftIndex)
-                 .GetAttribute(AttributeType.Data, null)
-                 .OffsetToAbsolutePos(mftPos);
+        return _file.Context.Mft.DataAttribute.OffsetToAbsolutePos(mftPos);
     }
 
     public override int Read(long pos, byte[] buffer, int offset, int count)

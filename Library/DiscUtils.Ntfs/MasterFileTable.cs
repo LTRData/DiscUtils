@@ -115,6 +115,8 @@ internal class MasterFileTable : IDiagnosticTraceable, IDisposable
 
     private File _self;
 
+    public NtfsAttribute DataAttribute => field ??= _self.GetAttribute(AttributeType.Data, null);
+
     public MasterFileTable(INtfsContext context)
     {
         var bpb = context.BiosParameterBlock;
