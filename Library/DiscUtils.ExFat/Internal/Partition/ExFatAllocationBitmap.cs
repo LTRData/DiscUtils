@@ -158,7 +158,7 @@ public class ExFatAllocationBitmap
         long usedClusters = 0;
         for (var clusterIndex = 0; clusterIndex < Length - _firstCluster;)
         {
-            if (clusterIndex % 8 == 0)
+            if ((clusterIndex & 0x7) == 0)
             {
                 if (_bitmap[clusterIndex / 8] == 0xFF)
                 {

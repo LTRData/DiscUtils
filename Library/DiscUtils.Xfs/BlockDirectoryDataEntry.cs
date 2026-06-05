@@ -44,7 +44,7 @@ internal class BlockDirectoryDataEntry : BlockDirectoryData, IDirectoryEntry
         get
         {
             var size = 0xb + NameLength + (_ftype ? 1 : 0);
-            var padding = size % 8;
+            var padding = size & 0x7;
             if (padding != 0)
             {
                 return size + (8 - padding);
@@ -71,7 +71,7 @@ internal class BlockDirectoryDataEntry : BlockDirectoryData, IDirectoryEntry
             offset++;
         }
 
-        var padding = 6 - ((NameLength + (_ftype ? 2 : 1)) % 8);
+        var padding = 6 - ((NameLength + (_ftype ? 2 : 1)) & 0x7);
         if (padding < 0)
         {
             padding += 8;

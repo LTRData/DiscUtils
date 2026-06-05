@@ -218,7 +218,7 @@ internal sealed class DynamicDiskBuilder : StreamBuilder
             {
                 for (var i = 0; i < range.Count; ++i)
                 {
-                    var mask = (byte)(1 << (7 - (int)(range.Offset + i) % 8));
+                    var mask = (byte)(1 << (7 - (int)(range.Offset + i) & 0x7));
                     bitmap[(range.Offset + i) / 8] |= mask;
                 }
             }

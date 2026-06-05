@@ -121,7 +121,7 @@ public static class HexDump
 
                         for (var j = 0; j < 16; j++)
                         {
-                            if (j % 8 == 0)
+                            if ((j & 0x7) == 0)
                             {
                                 output.Write(" ");
                             }
@@ -132,7 +132,7 @@ public static class HexDump
                         output.Write("  |");
                         for (var j = 0; j < 16; j++)
                         {
-                            if (j % 8 == 0 && j != 0)
+                            if ((j & 0x7) == 0 && j != 0)
                             {
                                 output.Write(" ");
                             }

@@ -72,11 +72,8 @@ internal class Context : VfsContext
                 throw new IOException("Invalid Superblock Magic");
             }
 
-            if (SuperBlock == null)
-            {
-                SuperBlock = superblock;
-            }
-            else if (SuperBlock.Generation < superblock.Generation)
+            if (SuperBlock == null
+                || SuperBlock.Generation < superblock.Generation)
             {
                 SuperBlock = superblock;
             }
