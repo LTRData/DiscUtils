@@ -58,9 +58,8 @@ internal class ExtentsFileBuffer : Buffer, IFileBuffer
 
         var blockSize = (int)_context.SuperBlock.BlockSize;
 
-        var count = _inode.FileSize;
         var totalRead = 0;
-        var totalBlocksRemaining = (int)count;
+        var totalBlocksRemaining = _inode.FileSize;
 
         var extents = _inode.Extents;
 
@@ -110,32 +109,24 @@ internal class ExtentsFileBuffer : Buffer, IFileBuffer
 
     public IEnumerable<StreamExtent> EnumerateAllocationExtents()
     {
-        var pos = 0;
-
-        if (pos > _inode.FileSize)
-        {
-            yield break;
-        }
-
         var blockSize = (int)_context.SuperBlock.BlockSize;
 
-        var count = _inode.FileSize;
         var totalRead = 0;
-        var totalBytesRemaining = (int)Math.Min(count, _inode.FileSize - pos);
+        var totalBytesRemaining = _inode.FileSize;
 
         var extents = _inode.Extents;
 
         while (totalBytesRemaining > 0)
         {
-            var logicalBlock = (uint)((pos + totalRead) / blockSize);
-            var blockOffset = (int)(pos + totalRead - logicalBlock * blockSize);
+            var logicalBlock = (uint)(totalRead / blockSize);
+            var blockOffset = (int)(totalRead - logicalBlock * blockSize);
             int numRead;
 
             var extent = FindExtent(extents, logicalBlock);
 
             if (extent == null)
             {
-                numRead = Math.Min(totalBytesRemaining, blockSize - blockOffset);
+                numRead = (int)Math.Min(totalBytesRemaining, blockSize - blockOffset);
             }
             else if (extent.Value.FirstLogicalBlock > logicalBlock)
             {
@@ -158,10 +149,12 @@ internal class ExtentsFileBuffer : Buffer, IFileBuffer
                 }
                 else
                 {
-                    yield return new(physicalBlock * blockSize + blockOffset, toRead);
-                }
+                    var position = physicalBlock * blockSize + blockOffset;
 
-                numRead = toRead;
+                    yield return new(position, toRead);
+
+                    numRead = toRead;
+                }
             }
 
             totalBytesRemaining -= numRead;
