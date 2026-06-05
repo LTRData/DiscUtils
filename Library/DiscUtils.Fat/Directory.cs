@@ -91,7 +91,8 @@ internal class Directory : IDisposable
         LoadEntries();
     }
 
-    public DirectoryEntry[] Entries => _entries.Values.ToArray();
+    public IEnumerable<DirectoryEntry> Entries => _entries.Values
+        .Where(entry => !entry.Attributes.HasFlag(FatAttributes.VolumeId));
 
     public FatFileSystem FileSystem { get; }
 
