@@ -21,10 +21,12 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using DiscUtils;
 using DiscUtils.Common;
+using LTRData.Extensions.Formatting;
 
 namespace ImageFileList;
 
@@ -35,6 +37,7 @@ class Program : ProgramBase
     private CommandLineParameter _Pattern;
     private CommandLineSwitch _diskType;
     private CommandLineSwitch _Recurse;
+    private CommandLineSwitch _Short;
 
     static void Main(string[] args)
     {
@@ -53,12 +56,14 @@ class Program : ProgramBase
         _Pattern = new CommandLineParameter("pattern", "File name pattern. Use * for all files and directories.", false);
         _diskType = new CommandLineSwitch("dt", "disktype", "type", $"Force the type of disk - use a file extension (one of {string.Join(", ", VirtualDiskManager.SupportedDiskTypes)})");
         _Recurse = new CommandLineSwitch("r", null, "Recurse into subdirectories");
+        _Short = new CommandLineSwitch("s", null, "Short listing - only full paths");
 
         parser.AddMultiParameter(_diskFiles);
         parser.AddParameter(_DirPath);
         parser.AddParameter(_Pattern);
         parser.AddSwitch(_diskType);
         parser.AddSwitch(_Recurse);
+        parser.AddSwitch(_Short);
 
         return StandardSwitches.UserAndPassword | StandardSwitches.PartitionOrVolume;
     }
@@ -103,29 +108,88 @@ class Program : ProgramBase
 
         var dir = fs.GetDirectoryInfo(_DirPath.Value);
 
-        DoDir(volInfo.Identity, fsInfo.Name, dir);
+        DoDir(volInfo.Identity, fsInfo.Name, dirs: new(), dir);
     }
 
-    private void DoDir(string volId, string fsInfoName, DiscDirectoryInfo dir)
+    private void DoDir(string volId, string fsInfoName, Dictionary<long, string> dirs, DiscDirectoryInfo dir)
     {
-        Console.WriteLine($"Listing directory '{dir.FullName}' on volume '{volId}' ({fsInfoName}):");
+        if (!_Short.IsPresent)
+        {
+            Console.WriteLine($"Listing directory '{dir.FullName}' on volume '{volId}' ({fsInfoName}):");
 
-        Console.WriteLine($"{"Last Write Time",-19}  {"Length",16}  {"Alloc Length",18}  Name");
+            Console.WriteLine($"{"Last Write Time",-19}  {"Length",16}  {"Alloc Length",18}  Name");
+        }
+
+        var unixFs = dir.FileSystem as IUnixFileSystem;
+
+        if (unixFs is not null)
+        {
+            var info = unixFs.GetUnixFileInfo(dir.FullName);
+
+            if (dirs.TryGetValue(info.Inode, out var existingPath))
+            {
+                if (!_Short.IsPresent)
+                {
+                    Console.WriteLine($"Linked directory '{dir.FullName}' to '{existingPath}' (inode {info.Inode})");
+                }
+
+                return;
+            }
+
+            dirs[info.Inode] = dir.FullName;
+        }
 
         foreach (var entry in dir.GetFileSystemInfos(_Pattern.IsPresent ? _Pattern.Value : "*"))
         {
-            var isDir = entry.Attributes.HasFlag(FileAttributes.Directory);
+            try
+            {
+                var isDir = entry.Attributes.HasFlag(FileAttributes.Directory);
 
-            var fileLength = isDir ? "<DIR>" : entry.FileSystem.GetFileLength(entry.FullName).ToString("N0");
+                if (_Short.IsPresent)
+                {
+                    if (isDir)
+                    {
+                        if (unixFs is not null)
+                        {
+                            var info = unixFs.GetUnixFileInfo(entry.FullName);
 
-            var fileAllocLength = !isDir && entry.FileSystem is IAllocationExtentsFileSystem allocFs
-                ? $"({allocFs.PathToExtents(entry.FullName).Sum(extent => extent.Length):N0})"
-                : "";
+                            if (dirs.TryGetValue(info.Inode, out var existingPath))
+                            {
+                                Console.WriteLine($"{entry.FullName} -> {existingPath}");
+                                continue;
+                            }
+                        }
 
-            Console.WriteLine($"{entry.LastWriteTime}  {fileLength,16}  {fileAllocLength,18}  {entry.Name}");
+                        Console.WriteLine($"{entry.FullName}{Path.DirectorySeparatorChar}");
+                        continue;
+                    }
+
+                    Console.WriteLine(entry.FullName);
+                    continue;
+                }
+
+                var fileLength = isDir
+                    ? "<DIR>"
+                    : entry.FileSystem.GetFileLength(entry.FullName).ToString("N0");
+
+                var fileAllocLength = !isDir && entry.FileSystem is IAllocationExtentsFileSystem allocFs
+                    ? $"({allocFs.PathToExtents(entry.FullName).Sum(extent => extent.Length):N0})"
+                    : "";
+
+                Console.WriteLine($"{entry.LastWriteTime}  {fileLength,16}  {fileAllocLength,18}  {entry.Name}");
+            }
+            catch (Exception ex)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"Failed to get info for '{entry.FullName}': {ex.JoinMessages()}");
+                Console.ResetColor();
+            }
         }
 
-        Console.WriteLine();
+        if (!_Short.IsPresent)
+        {
+            Console.WriteLine();
+        }
 
         if (!_Recurse.IsPresent)
         {
@@ -134,7 +198,7 @@ class Program : ProgramBase
 
         foreach (var subdir in dir.GetDirectories())
         {
-            DoDir(volId, fsInfoName, subdir);
+            DoDir(volId, fsInfoName, dirs, subdir);
         }
     }
 }
