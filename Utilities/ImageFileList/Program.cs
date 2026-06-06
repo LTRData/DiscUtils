@@ -122,21 +122,20 @@ class Program : ProgramBase
 
         var unixFs = dir.FileSystem as IUnixFileSystem;
 
-        if (unixFs is not null)
+        if (unixFs?.GetUnixFileInfo(dir.FullName) is { Inode: not 0 } dirUnixInfo)
         {
-            var info = unixFs.GetUnixFileInfo(dir.FullName);
-
-            if (dirs.TryGetValue(info.Inode, out var existingPath))
+            if (dirs.TryGetValue(dirUnixInfo.Inode, out var existingPath))
             {
                 if (!_Short.IsPresent)
                 {
-                    Console.WriteLine($"Linked directory '{dir.FullName}' to '{existingPath}' (inode {info.Inode})");
+                    Console.WriteLine($"Directory '{dir.FullName}' linked to '{existingPath}' (inode {dirUnixInfo.Inode})");
+                    Console.WriteLine();
                 }
 
                 return;
             }
 
-            dirs[info.Inode] = dir.FullName;
+            dirs[dirUnixInfo.Inode] = dir.FullName;
         }
 
         foreach (var entry in dir.GetFileSystemInfos(_Pattern.IsPresent ? _Pattern.Value : "*"))
@@ -149,15 +148,11 @@ class Program : ProgramBase
                 {
                     if (isDir)
                     {
-                        if (unixFs is not null)
+                        if (unixFs?.GetUnixFileInfo(entry.FullName) is { Inode: not 0 } unixInfo
+                            && dirs.TryGetValue(unixInfo.Inode, out var existingPath))
                         {
-                            var info = unixFs.GetUnixFileInfo(entry.FullName);
-
-                            if (dirs.TryGetValue(info.Inode, out var existingPath))
-                            {
-                                Console.WriteLine($"{entry.FullName} -> {existingPath}");
-                                continue;
-                            }
+                            Console.WriteLine($"{entry.FullName} -> {existingPath}");
+                            continue;
                         }
 
                         Console.WriteLine($"{entry.FullName}{Path.DirectorySeparatorChar}");
