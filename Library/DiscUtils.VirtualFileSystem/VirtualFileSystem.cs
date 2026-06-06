@@ -402,6 +402,14 @@ public partial class VirtualFileSystem : DiscFileSystem, IWindowsFileSystem, IUn
             Length = source.Length
         };
 
+    public VirtualFileSystemFile AddFile(string path, Stream source) =>
+        new(AddDirectory(GetPathDirectoryName(path)),
+            GetPathFileName(path), (mode, access) => SparseStream.FromStream(source, Ownership.None))
+        {
+            Attributes = source.CanWrite ? 0 : FileAttributes.ReadOnly,
+            Length = source.Length
+        };
+
     public VirtualFileSystemFile AddFile(string path, string existingPhysicalPath, DateTime creationTime, DateTime writtenTime, DateTime accessedTime, FileAttributes attributes) =>
         new(AddDirectory(GetPathDirectoryName(path)),
             GetPathFileName(path),
