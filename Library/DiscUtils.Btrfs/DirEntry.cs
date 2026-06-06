@@ -72,6 +72,11 @@ internal class DirEntry : VfsDirEntry
 
     public bool IsReadOnly => _inode?.Flags.HasFlag(InodeFlag.Readonly) ?? false;
 
+    public UnixFilePermissions Mode => _inode is not null
+        ? (UnixFilePermissions)_inode.Mode
+        : (UnixFilePermissions.OwnerRead | UnixFilePermissions.GroupRead | UnixFilePermissions.OthersRead |
+        UnixFilePermissions.OwnerExecute | UnixFilePermissions.GroupExecute | UnixFilePermissions.OthersExecute);
+
     public UnixFileType FileType
     {
         get
@@ -132,6 +137,8 @@ internal class DirEntry : VfsDirEntry
         }
     }
 
+    public long UniqueFileId => (long)(_item?.PhysicalPostiiton ?? 0);
+
     internal Directory CachedDirectory { get; set; }
 
     internal ulong ObjectId { get; private set; }
@@ -141,4 +148,12 @@ internal class DirEntry : VfsDirEntry
     internal ulong FileSize => _inode?.FileSize ?? 0;
 
     internal bool IsSubtree => _item is not null && _item.ChildLocation.ItemType == ItemType.RootItem;
+
+    public uint UserId => _inode?.Uid ?? 0;
+
+    public uint GroupId => _inode?.Gid ?? 0;
+
+    public uint LinkCount => _inode?.LinkCount ?? 1;
+
+    public override string ToString() => $"DirEntry: {FileName} (ObjectId: {ObjectId}, TreeId: {TreeId}, Type: {FileType})";
 }

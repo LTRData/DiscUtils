@@ -65,15 +65,16 @@ internal class Directory : File, IVfsDirectory<DirEntry, File>
 
                 if (item.ChildLocation.ItemType == ItemType.RootItem)
                 {
-                    var subtree = Context.GetFsTree(item.ChildLocation.ObjectId);
+                    var subtreeId = item.ChildLocation.ObjectId;
+                    var subtree = Context.GetFsTree(subtreeId);
                     inode = subtree.FindFirst(new Key(objectId: (ulong)ReservedObjectId.FirstChunkTree, ItemType.InodeItem, offset: 0), Context);
+                    result.Add(new DirEntry(subtreeId, item, (InodeItem)inode));
                 }
                 else
                 {
                     inode = tree.FindFirst(item.ChildLocation, Context);
+                    result.Add(new DirEntry(treeId, item, (InodeItem)inode));
                 }
-
-                result.Add(new DirEntry(treeId, item, (InodeItem)inode));
             }
 
             _allEntries = result;

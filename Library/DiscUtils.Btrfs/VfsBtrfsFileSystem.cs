@@ -112,15 +112,16 @@ internal sealed class VfsBtrfsFileSystem : VfsReadOnlyFileSystem<DirEntry, File,
 
     public UnixFileSystemInfo GetUnixFileInfo(string path)
     {
+        var file = GetDirectoryEntry(path);
+
         return new UnixFileSystemInfo
         {
-            FileType = UnixFileType.Regular,
-            Permissions = UnixFilePermissions.OwnerRead | UnixFilePermissions.GroupRead | UnixFilePermissions.OthersRead |
-                UnixFilePermissions.OwnerExecute | UnixFilePermissions.GroupExecute | UnixFilePermissions.OthersExecute,
-            UserId = 0,
-            GroupId = 0,
-            Inode = 0,
-            LinkCount = 1
+            FileType = file.FileType,
+            Permissions = file.Mode,
+            UserId = (int)file.UserId,
+            GroupId = (int)file.GroupId,
+            Inode = file.UniqueFileId,
+            LinkCount = (int)file.LinkCount
         };
     }
 }
