@@ -21,14 +21,13 @@
 //
 
 using DiscUtils.Core.WindowsSecurity.AccessControl;
-using System.Collections.Generic;
 
 namespace DiscUtils;
 
 /// <summary>
 /// Provides the base class for all file systems that support Windows semantics.
 /// </summary>
-public interface IWindowsFileSystem : IDosFileSystem
+public interface IWindowsFileSystem : IDosFileSystem, IFileSystemWithAltStreams
 {
     /// <summary>
     /// Gets the security descriptor associated with the file or directory.
@@ -63,16 +62,6 @@ public interface IWindowsFileSystem : IDosFileSystem
     /// </summary>
     /// <param name="path">The path to the file or directory to remove the reparse point from.</param>
     void RemoveReparsePoint(string path);
-
-    /// <summary>
-    /// Gets the names of the alternate data streams for a file.
-    /// </summary>
-    /// <param name="path">The path to the file.</param>
-    /// <returns>
-    /// The list of alternate data streams (or empty, if none).  To access the contents
-    /// of the alternate streams, use OpenFile(path + ":" + name, ...).
-    /// </returns>
-    IEnumerable<string> GetAlternateDataStreams(string path);
 
     /// <summary>
     /// Indicates whether the file is known by other names.
