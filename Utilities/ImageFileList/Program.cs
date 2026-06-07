@@ -26,6 +26,7 @@ using System.IO;
 using System.Linq;
 using DiscUtils;
 using DiscUtils.Common;
+using DiscUtils.Ntfs;
 using LTRData.Extensions.Formatting;
 
 namespace ImageFileList;
@@ -106,6 +107,13 @@ class Program : ProgramBase
 
         using var fs = fsInfo.Open(volInfo, FileSystemParameters);
 
+        if (fs is NtfsFileSystem ntfs)
+        {
+            ntfs.NtfsOptions.HideHiddenFiles = false;
+            ntfs.NtfsOptions.HideSystemFiles = false;
+            ntfs.NtfsOptions.HideMetafiles = false;
+        }
+
         var dir = fs.GetDirectoryInfo(_DirPath.Value);
 
         DoDir(volInfo.Identity, fsInfo.Name, dirs: new(), dir);
@@ -113,6 +121,11 @@ class Program : ProgramBase
 
     private void DoDir(string volId, string fsInfoName, Dictionary<long, string> dirs, DiscDirectoryInfo dir)
     {
+        if (dir.Name is "." or "..")
+        {
+            return;
+        }
+
         if (!_Short.IsPresent)
         {
             Console.WriteLine($"Listing directory '{dir.FullName}' on volume '{volId}' ({fsInfoName}):");
@@ -121,6 +134,10 @@ class Program : ProgramBase
         }
 
         var unixFs = dir.FileSystem as IUnixFileSystem;
+
+        var allocFs = dir.FileSystem as IAllocationExtentsFileSystem;
+
+        var altstrFs = dir.FileSystem as IFileSystemWithAltStreams;
 
         if (unixFs?.GetUnixFileInfo(dir.FullName) is { Inode: not 0 } dirUnixInfo)
         {
@@ -156,22 +173,49 @@ class Program : ProgramBase
                         }
 
                         Console.WriteLine($"{entry.FullName}{Path.DirectorySeparatorChar}");
-                        continue;
+                    }
+                    else if (entry.FileSystem.FileExists(entry.FullName))
+                    {
+                        Console.WriteLine(entry.FullName);
                     }
 
-                    Console.WriteLine(entry.FullName);
+                    if (altstrFs is not null)
+                    {
+                        foreach (var altStream in altstrFs.GetAlternateDataStreams(entry.FullName))
+                        {
+                            Console.WriteLine($"{entry.FullName}:{altStream}");
+                        }
+                    }
+
                     continue;
                 }
 
-                var fileLength = isDir
-                    ? "<DIR>"
-                    : entry.FileSystem.GetFileLength(entry.FullName).ToString("N0");
+                if (isDir || entry.FileSystem.FileExists(entry.FullName))
+                {
+                    var fileLength = isDir
+                        ? "<DIR>"
+                        : entry.FileSystem.GetFileLength(entry.FullName).ToString("N0");
 
-                var fileAllocLength = !isDir && entry.FileSystem is IAllocationExtentsFileSystem allocFs
-                    ? $"({allocFs.PathToExtents(entry.FullName).Sum(extent => extent.Length):N0})"
-                    : "";
+                    var fileAllocLength = !isDir && allocFs is not null
+                        ? $"({allocFs.PathToExtents(entry.FullName).Sum(extent => extent.Length):N0})"
+                        : "";
 
-                Console.WriteLine($"{entry.LastWriteTime}  {fileLength,16}  {fileAllocLength,18}  {entry.Name}");
+                    Console.WriteLine($"{entry.LastWriteTime}  {fileLength,16}  {fileAllocLength,18}  {entry.Name}");
+                }
+
+                if (entry.FileSystem is IFileSystemWithAltStreams altstrfs)
+                {
+                    foreach (var altStream in altstrfs.GetAlternateDataStreams(entry.FullName))
+                    {
+                        var altStreamPath = $"{entry.FullName}:{altStream}";
+                        var altStreamLength = altstrfs.GetFileLength(altStreamPath).ToString("N0");
+                        var altStreamAllocLength = allocFs is not null
+                            ? $"({allocFs.PathToExtents(altStreamPath).Sum(extent => extent.Length):N0})"
+                            : "";
+
+                        Console.WriteLine($"{entry.LastWriteTime}  {altStreamLength,16}  {altStreamAllocLength,18}  {entry.Name}:{altStream}");
+                    }
+                }
             }
             catch (Exception ex)
             {
