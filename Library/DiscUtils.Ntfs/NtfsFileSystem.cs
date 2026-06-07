@@ -483,14 +483,8 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
                 return false;
             }
 
-            // Ordinary file length request, use info from directory entry
-            if (attributeName == null && attributeType == AttributeType.Data &&
-                !dirEntry.Value.Details.FileAttributes.HasFlag(FileAttributes.Directory))
-            {
-                return true;
-            }
-
-            // Alternate stream / attribute, pull info from attribute record
+            // Check that requested named attribute or default data attribute
+            // exists
             var file = GetFile(dirEntry.Value.Reference);
             var attr = file.GetAttribute(attributeType, attributeName);
             if (attr == null)
@@ -936,14 +930,6 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
             var dirEntry = GetDirectoryEntry(dirEntryPath)
                 ?? throw new FileNotFoundException("File not found", path);
 
-            // Ordinary file length request, use info from directory entry for efficiency - if allowed
-            if (NtfsOptions.FileLengthFromDirectoryEntries && attributeName == null &&
-                attributeType == AttributeType.Data)
-            {
-                return (long)dirEntry.Details.RealSize;
-            }
-
-            // Alternate stream / attribute, pull info from attribute record
             var file = GetFile(dirEntry.Reference);
             var attr = file.GetAttribute(attributeType, attributeName)
                 ?? throw new FileNotFoundException($"No such attribute '{attributeName}({attributeType})'");
