@@ -18,24 +18,12 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
-using System;
 using System.IO;
 
 namespace DiscUtils.SquashFs;
 
 internal static class MemoryStreamHelper
 {
-    public static MemoryStream CreateWithFixedCapacity(int capacity)
-    {
-#if NET5_0_OR_GREATER
-        var array = GC.AllocateUninitializedArray<byte>(capacity);
-#else
-
-        var array = new byte[capacity];
-#endif
-        return new MemoryStream(array, 0, capacity, writable: true, publiclyVisible: true);
-    }
-
     public static MemoryStream Initialize(MemoryStream stream)
     {
         stream.SetLength(0);
