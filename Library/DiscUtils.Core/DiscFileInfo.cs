@@ -21,6 +21,8 @@
 //
 
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace DiscUtils;
 
@@ -71,6 +73,18 @@ public class DiscFileInfo : DiscFileSystemInfo
     /// Gets the length of the current file in bytes.
     /// </summary>
     public virtual long Length => FileSystem.GetFileLength(Path);
+
+    /// <summary>
+    /// Gets the contents of the file as a byte array.
+    /// </summary>
+    public virtual byte[] ReadAllBytes => FileSystem.ReadAllBytes(Path);
+
+    /// <summary>
+    /// Asynchronously gets the contents of the file as a byte array.
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public virtual ValueTask<byte[]> ReadAllBytesAsync(CancellationToken cancellationToken) => FileSystem.ReadAllBytesAsync(Path, cancellationToken);
 
     /// <summary>
     /// Deletes a file.
