@@ -77,7 +77,7 @@ public class DiscFileInfo : DiscFileSystemInfo
     /// <summary>
     /// Gets the contents of the file as a byte array.
     /// </summary>
-    public virtual byte[] ReadAllBytes => FileSystem.ReadAllBytes(Path);
+    public virtual byte[] ReadAllBytes() => FileSystem.ReadAllBytes(Path);
 
     /// <summary>
     /// Asynchronously gets the contents of the file as a byte array.
