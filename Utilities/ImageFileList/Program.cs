@@ -126,11 +126,15 @@ class Program : ProgramBase
             return;
         }
 
-        if (!_Short.IsPresent)
+        var headerPrinted = false;
+
+        if (!_Short.IsPresent && !_Recurse.IsPresent)
         {
             Console.WriteLine($"Listing directory '{dir.FullName}' on volume '{volId}' ({fsInfoName}):");
 
-            Console.WriteLine($"{"Last Write Time",-19}  {"Length",16}  {"Alloc Length",18}  Name");
+            Console.WriteLine($"{"Last Write Time",-22}  {"Length",16}  {"Alloc Length",18}  Name");
+
+            headerPrinted = true;
         }
 
         var unixFs = dir.FileSystem as IUnixFileSystem;
@@ -190,6 +194,15 @@ class Program : ProgramBase
                     continue;
                 }
 
+                if (!headerPrinted)
+                {
+                    Console.WriteLine($"Listing directory '{dir.FullName}' on volume '{volId}' ({fsInfoName}):");
+
+                    Console.WriteLine($"{"Last Write Time",-22}  {"Length",16}  {"Alloc Length",18}  Name");
+
+                    headerPrinted = true;
+                }
+
                 if (isDir || entry.FileSystem.FileExists(entry.FullName))
                 {
                     var fileLength = isDir
@@ -200,7 +213,7 @@ class Program : ProgramBase
                         ? $"({allocFs.PathToExtents(entry.FullName).Sum(extent => extent.Length):N0})"
                         : "";
 
-                    Console.WriteLine($"{entry.LastWriteTime}  {fileLength,16}  {fileAllocLength,18}  {entry.Name}");
+                    Console.WriteLine($"{entry.LastWriteTime,-22}  {fileLength,16}  {fileAllocLength,18}  {entry.Name}");
                 }
 
                 if (entry.FileSystem is IFileSystemWithAltStreams altstrfs)
@@ -213,7 +226,7 @@ class Program : ProgramBase
                             ? $"({allocFs.PathToExtents(altStreamPath).Sum(extent => extent.Length):N0})"
                             : "";
 
-                        Console.WriteLine($"{entry.LastWriteTime}  {altStreamLength,16}  {altStreamAllocLength,18}  {entry.Name}:{altStream}");
+                        Console.WriteLine($"{entry.LastWriteTime,-22}  {altStreamLength,16}  {altStreamAllocLength,18}  {entry.Name}:{altStream}");
                     }
                 }
             }
@@ -225,7 +238,7 @@ class Program : ProgramBase
             }
         }
 
-        if (!_Short.IsPresent)
+        if (headerPrinted && !_Short.IsPresent)
         {
             Console.WriteLine();
         }
