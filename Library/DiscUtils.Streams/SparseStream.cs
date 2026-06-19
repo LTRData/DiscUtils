@@ -656,7 +656,11 @@ public abstract class SparseStream : CompatibilityStream
 
         public override long Length => content.Length;
 
-        public override long Position { get; set; }
+        public override long Position
+        {
+            get { lock (sync) { return content.Position; } }
+            set { lock (sync) { content.Position = value; } }
+        }
 
         public override void Flush()
         {
