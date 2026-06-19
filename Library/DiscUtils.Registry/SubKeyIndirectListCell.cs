@@ -160,33 +160,22 @@ internal sealed class SubKeyIndirectListCell : ListCell
 
     internal override int LinkSubKey(string name, int cellIndex)
     {
-        // Look for the first sublist that has a subkey name greater than name
-        if (ListType == "ri")
+        // As in UnlinkSubKey, a list's entries can be a mix of sublists ("ri") and key nodes ("li"), so dispatch
+        // on the actual cell type rather than on ListType (avoids a KeyNodeCell -> ListCell InvalidCastException).
+        // Look for the first sublist/key node whose name is greater than the new name.
+        for (var i = 0; i < CellIndexes.Count; ++i)
         {
-            if (CellIndexes.Count == 0)
+            var cell = _hive.GetCell<Cell>(CellIndexes[i]);
+            if (cell is ListCell listCell)
             {
-                throw new NotImplementedException("Empty indirect list");
-            }
-
-            for (var i = 0; i < CellIndexes.Count - 1; ++i)
-            {
-                var cell = _hive.GetCell<ListCell>(CellIndexes[i]);
-                if (cell.FindKey(name, out var tempIndex) <= 0)
+                // Descend into the last sublist, or the first whose range can already hold the new name.
+                if (i == CellIndexes.Count - 1 || listCell.FindKey(name, out _) <= 0)
                 {
-                    CellIndexes[i] = cell.LinkSubKey(name, cellIndex);
+                    CellIndexes[i] = listCell.LinkSubKey(name, cellIndex);
                     return _hive.UpdateCell(this, false);
                 }
             }
-
-            var lastCell = _hive.GetCell<ListCell>(CellIndexes[CellIndexes.Count - 1]);
-            CellIndexes[CellIndexes.Count - 1] = lastCell.LinkSubKey(name, cellIndex);
-            return _hive.UpdateCell(this, false);
-        }
-
-        for (var i = 0; i < CellIndexes.Count; ++i)
-        {
-            var cell = _hive.GetCell<KeyNodeCell>(CellIndexes[i]);
-            if (string.Compare(name, cell.Name, StringComparison.OrdinalIgnoreCase) < 0)
+            else if (string.Compare(name, ((KeyNodeCell)cell).Name, StringComparison.OrdinalIgnoreCase) < 0)
             {
                 CellIndexes.Insert(i, cellIndex);
                 return _hive.UpdateCell(this, true);
@@ -199,20 +188,19 @@ internal sealed class SubKeyIndirectListCell : ListCell
 
     internal override int UnlinkSubKey(string name)
     {
-        if (ListType == "ri")
+        // A "ri" list references sublists and a "li" list references key nodes, but in practice the entries of a
+        // single list can be a mix of both (the read paths - Count/EnumerateKeyNames/EnumerateKeys/DoFindKey -
+        // already tolerate this). Dispatch on the actual cell type instead of on ListType, otherwise deleting a
+        // key whose containing list has a mismatched entry throws InvalidCastException (KeyNodeCell -> ListCell).
+        for (var i = 0; i < CellIndexes.Count; ++i)
         {
-            if (CellIndexes.Count == 0)
+            var cell = _hive.GetCell<Cell>(CellIndexes[i]);
+            if (cell is ListCell listCell)
             {
-                throw new NotImplementedException("Empty indirect list");
-            }
-
-            for (var i = 0; i < CellIndexes.Count; ++i)
-            {
-                var cell = _hive.GetCell<ListCell>(CellIndexes[i]);
-                if (cell.FindKey(name, out var tempIndex) <= 0)
+                if (listCell.FindKey(name, out _) <= 0)
                 {
-                    CellIndexes[i] = cell.UnlinkSubKey(name);
-                    if (cell.Count == 0)
+                    CellIndexes[i] = listCell.UnlinkSubKey(name);
+                    if (listCell.Count == 0)
                     {
                         _hive.FreeCell(CellIndexes[i]);
                         CellIndexes.RemoveAt(i);
@@ -221,17 +209,10 @@ internal sealed class SubKeyIndirectListCell : ListCell
                     return _hive.UpdateCell(this, false);
                 }
             }
-        }
-        else
-        {
-            for (var i = 0; i < CellIndexes.Count; ++i)
+            else if (string.Equals(name, ((KeyNodeCell)cell).Name, StringComparison.OrdinalIgnoreCase))
             {
-                var cell = _hive.GetCell<KeyNodeCell>(CellIndexes[i]);
-                if (string.Equals(name, cell.Name, StringComparison.OrdinalIgnoreCase))
-                {
-                    CellIndexes.RemoveAt(i);
-                    return _hive.UpdateCell(this, true);
-                }
+                CellIndexes.RemoveAt(i);
+                return _hive.UpdateCell(this, true);
             }
         }
 
