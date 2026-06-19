@@ -930,6 +930,13 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
             var dirEntry = GetDirectoryEntry(dirEntryPath)
                 ?? throw new FileNotFoundException("File not found", path);
 
+            // Ordinary file length request, use info from the directory entry for efficiency - if allowed.
+            if (NtfsOptions.FileLengthFromDirectoryEntries && attributeName == null &&
+                attributeType == AttributeType.Data)
+            {
+                return (long)dirEntry.Details.RealSize;
+            }
+
             var file = GetFile(dirEntry.Reference);
             var attr = file.GetAttribute(attributeType, attributeName)
                 ?? throw new FileNotFoundException($"No such attribute '{attributeName}({attributeType})'");
