@@ -32,5 +32,5 @@ internal enum DirItemChildType : byte
     Fifo = 5,
     Socket = 6,
     Symlink = 7,
-    ExtendedAttribute=8
+    ExtendedAttribute = 8
 }

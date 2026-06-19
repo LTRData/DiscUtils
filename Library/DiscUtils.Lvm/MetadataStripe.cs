@@ -24,6 +24,7 @@
 using System;
 
 namespace DiscUtils.Lvm;
+
 internal class MetadataStripe
 {
     public string PhysicalVolumeName;

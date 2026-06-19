@@ -75,7 +75,7 @@ public class RpcAuthentication
         {
             return false;
         }
-        
+
         return other._flavour == _flavour;
     }
 

@@ -27,8 +27,8 @@ namespace DiscUtils.Btrfs.Base;
 
 internal class NodeItem : IByteArraySerializable
 {
-    public static readonly int Length = Key.Length + 0x8;
-    
+    public const int Length = Key.Length + 0x8;
+
     public Key Key { get; set; }
 
     public uint DataOffset { get; set; }

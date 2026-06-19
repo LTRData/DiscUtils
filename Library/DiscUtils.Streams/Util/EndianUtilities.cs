@@ -411,7 +411,7 @@ public static class EndianUtilities
         return (long)ToUInt64LittleEndian(buffer, offset);
     }
 
-    public static long ToInt64LittleEndian(ReadOnlySpan<byte>  buffer)
+    public static long ToInt64LittleEndian(ReadOnlySpan<byte> buffer)
     {
         return (long)ToUInt64LittleEndian(buffer);
     }
@@ -707,5 +707,5 @@ public static class EndianUtilities
 #endif
     }
 
-#endregion
+    #endregion
 }

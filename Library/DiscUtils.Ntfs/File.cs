@@ -209,7 +209,7 @@ internal class File
                     var name = attr.Content.FileName;
 
                     var parentDir = _context.GetDirectoryByRef(attr.Content.ParentDirectory);
-                    
+
                     if (parentDir != null)
                     {
                         foreach (var dirName in parentDir.Names)
@@ -1287,7 +1287,7 @@ internal class File
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
-            
+
             if (disposing)
             {
                 _wrapped.Dispose();

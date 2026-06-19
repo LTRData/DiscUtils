@@ -54,7 +54,7 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
 
     // Working state
     private readonly ObjectCache<long, File> _fileCache;
-    
+
     public VolumeInformation VolumeInfo { get; }
 
     public override Stream RawStream => _context.RawStream;
@@ -136,7 +136,7 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
         if (VolumeInfo.Version >= VolumeInformation.VersionW2k)
         {
             _context.SecurityDescriptors = new SecurityDescriptors(GetFile(MasterFileTable.SecureIndex));
-            
+
             if (GetDirectoryEntry(@"$Extend\$ObjId") is { } objIdFile)
             {
                 _context.ObjectIds = new ObjectIds(GetFile(objIdFile.Reference));
@@ -413,7 +413,7 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
             var parentDir = GetDirectory(parentDirEntry.Value.Reference);
 
             var dirEntry = parentDir.GetEntryByName(Utilities.GetFileFromPath(dirEntryPath));
-            
+
             if (dirEntry == null || dirEntry.Value.IsDirectory)
             {
                 throw new FileNotFoundException("No such file", path);
@@ -483,14 +483,8 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
                 return false;
             }
 
-            // Ordinary file length request, use info from directory entry
-            if (attributeName == null && attributeType == AttributeType.Data &&
-                !dirEntry.Value.Details.FileAttributes.HasFlag(FileAttributes.Directory))
-            {
-                return true;
-            }
-
-            // Alternate stream / attribute, pull info from attribute record
+            // Check that requested named attribute or default data attribute
+            // exists
             var file = GetFile(dirEntry.Value.Reference);
             var attr = file.GetAttribute(attributeType, attributeName);
             if (attr == null)
@@ -831,7 +825,7 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
             }
 
             UpdateStandardInformation(dirEntry, file,
-                delegate(StandardInformation si) { si.FileAttributes = FileNameRecord.SetAttributes(newValue, si.FileAttributes); });
+                delegate (StandardInformation si) { si.FileAttributes = FileNameRecord.SetAttributes(newValue, si.FileAttributes); });
         }
     }
 
@@ -860,7 +854,7 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
     {
         using (NtfsTransaction.Begin())
         {
-            UpdateStandardInformation(path, delegate(StandardInformation si) { si.CreationTime = newTime; });
+            UpdateStandardInformation(path, delegate (StandardInformation si) { si.CreationTime = newTime; });
         }
     }
 
@@ -889,7 +883,7 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
     {
         using (NtfsTransaction.Begin())
         {
-            UpdateStandardInformation(path, delegate(StandardInformation si) { si.LastAccessTime = newTime; });
+            UpdateStandardInformation(path, delegate (StandardInformation si) { si.LastAccessTime = newTime; });
         }
     }
 
@@ -918,7 +912,7 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
     {
         using (NtfsTransaction.Begin())
         {
-            UpdateStandardInformation(path, delegate(StandardInformation si) { si.ModificationTime = newTime; });
+            UpdateStandardInformation(path, delegate (StandardInformation si) { si.ModificationTime = newTime; });
         }
     }
 
@@ -936,14 +930,6 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
             var dirEntry = GetDirectoryEntry(dirEntryPath)
                 ?? throw new FileNotFoundException("File not found", path);
 
-            // Ordinary file length request, use info from directory entry for efficiency - if allowed
-            if (NtfsOptions.FileLengthFromDirectoryEntries && attributeName == null &&
-                attributeType == AttributeType.Data)
-            {
-                return (long)dirEntry.Details.RealSize;
-            }
-
-            // Alternate stream / attribute, pull info from attribute record
             var file = GetFile(dirEntry.Reference);
             var attr = file.GetAttribute(attributeType, attributeName)
                 ?? throw new FileNotFoundException($"No such attribute '{attributeName}({attributeType})'");
@@ -1609,7 +1595,7 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
         {
             UpdateStandardInformation(
                 path,
-                delegate(StandardInformation si)
+                delegate (StandardInformation si)
                 {
                     si.CreationTime = info.CreationTime;
                     si.LastAccessTime = info.LastAccessTime;
@@ -2142,7 +2128,7 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
 
         base.Dispose(disposing);
     }
-    
+
     private static void RemoveFileFromDirectory(Directory dir, File file, string name)
     {
         var aliases = GetAliases(dir, file, name).ToArray();

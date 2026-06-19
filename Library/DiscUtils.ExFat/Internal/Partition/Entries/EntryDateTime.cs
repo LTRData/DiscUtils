@@ -29,9 +29,9 @@ public class EntryDateTime : IValueProvider<DateTime>
         set
         {
             var (timeStamp, tenMs) = value.ToTimeStamp();
-            
+
             _dateTimeProvider.Value = timeStamp;
-            
+
             if (_tenMsProvider != null)
             {
                 _tenMsProvider.Value = tenMs;

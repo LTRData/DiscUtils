@@ -25,6 +25,7 @@ using DiscUtils.Streams;
 using System;
 
 namespace DiscUtils.Xfs;
+
 internal struct Extent : IByteArraySerializable
 {
     /// <summary>
@@ -48,7 +49,7 @@ internal struct Extent : IByteArraySerializable
         BlockCount = (uint)(lower & 0x001FFFFF);
         StartBlock = (middle >> 5) & 0x000FFFFFFFFFFFFF;
         StartOffset = (upper >> 9) & 0x003FFFFFFFFFFFFF;
-        Flag = (ExtentFlag) ((buffer[0x0] >> 6) & 0x3);
+        Flag = (ExtentFlag)((buffer[0x0] >> 6) & 0x3);
         return Size;
     }
 
@@ -70,13 +71,13 @@ internal struct Extent : IByteArraySerializable
 
     public byte[] GetData(Context context)
     {
-        return GetData(context,0 , context.SuperBlock.Blocksize*BlockCount);
+        return GetData(context, 0, context.SuperBlock.Blocksize * BlockCount);
     }
 
     public byte[] GetData(Context context, long offset, uint count)
     {
         context.RawStream.Position = GetOffset(context) + offset;
-        return context.RawStream.ReadExactly((int) count);
+        return context.RawStream.ReadExactly((int)count);
     }
 
     /// <inheritdoc />

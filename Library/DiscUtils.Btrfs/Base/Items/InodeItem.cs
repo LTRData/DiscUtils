@@ -34,7 +34,7 @@ internal class InodeItem : BaseItem
 
     public InodeItem() : this(null) { }
 
-    public static readonly int Length = 160;
+    public const int Length = 160;
 
     public ulong Generation { get; private set; }
     public ulong TransId { get; private set; }
@@ -73,6 +73,11 @@ internal class InodeItem : BaseItem
     /// stat.st_mode
     /// </summary>
     public uint Mode { get; private set; }
+
+    /// <summary>
+    /// File type part of <see cref="Mode"/>
+    /// </summary>
+    public UnixFileType FileType => (UnixFileType)((Mode & 0xF000) >> 12);
 
     /// <summary>
     /// stat.st_rdev

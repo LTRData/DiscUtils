@@ -13,7 +13,4 @@
     <InternalsVisibleTo Include="LibraryTests" />
   </ItemGroup>
 
-  <ItemGroup Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net5.0')) And $([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'netstandard2.0'))">
-    <PackageReference Include="System.Collections.Immutable" Version="9.0.*" />
-  </ItemGroup>
 </Project>

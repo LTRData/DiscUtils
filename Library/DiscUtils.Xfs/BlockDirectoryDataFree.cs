@@ -25,6 +25,7 @@ using DiscUtils.Streams;
 using System;
 
 namespace DiscUtils.Xfs;
+
 internal class BlockDirectoryDataFree : IByteArraySerializable
 {
     public ushort Offset { get; private set; }

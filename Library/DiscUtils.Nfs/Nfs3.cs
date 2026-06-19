@@ -36,7 +36,7 @@ internal sealed class Nfs3 : RpcProgram
     public const int WriteVerifierSize = 8;
 
     public Nfs3(IRpcClient client)
-        : base(client) {}
+        : base(client) { }
 
     public override int Identifier => ProgramIdentifier;
 

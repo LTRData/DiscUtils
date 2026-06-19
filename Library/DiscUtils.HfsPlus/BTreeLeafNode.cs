@@ -32,7 +32,7 @@ internal sealed class BTreeLeafNode<TKey> : BTreeKeyedNode<TKey>
     private BTreeLeafRecord<TKey>[] _records;
 
     public BTreeLeafNode(BTree tree, BTreeNodeDescriptor descriptor)
-        : base(tree, descriptor) {}
+        : base(tree, descriptor) { }
 
     public override byte[] FindKey(TKey key)
     {

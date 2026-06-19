@@ -42,7 +42,7 @@ internal sealed class RpcTcpTransport : IRpcTransport
     private NetworkStream _tcpStream;
 
     public RpcTcpTransport(string address, int port)
-        : this(address, port, 0) {}
+        : this(address, port, 0) { }
 
     public RpcTcpTransport(string address, int port, int localPort)
     {

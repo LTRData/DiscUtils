@@ -34,7 +34,7 @@ public class BuilderStreamExtent : BuilderExtent
     private Stream _source;
 
     public BuilderStreamExtent(long start, Stream source)
-        : this(start, source, Ownership.None) {}
+        : this(start, source, Ownership.None) { }
 
     public BuilderStreamExtent(long start, Stream source, Ownership ownership)
         : base(start, source.Length)
@@ -60,7 +60,7 @@ public class BuilderStreamExtent : BuilderExtent
         _source = null!;
     }
 
-    public override void PrepareForRead() {}
+    public override void PrepareForRead() { }
 
     public override int Read(long diskOffset, byte[] block, int offset, int count)
     {
@@ -83,5 +83,5 @@ public class BuilderStreamExtent : BuilderExtent
         return _source.Read(block);
     }
 
-    public override void DisposeReadState() {}
+    public override void DisposeReadState() { }
 }

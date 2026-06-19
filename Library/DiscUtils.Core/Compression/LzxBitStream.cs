@@ -104,7 +104,7 @@ internal sealed class LzxBitStream : IBitStream
 
     public int ReadBytes(byte[] buffer, int offset, int count)
     {
-        if (_position % 8 != 0)
+        if ((_position & 0x7) != 0)
         {
             throw new InvalidOperationException("Attempt to read bytes when not byte-aligned");
         }
@@ -128,7 +128,7 @@ internal sealed class LzxBitStream : IBitStream
 
     public byte[] ReadBytes(int count)
     {
-        if (_position % 8 != 0)
+        if ((_position & 0x7) != 0)
         {
             throw new InvalidOperationException("Attempt to read bytes when not byte-aligned");
         }

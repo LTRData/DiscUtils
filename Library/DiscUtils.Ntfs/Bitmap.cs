@@ -56,14 +56,14 @@ internal sealed class Bitmap : IDisposable
     public bool IsPresent(long index)
     {
         var byteIdx = index / 8;
-        var mask = 1 << (int)(index % 8);
+        var mask = 1 << (int)(index & 0x7);
         return (GetByte(byteIdx) & mask) != 0;
     }
 
     public void MarkPresent(long index)
     {
         var byteIdx = index / 8;
-        var mask = (byte)(1 << (byte)(index % 8));
+        var mask = (byte)(1 << (byte)(index & 0x7));
 
         if (byteIdx >= _bitmap.Length)
         {
@@ -97,7 +97,7 @@ internal sealed class Bitmap : IDisposable
             Array.Clear(buffer, 0, bufferSize);
 
             buffer[0] = GetByte(firstByte);
-            
+
             if (bufferSize != 1)
             {
                 buffer[bufferSize - 1] = GetByte(lastByte);
@@ -106,7 +106,7 @@ internal sealed class Bitmap : IDisposable
             for (var i = index; i < index + count; ++i)
             {
                 var byteIdx = i / 8 - firstByte;
-                var mask = (byte)(1 << (byte)(i % 8));
+                var mask = (byte)(1 << (byte)(i & 0x7));
 
                 buffer[byteIdx] |= mask;
             }
@@ -151,7 +151,7 @@ internal sealed class Bitmap : IDisposable
             for (var i = index; i < index + count; ++i)
             {
                 var byteIdx = i / 8 - firstByte;
-                var mask = (byte)(1 << (byte)(i % 8));
+                var mask = (byte)(1 << (byte)(i & 0x7));
 
                 buffer[byteIdx] |= mask;
             }
@@ -167,7 +167,7 @@ internal sealed class Bitmap : IDisposable
     public void MarkAbsent(long index)
     {
         var byteIdx = index / 8;
-        var mask = (byte)(1 << (byte)(index % 8));
+        var mask = (byte)(1 << (byte)(index & 0x7));
 
         if (byteIdx < _stream.Length)
         {
@@ -208,7 +208,7 @@ internal sealed class Bitmap : IDisposable
             for (var i = index; i < index + count; ++i)
             {
                 var byteIdx = i / 8 - firstByte;
-                var mask = (byte)(1 << (byte)(i % 8));
+                var mask = (byte)(1 << (byte)(i & 0x7));
 
                 buffer[byteIdx] &= (byte)~mask;
             }
@@ -254,7 +254,7 @@ internal sealed class Bitmap : IDisposable
             for (var i = index; i < index + count; ++i)
             {
                 var byteIdx = i / 8 - firstByte;
-                var mask = (byte)(1 << (byte)(i % 8));
+                var mask = (byte)(1 << (byte)(i & 0x7));
 
                 buffer[byteIdx] &= (byte)~mask;
             }

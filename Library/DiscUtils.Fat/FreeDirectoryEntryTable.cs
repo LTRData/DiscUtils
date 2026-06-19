@@ -133,7 +133,7 @@ internal struct FreeDirectoryEntryTable
         bucket.Add(position);
         _bucketMask |= 1U << bucketIndex;
     }
-    
+
     private static int TrailingZeroCount(uint value)
     {
 #if NET6_0_OR_GREATER

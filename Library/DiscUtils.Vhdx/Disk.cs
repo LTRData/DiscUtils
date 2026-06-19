@@ -663,7 +663,7 @@ public sealed class Disk : VirtualDisk
             var fileLocator = file.RelativeFileLocator;
             var found = false;
             var parent_locations = file.GetParentLocations();
-            
+
             foreach (var testPath in parent_locations)
             {
                 if (fileLocator.Exists(testPath))

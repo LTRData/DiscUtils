@@ -1018,7 +1018,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
         };
 
         var metadataStream = new SubStream(stream, metadataRegion.FileOffset, metadataRegion.Length);
-        
+
         _ = await Metadata.InitializeAsync(metadataStream, fileParams, (ulong)capacity,
             (uint)logicalSectorSize, (uint)physicalSectorSize, parentLocator: null, cancellationToken).ConfigureAwait(false);
     }
@@ -1134,7 +1134,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
                                                                        CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        
+
         var logicalSectorSize = parent._metadata.LogicalSectorSize;
         var physicalSectorSize = parent._metadata.PhysicalSectorSize;
 

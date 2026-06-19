@@ -28,6 +28,7 @@ using System.IO;
 using System.Linq;
 
 namespace DiscUtils.Xfs;
+
 internal class BTreeExtentRoot : IByteArraySerializable
 {
     public ushort Level { get; protected set; }
@@ -54,7 +55,7 @@ internal class BTreeExtentRoot : IByteArraySerializable
             Keys[i] = EndianUtilities.ToUInt64BigEndian(buffer.Slice(offset + i * 0x8));
         }
 
-        offset += ((buffer.Length - offset)/16)*8;
+        offset += ((buffer.Length - offset) / 16) * 8;
         for (var i = 0; i < NumberOfRecords; i++)
         {
             Pointer[i] = EndianUtilities.ToUInt64BigEndian(buffer.Slice(offset + i * 0x8));

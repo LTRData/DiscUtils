@@ -419,6 +419,6 @@ public class FileChecker
     [Serializable]
     private sealed class AbortException : InvalidFileSystemException
     {
-        
+
     }
 }

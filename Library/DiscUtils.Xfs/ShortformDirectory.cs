@@ -25,6 +25,7 @@ using DiscUtils.Streams;
 using System;
 
 namespace DiscUtils.Xfs;
+
 internal class ShortformDirectory : IByteArraySerializable
 {
     private readonly Context _context;

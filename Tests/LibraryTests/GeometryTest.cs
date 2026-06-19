@@ -76,7 +76,7 @@ public class GeometryTest
 
         // Check exact sizes are maintained - do one pass to allow for finding a geometry that matches
         // the algorithm - then expect identical results each time.
-        var startGeometry = new Geometry(333,22,11);
+        var startGeometry = new Geometry(333, 22, 11);
         var trip1 = Geometry.FromCapacity(startGeometry.Capacity);
         Assert.Equal(trip1, Geometry.FromCapacity(trip1.Capacity));
     }

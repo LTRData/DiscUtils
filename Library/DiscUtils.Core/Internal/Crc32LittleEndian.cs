@@ -45,7 +45,7 @@ internal sealed class Crc32LittleEndian : Crc32
     }
 
     public Crc32LittleEndian(Crc32Algorithm algorithm)
-        : base(Tables[(int)algorithm]) {}
+        : base(Tables[(int)algorithm]) { }
 
     public static uint Compute(Crc32Algorithm algorithm, byte[] buffer, int offset, int count)
     {

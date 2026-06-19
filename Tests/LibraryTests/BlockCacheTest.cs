@@ -280,7 +280,7 @@ public class BlockCacheTest
         {
             cacheStream.Write(new byte[10], 0, 10);
         }
-        catch(NotSupportedException)
+        catch (NotSupportedException)
         {
             Assert.Equal(freeBefore + 2, cacheStream.Statistics.FreeReadBlocks);
         }

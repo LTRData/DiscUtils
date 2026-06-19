@@ -27,6 +27,7 @@ using DiscUtils.Partitions;
 using DiscUtils.Streams;
 
 namespace DiscUtils.Lvm;
+
 internal class PhysicalVolume
 {
     public const ushort SECTOR_SIZE = 512;

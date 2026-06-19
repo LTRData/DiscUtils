@@ -20,13 +20,13 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-using System;
-using System.Collections.Generic;
-using System.IO;
 using DiscUtils.Internal;
 using DiscUtils.Partitions;
 using DiscUtils.Streams;
 using LTRData.Extensions.Buffers;
+using System;
+using System.Collections.Generic;
+using System.IO;
 
 namespace DiscUtils.OpticalDisk;
 
@@ -169,6 +169,13 @@ public sealed class Disc : VirtualDisk
         throw new NotSupportedException("Differencing disks not supported for optical disks");
     }
 
+    /// <summary>
+    /// Create a thread-safe wrapper around this disk, allowing multiple threads to safely access the disk concurrently.
+    /// </summary>
+    /// <param name="ownership">Indicates whether the returned wrapper should dispose of the underlying disk when it is disposed.</param>
+    /// <returns>The created synchronized wrapper around this instance</returns>
+    public override VirtualDisk AsSynchronized(Ownership ownership) => new SynchronizedOpticalDiskWrapper(this, ownership);
+
     private PartitionTable _partitions;
 
     public override PartitionTable Partitions
@@ -220,6 +227,41 @@ public sealed class Disc : VirtualDisk
         finally
         {
             base.Dispose(disposing);
+        }
+    }
+
+    private sealed class SynchronizedOpticalDiskWrapper(Disc disk, Ownership ownership) : SynchronizedVirtualDiskWrapper(disk, ownership)
+    {
+        private PartitionTable _partitions;
+
+        public override PartitionTable Partitions
+        {
+            get
+            {
+                if (_partitions == null)
+                {
+                    if (BiosPartitionTable.IsValid(Content))
+                    {
+                        var biosTable = new BiosPartitionTable(Content);
+
+                        if (biosTable.Partitions.Count >= 1 &&
+                            biosTable.Partitions[0].BiosType == BiosPartitionTypes.GptProtective)
+                        {
+                            _partitions = new GuidPartitionTable(Content, biosTable.DiskGeometry.Value);
+                        }
+                        else
+                        {
+                            _partitions = biosTable;
+                        }
+                    }
+                    else
+                    {
+                        _partitions = base.Partitions;
+                    }
+                }
+
+                return _partitions;
+            }
         }
     }
 }

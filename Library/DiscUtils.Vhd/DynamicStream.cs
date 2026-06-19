@@ -174,7 +174,7 @@ public class DynamicStream : MappedStream
 
                 if (offsetInSector != 0 || toRead < Sizes.Sector)
                 {
-                    var mask = (byte)(1 << (7 - sectorInBlock % 8));
+                    var mask = (byte)(1 << (7 - sectorInBlock & 0x7));
                     if ((blockBitmap[sectorInBlock / 8] & mask) != 0)
                     {
                         var extentStart = (_blockAllocationTable[block] + sectorInBlock) *
@@ -190,13 +190,13 @@ public class DynamicStream : MappedStream
                     // Processing at least one whole sector, read as many as possible
                     var toReadSectors = toRead / Sizes.Sector;
 
-                    var mask = (byte)(1 << (7 - sectorInBlock % 8));
+                    var mask = (byte)(1 << (7 - sectorInBlock & 0x7));
                     var readFromParent = (blockBitmap[sectorInBlock / 8] & mask) == 0;
 
                     var numSectors = 1;
                     while (numSectors < toReadSectors)
                     {
-                        mask = (byte)(1 << (7 - (sectorInBlock + numSectors) % 8));
+                        mask = (byte)(1 << (7 - (sectorInBlock + numSectors) & 0x7));
                         if ((blockBitmap[(sectorInBlock + numSectors) / 8] & mask) == 0 != readFromParent)
                         {
                             break;
@@ -274,7 +274,7 @@ public class DynamicStream : MappedStream
 
                 if (offsetInSector != 0 || toRead < Sizes.Sector)
                 {
-                    var mask = (byte)(1 << (7 - sectorInBlock % 8));
+                    var mask = (byte)(1 << (7 - sectorInBlock & 0x7));
 
                     if ((blockBitmap[sectorInBlock / 8] & mask) != 0)
                     {
@@ -296,13 +296,13 @@ public class DynamicStream : MappedStream
                     // Processing at least one whole sector, read as many as possible
                     var toReadSectors = toRead / Sizes.Sector;
 
-                    var mask = (byte)(1 << (7 - sectorInBlock % 8));
+                    var mask = (byte)(1 << (7 - sectorInBlock & 0x7));
                     var readFromParent = (blockBitmap[sectorInBlock / 8] & mask) == 0;
 
                     var numSectors = 1;
                     while (numSectors < toReadSectors)
                     {
-                        mask = (byte)(1 << (7 - (sectorInBlock + numSectors) % 8));
+                        mask = (byte)(1 << (7 - (sectorInBlock + numSectors) & 0x7));
                         if ((blockBitmap[(sectorInBlock + numSectors) / 8] & mask) == 0 != readFromParent)
                         {
                             break;
@@ -377,7 +377,7 @@ public class DynamicStream : MappedStream
 
                 if (offsetInSector != 0 || toRead < Sizes.Sector)
                 {
-                    var mask = (byte)(1 << (7 - sectorInBlock % 8));
+                    var mask = (byte)(1 << (7 - sectorInBlock & 0x7));
                     if ((blockBitmap[sectorInBlock / 8] & mask) != 0)
                     {
                         _fileStream.Position = (_blockAllocationTable[block] + sectorInBlock) *
@@ -398,13 +398,13 @@ public class DynamicStream : MappedStream
                     // Processing at least one whole sector, read as many as possible
                     var toReadSectors = toRead / Sizes.Sector;
 
-                    var mask = (byte)(1 << (7 - sectorInBlock % 8));
+                    var mask = (byte)(1 << (7 - sectorInBlock & 0x7));
                     var readFromParent = (blockBitmap[sectorInBlock / 8] & mask) == 0;
 
                     var numSectors = 1;
                     while (numSectors < toReadSectors)
                     {
-                        mask = (byte)(1 << (7 - (sectorInBlock + numSectors) % 8));
+                        mask = (byte)(1 << (7 - (sectorInBlock + numSectors) & 0x7));
                         if ((blockBitmap[(sectorInBlock + numSectors) / 8] & mask) == 0 != readFromParent)
                         {
                             break;
@@ -479,7 +479,7 @@ public class DynamicStream : MappedStream
 
                 if (offsetInSector != 0 || toRead < Sizes.Sector)
                 {
-                    var mask = (byte)(1 << (7 - sectorInBlock % 8));
+                    var mask = (byte)(1 << (7 - sectorInBlock & 0x7));
                     if ((blockBitmap[sectorInBlock / 8] & mask) != 0)
                     {
                         _fileStream.Position = (_blockAllocationTable[block] + sectorInBlock) *
@@ -500,13 +500,13 @@ public class DynamicStream : MappedStream
                     // Processing at least one whole sector, read as many as possible
                     var toReadSectors = toRead / Sizes.Sector;
 
-                    var mask = (byte)(1 << (7 - sectorInBlock % 8));
+                    var mask = (byte)(1 << (7 - sectorInBlock & 0x7));
                     var readFromParent = (blockBitmap[sectorInBlock / 8] & mask) == 0;
 
                     var numSectors = 1;
                     while (numSectors < toReadSectors)
                     {
-                        mask = (byte)(1 << (7 - (sectorInBlock + numSectors) % 8));
+                        mask = (byte)(1 << (7 - (sectorInBlock + numSectors) & 0x7));
                         if ((blockBitmap[(sectorInBlock + numSectors) / 8] & mask) == 0 != readFromParent)
                         {
                             break;
@@ -621,7 +621,7 @@ public class DynamicStream : MappedStream
                 // Reduce the write to just the end of the current sector
                 toWrite = Math.Min(count - numWritten, Sizes.Sector - offsetInSector);
 
-                var sectorMask = (byte)(1 << (7 - sectorInBlock % 8));
+                var sectorMask = (byte)(1 << (7 - sectorInBlock & 0x7));
 
                 var sectorStart = (_blockAllocationTable[block] + sectorInBlock) * Sizes.Sector +
                                    _blockBitmapSize;
@@ -665,7 +665,7 @@ public class DynamicStream : MappedStream
                 // Update all of the bits in the block bitmap
                 for (var i = offset; i < offset + toWrite; i += Sizes.Sector)
                 {
-                    var sectorMask = (byte)(1 << (7 - sectorInBlock % 8));
+                    var sectorMask = (byte)(1 << (7 - sectorInBlock & 0x7));
                     if ((_blockBitmaps[block][sectorInBlock / 8] & sectorMask) == 0)
                     {
                         _blockBitmaps[block][sectorInBlock / 8] |= sectorMask;
@@ -726,7 +726,7 @@ public class DynamicStream : MappedStream
                 // Reduce the write to just the end of the current sector
                 toWrite = Math.Min(buffer.Length - numWritten, Sizes.Sector - offsetInSector);
 
-                var sectorMask = (byte)(1 << (7 - sectorInBlock % 8));
+                var sectorMask = (byte)(1 << (7 - sectorInBlock & 0x7));
 
                 var sectorStart = (_blockAllocationTable[block] + sectorInBlock) * Sizes.Sector +
                                    _blockBitmapSize;
@@ -778,7 +778,7 @@ public class DynamicStream : MappedStream
                 // Update all of the bits in the block bitmap
                 for (var i = 0; i < toWrite; i += Sizes.Sector)
                 {
-                    var sectorMask = (byte)(1 << (7 - sectorInBlock % 8));
+                    var sectorMask = (byte)(1 << (7 - sectorInBlock & 0x7));
                     if ((_blockBitmaps[block][sectorInBlock / 8] & sectorMask) == 0)
                     {
                         _blockBitmaps[block][sectorInBlock / 8] |= sectorMask;
@@ -841,7 +841,7 @@ public class DynamicStream : MappedStream
                 // Reduce the write to just the end of the current sector
                 toWrite = Math.Min(buffer.Length - numWritten, Sizes.Sector - offsetInSector);
 
-                var sectorMask = (byte)(1 << (7 - sectorInBlock % 8));
+                var sectorMask = (byte)(1 << (7 - sectorInBlock & 0x7));
 
                 var sectorStart = (_blockAllocationTable[block] + sectorInBlock) * Sizes.Sector +
                                    _blockBitmapSize;
@@ -885,7 +885,7 @@ public class DynamicStream : MappedStream
                 // Update all of the bits in the block bitmap
                 for (var i = 0; i < toWrite; i += Sizes.Sector)
                 {
-                    var sectorMask = (byte)(1 << (7 - sectorInBlock % 8));
+                    var sectorMask = (byte)(1 << (7 - sectorInBlock & 0x7));
                     if ((_blockBitmaps[block][sectorInBlock / 8] & sectorMask) == 0)
                     {
                         _blockBitmaps[block][sectorInBlock / 8] |= sectorMask;
@@ -977,11 +977,11 @@ public class DynamicStream : MappedStream
 
                 if (_blockBitmaps[block][sectorInBlock / 8] == 0)
                 {
-                    pos += (8 - sectorInBlock % 8) * Sizes.Sector;
+                    pos += (8 - sectorInBlock & 0x7) * Sizes.Sector;
                 }
                 else
                 {
-                    var mask = (byte)(1 << (7 - sectorInBlock % 8));
+                    var mask = (byte)(1 << (7 - sectorInBlock & 0x7));
                     if ((_blockBitmaps[block][sectorInBlock / 8] & mask) != 0)
                     {
                         foundStart = true;
@@ -1015,11 +1015,11 @@ public class DynamicStream : MappedStream
 
                 if (_blockBitmaps[block][sectorInBlock / 8] == 0xFF)
                 {
-                    pos += (8 - sectorInBlock % 8) * Sizes.Sector;
+                    pos += (8 - sectorInBlock & 0x7) * Sizes.Sector;
                 }
                 else
                 {
-                    var mask = (byte)(1 << (7 - sectorInBlock % 8));
+                    var mask = (byte)(1 << (7 - sectorInBlock & 0x7));
                     if ((_blockBitmaps[block][sectorInBlock / 8] & mask) == 0)
                     {
                         foundEnd = true;

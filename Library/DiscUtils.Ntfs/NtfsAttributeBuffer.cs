@@ -26,7 +26,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using DiscUtils.Streams;
-using Buffer=DiscUtils.Streams.Buffer;
+using Buffer = DiscUtils.Streams.Buffer;
 
 namespace DiscUtils.Ntfs;
 
@@ -54,17 +54,12 @@ internal class NtfsAttributeBuffer : Buffer, IMappedBuffer
             return ((IMappedBuffer)_attribute.RawBuffer).MapPosition(pos);
         }
 
-        var attrRef = new AttributeReference(_file.MftReference,
-            _attribute.PrimaryRecord.AttributeId);
-        var attrRecord = (ResidentAttributeRecord)_file.GetAttribute(attrRef).PrimaryRecord;
+        var attrRecord = (ResidentAttributeRecord)_attribute.PrimaryRecord;
 
-        var attrStart = _file.GetAttributeOffset(attrRef);
+        var attrStart = _file.GetAttributeOffset(_attribute.Reference);
         var mftPos = attrStart + attrRecord.DataOffset + pos;
 
-        return
-            _file.Context.GetFileByIndex(MasterFileTable.MftIndex)
-                 .GetAttribute(AttributeType.Data, null)
-                 .OffsetToAbsolutePos(mftPos);
+        return _file.Context.Mft.DataAttribute.OffsetToAbsolutePos(mftPos);
     }
 
     public override int Read(long pos, byte[] buffer, int offset, int count)

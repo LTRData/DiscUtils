@@ -98,7 +98,7 @@ internal class Footer
         SavedState = toCopy.SavedState;
     }
 
-    private Footer() {}
+    private Footer() { }
 
     public bool IsValid()
     {

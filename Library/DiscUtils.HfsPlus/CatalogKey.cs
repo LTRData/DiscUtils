@@ -29,7 +29,7 @@ internal sealed class CatalogKey : BTreeKey, IComparable<CatalogKey>
 {
     private ushort _keyLength;
 
-    public CatalogKey() {}
+    public CatalogKey() { }
 
     public CatalogKey(CatalogNodeId nodeId, string name)
     {

@@ -209,7 +209,7 @@ internal sealed class Bin
 
     internal int AllocateCell(int size)
     {
-        if (size < 8 || size % 8 != 0)
+        if (size < 8 || (size % 0x7) != 0)
         {
             throw new ArgumentException("Invalid cell size");
         }

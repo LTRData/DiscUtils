@@ -31,5 +31,5 @@ internal class NullAuthenticator : Authenticator
         return true;
     }
 
-    public override void SetParameters(TextBuffer textBuffer) {}
+    public override void SetParameters(TextBuffer textBuffer) { }
 }

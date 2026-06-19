@@ -95,7 +95,7 @@ internal class BiosParameterBlock
         var bpb = new BiosParameterBlock
         {
             OemId = NTFS_OEM_ID,
-            BytesPerSector = Sizes.Sector
+            BytesPerSector = (ushort)diskGeometry.BytesPerSector
         };
         bpb.SectorsPerCluster = clusterSize / bpb.BytesPerSector;
         bpb.ReservedSectors = 0;
@@ -194,7 +194,7 @@ internal class BiosParameterBlock
         {
             return 1 << -(sbyte)rawSize;
         }
-        
+
         return rawSize;
     }
 
@@ -221,7 +221,7 @@ internal class BiosParameterBlock
         {
             return 1 << -(sbyte)rawSize;
         }
-        
+
         return rawSize * SectorsPerCluster * BytesPerSector;
     }
 

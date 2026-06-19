@@ -39,7 +39,7 @@ internal struct Inode : IByteArraySerializable
     public ExtentBlock Extents;
     public byte[] FastSymlink;
     public uint FileAcl;
-    public uint FileSize;
+    public long FileSize;
     public uint FileVersion;
     public InodeFlags Flags;
     public uint FragAddress;
@@ -100,6 +100,13 @@ internal struct Inode : IByteArraySerializable
         FileVersion = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(100));
         FileAcl = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(104));
         DirAcl = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(108));
+        
+        if (FileType == UnixFileType.Regular
+            && DirAcl != 0)
+        {
+            FileSize |= ((long)DirAcl) << 32;
+        }
+        
         FragAddress = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(112));
         Fragment = buffer[116];
         FragmentSize = buffer[117];

@@ -52,7 +52,8 @@ public class CommandLineEnumSwitch<T> : CommandLineSwitch
 
     public override string FullDescription
     {
-        get {
+        get
+        {
             var vals = Enum.GetNames(typeof(T));
 
             if (vals.Length < 3)

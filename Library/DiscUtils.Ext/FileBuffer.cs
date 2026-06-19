@@ -185,8 +185,8 @@ internal class FileBuffer : Buffer, IFileBuffer
                 yield return new(physicalBlock, 1);
             }
 
-            totalBlocksRemaining --;
-            totalRead ++;
+            totalBlocksRemaining--;
+            totalRead++;
         }
     }
 

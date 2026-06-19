@@ -55,7 +55,7 @@ public class BuilderTest
     {
         var bytes = new byte[3133440];
 
-        for(var i = 0; i < bytes.Length; ++i)
+        for (var i = 0; i < bytes.Length; ++i)
         {
             bytes[i] = (byte)i;
         }

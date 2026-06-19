@@ -46,10 +46,10 @@ public class DynamicStreamTest
     public void ReadWriteSmall()
     {
         DiscFileSystem fs = new InMemoryFileSystem();
-        using (var disk = Disk.Initialize(fs, "a.vmdk",16 * 1024L * 1024 * 1024, DiskCreateType.TwoGbMaxExtentSparse))
+        using (var disk = Disk.Initialize(fs, "a.vmdk", 16 * 1024L * 1024 * 1024, DiskCreateType.TwoGbMaxExtentSparse))
         {
             var content = new byte[100];
-            for(var i = 0; i < content.Length; ++i)
+            for (var i = 0; i < content.Length; ++i)
             {
                 content[i] = (byte)i;
             }
@@ -142,7 +142,7 @@ public class DynamicStreamTest
             contentStream.Position = 0;
             Assert.True(false);
         }
-        catch(ObjectDisposedException) { }
+        catch (ObjectDisposedException) { }
     }
 
     [Fact]

@@ -370,7 +370,7 @@ internal sealed class HostedSparseExtentStream : CommonSparseExtentStream
         _fileStream.Flush();
 
         _fileStream.Position = grainStartPos;
-        
+
         _fileStream.Write(content, 0, content.Length);
 
         LoadGrainTable(grainTable);

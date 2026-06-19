@@ -50,7 +50,7 @@ public sealed class ExtFileSystem : VfsFileSystemFacade, IUnixFileSystem, IClust
     /// </summary>
     /// <param name="stream">The stream containing the ext file system.</param>
     public ExtFileSystem(Stream stream)
-        : base(new VfsExtFileSystem(stream, null)) {}
+        : base(new VfsExtFileSystem(stream, null)) { }
 
     /// <summary>
     /// Initializes a new instance of the ExtFileSystem class.
@@ -58,7 +58,7 @@ public sealed class ExtFileSystem : VfsFileSystemFacade, IUnixFileSystem, IClust
     /// <param name="stream">The stream containing the ext file system.</param>
     /// <param name="parameters">The generic file system parameters (only file name encoding is honoured).</param>
     public ExtFileSystem(Stream stream, FileSystemParameters parameters)
-        : base(new VfsExtFileSystem(stream, parameters)) {}
+        : base(new VfsExtFileSystem(stream, parameters)) { }
 
     /// <summary>
     /// Retrieves Unix-specific information about a file or directory.

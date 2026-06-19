@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace DiscUtils.VirtualFileSystem;
+
 public partial class VirtualFileSystem : DiscFileSystem, IWindowsFileSystem, IUnixFileSystem, IFileSystemBuilder
 {
     public delegate Stream FileOpenDelegate(FileMode mode, FileAccess access);
@@ -77,7 +78,7 @@ public partial class VirtualFileSystem : DiscFileSystem, IWindowsFileSystem, IUn
         : base(options)
     {
         _root = new VirtualFileSystemDirectory(this);
-        
+
         RawStream = referenceStream;
     }
 
@@ -398,6 +399,14 @@ public partial class VirtualFileSystem : DiscFileSystem, IWindowsFileSystem, IUn
             CreationTimeUtc = creationTime.ToUniversalTime(),
             LastAccessTimeUtc = accessedTime.ToUniversalTime(),
             LastWriteTimeUtc = writtenTime.ToUniversalTime(),
+            Length = source.Length
+        };
+
+    public VirtualFileSystemFile AddFile(string path, Stream source) =>
+        new(AddDirectory(GetPathDirectoryName(path)),
+            GetPathFileName(path), (mode, access) => SparseStream.FromStream(source, Ownership.None))
+        {
+            Attributes = source.CanWrite ? 0 : FileAttributes.ReadOnly,
             Length = source.Length
         };
 

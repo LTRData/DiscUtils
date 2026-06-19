@@ -35,7 +35,7 @@ public static class ProcessUtility
         };
 
         var resultBuilder = new StringBuilder();
-        process.OutputDataReceived += delegate(object sender, DataReceivedEventArgs e)
+        process.OutputDataReceived += delegate (object sender, DataReceivedEventArgs e)
         {
             if (e.Data != null)
             {

@@ -40,7 +40,7 @@ public sealed class BlockCacheStreamTest
         bcs.ReadExactly(new byte[11], 0, 11);
 
         // Extend stream
-        for(var i = 0; i < 20; ++i)
+        for (var i = 0; i < 20; ++i)
         {
             bcs.Write(new byte[11], 0, 11);
         }

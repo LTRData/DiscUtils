@@ -27,5 +27,5 @@ namespace DiscUtils.Btrfs.Base.Items;
 /// </summary>
 internal class DirIndex : DirItem
 {
-    public DirIndex(Key key) : base(key) {}
+    public DirIndex(Key key) : base(key) { }
 }

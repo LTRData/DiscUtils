@@ -64,8 +64,50 @@ public sealed class AllocationBitmap
     public int ContiguousBits(int first, out bool state)
     {
         var matched = 0;
-        var bitPos = first % 8;
-        var bytePos = first / 8;
+        var bitPos = first & 0x7;
+        var bytePos = first >> 3;
+
+        state = (_data[_offset + bytePos] & (1 << bitPos)) != 0;
+        var matchByte = state ? (byte)0xFF : (byte)0;
+
+        while (bytePos < _length)
+        {
+            if (_data[_offset + bytePos] == matchByte)
+            {
+                matched += 8 - bitPos;
+                bytePos++;
+                bitPos = 0;
+            }
+            else if ((_data[_offset + bytePos] & (1 << bitPos)) != 0 == state)
+            {
+                matched++;
+                bitPos++;
+                if (bitPos == 8)
+                {
+                    bitPos = 0;
+                    bytePos++;
+                }
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        return matched;
+    }
+
+    /// <summary>
+    /// Find number of contiguous bits
+    /// </summary>
+    /// <param name="first">Bit number where search should start</param>
+    /// <param name="state">Returns bit state of bits in found sequence</param>
+    /// <returns>Number of contiguous bits found</returns>
+    public long ContiguousBits(long first, out bool state)
+    {
+        var matched = 0L;
+        var bitPos = (int)(first & 0x7);
+        var bytePos = (int)(first >> 3);
 
         state = (_data[_offset + bytePos] & (1 << bitPos)) != 0;
         var matchByte = state ? (byte)0xFF : (byte)0;
@@ -107,7 +149,7 @@ public sealed class AllocationBitmap
     {
         var changed = false;
         var marked = 0;
-        var bitPos = (int)first % 8;
+        var bitPos = (int)(first & 0x7);
         var bytePos = first / 8;
 
         while (marked < count)

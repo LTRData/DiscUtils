@@ -71,7 +71,7 @@ internal class DiskStream : SparseStream
         set => _position = value;
     }
 
-    public override void Flush() {}
+    public override void Flush() { }
 
     public override int Read(byte[] buffer, int offset, int count)
         => Read(buffer.AsSpan(offset, count));

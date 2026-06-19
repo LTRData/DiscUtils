@@ -100,7 +100,7 @@ internal class TestEnvironment : IDisposable
         lock (_lock)
         {
             RunDiskPartAttach(vhdxPath);
-            
+
             var result = ProcessUtility.Run("chkdsk", @$"\\?\Volume{{{volumeId}}} /x");
             var success = result.exitCode == 0;
             var checkResult = result.result;

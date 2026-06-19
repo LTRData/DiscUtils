@@ -26,7 +26,7 @@ internal abstract class BTreeKeyedNode<TKey> : BTreeNode
     where TKey : BTreeKey
 {
     public BTreeKeyedNode(BTree tree, BTreeNodeDescriptor descriptor)
-        : base(tree, descriptor) {}
+        : base(tree, descriptor) { }
 
     public abstract byte[] FindKey(TKey key);
 

@@ -11,6 +11,7 @@ using DiscUtils.ExFat.Internal.Filesystem;
 using LibraryTests.ExFat.Environment;
 
 namespace LibraryTests.ExFat.Tests;
+
 [Trait("Category", "EntryFilesystem")]
 public class EntryFilesystemWriteTests
 {

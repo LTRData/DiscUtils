@@ -844,7 +844,7 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
             ?? throw new DirectoryNotFoundException($"The directory '{path}' was not found");
 
         var resultPrefixPath = path;
-        
+
         if (IsRoot(path))
         {
             resultPrefixPath = Utilities.DirectorySeparatorString;

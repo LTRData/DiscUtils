@@ -26,15 +26,16 @@ using System;
 using System.Collections.Generic;
 
 namespace DiscUtils.Xfs;
+
 internal class LeafDirectory : IByteArraySerializable
 {
     private readonly Context _context;
     public const uint HeaderMagic = 0x58443244;
 
-    public const ulong LeafOffset = (1* (1UL << (32 + 3)));
+    public const ulong LeafOffset = (1 * (1UL << (32 + 3)));
 
     public uint Magic { get; protected set; }
-    
+
     public BlockDirectoryDataFree[] BestFree { get; private set; }
 
     public List<BlockDirectoryData> Entries { get; private set; }
@@ -68,7 +69,7 @@ internal class LeafDirectory : IByteArraySerializable
         }
 
         offset += HeaderPadding;
-        
+
         var entries = new List<BlockDirectoryData>();
         var eof = buffer.Length;
         while (offset < eof)

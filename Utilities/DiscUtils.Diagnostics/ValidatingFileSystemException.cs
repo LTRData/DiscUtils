@@ -51,7 +51,7 @@ public sealed class ValidatingFileSystemException : Exception
     /// <param name="message">The exception message</param>
     /// <param name="innerException">The inner exception</param>
     public ValidatingFileSystemException(string message, Exception innerException)
-        :base(message, innerException)
+        : base(message, innerException)
     {
     }
 

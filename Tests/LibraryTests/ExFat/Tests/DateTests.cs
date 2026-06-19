@@ -6,6 +6,7 @@ using DiscUtils.ExFat.Internal;
 using System;
 
 namespace LibraryTests.ExFat.Tests;
+
 public class DateTests
 {
     [Fact]

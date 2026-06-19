@@ -27,7 +27,7 @@ namespace DiscUtils.Partitions;
 
 internal class BiosPartitionRecord : IComparable<BiosPartitionRecord>
 {
-    public BiosPartitionRecord() {}
+    public BiosPartitionRecord() { }
 
     public BiosPartitionRecord(ReadOnlySpan<byte> data, uint lbaOffset, int index)
     {

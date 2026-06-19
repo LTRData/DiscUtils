@@ -6,9 +6,9 @@ namespace DiscUtils.Core.WindowsSecurity.AccessControl;
 public abstract class KnownAce : GenericAce
 {
     public int AccessMask { get; set; }
-    
+
     public SecurityIdentifier? SecurityIdentifier { get; set; }
-    
+
     internal KnownAce(AceType type, AceFlags flags)
         : base(type, flags) { }
 

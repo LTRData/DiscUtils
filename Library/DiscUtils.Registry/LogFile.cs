@@ -43,7 +43,7 @@ internal class LogFile : IEnumerable<LogEntry>
             }
 
             var size = EndianUtilities.ToInt32LittleEndian(buffer, offset + 4);
-                        
+
             // Check for corrupt log records
             if (size <= 0 || offset + size > buffer.Length)
             {

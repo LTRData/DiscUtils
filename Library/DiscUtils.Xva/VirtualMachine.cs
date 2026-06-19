@@ -55,7 +55,7 @@ public sealed class VirtualMachine : IDisposable
     /// Ownership of the stream is not transfered.
     /// </remarks>
     public VirtualMachine(Stream fileStream)
-        : this(fileStream, Ownership.None) {}
+        : this(fileStream, Ownership.None) { }
 
     /// <summary>
     /// Initializes a new instance of the VirtualMachine class.

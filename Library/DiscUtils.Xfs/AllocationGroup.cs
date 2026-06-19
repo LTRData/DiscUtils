@@ -28,6 +28,7 @@ using System;
 using System.IO;
 
 namespace DiscUtils.Xfs;
+
 internal class AllocationGroup
 {
     public const uint IbtMagic = 0x49414254;
@@ -51,7 +52,7 @@ internal class AllocationGroup
         FreeBlockInfo = new AllocationGroupFreeBlockInfo(superblock);
         data.Position = offset + superblock.SectorSize;
         Span<byte> agfData = stackalloc byte[FreeBlockInfo.Size];
-        data.ReadExactly(agfData); 
+        data.ReadExactly(agfData);
         FreeBlockInfo.ReadFrom(agfData);
         if (FreeBlockInfo.Magic != AllocationGroupFreeBlockInfo.AgfMagic)
         {
@@ -83,7 +84,7 @@ internal class AllocationGroup
 
     public void LoadInode(ref Inode inode)
     {
-        var offset = Offset + ((long)inode.AgBlock*Context.SuperBlock.Blocksize) + ((long)inode.BlockOffset * Context.SuperBlock.InodeSize);
+        var offset = Offset + ((long)inode.AgBlock * Context.SuperBlock.Blocksize) + ((long)inode.BlockOffset * Context.SuperBlock.InodeSize);
         Context.RawStream.Position = offset;
         inode.ReadFrom(Context.RawStream, Context.SuperBlock.InodeSize);
     }

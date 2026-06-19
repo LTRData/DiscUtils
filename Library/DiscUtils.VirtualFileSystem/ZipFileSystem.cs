@@ -99,7 +99,7 @@ public class ZipFileSystem : VirtualFileSystem
                 });
 
                 entry.Length = file.Length;
-                
+
                 entry.LastAccessTimeUtc =
                     entry.CreationTimeUtc =
                     entry.LastWriteTimeUtc =

@@ -30,7 +30,7 @@ namespace DiscUtils.Ntfs;
 
 internal sealed class VolumeName : IByteArraySerializable, IDiagnosticTraceable
 {
-    public VolumeName() {}
+    public VolumeName() { }
 
     public VolumeName(string name)
     {

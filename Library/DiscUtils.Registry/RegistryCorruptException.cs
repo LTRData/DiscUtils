@@ -35,14 +35,14 @@ public class RegistryCorruptException : Exception
     /// <summary>
     /// Initializes a new instance of the RegistryCorruptException class.
     /// </summary>
-    public RegistryCorruptException() {}
+    public RegistryCorruptException() { }
 
     /// <summary>
     /// Initializes a new instance of the RegistryCorruptException class.
     /// </summary>
     /// <param name="message">The exception message.</param>
     public RegistryCorruptException(string message)
-        : base(message) {}
+        : base(message) { }
 
     /// <summary>
     /// Initializes a new instance of the RegistryCorruptException class.
@@ -50,7 +50,7 @@ public class RegistryCorruptException : Exception
     /// <param name="message">The exception message.</param>
     /// <param name="innerException">The inner exception.</param>
     public RegistryCorruptException(string message, Exception innerException)
-        : base(message, innerException) {}
+        : base(message, innerException) { }
 
     /// <summary>
     /// Initializes a new instance of the RegistryCorruptException class.

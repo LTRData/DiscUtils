@@ -29,7 +29,7 @@ namespace DiscUtils.Nfs;
 public sealed class XdrDataReader : BigEndianDataReader
 {
     public XdrDataReader(Stream stream)
-        : base(stream) {}
+        : base(stream) { }
 
     public bool ReadBool()
     {

@@ -129,7 +129,7 @@ public class CommandLineParser
             {
                 var text = Utilities.WordWrap(remark, 74);
 
-                foreach(var line in text)
+                foreach (var line in text)
                 {
                     Console.WriteLine($"  {line}");
                 }

@@ -65,7 +65,7 @@ public sealed class SquashFileSystemBuilderOptions
 
         if (GetCompressor != null)
         {
-            compressor = GetCompressor(CompressionKind , CompressionOptions);
+            compressor = GetCompressor(CompressionKind, CompressionOptions);
         }
 
         if (compressor == null)

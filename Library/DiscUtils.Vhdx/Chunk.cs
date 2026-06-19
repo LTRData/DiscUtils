@@ -62,7 +62,7 @@ public sealed class Chunk
         var chunkBatSize = (BlocksPerChunk + 1) * 8;
 
         _bat.Position = _chunk * chunkBatSize;
-        
+
         var batBuffer = ArrayPool<byte>.Shared.Rent(chunkBatSize);
         try
         {

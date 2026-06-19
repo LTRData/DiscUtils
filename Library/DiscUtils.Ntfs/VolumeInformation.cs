@@ -35,7 +35,7 @@ public sealed class VolumeInformation : IByteArraySerializable, IDiagnosticTrace
     private byte _majorVersion;
     private byte _minorVersion;
 
-    public VolumeInformation() {}
+    public VolumeInformation() { }
 
     public VolumeInformation(byte major, byte minor, VolumeInformationFlags flags)
     {

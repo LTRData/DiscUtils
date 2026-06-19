@@ -43,7 +43,7 @@ public sealed class SdiFile : IDisposable
     /// </summary>
     /// <param name="stream">The stream formatted as an SDI file.</param>
     public SdiFile(Stream stream)
-        : this(stream, Ownership.None) {}
+        : this(stream, Ownership.None) { }
 
     /// <summary>
     /// Initializes a new instance of the SdiFile class.

@@ -33,7 +33,7 @@ internal class Directory : File, IVfsDirectory<DirEntry, File>
 {
     public Directory(DirEntry dirEntry, Context context) : base(dirEntry, context)
     {
-        
+
     }
 
     private FastDictionary<DirEntry> _allEntries;
@@ -61,8 +61,20 @@ internal class Directory : File, IVfsDirectory<DirEntry, File>
             var items = tree.Find<DirIndex>(new Key(objectId, ItemType.DirIndex), Context);
             foreach (var item in items)
             {
-                var inode = tree.FindFirst(item.ChildLocation, Context);
-                result.Add(new DirEntry(treeId, item, (InodeItem)inode));
+                BaseItem inode;
+
+                if (item.ChildLocation.ItemType == ItemType.RootItem)
+                {
+                    var subtreeId = item.ChildLocation.ObjectId;
+                    var subtree = Context.GetFsTree(subtreeId);
+                    inode = subtree.FindFirst(new Key(objectId: (ulong)ReservedObjectId.FirstChunkTree, ItemType.InodeItem, offset: 0), Context);
+                    result.Add(new DirEntry(subtreeId, item, (InodeItem)inode));
+                }
+                else
+                {
+                    inode = tree.FindFirst(item.ChildLocation, Context);
+                    result.Add(new DirEntry(treeId, item, (InodeItem)inode));
+                }
             }
 
             _allEntries = result;

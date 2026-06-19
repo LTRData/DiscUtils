@@ -6,6 +6,7 @@ using DiscUtils.ExFat;
 using LibraryTests.ExFat.Environment;
 
 namespace LibraryTests.ExFat.Tests;
+
 [Trait("Category", "Partition")]
 public class IntegrityTests
 {

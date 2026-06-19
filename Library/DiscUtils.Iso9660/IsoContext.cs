@@ -41,6 +41,6 @@ internal class IsoContext : VfsContext
     public int SuspSkipBytes { get; set; }
 
     public CommonVolumeDescriptor VolumeDescriptor { get; set; }
-    
+
     public bool IsCaseSensitive { get; set; }
 }

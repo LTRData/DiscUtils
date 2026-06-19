@@ -55,7 +55,7 @@ public sealed class Nfs3WriteResult : Nfs3CallResult
     {
         writer.Write((int)Status);
         CacheConsistency.Write(writer);
-        if(Status == Nfs3Status.Ok)
+        if (Status == Nfs3Status.Ok)
         {
             writer.Write(Count);
             writer.Write((int)HowCommitted);

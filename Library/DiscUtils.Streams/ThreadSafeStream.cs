@@ -61,7 +61,7 @@ public class ThreadSafeStream : SparseStream
     /// <remarks>Do not directly modify <c>toWrap</c> after wrapping it, unless the thread-safe views
     /// will no longer be used.</remarks>
     public ThreadSafeStream(SparseStream toWrap)
-        : this(toWrap, Ownership.None) {}
+        : this(toWrap, Ownership.None) { }
 
     /// <summary>
     /// Initializes a new instance of the ThreadSafeStream class.
@@ -375,7 +375,7 @@ public class ThreadSafeStream : SparseStream
                     {
                         _common.WrappedStream.Flush();
                     }
-                    
+
                     _common.Dispose();
                 }
             }
@@ -389,13 +389,13 @@ public class ThreadSafeStream : SparseStream
         public SparseStream? WrappedStream;
         public Ownership WrappedStreamOwnership;
 
-#region IDisposable Members
+        #region IDisposable Members
 
         public void Dispose()
         {
             WrappedStream = null;
         }
 
-#endregion
+        #endregion
     }
 }

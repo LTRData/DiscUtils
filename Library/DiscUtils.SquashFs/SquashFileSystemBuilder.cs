@@ -416,7 +416,7 @@ public sealed class SquashFileSystemBuilder : StreamBuilder, IFileSystemBuilder
             RawStream = output,
             DataBlockSize = DefaultBlockSize,
             IoBuffer = new byte[DefaultBlockSize],
-            SharedMemoryStream = MemoryStreamHelper.CreateWithFixedCapacity(DefaultBlockSize),
+            SharedMemoryStream = new(), // We need an expandable stream to hold compressed data, but we want to avoid large heap allocations, so use a shared stream that can be cleared between uses.
             Compressor = _compressor
         };
 
@@ -488,7 +488,7 @@ public sealed class SquashFileSystemBuilder : StreamBuilder, IFileSystemBuilder
 
         // Add optional compression options
         CompressionOptions.WriteTo(output, superBlock, Options.CompressionOptions);
-        
+
         output.Position = end;
     }
 
@@ -566,9 +566,9 @@ public sealed class SquashFileSystemBuilder : StreamBuilder, IFileSystemBuilder
     private BuilderDirectory GetRoot()
     {
         _rootDir ??= new BuilderDirectory
-            {
-                Mode = DefaultDirectoryPermissions
-            };
+        {
+            Mode = DefaultDirectoryPermissions
+        };
 
         return _rootDir;
     }

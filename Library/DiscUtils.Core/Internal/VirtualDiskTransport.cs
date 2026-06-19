@@ -45,5 +45,5 @@ internal abstract class VirtualDiskTransport : IDisposable
 
     public abstract string GetExtraInfo();
 
-    protected virtual void Dispose(bool disposing) {}
+    protected virtual void Dispose(bool disposing) { }
 }

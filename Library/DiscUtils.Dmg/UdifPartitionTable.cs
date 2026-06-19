@@ -29,10 +29,10 @@ namespace DiscUtils.Dmg;
 internal class UdifPartitionTable : PartitionTable
 {
     private readonly UdifBuffer _buffer;
-    private readonly Disk _disk;
+    private readonly VirtualDisk _disk;
     private readonly Collection<PartitionInfo> _partitions;
 
-    public UdifPartitionTable(Disk disk, UdifBuffer buffer)
+    public UdifPartitionTable(VirtualDisk disk, UdifBuffer buffer)
     {
         _buffer = buffer;
         _partitions = [];

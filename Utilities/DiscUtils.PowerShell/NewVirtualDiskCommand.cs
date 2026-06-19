@@ -33,11 +33,11 @@ public class NewVirtualDiskCommand : PSCmdlet
     [Parameter(Mandatory = true, Position = 0)]
     public string LiteralPath { get; set; }
 
-    [Parameter(Mandatory = true, ParameterSetName="New")]
-    [ValidateLength(1,int.MaxValue)]
+    [Parameter(Mandatory = true, ParameterSetName = "New")]
+    [ValidateLength(1, int.MaxValue)]
     public string Type { get; set; }
 
-    [Parameter(Mandatory = true, ParameterSetName="New")]
+    [Parameter(Mandatory = true, ParameterSetName = "New")]
     public string Size { get; set; }
 
     [Parameter(Mandatory = true, ParameterSetName = "Diff")]

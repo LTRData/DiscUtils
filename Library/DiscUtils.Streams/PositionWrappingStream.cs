@@ -78,7 +78,7 @@ public class PositionWrappingStream : WrappingStream
         }
 
         Span<byte> buffer = stackalloc byte[Sizes.OneKiB];
-        
+
         while (offset > 0)
         {
             var read = base.Read(buffer.Slice(0, (int)Math.Min(buffer.Length, offset)));

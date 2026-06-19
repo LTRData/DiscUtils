@@ -63,7 +63,7 @@ internal struct FatFileName : IEquatable<FatFileName>
     public readonly string LongName { get; }
 
     public readonly string FullName => LongName ?? ShortName;
-    
+
     /// <summary>
     /// Gets the number of additional directory entries used by the long file name.
     /// </summary>
@@ -250,7 +250,7 @@ internal struct FatFileName : IEquatable<FatFileName>
         {
             sfnEntry[12] |= 1 << 3;
         }
-        
+
         // Copy the extension part
         if (indexOfDot > 0)
         {
@@ -286,7 +286,7 @@ internal struct FatFileName : IEquatable<FatFileName>
             var lfnBytes = MemoryMarshal.AsBytes(LongName.AsSpan());
 
             var length13 = LongName.Length % 13;
-            
+
             for (var i = lfnCount; i > 0; i--, offset += DirectoryEntry.SizeOf)
             {
                 if (i == lfnCount && length13 > 0)
@@ -342,7 +342,7 @@ internal struct FatFileName : IEquatable<FatFileName>
 
                 var seq = (byte)i;
                 if (i == lfnCount)
-                { 
+                {
                     seq |= 0x40;
                 }
 
@@ -384,7 +384,7 @@ internal struct FatFileName : IEquatable<FatFileName>
         {
             throw new ArgumentException("Empty file name", nameof(name));
         }
-        
+
         ValidateCharsFromLongName(name);
 
         Span<byte> shortNameBytes = stackalloc byte[12];
@@ -411,14 +411,14 @@ internal struct FatFileName : IEquatable<FatFileName>
         {
             baseLength = nameSpan.Length;
         }
-        
+
         // If we have trimmed already the name, this is a lossy conversion to short name
         var lossy = nameSpan.Length != name.Length;
         var hasNonSupportedChar = lossy;
         var isBaseAllUpper = true;
         var isBaseAllLower = true;
         var shortLength = 0;
-        
+
         // Process the base name (at max 8 characters)
         ProcessChars(nameSpan, 0, baseLength, 8, ref lossy, ref isBaseAllUpper, ref isBaseAllLower, shortNameBytes, ref shortLength, ref hasNonSupportedChar, encodingTable);
 
@@ -430,7 +430,7 @@ internal struct FatFileName : IEquatable<FatFileName>
         // Process the extension (at max 3 characters)
         var baseNameLength = shortLength;
         var extensionStart = baseNameLength;
-        
+
         var isExtensionAllUpper = true;
         var isExtensionAllLower = true;
         if (indexOfDot > 0)
@@ -442,7 +442,7 @@ internal struct FatFileName : IEquatable<FatFileName>
                 shortLength = Math.Min(shortLength, 2);
                 ConvertToHex(hash, shortNameBytes.Slice(shortLength, 4));
                 shortLength += 4;
-                
+
                 baseNameLength = shortLength;
                 extensionStart = baseNameLength;
             }
@@ -450,7 +450,7 @@ internal struct FatFileName : IEquatable<FatFileName>
             // 6.	Insert a dot at the end of the primary components of the basis-name iff the basis name has an extension after the last period in the name.
             shortNameBytes[shortLength++] = (byte)'.';
             var unused = false;
-            ProcessChars(nameSpan, indexOfDot + 1, nameSpan.Length, 3, ref lossy, ref isExtensionAllUpper, ref isExtensionAllLower, shortNameBytes, ref shortLength, ref unused,  encodingTable);
+            ProcessChars(nameSpan, indexOfDot + 1, nameSpan.Length, 3, ref lossy, ref isExtensionAllUpper, ref isExtensionAllLower, shortNameBytes, ref shortLength, ref unused, encodingTable);
         }
 
         // Initialize the temp buffer with the short name (that will be used to generate the short name and handle collisions)
@@ -473,7 +473,7 @@ internal struct FatFileName : IEquatable<FatFileName>
         {
             if (isBaseAllLower)
             {
-                for(var i = 0; i < baseNameLength; i++)
+                for (var i = 0; i < baseNameLength; i++)
                 {
                     tempBytes[i] = (byte)char.ToLowerInvariant((char)tempBytes[i]);
                 }
@@ -594,7 +594,7 @@ internal struct FatFileName : IEquatable<FatFileName>
 
             var lfn_bytes = MemoryMarshal.AsBytes(lfn_chars);
 
-            for (var i = lfnDirectoryEntryCount; i > 0 ; i--, offset += DirectoryEntry.SizeOf)
+            for (var i = lfnDirectoryEntryCount; i > 0; i--, offset += DirectoryEntry.SizeOf)
             {
                 if ((data[offset] & 0x3f) == i && ((FatAttributes)data[offset + 11] & FatAttributes.LongFileNameMask) == FatAttributes.LongFileName)
                 {
@@ -627,7 +627,7 @@ internal struct FatFileName : IEquatable<FatFileName>
             offset = DirectoryEntry.SizeOf; // inform that we only processed one entry 
             return new(null, null);
         }
-        
+
         // Check if the shortname is entirely zeroed
         bool isNull = MemoryMarshal.Cast<byte, long>(data.Slice(0, 8))[0] == 0
                       && MemoryMarshal.Cast<byte, int>(data.Slice(11 - 4, 4))[0] == 0;
@@ -659,7 +659,7 @@ internal struct FatFileName : IEquatable<FatFileName>
             offset += DirectoryEntry.SizeOf;
             return new(null, null);
         }
-        
+
         // Process the name part in the short name 8.3
         Span<byte> tmpBuffer = stackalloc byte[12]; // 8.3 + including `.`
         int tmpLength = 0;
@@ -675,7 +675,7 @@ internal struct FatFileName : IEquatable<FatFileName>
         }
 
         int nameLength = tmpLength;
-        
+
         // Process the extension part in the short name 8.3
         var hasExtension = false;
 

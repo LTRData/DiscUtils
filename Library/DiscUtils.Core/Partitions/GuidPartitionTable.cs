@@ -84,7 +84,8 @@ public sealed class GuidPartitionTable : PartitionTable
     /// <summary>
     /// Gets a collection of the partitions for storing Operating System file-systems.
     /// </summary>
-    public override ReadOnlyCollection<PartitionInfo> Partitions => GetAllEntries().Select(e => new GuidPartitionInfo(this, e) as PartitionInfo).ToList().AsReadOnly();
+    public override ReadOnlyCollection<PartitionInfo> Partitions
+        => GetAllEntries().Select(e => new GuidPartitionInfo(this, e) as PartitionInfo).ToList().AsReadOnly();
 
     /// <summary>
     /// Creates a new partition table on a disk.
@@ -362,7 +363,7 @@ public sealed class GuidPartitionTable : PartitionTable
         var sector = diskGeometry.BytesPerSector <= 1024
             ? stackalloc byte[diskGeometry.BytesPerSector]
             : StreamUtilities.GetUninitializedArray<byte>(diskGeometry.BytesPerSector);
-        
+
         disk.ReadExactly(sector);
 
         _primaryHeader = new GptHeader(diskGeometry.BytesPerSector);
@@ -405,9 +406,9 @@ public sealed class GuidPartitionTable : PartitionTable
             _secondaryHeader = new GptHeader(diskGeometry.BytesPerSector);
 
             disk.Position = _primaryHeader.AlternateHeaderLba * diskGeometry.BytesPerSector;
-            
+
             disk.ReadExactly(sector);
-            
+
             if (!_secondaryHeader.ReadFrom(sector) || !ReadEntries(_secondaryHeader))
             {
                 // Generate from the secondary table from the primary one

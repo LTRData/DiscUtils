@@ -56,8 +56,8 @@ public class TarFile : IDisposable
 
         string? long_path = null;
 
-        for (;;)
-        {                
+        for (; ; )
+        {
             if (_fileStream.ReadMaximum(hdrBuf) < 512)
             {
                 break;
@@ -202,7 +202,7 @@ public class TarFile : IDisposable
         string? long_path = null;
         string? long_link_path = null;
 
-        for (;;)
+        for (; ; )
         {
             if (archive.ReadMaximum(hdrBuf, 0, 512) < 512)
             {

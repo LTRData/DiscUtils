@@ -30,7 +30,7 @@ internal sealed class PortMap2 : RpcProgram
     public const int ProgramVersion = 2;
 
     public PortMap2(RpcClient client)
-        : base(client) {}
+        : base(client) { }
 
     public override int Identifier => ProgramIdentifier;
 

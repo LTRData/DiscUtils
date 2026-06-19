@@ -28,6 +28,7 @@ using DiscUtils.Streams;
 
 
 namespace DiscUtils.Lvm.LinuxRaid;
+
 using LogicalVolumeStatus = DiscUtils.LogicalVolumeStatus;
 internal class LinuxRaidDiskGroup : IDiagnosticTraceable
 {

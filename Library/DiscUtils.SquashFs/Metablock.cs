@@ -29,7 +29,7 @@ internal sealed class Metablock : Block
     public const int SQUASHFS_COMPRESSED_BIT = 1 << 15;
 
     public const int SQUASHFS_COMPRESSED_BIT_SIZE_MASK = ~SQUASHFS_COMPRESSED_BIT;
-    
+
     public const int SQUASHFS_METADATA_SIZE = 8192;
 
     public long NextBlockStart { get; set; }

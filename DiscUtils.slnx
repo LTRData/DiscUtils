@@ -74,6 +74,7 @@
     <Project Path="Utilities/ExternalFileSystem/ExternalFileSystem.csproj" />
     <Project Path="Utilities/FileExtract/FileExtract.csproj" />
     <Project Path="Utilities/FileRecover/FileRecover.csproj" />
+    <Project Path="Utilities/ImageFileList/ImageFileList.csproj" />
     <Project Path="Utilities/iSCSIBrowse/iSCSIBrowse.csproj" />
     <Project Path="Utilities/ISOCreate/ISOCreate.csproj" />
     <Project Path="Utilities/MSBuildTask/MSBuildTask.csproj" />

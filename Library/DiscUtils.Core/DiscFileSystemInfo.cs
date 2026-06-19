@@ -148,6 +148,11 @@ public class DiscFileSystemInfo
     }
 
     /// <summary>
+    /// Gets a value indicating whether the current <see cref="DiscFileSystemInfo"/> object represents a directory.
+    /// </summary>
+    public virtual bool IsDirectory => (Attributes & FileAttributes.Directory) != 0;
+
+    /// <summary>
     /// Gets the name of the file or directory.
     /// </summary>
     public virtual string Name => Utilities.GetFileFromPath(Path);

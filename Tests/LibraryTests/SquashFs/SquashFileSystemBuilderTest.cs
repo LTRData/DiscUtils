@@ -20,6 +20,8 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
+#if NET462_OR_GREATER || NETSTANDARD || NETCOREAPP
+
 using System;
 using System.IO;
 using System.Linq;
@@ -216,6 +218,32 @@ public sealed class SquashFileSystemBuilderTest
         }
     }
 
+    [Fact]
+    public void IncompressibleData()
+    {
+        var incompressible = new byte[131072];
+
+        var random = new Random();
+        
+        random.NextBytes(incompressible);
+
+        var builder = new SquashFileSystemBuilder();
+        
+        builder.AddFile("data.bin", new MemoryStream(incompressible));
+
+        using var output = new MemoryStream();
+
+        builder.Build(output);
+
+        output.Position = 0;
+
+        using var fs = new SquashFileSystemReader(output);
+        
+        var file = fs.ReadAllBytes("data.bin");
+
+        Assert.Equal(incompressible, file);
+    }
+
     /// <summary>
     /// A simple stream that uses LZ4 to compress and decompress data.
     /// Read and Write methods expect the whole buffer to be read or written as we can only rely on LZ4 standard decode/encode buffer methods.
@@ -304,3 +332,5 @@ public sealed class SquashFileSystemBuilderTest
         public override long Position { get; set; }
     }
 }
+
+#endif

@@ -108,7 +108,7 @@ internal class ReparsePoints
             return 0;
         }
 
-        public void WriteTo(Span<byte> buffer) {}
+        public void WriteTo(Span<byte> buffer) { }
 
         public override string ToString()
         {

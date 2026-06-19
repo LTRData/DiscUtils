@@ -122,7 +122,7 @@ class DiskBuilderFileSystem : DiscFileSystem
     {
         if (_files.ContainsKey(path))
         {
-            if(mode == FileMode.CreateNew)
+            if (mode == FileMode.CreateNew)
             {
                 throw new IOException("File already exists");
             }

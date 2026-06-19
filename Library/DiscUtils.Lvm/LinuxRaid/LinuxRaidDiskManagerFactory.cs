@@ -45,7 +45,7 @@ internal class LinuxRaidDiskManagerFactory : LogicalVolumeFactory
         else
         {
             var sb = LinuxRaidDiskVolume.GetSuperblock(volume.Partition);
-            
+
             if (sb?.IsValid == true)
             {
                 return true;

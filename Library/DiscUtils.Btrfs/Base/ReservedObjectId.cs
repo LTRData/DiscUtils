@@ -36,57 +36,57 @@ internal enum ReservedObjectId : ulong
     /// The objectid that refers to the EXTENT_TREE
     /// </summary>
     ExtentTree = 2,
-        
+
     /// <summary>
     /// The objectid that refers to the root of the CHUNK_TREE
     /// </summary>
     ChunkTree = 3,
-    
+
     /// <summary>
     /// The objectid that refers to the root of the DEV_TREE
     /// </summary>
     DevTree = 4,
-    
+
     /// <summary>
     /// The objectid that refers to the global FS_TREE root
     /// </summary>
     FsTree = 5,
-    
+
     /// <summary>
     /// The objectid that refers to the CSUM_TREE
     /// </summary>
     CsumTree = 7,
-    
+
     /// <summary>
     /// The objectid that refers to the QUOTA_TREE
     /// </summary>
     QuotaTree = 8,
-    
+
     /// <summary>
     /// The objectid that refers to the UUID_TREE
     /// </summary>
     UuidTree = 9,
-    
+
     /// <summary>
     /// The objectid that refers to the FREE_SPACE_TREE
     /// </summary>
     FreeSpaceTree = 10,
-    
+
     /// <summary>
     /// The objectid that refers to the TREE_LOG tree
     /// </summary>
     TreeLog = ulong.MaxValue - 7UL,
-    
+
     /// <summary>
     /// The objectid that refers to the TREE_RELOC tree
     /// </summary>
-    TreeReloc = ulong.MaxValue-8UL,
-    
+    TreeReloc = ulong.MaxValue - 8UL,
+
     /// <summary>
     /// The objectid that refers to the DATA_RELOC tree
     /// </summary>
     DataRelocTree = ulong.MaxValue - 9UL,
-    
+
     /// <summary>
     /// The objectid that refers to the directory within the root tree. 
     ///  </summary>
@@ -95,12 +95,12 @@ internal enum ReservedObjectId : ulong
     /// There will only be a single entry called default that points to a key to be used as the root directory on the file system instead of the FS_TREE
     /// </remarks>
     RootTreeDir = 6,
-    
+
     /// <summary>
     /// The objectid used for orphan root tracking
     /// </summary>
     Orphan = ulong.MaxValue - 5UL,
-    
+
     CsumItem = ulong.MaxValue - 10UL,
 
     /// <summary>

@@ -75,7 +75,7 @@ public static class HexDump
         stream.Position = 0;
         var buffer = StreamUtilities.GetUninitializedArray<byte>(1024 * 1024);
 
-        foreach(var block in StreamExtent.Blocks(stream.Extents, buffer.Length))
+        foreach (var block in StreamExtent.Blocks(stream.Extents, buffer.Length))
         {
             var startPos = block.Offset * buffer.Length;
             var endPos = Math.Min((block.Offset + block.Count) * buffer.Length, stream.Length);
@@ -121,7 +121,7 @@ public static class HexDump
 
                         for (var j = 0; j < 16; j++)
                         {
-                            if (j % 8 == 0)
+                            if ((j & 0x7) == 0)
                             {
                                 output.Write(" ");
                             }
@@ -132,7 +132,7 @@ public static class HexDump
                         output.Write("  |");
                         for (var j = 0; j < 16; j++)
                         {
-                            if (j % 8 == 0 && j != 0)
+                            if ((j & 0x7) == 0 && j != 0)
                             {
                                 output.Write(" ");
                             }

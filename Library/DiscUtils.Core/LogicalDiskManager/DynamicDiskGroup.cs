@@ -218,7 +218,7 @@ internal class DynamicDiskGroup : IDiagnosticTraceable
         foreach (var extent in _database.GetComponentExtents(cmpnt.Id))
         {
             var disk = _database.GetDisk(extent.DiskId);
-            
+
             if (!_disks.ContainsKey(new Guid(disk.DiskGuidString)))
             {
                 status = LogicalVolumeStatus.Failed;

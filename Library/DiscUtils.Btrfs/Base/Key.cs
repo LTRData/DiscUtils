@@ -27,7 +27,7 @@ namespace DiscUtils.Btrfs.Base;
 
 internal class Key : IByteArraySerializable
 {
-    public static readonly int Length = 0x11;
+    public const int Length = 0x11;
 
     public Key()
     {

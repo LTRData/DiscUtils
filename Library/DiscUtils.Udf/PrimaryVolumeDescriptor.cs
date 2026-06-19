@@ -49,7 +49,8 @@ internal sealed class PrimaryVolumeDescriptor : TaggedDescriptor<PrimaryVolumeDe
     public string VolumeSetIdentifier;
 
     public PrimaryVolumeDescriptor() :
-        base(TagIdentifier.PrimaryVolumeDescriptor) {}
+        base(TagIdentifier.PrimaryVolumeDescriptor)
+    { }
 
     public override int Parse(ReadOnlySpan<byte> buffer)
     {

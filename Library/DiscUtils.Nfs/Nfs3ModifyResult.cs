@@ -52,7 +52,7 @@ public sealed class Nfs3ModifyResult : Nfs3CallResult
 
     public bool Equals(Nfs3ModifyResult other)
     {
-        if(other == null)
+        if (other == null)
         {
             return false;
         }

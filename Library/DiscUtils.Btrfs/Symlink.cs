@@ -31,7 +31,7 @@ internal class Symlink : File, IVfsSymlink<DirEntry, File>
 {
     public Symlink(DirEntry dirEntry, Context context) : base(dirEntry, context)
     {
-        
+
     }
 
     public string TargetPath

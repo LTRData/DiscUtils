@@ -37,7 +37,7 @@ internal abstract class AttributeRecord : IComparable<AttributeRecord>
     protected byte _nonResidentFlag;
     protected AttributeType _type;
 
-    public AttributeRecord() {}
+    public AttributeRecord() { }
 
     public AttributeRecord(AttributeType type, string name, ushort id, AttributeFlags flags)
     {

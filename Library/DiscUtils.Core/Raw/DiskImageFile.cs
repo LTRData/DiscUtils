@@ -40,7 +40,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
     /// </summary>
     /// <param name="stream">The stream to interpret.</param>
     public DiskImageFile(Stream stream)
-        : this(stream, Ownership.None) {}
+        : this(stream, Ownership.None) { }
 
     /// <summary>
     /// Initializes a new instance of the DiskImageFile class.

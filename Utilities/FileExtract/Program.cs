@@ -101,7 +101,7 @@ class Program : ProgramBase
 
         using var fs = fsInfo.Open(volInfo, FileSystemParameters);
         using var source = fs.OpenFile(_inFilePath.Value, FileMode.Open, FileAccess.Read);
-        
+
         using (var outFile = new FileStream(_outFilePath.Value, FileMode.Create, FileAccess.ReadWrite, FileShare.Delete, bufferSize: 2 << 20))
         {
             source.CopyTo(outFile);

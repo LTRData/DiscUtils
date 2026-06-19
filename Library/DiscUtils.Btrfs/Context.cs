@@ -20,15 +20,16 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-using System;
-using System.Collections.Generic;
-using System.IO;
 using DiscUtils.Btrfs.Base;
 using DiscUtils.Btrfs.Base.Items;
 using DiscUtils.Internal;
 using DiscUtils.Streams;
 using DiscUtils.Streams.Compatibility;
 using DiscUtils.Vfs;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Runtime.InteropServices.ComTypes;
 
 namespace DiscUtils.Btrfs;
 
@@ -52,6 +53,67 @@ internal class Context : VfsContext
 
     internal Dictionary<ulong, NodeHeader> FsTrees { get; }
 
+    internal DirEntry Initialize()
+    {
+        foreach (var offset in BtrfsFileSystem.SuperblockOffsets)
+        {
+            if (offset + SuperBlock.Length > RawStream.Length)
+            {
+                break;
+            }
+
+            RawStream.Position = offset;
+            var superblockData = RawStream.ReadExactly(SuperBlock.Length);
+            var superblock = new SuperBlock();
+            superblock.ReadFrom(superblockData);
+
+            if (superblock.Magic != SuperBlock.BtrfsMagic)
+            {
+                throw new IOException("Invalid Superblock Magic");
+            }
+
+            if (SuperBlock == null
+                || SuperBlock.Generation < superblock.Generation)
+            {
+                SuperBlock = superblock;
+            }
+
+            VerifyChecksum(superblock.Checksum, superblockData.AsSpan(0x20, 0x1000 - 0x20));
+        }
+
+        if (SuperBlock == null)
+        {
+            throw new IOException("No Superblock detected");
+        }
+
+        ChunkTreeRoot = ReadTree(SuperBlock.ChunkRoot, SuperBlock.ChunkRootLevel);
+
+        LoadChunkMap();
+
+        RootTreeRoot = ReadTree(SuperBlock.Root, SuperBlock.RootLevel);
+
+        var rootDir = (DirItem)FindKey(SuperBlock.RootDirObjectid, ItemType.DirItem);
+
+        RootItem fsTreeLocation;
+
+        if (!Options.UseDefaultSubvolume)
+        {
+            fsTreeLocation = (RootItem)FindKey(Options.SubvolumeId, ItemType.RootItem);
+        }
+        else
+        {
+            fsTreeLocation = (RootItem)FindKey(rootDir.ChildLocation.ObjectId, rootDir.ChildLocation.ItemType);
+        }
+
+        FsTrees.Add(rootDir.ChildLocation.ObjectId, ReadTree(fsTreeLocation.ByteNr, fsTreeLocation.Level));
+
+        var rootDirObjectId = fsTreeLocation.RootDirId;
+
+        var dirEntry = new DirEntry(rootDir.ChildLocation.ObjectId, rootDirObjectId);
+
+        return dirEntry;
+    }
+
     internal NodeHeader GetFsTree(ulong treeId)
     {
         if (FsTrees.TryGetValue(treeId, out var tree))
@@ -70,36 +132,79 @@ internal class Context : VfsContext
         return tree;
     }
 
+    private readonly List<ChunkItem> _chunkMap = [];
+
+    private void LoadChunkMap()
+    {
+        _chunkMap.Clear();
+
+        // Include the bootstrap system chunks too.
+        foreach (var chunk in SuperBlock.SystemChunkArray)
+        {
+            if (chunk.Key.ItemType == ItemType.ChunkItem)
+            {
+                _chunkMap.Add(chunk);
+            }
+        }
+
+        var seenNodes = new HashSet<ulong>();
+
+        LoadChunkMapFromNode(ChunkTreeRoot, seenNodes);
+
+        _chunkMap.Sort(static (x, y) => x.Key.Offset.CompareTo(y.Key.Offset));
+    }
+
+    private void LoadChunkMapFromNode(NodeHeader node, HashSet<ulong> seenNodes)
+    {
+        if (!seenNodes.Add(node.LogicalAddress))
+        {
+            throw new IOException($"Cycle while walking chunk tree at logical 0x{node.LogicalAddress:X}");
+        }
+
+        if (node is LeafNode leaf)
+        {
+            foreach (var item in leaf.NodeData)
+            {
+                if (item is ChunkItem chunk &&
+                    chunk.Key.ItemType == ItemType.ChunkItem)
+                {
+                    _chunkMap.Add(chunk);
+                }
+            }
+
+            return;
+        }
+
+        if (node is InternalNode internalNode)
+        {
+            if (node.Level == 0)
+            {
+                throw new IOException("Invalid internal chunk tree node with level 0");
+            }
+
+            foreach (var keyPtr in internalNode.KeyPointers)
+            {
+                // While _chunkMapLoaded == false, this must resolve through SystemChunkArray.
+                var child = ReadTree(
+                    keyPtr.BlockNumber,
+                    checked((byte)(node.Level - 1)));
+
+                LoadChunkMapFromNode(child, seenNodes);
+            }
+
+            return;
+        }
+
+        throw new IOException($"Unsupported chunk tree node type {node.GetType().Name}");
+    }
+
     internal ulong MapToPhysical(ulong logical)
     {
-        if (ChunkTreeRoot != null)
+        foreach (var chunk in _chunkMap)
         {
-            var nodes = ChunkTreeRoot.Find<ChunkItem>(new Key(ReservedObjectId.FirstChunkTree, ItemType.ChunkItem), this);
-            foreach(var chunk in nodes)
+            if (ContainsLogical(chunk, logical))
             {
-                if (chunk.Key.ItemType != ItemType.ChunkItem)
-                {
-                    continue;
-                }
-
-                if (chunk.Key.Offset > logical)
-                {
-                    continue;
-                }
-
-                if (chunk.Key.Offset + chunk.ChunkSize < logical)
-                {
-                    continue;
-                }
-
-                CheckStriping(chunk.Type);
-                if (chunk.StripeCount < 1)
-                {
-                    throw new IOException("Invalid stripe count in ChunkItem");
-                }
-
-                var stripe = chunk.Stripes[0];
-                return stripe.Offset + (logical - chunk.Key.Offset);
+                return MapChunkToPhysical(chunk, logical);
             }
         }
 
@@ -110,27 +215,32 @@ internal class Context : VfsContext
                 continue;
             }
 
-            if (chunk.Key.Offset > logical)
+            if (ContainsLogical(chunk, logical))
             {
-                continue;
+                return MapChunkToPhysical(chunk, logical);
             }
-
-            if (chunk.Key.Offset  + chunk.ChunkSize < logical)
-            {
-                continue;
-            }
-
-            CheckStriping(chunk.Type);
-            if (chunk.StripeCount <1)
-            {
-                throw new IOException("Invalid stripe count in ChunkItem");
-            }
-
-            var stripe = chunk.Stripes[0];
-            return stripe.Offset + (logical - chunk.Key.Offset);
         }
 
-        throw new IOException("no matching ChunkItem found");
+        throw new IOException($"no matching ChunkItem found for logical 0x{logical:X}");
+    }
+
+    private static bool ContainsLogical(ChunkItem chunk, ulong logical)
+    {
+        return logical >= chunk.Key.Offset &&
+               logical < chunk.Key.Offset + chunk.ChunkSize;
+    }
+
+    private static ulong MapChunkToPhysical(ChunkItem chunk, ulong logical)
+    {
+        CheckStriping(chunk.Type);
+
+        if (chunk.StripeCount < 1)
+        {
+            throw new IOException("Invalid stripe count in ChunkItem");
+        }
+
+        var stripe = chunk.Stripes[0];
+        return stripe.Offset + (logical - chunk.Key.Offset);
     }
 
     internal NodeHeader ReadTree(ulong logical, byte level)
@@ -200,7 +310,7 @@ internal class Context : VfsContext
 
     internal BaseItem FindKey(ulong objectId, ItemType type)
     {
-        var key = new Key(objectId,type);
+        var key = new Key(objectId, type);
         return FindKey(key);
     }
 
@@ -224,7 +334,7 @@ internal class Context : VfsContext
         };
     }
 
-    internal IEnumerable<T> FindKey<T>(ulong treeId, Key key) where T:BaseItem
+    internal IEnumerable<T> FindKey<T>(ulong treeId, Key key) where T : BaseItem
     {
         var tree = GetFsTree(treeId);
         return key.ItemType switch

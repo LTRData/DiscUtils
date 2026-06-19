@@ -29,6 +29,7 @@ using DiscUtils.Internal;
 using DiscUtils.CoreCompat;
 
 namespace DiscUtils.Xfs;
+
 internal class DirEntry : VfsDirEntry
 {
     private readonly IDirectoryEntry _entry;
@@ -42,7 +43,7 @@ internal class DirEntry : VfsDirEntry
         _context = context;
     }
 
-    public DirEntry(IDirectoryEntry entry, Context context):this(context)
+    public DirEntry(IDirectoryEntry entry, Context context) : this(context)
     {
         _entry = entry;
         _name = _context.Options.FileNameEncoding.GetString(_entry.Name).SanitizeFileName();

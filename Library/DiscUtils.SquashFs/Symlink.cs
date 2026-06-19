@@ -28,7 +28,7 @@ namespace DiscUtils.SquashFs;
 internal class Symlink : File, IVfsSymlink<DirectoryEntry, File>
 {
     public Symlink(Context context, Inode inode, MetadataRef inodeRef)
-        : base(context, inode, inodeRef) {}
+        : base(context, inode, inodeRef) { }
 
     public string TargetPath => throw new NotImplementedException();
 }

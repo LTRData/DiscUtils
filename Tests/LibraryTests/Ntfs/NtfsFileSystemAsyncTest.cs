@@ -152,14 +152,14 @@ public class NtfsFileSystemAsyncTest
 
         var buffer = new byte[4096];
 
-        for(var i = 0; i < 2500; ++i)
+        for (var i = 0; i < 2500; ++i)
         {
-            using(var stream = ntfs.OpenFile(@$"DIR{Path.DirectorySeparatorChar}file{i}.bin", FileMode.Create, FileAccess.ReadWrite))
+            using (var stream = ntfs.OpenFile(@$"DIR{Path.DirectorySeparatorChar}file{i}.bin", FileMode.Create, FileAccess.ReadWrite))
             {
                 await stream.WriteAsync(buffer);
             }
 
-            using(var stream = ntfs.OpenFile(@$"DIR{Path.DirectorySeparatorChar}{i}.bin", FileMode.Create, FileAccess.ReadWrite))
+            using (var stream = ntfs.OpenFile(@$"DIR{Path.DirectorySeparatorChar}{i}.bin", FileMode.Create, FileAccess.ReadWrite))
             {
                 await stream.WriteAsync(buffer);
             }

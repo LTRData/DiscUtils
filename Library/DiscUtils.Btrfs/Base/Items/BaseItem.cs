@@ -38,7 +38,7 @@ internal abstract class BaseItem : IByteArraySerializable
     public Key Key { get; private set; }
 
     public abstract int Size { get; }
-    
+
     public ulong PhysicalPostiiton { get; private set; }
 
     public abstract int ReadFrom(ReadOnlySpan<byte> buffer);

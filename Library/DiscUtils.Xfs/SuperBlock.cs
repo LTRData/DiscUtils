@@ -27,6 +27,7 @@ using DiscUtils.Streams;
 using System;
 
 namespace DiscUtils.Xfs;
+
 internal class SuperBlock : IByteArraySerializable
 {
     public const uint XfsMagic = 0x58465342;
@@ -401,7 +402,7 @@ internal class SuperBlock : IByteArraySerializable
         LogUnitSize = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0xC4));
         Features2 = (Version2Features)EndianUtilities.ToUInt32BigEndian(buffer.Slice(0xC8));
         BadFeatures2 = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0xCC));
-        
+
         if (SbVersion >= (ushort)VersionFlags.Version5)
         {
             CompatibleFeatures = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0xD0));
@@ -413,12 +414,12 @@ internal class SuperBlock : IByteArraySerializable
             ProjectQuotaInode = EndianUtilities.ToUInt64BigEndian(buffer.Slice(0xE8));
             Lsn = EndianUtilities.ToInt64BigEndian(buffer.Slice(0xF0));
             MetaUuid = EndianUtilities.ToGuidBigEndian(buffer.Slice(0xF8));
-            if ((IncompatibleFeatures & IncompatibleFeatures.Supported)!= IncompatibleFeatures.Supported)
+            if ((IncompatibleFeatures & IncompatibleFeatures.Supported) != IncompatibleFeatures.Supported)
             {
                 throw new NotSupportedException("XFS Features not supported");
             }
         }
-        
+
         var agOffset = AgBlocksLog2 + InodesPerBlockLog2;
         RelativeInodeMask = 0xffffffff >> (32 - agOffset);
         AgInodeMask = ~RelativeInodeMask;
@@ -451,9 +452,9 @@ internal class SuperBlock : IByteArraySerializable
         var blocklen = Blocksize - 56;
         if (leaf)
         {
-            return blocklen/24;
+            return blocklen / 24;
         }
 
-        return blocklen/(2*20 + 4);
+        return blocklen / (2 * 20 + 4);
     }
 }

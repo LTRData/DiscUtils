@@ -38,7 +38,7 @@ public class HfsPlusFileSystem : VfsFileSystemFacade, IUnixFileSystem, IAllocati
     /// </summary>
     /// <param name="stream">A stream containing the file system.</param>
     public HfsPlusFileSystem(Stream stream)
-        : base(new HfsPlusFileSystemImpl(stream)) {}
+        : base(new HfsPlusFileSystemImpl(stream)) { }
 
     /// <summary>
     /// Gets the Unix (BSD) file information about a file or directory.

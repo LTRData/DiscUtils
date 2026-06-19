@@ -37,6 +37,6 @@ internal sealed class NullTextWriter : TextWriter
 
     public override void Write(char value)
     {
-        
+
     }
 }

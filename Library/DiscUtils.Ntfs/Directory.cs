@@ -31,10 +31,11 @@ using DirectoryIndexEntry =
     System.Collections.Generic.KeyValuePair<DiscUtils.Ntfs.FileNameRecord, DiscUtils.Ntfs.FileRecordReference>;
 
 namespace DiscUtils.Ntfs;
+
 internal class Directory : File
 {
     public Directory(INtfsContext context, FileRecord baseRecord)
-        : base(context, baseRecord) {}
+        : base(context, baseRecord) { }
 
     private IndexView<FileNameRecord, FileRecordReference> Index
     {

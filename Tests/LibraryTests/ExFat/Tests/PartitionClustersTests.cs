@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace LibraryTests.ExFat.Tests;
+
 [Trait("Category", "Structure")]
 public class PartitionClustersTests
 {

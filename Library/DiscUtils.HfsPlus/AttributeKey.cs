@@ -31,7 +31,7 @@ internal class AttributeKey : BTreeKey
     //private ushort _pad;
     //private uint _startBlock;
 
-    public AttributeKey() {}
+    public AttributeKey() { }
 
     public AttributeKey(CatalogNodeId nodeId, string name)
     {

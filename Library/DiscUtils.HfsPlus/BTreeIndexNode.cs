@@ -32,7 +32,7 @@ internal class BTreeIndexNode<TKey> : BTreeKeyedNode<TKey>
     private BTreeIndexRecord<TKey>[] _records;
 
     public BTreeIndexNode(BTree tree, BTreeNodeDescriptor descriptor)
-        : base(tree, descriptor) {}
+        : base(tree, descriptor) { }
 
     public override byte[] FindKey(TKey key)
     {

@@ -133,7 +133,7 @@ internal class FileResourceStream : SparseStream.ReadOnlySparseStream
 
         set => _position = value;
     }
-    
+
     public bool IsDisposed { get; private set; }
 
     public override int Read(byte[] buffer, int offset, int count)
@@ -323,7 +323,7 @@ internal class FileResourceStream : SparseStream.ReadOnlySparseStream
     }
 
     private async ValueTask<int> DecompressChunkAsync(int chunk, Memory<byte> buffer, CancellationToken cancellationToken)
-    { 
+    {
         var targetUncompressed = _chunkSize;
         if (chunk == _chunkLength.Length - 1)
         {

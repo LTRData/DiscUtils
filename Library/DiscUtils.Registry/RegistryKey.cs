@@ -138,7 +138,7 @@ public sealed class RegistryKey
             if (_cell.NumSubKeys != 0)
             {
                 var list = _hive.GetCell<ListCell>(_cell.SubKeysIndex);
-                
+
                 if (list is null)
                 {
                     yield break;
@@ -389,19 +389,19 @@ public sealed class RegistryKey
             case int:
                 valueType = RegistryValueType.Dword;
                 break;
-            
+
             case long:
                 valueType = RegistryValueType.Qword;
                 break;
-            
+
             case byte[] or ReadOnlyMemory<byte> or Memory<byte>:
                 valueType = RegistryValueType.Binary;
                 break;
-            
+
             case string[]:
                 valueType = RegistryValueType.MultiString;
                 break;
-            
+
             default:
                 valueType = RegistryValueType.String;
                 break;
@@ -563,7 +563,7 @@ public sealed class RegistryKey
         }
 
         var cell = _hive.GetCell<KeyNodeCell>(cellIndex);
-        
+
         if (string.IsNullOrWhiteSpace(nextKey))
         {
             return new RegistryKey(_hive, cell);
@@ -600,7 +600,7 @@ public sealed class RegistryKey
         }
 
         var cell = _hive.GetCell<KeyNodeCell>(cellIndex);
-        
+
         if (string.IsNullOrWhiteSpace(nextKey))
         {
             return new RegistryKey(_hive, cell);

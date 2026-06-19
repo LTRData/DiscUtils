@@ -26,6 +26,7 @@ using System.IO;
 using DiscUtils.Vfs;
 
 namespace DiscUtils.Xfs;
+
 internal class Context : VfsContext
 {
     public override Stream RawStream { get; set; }
@@ -33,7 +34,7 @@ internal class Context : VfsContext
     public SuperBlock SuperBlock { get; set; }
 
     public AllocationGroup[] AllocationGroups { get; set; }
-    
+
     public XfsFileSystemOptions Options { get; set; }
 
     public Inode GetInode(ulong number)

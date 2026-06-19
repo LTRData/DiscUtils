@@ -55,7 +55,7 @@ internal sealed class MetablockReader
         _currentBlockStart = blockStart;
         _currentOffset = blockOffset;
     }
-    
+
     /// <summary>
     /// Calculates the distance between the current position and the specified block position and offset.
     /// </summary>
@@ -81,15 +81,15 @@ internal sealed class MetablockReader
         {
             throw new ArgumentOutOfRangeException("Block start needs to be less than or equal to current block start");
         }
-        
+
         if (blockStart == _currentBlockStart)
         {
             return _currentOffset - blockOffset;
         }
-        
+
         var block = _context.ReadMetaBlock(_start + blockStart);
         long distance = Metablock.SQUASHFS_METADATA_SIZE - blockOffset;
-        
+
         do
         {
             block = _context.ReadMetaBlock(block.NextBlockStart);

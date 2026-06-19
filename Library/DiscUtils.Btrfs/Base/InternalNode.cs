@@ -27,7 +27,7 @@ using DiscUtils.Btrfs.Base.Items;
 
 namespace DiscUtils.Btrfs.Base;
 
-internal class InternalNode:NodeHeader
+internal class InternalNode : NodeHeader
 {
     /// <summary>
     /// key pointers
@@ -73,7 +73,7 @@ internal class InternalNode:NodeHeader
             i++;
         }
 
-        for (var j = i-1; j < KeyPointers.Length; j++)
+        for (var j = i - 1; j < KeyPointers.Length; j++)
         {
             var keyPtr = KeyPointers[j];
             if (keyPtr.Key.ObjectId > key.ObjectId)

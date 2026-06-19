@@ -29,15 +29,16 @@ using System.Linq;
 using System.Collections;
 
 namespace DiscUtils.Xfs;
+
 internal struct Inode : IByteArraySerializable
 {
     public Inode(ulong number, Context context) : this()
     {
         var sb = context.SuperBlock;
-        RelativeInodeNumber = (uint) (number & sb.RelativeInodeMask);
-        AllocationGroup = (uint) ((number & sb.AgInodeMask) >> (sb.AgBlocksLog2 + sb.InodesPerBlockLog2));
-        AgBlock = (uint) ((number >> context.SuperBlock.InodesPerBlockLog2) & XFS_INO_MASK(context.SuperBlock.AgBlocksLog2));
-        BlockOffset = (uint) (number & XFS_INO_MASK(sb.InodesPerBlockLog2));
+        RelativeInodeNumber = (uint)(number & sb.RelativeInodeMask);
+        AllocationGroup = (uint)((number & sb.AgInodeMask) >> (sb.AgBlocksLog2 + sb.InodesPerBlockLog2));
+        AgBlock = (uint)((number >> context.SuperBlock.InodesPerBlockLog2) & XFS_INO_MASK(context.SuperBlock.AgBlocksLog2));
+        BlockOffset = (uint)(number & XFS_INO_MASK(sb.InodesPerBlockLog2));
     }
 
     private static uint XFS_INO_MASK(int k)
@@ -241,10 +242,10 @@ internal struct Inode : IByteArraySerializable
         Extents = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x4C));
         AttributeExtents = EndianUtilities.ToUInt16BigEndian(buffer.Slice(0x50));
         Forkoff = buffer[0x52];
-        AttributeFormat = (sbyte) buffer[0x53];
+        AttributeFormat = (sbyte)buffer[0x53];
         DmApiEventMask = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x54));
         DmState = EndianUtilities.ToUInt16BigEndian(buffer.Slice(0x58));
-        Flags = (InodeFlags) EndianUtilities.ToUInt16BigEndian(buffer.Slice(0x5A));
+        Flags = (InodeFlags)EndianUtilities.ToUInt16BigEndian(buffer.Slice(0x5A));
         Generation = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x5C));
         var dfOffset = Version < 3 ? 0x64 : 0xb0;
         int dfLength;
@@ -341,10 +342,10 @@ internal struct Inode : IByteArraySerializable
         foreach (var extent in extents)
         {
             var blockOffset = extent.GetOffset(context);
-            var substream = new SubStream(context.RawStream, blockOffset, (long)extent.BlockCount*context.SuperBlock.Blocksize);
-            builderExtents.Add(new BuilderSparseStreamExtent((long) extent.StartOffset * context.SuperBlock.Blocksize, substream));
+            var substream = new SubStream(context.RawStream, blockOffset, (long)extent.BlockCount * context.SuperBlock.Blocksize);
+            builderExtents.Add(new BuilderSparseStreamExtent((long)extent.StartOffset * context.SuperBlock.Blocksize, substream));
         }
 
-        return new StreamBuffer(new ExtentStream((long) Length, builderExtents), Ownership.Dispose);
+        return new StreamBuffer(new ExtentStream((long)Length, builderExtents), Ownership.Dispose);
     }
 }

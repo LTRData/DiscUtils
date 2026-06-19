@@ -71,7 +71,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
     private string _bsVolLab;
     private Stream _data;
     private Directory _rootDir;
-    
+
     static FatFileSystem()
     {
         EncodingHelper.RegisterEncodings();
@@ -348,7 +348,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
         Span<byte> bytes = stackalloc byte[512];
         stream.ReadExactly(bytes);
         var bpbBytesPerSec = EndianUtilities.ToUInt16LittleEndian(bytes.Slice(11));
-        
+
         if (bpbBytesPerSec < 512 || !MathUtilities.IsPowerOfTwo(bpbBytesPerSec))
         {
             return false;
@@ -415,7 +415,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
     public IEnumerable<StreamExtent> PathToExtents(string path)
     {
         var stream = (FatFileStream)OpenFile(path, FileMode.Open, FileAccess.Read);
-        
+
         return stream
             .EnumerateAllocatedClusters()
             .Select(range => new StreamExtent(ClusterReader.GetBaseStreamPositionForCluster((uint)range.Offset), ClusterSize * range.Count));
@@ -566,7 +566,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
         {
             return null;
         }
-        
+
         return GetDirectoryEntry(path).Name.ShortName.ToUpperInvariant();
     }
 
@@ -894,7 +894,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
         {
             throw new IOException("The source file is a directory");
         }
-        
+
         var destEntryId = GetDirectoryEntry(destinationFile, out var destDir);
 
         if (destDir == null)
@@ -915,7 +915,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
                 destEntryId = GetDirectoryEntry(destinationFile, out destDir);
             }
         }
-        
+
         // If there's an existing entry...
         if (destEntryId >= 0)
         {
@@ -1232,7 +1232,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
             throw new IOException("Source directory doesn't exist");
         }
 
-        destParent.AttachChildDirectory(destinationDirectoryName,GetDirectory(sourceDirectoryName));
+        destParent.AttachChildDirectory(destinationDirectoryName, GetDirectory(sourceDirectoryName));
 
         sourceParent.DeleteEntry(sourceId, false);
     }
@@ -1298,7 +1298,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
             // Remove the old file
             destDir.DeleteEntry(destEntryId, true);
         }
-        
+
         FatFileName sourceFileName;
         try
         {
@@ -1420,7 +1420,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
                 {
                     _data.Flush();
                 }
-                
+
                 _data = null;
             }
         }
@@ -1864,7 +1864,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
                 }
             }
 
-            return (usedCluster *SectorsPerCluster*SectorSize);
+            return (usedCluster * SectorsPerCluster * SectorSize);
         }
     }
 
@@ -1875,7 +1875,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
 
     private delegate void EntryUpdateAction(DirectoryEntry entry);
 
-#region Disk Formatting
+    #region Disk Formatting
 
     /// <summary>
     /// Creates a formatted floppy disk image in a stream.
@@ -2119,5 +2119,5 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
         return new FatFileSystem(stream);
     }
 
-#endregion
+    #endregion
 }

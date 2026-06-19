@@ -75,7 +75,7 @@ public class BuiltStream : SparseStream
         set => _position = value;
     }
 
-    public override void Flush() {}
+    public override void Flush() { }
 
     public override int Read(byte[] buffer, int offset, int count)
     {
@@ -380,9 +380,9 @@ public class BuiltStream : SparseStream
     private class SearchExtent : BuilderExtent
     {
         public SearchExtent(long pos)
-            : base(pos, 1) {}
+            : base(pos, 1) { }
 
-        protected override void Dispose(bool disposing) {}
+        protected override void Dispose(bool disposing) { }
 
         public override void PrepareForRead()
         {

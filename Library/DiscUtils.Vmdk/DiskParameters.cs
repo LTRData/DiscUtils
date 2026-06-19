@@ -32,7 +32,7 @@ public sealed class DiskParameters
     /// <summary>
     /// Initializes a new instance of the DiskParameters class with default values.
     /// </summary>
-    public DiskParameters() {}
+    public DiskParameters() { }
 
     /// <summary>
     /// Initializes a new instance of the DiskParameters class with generic parameters.

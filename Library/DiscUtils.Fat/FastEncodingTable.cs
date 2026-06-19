@@ -60,7 +60,7 @@ internal sealed class FastEncodingTable
     /// Gets the default encoding table for the IBM PC code page 437.
     /// </summary>
     public static readonly FastEncodingTable Default = new(Encoding.GetEncoding(437));
-    
+
     /// <summary>
     /// Used to replace characters that cannot be encoded.
     /// </summary>

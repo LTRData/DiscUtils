@@ -35,7 +35,7 @@ internal class FileRecord : FixupRecordBase
     private uint _index; // Self-reference (on XP+)
 
     public FileRecord(int sectorSize)
-        : base("FILE", sectorSize) {}
+        : base("FILE", sectorSize) { }
 
     public FileRecord(int sectorSize, int recordLength, uint index)
         : base("FILE", sectorSize, recordLength)

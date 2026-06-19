@@ -42,7 +42,7 @@ internal sealed class VhdxHeader : IByteArraySerializable
     public uint Signature = VhdxHeaderSignature;
     public ushort Version;
 
-    public VhdxHeader() {}
+    public VhdxHeader() { }
 
     public VhdxHeader(VhdxHeader header)
     {

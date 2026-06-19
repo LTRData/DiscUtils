@@ -27,5 +27,5 @@ namespace DiscUtils.Btrfs.Base.Items;
 /// </summary>
 internal class RootBackref : RootRef
 {
-    public RootBackref(Key key) : base(key) {}
+    public RootBackref(Key key) : base(key) { }
 }

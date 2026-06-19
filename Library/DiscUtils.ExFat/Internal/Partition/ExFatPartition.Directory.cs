@@ -8,6 +8,7 @@ using DiscUtils.ExFat.Internal.Partition.Entries;
 using DiscUtils.ExFat.Internal.IO;
 
 namespace DiscUtils.ExFat.Internal.Partition;
+
 partial class ExFatPartition
 {
     private readonly object _directoryLock = new();

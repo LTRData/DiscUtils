@@ -1,3 +1,6 @@
+# Repository URL issue, 16-18 May 2026
+In an attempt to make a separate organization account and rename my private account, the URL for this repository unfortunately got changed to my private account for about two days. This issue is now resolved and the original repository name `LTRData/DiscUtils` has been restored.
+
 # Project Description
 
 DiscUtils is a .NET library to read and write ISO files and Virtual Machine disk files (VHD, VDI, XVA, VMDK, etc). DiscUtils is developed in C# with no native code (or P/Invoke).

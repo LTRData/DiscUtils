@@ -67,11 +67,11 @@ internal class NtfsFormatter
 
         using (NtfsTransaction.Begin())
         {
-            _clusterSize = 4096;
+            _clusterSize = Math.Max(4096, DiskGeometry.BytesPerSector);
             _mftRecordSize = 1024;
             _indexBufferSize = 4096;
 
-            var totalClusters = (SectorCount - 1) * Sizes.Sector / _clusterSize;
+            var totalClusters = (SectorCount - 1) * DiskGeometry.BytesPerSector / _clusterSize;
 
             // Allocate a minimum of 8KB for the boot loader, but allow for more
             var numBootClusters =
@@ -124,7 +124,7 @@ internal class NtfsFormatter
             {
                 s.SetLength(Math.Min(Math.Max(2 * Sizes.OneMiB, totalClusters / 500 * _clusterSize),
                     64 * Sizes.OneMiB));
-                
+
                 var bufferSize = 1024 * 1024;
                 var buffer = ArrayPool<byte>.Shared.Rent(bufferSize);
                 try
@@ -154,9 +154,9 @@ internal class NtfsFormatter
             volumeFile.UpdateRecordInMft();
 
             _context.GetFileByIndex =
-                delegate(long index) { return new File(_context, _context.Mft.GetRecord(index, false)); };
+                delegate (long index) { return new File(_context, _context.Mft.GetRecord(index, false)); };
             _context.AllocateFile =
-                delegate(FileRecordFlags frf) { return new File(_context, _context.Mft.AllocateRecord(frf, false)); };
+                delegate (FileRecordFlags frf) { return new File(_context, _context.Mft.AllocateRecord(frf, false)); };
 
             var attrDefFile = CreateSystemFile(MasterFileTable.AttrDefIndex);
             _context.AttributeDefinitions.WriteTo(attrDefFile);
@@ -292,7 +292,7 @@ internal class NtfsFormatter
             _emptyCluster ??= new byte[bpb.BytesPerCluster];
 
             _context.RawStream.Position = firstCluster * bpb.BytesPerCluster;
-            
+
             for (ulong i = 0; i < numClusters; ++i)
             {
                 _context.RawStream.Write(_emptyCluster, 0, bpb.BytesPerCluster);
@@ -380,7 +380,7 @@ internal class NtfsFormatter
             stream.Write(bootSectors, 0, bootFileSize);
 
             // Backup goes at the end of the data in the partition
-            stream.Position = (SectorCount - 1) * Sizes.Sector;
+            stream.Position = SectorCount * DiskGeometry.BytesPerSector - Sizes.Sector;
             stream.Write(bootSectors, 0, Sizes.Sector);
 
             _context.BiosParameterBlock = bpb;

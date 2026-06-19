@@ -126,9 +126,9 @@ public abstract class VirtualFileSystemDirectoryEntry
         }
 
         var new_entry = AddLink(new_parent, new_name);
-        
+
         Parent?.RemoveEntry(this);
-        
+
         return new_entry;
     }
 

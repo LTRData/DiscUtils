@@ -169,7 +169,7 @@ internal class FileContentBuffer : Streams.Buffer
 
     public override ValueTask ClearAsync(long pos, int count, CancellationToken cancellationToken) => throw new NotSupportedException();
 
-    public override void Flush() {}
+    public override void Flush() { }
 
     public override void SetCapacity(long value) => throw new NotSupportedException();
 

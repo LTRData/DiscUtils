@@ -26,6 +26,7 @@ using DiscUtils.Streams;
 using System;
 
 namespace DiscUtils.Xfs;
+
 internal abstract class BtreeHeader : IByteArraySerializable
 {
     public uint Magic { get; private set; }
@@ -79,7 +80,7 @@ internal abstract class BtreeHeader : IByteArraySerializable
             Owner = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x30));
             Crc = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x34));
         }
-        
+
         return Size;
     }
 
