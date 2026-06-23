@@ -37,7 +37,7 @@ public sealed class NtfsOptions : DiscFileSystemOptions
         HideDosFileNames = true;
         Compressor = LZNT1.Default;
         ReadCacheEnabled = true;
-        FileLengthFromDirectoryEntries = true;
+        FileLengthFromDirectoryEntries = false;
     }
 
     /// <summary>

@@ -487,6 +487,8 @@ public class NtfsFileSystemTest
     {
         var ntfs = FileSystemSource.NtfsFileSystem();
 
+        ntfs.NtfsOptions.FileLengthFromDirectoryEntries = true;
+
         ntfs.OpenFile(@"AFILE.TXT", FileMode.Create).Dispose();
         Assert.Equal(0, ntfs.GetFileLength("AFILE.TXT"));
 
@@ -514,6 +516,7 @@ public class NtfsFileSystemTest
         }
 
         Assert.Equal(50, ntfs.GetFileLength("AFILE.TXT"));
+
         Assert.Equal(14325, ntfs.GetFileLength(@$"Dir{Path.DirectorySeparatorChar}OtherLink.txt"));
 
         ntfs.NtfsOptions.FileLengthFromDirectoryEntries = false;
