@@ -9,6 +9,7 @@ env:
 jobs:
   build:
     runs-on: windows-2025
+    timeout-minutes: 60
 
     steps:
     - uses: actions/checkout@v2
@@ -26,10 +27,11 @@ jobs:
       run: dotnet restore
 
     - name: Build
-      run: dotnet build -c Debug --no-restore
+      run: dotnet build -c Release --no-restore
 
     - name: Test
-      run: dotnet test -c Debug
+      timeout-minutes: 30
+      run: dotnet test -c Release --no-restore --no-build --logger "console;verbosity=detailed" --blame-hang --blame-hang-timeout 2m --blame-hang-dump-type full
 
     - name: Pack
       if: github.ref == 'refs/heads/develop'
