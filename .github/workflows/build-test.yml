@@ -7,21 +7,31 @@ env:
   DOTNET_NOLOGO: true
 
 jobs:
-  build:
-    runs-on: windows-2025
+  build-test:
     timeout-minutes: 60
+    name: Build and Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
 
+    strategy:
+     fail-fast: false
+     matrix:
+      os:
+        - windows-2025
+        - ubuntu-24.04
+        - macos-15
+      dotnet:
+        - 10.0.x
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 50
         lfs: 'true'
     - run: git fetch --tags
 
     - name: Setup .NET
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v5
       with:
-        dotnet-version: 10.0.x
+        dotnet-version: ${{ matrix.dotnet }}
 
     - name: Restore dependencies
       run: dotnet restore
