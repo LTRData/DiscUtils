@@ -51,7 +51,10 @@ internal class Index : IDisposable
 
         _blockCache = new ObjectCache<long, IndexBlock>();
 
-        _root = _file.GetStream(AttributeType.IndexRoot, _name).Value.GetContent<IndexRoot>();
+        var stream = _file.GetStream(AttributeType.IndexRoot, _name)
+            ?? throw new FileNotFoundException($"Missing stream '{_name}' in file {file.MftReference.MftIndex} ('{file.BestName}')", $"{file.BestName}:{name}");
+
+        _root = stream.GetContent<IndexRoot>();
         _comparer = _root.GetCollator(upCase);
 
         using (var s = _file.OpenStream(AttributeType.IndexRoot, _name, FileAccess.Read))

@@ -7,35 +7,71 @@ env:
   DOTNET_NOLOGO: true
 
 jobs:
-  build:
-    runs-on: windows-2025
+  build-test-win:
+    timeout-minutes: 60
+    name: Build and Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
 
+    strategy:
+     fail-fast: false
+     matrix:
+      os:
+        - windows-2025
+      dotnet:
+        - 10.0.x
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 50
         lfs: 'true'
     - run: git fetch --tags
 
     - name: Setup .NET
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v5
       with:
-        dotnet-version: 10.0.x
+        dotnet-version: ${{ matrix.dotnet }}
 
     - name: Restore dependencies
       run: dotnet restore
 
     - name: Build
-      run: dotnet build -c Debug --no-restore
+      run: dotnet build -c Release --no-restore
 
     - name: Test
-      run: dotnet test -c Debug
+      timeout-minutes: 30
+      run: dotnet test -c Release --no-restore --logger "console;verbosity=detailed" --blame-hang --blame-hang-timeout 2m --blame-hang-dump-type full
 
-    - name: Pack
-      if: github.ref == 'refs/heads/develop'
-      run: dotnet pack -c Release -o ${{ github.workspace }}/build
+  build-test-crossplatform:
+    timeout-minutes: 60
+    name: Build and Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
 
-    - name: "GitHub packages: NuGet push"
-      if: github.ref == 'refs/heads/develop'
-      run: dotnet nuget push *.nupkg --no-symbols 1 --skip-duplicate -k ${{ secrets.GITHUB_TOKEN }} -s "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
-      working-directory: ${{ github.workspace }}/build
+    strategy:
+     fail-fast: false
+     matrix:
+      os:
+        - ubuntu-24.04
+        - macos-15-intel
+      dotnet:
+        - 10.0.x
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 50
+        lfs: 'true'
+    - run: git fetch --tags
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v5
+      with:
+        dotnet-version: ${{ matrix.dotnet }}
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build
+      run: dotnet build -c Release --no-restore
+
+    - name: Test
+      timeout-minutes: 30
+      run: dotnet test -c Release --no-restore -f net10.0 --logger "console;verbosity=detailed" --blame-hang --blame-hang-timeout 2m --blame-hang-dump-type full

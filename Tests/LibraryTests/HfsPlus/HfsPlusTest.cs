@@ -25,7 +25,6 @@ using DiscUtils.Dmg;
 using DiscUtils.HfsPlus;
 using DiscUtils.Setup;
 using DiscUtils.Streams;
-using System.Collections.Generic;
 using System.IO;
 
 #pragma warning disable IDE0079 // Remove unnecessary suppression
@@ -42,25 +41,12 @@ public class HfsPlusTest
 
 #if NETCOREAPP
     private const string SystemVersionPath = @"System\Library\CoreServices\SystemVersion.plist";
-    private const string DeviceSupportPath = "/Applications/Xcode.app/Content/Developer/Platforms/iPhoneOS.Platform/DeviceSupport/";
 
-    public static IEnumerable<object[]> GetDeveloperDiskImages()
+    [MacOSOnlyFact]
+    public void ReadFilesystemTest()
     {
-        if (!Directory.Exists(DeviceSupportPath))
-        {
-            yield break;
-        }
+        var path = MacOSOnlyFactAttribute.DeveloperImage!;
 
-        foreach (var directory in Directory.GetDirectories(DeviceSupportPath))
-        {
-            yield return new object[] { Path.Combine(directory, "DeveloperDiskImage.dmg") };
-        }
-    }
-
-    [MemberData(nameof(GetDeveloperDiskImages))]
-    [MacOSOnlyTheory]
-    public void ReadFilesystemTest(string path)
-    {
         using Stream developerDiskImageStream = File.OpenRead(path);
         using var disk = new Disk(developerDiskImageStream, Ownership.None);
         // Find the first (and supposedly, only, HFS partition)
