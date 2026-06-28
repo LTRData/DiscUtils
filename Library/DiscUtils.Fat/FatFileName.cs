@@ -179,7 +179,7 @@ internal struct FatFileName : IEquatable<FatFileName>
 
     public readonly bool IsDeleted() => ShortName is null;
 
-    public readonly bool IsEndMarker() => ShortName is not null && ShortName.Equals(Null.ShortName, StringComparison.Ordinal);
+    public readonly bool IsEndMarker() => ShortName == Null.ShortName;
 
     public readonly override bool Equals(object other)
         => other is FatFileName otherName && Equals(this, otherName);

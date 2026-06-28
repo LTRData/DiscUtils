@@ -514,10 +514,10 @@ public static class Utilities
     public static string DirectorySeparatorString { get; } = Path.DirectorySeparatorChar.ToString();
 
     public static bool StartsWithDirectorySeparator(this string path) =>
-        path is not null && path.Length > 0 && (path[0] is '/' or '\\');
+        path is { Length: > 0 } && path[0] is '/' or '\\';
 
     public static bool EndsWithDirectorySeparator(this string path) =>
-        path is not null && path.Length > 0 && (path[path.Length - 1] is '/' or '\\');
+        path is { Length: > 0 } && path[path.Length - 1] is '/' or '\\';
 
     public static UnixFileType ToUnixFileType(this FileAttributes attributes)
     {

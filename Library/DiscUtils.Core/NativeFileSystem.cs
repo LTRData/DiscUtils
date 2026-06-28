@@ -23,12 +23,12 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
+using DiscUtils.Internal;
+using DiscUtils.Streams;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using DiscUtils.Internal;
-using DiscUtils.Streams;
 
 namespace DiscUtils;
 
@@ -40,6 +40,8 @@ public class NativeFileSystem : DiscFileSystem
     private readonly bool _readOnly;
 
     public override Stream? RawStream { get; }
+
+    internal LocalFileLocator FileLocator => field ??= new(BasePath, useAsync: false);
 
     /// <summary>
     /// Initializes a new instance of the NativeFileSystem class.
@@ -254,7 +256,7 @@ public class NativeFileSystem : DiscFileSystem
     /// <returns>Array of directories.</returns>
     public override IEnumerable<string> GetDirectories(string path)
     {
-        return GetDirectories(path, "*.*", SearchOption.TopDirectoryOnly);
+        return GetDirectories(path, "*", SearchOption.TopDirectoryOnly);
     }
 
     /// <summary>
@@ -305,7 +307,7 @@ public class NativeFileSystem : DiscFileSystem
     /// <returns>Array of files.</returns>
     public override IEnumerable<string> GetFiles(string path)
     {
-        return GetFiles(path, "*.*", SearchOption.TopDirectoryOnly);
+        return GetFiles(path, "*", SearchOption.TopDirectoryOnly);
     }
 
     /// <summary>
@@ -355,7 +357,7 @@ public class NativeFileSystem : DiscFileSystem
     /// <returns>Array of files and subdirectories matching the search pattern.</returns>
     public override IEnumerable<string> GetFileSystemEntries(string path)
     {
-        return GetFileSystemEntries(path, "*.*");
+        return GetFileSystemEntries(path, "*");
     }
 
     /// <summary>
@@ -480,7 +482,7 @@ public class NativeFileSystem : DiscFileSystem
     /// <returns>The new stream.</returns>
     public override SparseStream OpenFile(string path, FileMode mode, FileAccess access)
     {
-        if (_readOnly && access != FileAccess.Read)
+        if (_readOnly && access.HasFlag(FileAccess.Write))
         {
             throw new UnauthorizedAccessException();
         }
@@ -496,8 +498,7 @@ public class NativeFileSystem : DiscFileSystem
             fileShare = FileShare.Read;
         }
 
-        var locator = new LocalFileLocator(BasePath, useAsync: false);
-        return SparseStream.FromStream(locator.Open(path, mode, access, fileShare),
+        return SparseStream.FromStream(FileLocator.Open(path, mode, access, fileShare),
             Ownership.Dispose);
     }
 

@@ -1355,7 +1355,7 @@ public class DokanDiscUtils : IDokanOperations2, IDisposable
                         return null;
                     }
                 })
-                .Where(dirEntry => dirEntry is not null && dirEntry.Exists)
+                .Where(dirEntry => dirEntry is { Exists: true })
                 .Select(dirEntry =>
                 {
                     var info = new FindFileInformation

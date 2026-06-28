@@ -155,7 +155,7 @@ public class RegistryHive : IDisposable
                 .Where(static log => log.Length > 0x1000)
                 .ToArray();
 
-            if (logs is not null && logs.Length > 0)
+            if (logs is { Length: > 0 })
             {
                 // If we are opening a hive read-only, copy to an in-memory buffer
                 // to be able to replay logs

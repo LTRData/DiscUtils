@@ -519,7 +519,7 @@ public abstract class VirtualDisk :
                 bool foundFactory;
                 VirtualDiskFactory? factory;
 
-                if (forceType is not null && !string.IsNullOrEmpty(forceType))
+                if (forceType is { Length: > 0 })
                 {
                     foundFactory = VirtualDiskManager.TypeMap.TryGetValue(forceType, out factory);
                 }

@@ -105,7 +105,7 @@ public sealed class BlockCacheStream : SparseStream
     /// <summary>
     /// Gets an indication as to whether the stream can be written to.
     /// </summary>
-    public override bool CanWrite => _wrappedStream is not null && _wrappedStream.CanWrite;
+    public override bool CanWrite => _wrappedStream is { CanWrite: true };
 
     /// <summary>
     /// Gets the parts of the stream that are stored.
