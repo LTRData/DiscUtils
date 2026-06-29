@@ -499,13 +499,13 @@ public class RegistryHive : IDisposable
         throw new RegistryCorruptException($"No bin found containing index: {cell.Index}");
     }
 
-    internal Span<byte> RawCellData(int index, Span<byte> maxBytes)
+    internal Span<byte> RawCellData(int index, Span<byte> maxBytes, bool ignoreBigData = false)
     {
         var bin = GetBin(index);
 
         if (bin is not null)
         {
-            return bin.ReadRawCellData(index, maxBytes);
+            return bin.ReadRawCellData(index, maxBytes, ignoreBigData);
         }
 
         return default;
