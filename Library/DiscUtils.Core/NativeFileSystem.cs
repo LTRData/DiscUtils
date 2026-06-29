@@ -39,9 +39,11 @@ public class NativeFileSystem : DiscFileSystem, IFileSystemWithEnumerationOption
 {
     private readonly bool _readOnly;
 
+    private readonly bool _useAsync;
+
     public override Stream? RawStream { get; }
 
-    internal LocalFileLocator FileLocator => field ??= new(BasePath, useAsync: false);
+    internal LocalFileLocator FileLocator => field ??= new(BasePath, useAsync: _useAsync);
 
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP
     public EnumerationOptions DefaultEnumerationOptions => field ??= new();
@@ -53,6 +55,17 @@ public class NativeFileSystem : DiscFileSystem, IFileSystemWithEnumerationOption
     /// <param name="basePath">The 'root' directory of the new instance.</param>
     /// <param name="readOnly">Only permit 'read' activities.</param>
     public NativeFileSystem(string basePath, bool readOnly)
+        : this(basePath, readOnly, false)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the NativeFileSystem class.
+    /// </summary>
+    /// <param name="basePath">The 'root' directory of the new instance.</param>
+    /// <param name="readOnly">Only permit 'read' activities.</param>
+    /// <param name="useAsync"></param>
+    public NativeFileSystem(string basePath, bool readOnly, bool useAsync)
     {
         BasePath = basePath;
         if (BasePath[BasePath.Length - 1] != Path.DirectorySeparatorChar)
@@ -61,6 +74,7 @@ public class NativeFileSystem : DiscFileSystem, IFileSystemWithEnumerationOption
         }
 
         _readOnly = readOnly;
+        _useAsync = useAsync;
     }
 
     /// <summary>
