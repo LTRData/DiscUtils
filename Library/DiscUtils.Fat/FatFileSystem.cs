@@ -1152,6 +1152,7 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
         var filter = Utilities.ConvertWildcardsToRegEx(searchPattern, ignoreCase: true);
 
         var results = DoSearch(path, filter, searchOption == SearchOption.AllDirectories, false, true);
+        
         return results;
     }
 
@@ -1192,6 +1193,23 @@ public sealed class FatFileSystem : DiscFileSystem, IDosFileSystem, IClusterBase
                 yield return Utilities.CombinePaths(path, dirEntry.Name.FullName);
             }
         }
+    }
+
+    /// <summary>
+    /// Gets the names of files and subdirectories in a specified directory matching a specified
+    /// search pattern.
+    /// </summary>
+    /// <param name="path">The path to search.</param>
+    /// <param name="searchPattern">The search string to match against.</param>
+    /// <param name="searchOption">Indicates whether to search subdirectories.</param>
+    /// <returns>Array of files and subdirectories matching the search pattern.</returns>
+    public override IEnumerable<string> GetFileSystemEntries(string path, string searchPattern, SearchOption searchOption)
+    {
+        var filter = Utilities.ConvertWildcardsToRegEx(searchPattern, ignoreCase: true);
+
+        var results = DoSearch(path, filter, searchOption == SearchOption.AllDirectories, true, true);
+
+        return results;
     }
 
     /// <summary>

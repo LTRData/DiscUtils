@@ -151,6 +151,9 @@ public partial class ExFatFileSystem : DiscFileSystem
     /// <inheritdoc />
     public override IEnumerable<string> GetFileSystemEntries(string path, string searchPattern) => GetEntries(path, searchPattern, SearchOption.TopDirectoryOnly).Select(e => e.Path);
 
+    /// <inheritdoc />
+    public override IEnumerable<string> GetFileSystemEntries(string path, string searchPattern, SearchOption searchOption) => GetEntries(path, searchPattern, searchOption).Select(e => e.Path);
+
     private static Func<string, bool> ConvertWildcardsToRegEx(string pattern)
     {
         if (pattern is null or "*.*" or "*")

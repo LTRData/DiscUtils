@@ -35,7 +35,7 @@ namespace DiscUtils;
 /// <summary>
 /// Provides an implementation for OS-mounted file systems.
 /// </summary>
-public class NativeFileSystem : DiscFileSystem
+public class NativeFileSystem : DiscFileSystem, IFileSystemWithEnumerationOptions
 {
     private readonly bool _readOnly;
 
@@ -300,6 +300,37 @@ public class NativeFileSystem : DiscFileSystem
         }
     }
 
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP
+    /// <summary>
+    /// Gets the names of subdirectories in a specified directory matching a specified
+    /// search pattern, using a value to determine whether to search subdirectories.
+    /// </summary>
+    /// <param name="path">The path to search.</param>
+    /// <param name="searchPattern">The search string to match against.</param>
+    /// <param name="options">An object that describes the search and enumeration configuration to use.</param>
+    /// <returns>Array of directories matching the search pattern.</returns>
+    public IEnumerable<string> GetDirectories(string path, string searchPattern, EnumerationOptions options)
+    {
+        if (path.StartsWithDirectorySeparator())
+        {
+            path = path.Substring(1);
+        }
+
+        try
+        {
+            return Directory.EnumerateDirectories(Path.Combine(BasePath, path), searchPattern, options).Select(CleanItems);
+        }
+        catch (IOException)
+        {
+            return [];
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return [];
+        }
+    }
+#endif
+
     /// <summary>
     /// Gets the names of files in a specified directory.
     /// </summary>
@@ -350,6 +381,37 @@ public class NativeFileSystem : DiscFileSystem
         }
     }
 
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP
+    /// <summary>
+    /// Gets the names of files in a specified directory matching a specified
+    /// search pattern, using a value to determine whether to search subdirectories.
+    /// </summary>
+    /// <param name="path">The path to search.</param>
+    /// <param name="searchPattern">The search string to match against.</param>
+    /// <param name="options">An object that describes the search and enumeration configuration to use.</param>
+    /// <returns>Array of files matching the search pattern.</returns>
+    public IEnumerable<string> GetFiles(string path, string searchPattern, EnumerationOptions options)
+    {
+        if (path.StartsWithDirectorySeparator())
+        {
+            path = path.Substring(1);
+        }
+
+        try
+        {
+            return Directory.EnumerateFiles(Path.Combine(BasePath, path), searchPattern, options).Select(CleanItems);
+        }
+        catch (IOException)
+        {
+            return [];
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return [];
+        }
+    }
+#endif
+
     /// <summary>
     /// Gets the names of all files and subdirectories in a specified directory.
     /// </summary>
@@ -357,7 +419,7 @@ public class NativeFileSystem : DiscFileSystem
     /// <returns>Array of files and subdirectories matching the search pattern.</returns>
     public override IEnumerable<string> GetFileSystemEntries(string path)
     {
-        return GetFileSystemEntries(path, "*");
+        return GetFileSystemEntries(path, "*", SearchOption.TopDirectoryOnly);
     }
 
     /// <summary>
@@ -369,6 +431,19 @@ public class NativeFileSystem : DiscFileSystem
     /// <returns>Array of files and subdirectories matching the search pattern.</returns>
     public override IEnumerable<string> GetFileSystemEntries(string path, string searchPattern)
     {
+        return GetFileSystemEntries(path, searchPattern, SearchOption.TopDirectoryOnly);
+    }
+
+    /// <summary>
+    /// Gets the names of files and subdirectories in a specified directory matching a specified
+    /// search pattern.
+    /// </summary>
+    /// <param name="path">The path to search.</param>
+    /// <param name="searchPattern">The search string to match against.</param>
+    /// <param name="searchOption"></param>
+    /// <returns>Array of files and subdirectories matching the search pattern.</returns>
+    public override IEnumerable<string> GetFileSystemEntries(string path, string searchPattern, SearchOption searchOption)
+    {
         if (path.StartsWithDirectorySeparator())
         {
             path = path.Substring(1);
@@ -376,7 +451,7 @@ public class NativeFileSystem : DiscFileSystem
 
         try
         {
-            return Directory.GetFileSystemEntries(Path.Combine(BasePath, path), searchPattern).Select(CleanItems);
+            return Directory.EnumerateFileSystemEntries(Path.Combine(BasePath, path), searchPattern, searchOption).Select(CleanItems);
         }
         catch (IOException)
         {
@@ -387,6 +462,37 @@ public class NativeFileSystem : DiscFileSystem
             return [];
         }
     }
+
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP
+    /// <summary>
+    /// Gets the names of files and subdirectories in a specified directory matching a specified
+    /// search pattern.
+    /// </summary>
+    /// <param name="path">The path to search.</param>
+    /// <param name="searchPattern">The search string to match against.</param>
+    /// <param name="options">An object that describes the search and enumeration configuration to use.</param>
+    /// <returns>Array of directories matching the search pattern.</returns>
+    public IEnumerable<string> GetFileSystemEntries(string path, string searchPattern, EnumerationOptions options)
+    {
+        if (path.StartsWithDirectorySeparator())
+        {
+            path = path.Substring(1);
+        }
+
+        try
+        {
+            return Directory.EnumerateFileSystemEntries(Path.Combine(BasePath, path), searchPattern, options).Select(CleanItems);
+        }
+        catch (IOException)
+        {
+            return [];
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return [];
+        }
+    }
+#endif
 
     /// <summary>
     /// Moves a directory.

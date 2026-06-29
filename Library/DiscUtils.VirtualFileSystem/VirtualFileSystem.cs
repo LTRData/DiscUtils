@@ -292,6 +292,26 @@ public partial class VirtualFileSystem : DiscFileSystem, IWindowsFileSystem, IUn
             .Select(name => Path.Combine(path, name));
     }
 
+    public override IEnumerable<string> GetFileSystemEntries(string path, string searchPattern, SearchOption searchOption)
+    {
+        var directory = _root.ResolvePathToEntry(path) as VirtualFileSystemDirectory ??
+            throw new DirectoryNotFoundException();
+
+        var filter = GetFilter(searchPattern);
+
+        if (searchOption == SearchOption.TopDirectoryOnly)
+        {
+            return directory.GetNames()
+                .Where(filter)
+                .Select(name => Path.Combine(path, name));
+        }
+
+        return directory.EnumerateTree()
+            .Select(entry => entry.Key)
+            .Where(name => filter(GetPathFileName(name)))
+            .Select(name => Path.Combine(path, name));
+    }
+
     public override void MoveDirectory(string sourceDirectoryName, string destinationDirectoryName)
     {
         var directory = _root.ResolvePathToEntry(sourceDirectoryName) as VirtualFileSystemDirectory ??

@@ -262,6 +262,19 @@ public abstract class VfsFileSystemFacade : DiscFileSystem
     }
 
     /// <summary>
+    /// Gets the names of files and subdirectories in a specified directory matching a specified
+    /// search pattern.
+    /// </summary>
+    /// <param name="path">The path to search.</param>
+    /// <param name="searchPattern">The search string to match against.</param>
+    /// <param name="searchOption">Indicates whether to search subdirectories.</param>
+    /// <returns>Array of files and subdirectories matching the search pattern.</returns>
+    public override IEnumerable<string> GetFileSystemEntries(string path, string searchPattern, SearchOption searchOption)
+    {
+        return _wrapped.GetFileSystemEntries(path, searchPattern, searchOption);
+    }
+
+    /// <summary>
     /// Moves a directory.
     /// </summary>
     /// <param name="sourceDirectoryName">The directory to move.</param>

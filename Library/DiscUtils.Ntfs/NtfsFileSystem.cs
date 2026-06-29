@@ -605,6 +605,27 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
     }
 
     /// <summary>
+    /// Gets the names of files and subdirectories in a specified directory matching a specified
+    /// search pattern.
+    /// </summary>
+    /// <param name="path">The path to search.</param>
+    /// <param name="searchPattern">The search string to match against.</param>
+    /// <param name="searchOption">Indicates whether to search subdirectories.</param>
+    /// <returns>Array of files and subdirectories matching the search pattern.</returns>
+    public override IEnumerable<string> GetFileSystemEntries(string path, string searchPattern, SearchOption searchOption)
+    {
+        var filter = Utilities.ConvertWildcardsToRegEx(searchPattern, ignoreCase: true);
+
+        using (NtfsTransaction.Begin())
+        {
+            foreach (var result in DoSearch(path, filter, searchOption == SearchOption.AllDirectories, dirs: true, files: true, FilterEntry))
+            {
+                yield return result;
+            }
+        }
+    }
+
+    /// <summary>
     /// Moves a directory.
     /// </summary>
     /// <param name="sourceDirectoryName">The directory to move.</param>

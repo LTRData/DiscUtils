@@ -187,4 +187,6 @@ class DiskBuilderFileSystem : DiscFileSystem
             throw new FileNotFoundException("No such file", path);
         }
     }
+
+    public override IEnumerable<string> GetFileSystemEntries(string path, string searchPattern, SearchOption searchOption) => throw new NotImplementedException();
 }

@@ -359,6 +359,22 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
     }
 
     /// <summary>
+    /// Gets the names of files and subdirectories in a specified directory matching a specified
+    /// search pattern.
+    /// </summary>
+    /// <param name="path">The path to search.</param>
+    /// <param name="searchPattern">The search string to match against.</param>
+    /// <param name="searchOption">Indicates whether to search subdirectories.</param>
+    /// <returns>Array of files and subdirectories matching the search pattern.</returns>
+    public override IEnumerable<string> GetFileSystemEntries(string path, string searchPattern, SearchOption searchOption)
+    {
+        var re = Utilities.ConvertWildcardsToRegEx(searchPattern, ignoreCase: true);
+
+        var results = DoSearch(path, re, searchOption == SearchOption.AllDirectories, true, true);
+        return results;
+    }
+
+    /// <summary>
     /// Opens the specified file.
     /// </summary>
     /// <param name="path">The full path of the file to open.</param>
