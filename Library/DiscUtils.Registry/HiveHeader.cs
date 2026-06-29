@@ -89,7 +89,7 @@ public class HiveHeader : IByteArraySerializable
         RootCell = EndianUtilities.ToInt32LittleEndian(buffer.Slice(0x0024));
         Length = EndianUtilities.ToInt32LittleEndian(buffer.Slice(0x0028));
 
-        Path = EndianUtilities.LittleEndianUnicodeBytesToString(buffer.Slice(0x0030, 0x0040)).Trim('\0');
+        Path = EndianUtilities.LittleEndianUnicodeBytesToString(buffer.Slice(0x0030, 0x0040));
 
         Guid1 = EndianUtilities.ToGuidLittleEndian(buffer.Slice(0x0070));
         Guid2 = EndianUtilities.ToGuidLittleEndian(buffer.Slice(0x0094));

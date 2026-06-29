@@ -20,6 +20,8 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
+using LTRData.Extensions.Buffers;
+using LTRData.Extensions.Split;
 using System;
 using System.Buffers;
 using System.IO;
@@ -599,14 +601,60 @@ public static class EndianUtilities
         return result;
     }
 
+    public static string[] LittleEndianUnicodeBytesToStringArray(ReadOnlySpan<byte> bytes)
+    {
+        var chars = MemoryMarshal.Cast<byte, char>(bytes);
+
+        if (chars.Length == 0
+            || chars[0] == '\0')
+        {
+            return [];
+        }
+
+        var endpos = chars.IndexOf("\0\0");
+
+        if (endpos >= 0)
+        {
+            chars = chars.Slice(0, endpos);
+        }
+
+        var count = 1;
+
+        foreach (var c in chars)
+        {
+            if (c == '\0')
+            {
+                count++;
+            }
+        }
+
+        var array = new string[count];
+
+        var i = 0;
+
+        foreach (var str in chars.TokenEnum('\0'))
+        {
+            if (!BitConverter.IsLittleEndian)
+            {
+                array[i++] = Encoding.Unicode.GetString(MemoryMarshal.Cast<char, byte>(str));
+            }
+            else
+            {
+                array[i++] = str.ToString();
+            }
+        }
+
+        return array;
+    }
+
     public static string LittleEndianUnicodeBytesToString(ReadOnlySpan<byte> bytes)
     {
         if (!BitConverter.IsLittleEndian)
         {
-            return Encoding.Unicode.GetString(bytes);
+            return Encoding.Unicode.GetString(MemoryMarshal.Cast<char, byte>(bytes.ReadNullTerminatedUnicode()));
         }
 
-        return MemoryMarshal.Cast<byte, char>(bytes).ToString();
+        return MemoryMarshal.Cast<byte, char>(bytes).ReadNullTerminatedUnicodeString();
     }
 
     public static string LittleEndianUnicodeBytesToString(byte[] bytes, int offset, int count)
@@ -616,7 +664,7 @@ public static class EndianUtilities
             return Encoding.Unicode.GetString(bytes, offset, count);
         }
 
-        return MemoryMarshal.Cast<byte, char>(bytes.AsSpan(offset, count)).ToString();
+        return LittleEndianUnicodeBytesToString(bytes.AsSpan(offset, count));
     }
 
     public static ReadOnlySpan<byte> StringToLittleEndianUnicodeBytes(ReadOnlySpan<char> chars)
