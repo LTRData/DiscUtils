@@ -85,7 +85,7 @@ class Program : ProgramBase
     {
         foreach (var file in di.GetFiles())
         {
-            builder.AddFile(file.FullName.Substring(basePath.Length), file.FullName);
+            builder.AddFile(file.FullName[basePath.Length..], file.FullName);
         }
 
         foreach (var dir in di.GetDirectories())

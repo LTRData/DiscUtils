@@ -141,7 +141,7 @@ public class CreateIso : Task
                 var rootPath = root.GetMetadata("FullPath");
                 if (fullPath.StartsWith(rootPath))
                 {
-                    return fullPath.Substring(rootPath.Length);
+                    return fullPath[rootPath.Length..];
                 }
             }
         }

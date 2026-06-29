@@ -107,6 +107,6 @@ internal sealed class Volume : IDisposable
             }
         }
 
-        return MemoryMarshal.Cast<byte, NativeMethods.DiskExtent>(buffer.Slice(8)).Slice(0, numExtents).ToArray();
+        return MemoryMarshal.Cast<byte, NativeMethods.DiskExtent>(buffer[8..])[..numExtents].ToArray();
     }
 }
