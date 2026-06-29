@@ -167,17 +167,17 @@ public class FileExFatDirectoryEntry : ExFatDirectoryEntry
     public FileExFatDirectoryEntry(Memory<byte> buffer) : base(buffer)
     {
         // the raw
-        SecondaryCount = new BufferUInt8(buffer.Slice(1));
-        SetChecksum = new BufferUInt16(buffer.Slice(2));
-        FileAttributes = new EnumValueProvider<ExFatFileAttributes, ushort>(new BufferUInt16(buffer.Slice(4)));
-        CreationTimeStamp = new BufferUInt32(buffer.Slice(8));
-        LastWriteTimeStamp = new BufferUInt32(buffer.Slice(12));
-        LastAccessTimeStamp = new BufferUInt32(buffer.Slice(16));
-        Creation10msIncrement = new BufferUInt8(buffer.Slice(20));
-        LastWrite10msIncrement = new BufferUInt8(buffer.Slice(21));
-        CreationTimeZoneOffset = new BufferUInt8(buffer.Slice(22));
-        LastWriteTimeZoneOffset = new BufferUInt8(buffer.Slice(23));
-        LastAccessTimeZoneOffset = new BufferUInt8(buffer.Slice(24));
+        SecondaryCount = new BufferUInt8(buffer[1..]);
+        SetChecksum = new BufferUInt16(buffer[2..]);
+        FileAttributes = new EnumValueProvider<ExFatFileAttributes, ushort>(new BufferUInt16(buffer[4..]));
+        CreationTimeStamp = new BufferUInt32(buffer[8..]);
+        LastWriteTimeStamp = new BufferUInt32(buffer[12..]);
+        LastAccessTimeStamp = new BufferUInt32(buffer[16..]);
+        Creation10msIncrement = new BufferUInt8(buffer[20..]);
+        LastWrite10msIncrement = new BufferUInt8(buffer[21..]);
+        CreationTimeZoneOffset = new BufferUInt8(buffer[22..]);
+        LastWriteTimeZoneOffset = new BufferUInt8(buffer[23..]);
+        LastAccessTimeZoneOffset = new BufferUInt8(buffer[24..]);
 
         // the cooked
         CreationTime = new EntryDateTime(CreationTimeStamp, Creation10msIncrement);
@@ -210,11 +210,11 @@ public class FileExFatDirectoryEntry : ExFatDirectoryEntry
     /// <returns></returns>
     public ushort ComputeChecksum(IEnumerable<ExFatDirectoryEntry> secondaryEntries)
     {
-        var checksum = Buffer.Span.Slice(0, 2).GetChecksum16();
+        var checksum = Buffer.Span[..2].GetChecksum16();
         checksum = Buffer.Span.Slice(4, 28).GetChecksum16(checksum);
         foreach (var secondaryEntry in secondaryEntries)
         {
-            checksum = secondaryEntry.Buffer.Span.Slice(0, 32).GetChecksum16(checksum);
+            checksum = secondaryEntry.Buffer.Span[..32].GetChecksum16(checksum);
         }
 
         return checksum;

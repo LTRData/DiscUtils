@@ -41,8 +41,8 @@ internal class NodeItem : IByteArraySerializable
     {
         Key = new Key();
         var offset = Key.ReadFrom(buffer);
-        DataOffset = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(offset));
-        DataSize = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(offset + 0x4));
+        DataOffset = EndianUtilities.ToUInt32LittleEndian(buffer[offset..]);
+        DataSize = EndianUtilities.ToUInt32LittleEndian(buffer[(offset + 0x4)..]);
         return Size;
     }
 

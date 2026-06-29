@@ -40,9 +40,9 @@ internal class RawLocation : IByteArraySerializable
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         Offset = EndianUtilities.ToUInt64LittleEndian(buffer);
-        Length = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x8));
-        Checksum = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x10));
-        Flags = (RawLocationFlags)EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x14));
+        Length = EndianUtilities.ToUInt64LittleEndian(buffer[0x8..]);
+        Checksum = EndianUtilities.ToUInt32LittleEndian(buffer[0x10..]);
+        Flags = (RawLocationFlags)EndianUtilities.ToUInt32LittleEndian(buffer[0x14..]);
         return Size;
     }
 

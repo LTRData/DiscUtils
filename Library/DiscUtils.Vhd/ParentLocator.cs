@@ -54,10 +54,10 @@ internal class ParentLocator
 
         return new ParentLocator
         {
-            PlatformCode = latin1Encoding.GetString(data.Slice(0, 4)),
-            PlatformDataSpace = EndianUtilities.ToInt32BigEndian(data.Slice(4)),
-            PlatformDataLength = EndianUtilities.ToInt32BigEndian(data.Slice(8)),
-            PlatformDataOffset = EndianUtilities.ToInt64BigEndian(data.Slice(16))
+            PlatformCode = latin1Encoding.GetString(data[..4]),
+            PlatformDataSpace = EndianUtilities.ToInt32BigEndian(data[4..]),
+            PlatformDataLength = EndianUtilities.ToInt32BigEndian(data[8..]),
+            PlatformDataOffset = EndianUtilities.ToInt64BigEndian(data[16..])
         };
     }
 
@@ -65,10 +65,10 @@ internal class ParentLocator
     {
         var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
 
-        latin1Encoding.GetBytes(PlatformCode.AsSpan(), data.Slice(0, 4));
-        EndianUtilities.WriteBytesBigEndian(PlatformDataSpace, data.Slice(4));
-        EndianUtilities.WriteBytesBigEndian(PlatformDataLength, data.Slice(8));
-        EndianUtilities.WriteBytesBigEndian((uint)0, data.Slice(12));
-        EndianUtilities.WriteBytesBigEndian(PlatformDataOffset, data.Slice(16));
+        latin1Encoding.GetBytes(PlatformCode.AsSpan(), data[..4]);
+        EndianUtilities.WriteBytesBigEndian(PlatformDataSpace, data[4..]);
+        EndianUtilities.WriteBytesBigEndian(PlatformDataLength, data[8..]);
+        EndianUtilities.WriteBytesBigEndian((uint)0, data[12..]);
+        EndianUtilities.WriteBytesBigEndian(PlatformDataOffset, data[16..]);
     }
 }

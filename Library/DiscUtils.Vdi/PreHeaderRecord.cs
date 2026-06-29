@@ -51,9 +51,9 @@ internal class PreHeaderRecord
     {
         var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
 
-        FileInfo = latin1Encoding.GetString(buffer.Slice(0, 64)).TrimEnd('\0');
-        Signature = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(64));
-        Version = new FileVersion(EndianUtilities.ToUInt32LittleEndian(buffer.Slice(68)));
+        FileInfo = latin1Encoding.GetString(buffer[..64]).TrimEnd('\0');
+        Signature = EndianUtilities.ToUInt32LittleEndian(buffer[64..]);
+        Version = new FileVersion(EndianUtilities.ToUInt32LittleEndian(buffer[68..]));
         return Size;
     }
 
@@ -75,8 +75,8 @@ internal class PreHeaderRecord
     {
         var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
 
-        latin1Encoding.GetBytes(FileInfo.AsSpan(), buffer.Slice(0, 64));
-        EndianUtilities.WriteBytesLittleEndian(Signature, buffer.Slice(64));
-        EndianUtilities.WriteBytesLittleEndian(Version.Value, buffer.Slice(68));
+        latin1Encoding.GetBytes(FileInfo.AsSpan(), buffer[..64]);
+        EndianUtilities.WriteBytesLittleEndian(Signature, buffer[64..]);
+        EndianUtilities.WriteBytesLittleEndian(Version.Value, buffer[68..]);
     }
 }

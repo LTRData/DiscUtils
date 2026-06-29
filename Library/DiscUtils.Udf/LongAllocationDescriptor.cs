@@ -37,7 +37,7 @@ internal class LongAllocationDescriptor : IByteArraySerializable
     {
         ExtentLength = EndianUtilities.ToUInt32LittleEndian(buffer);
         ExtentLocation = new LogicalBlockAddress();
-        ExtentLocation.ReadFrom(buffer.Slice(4));
+        ExtentLocation.ReadFrom(buffer[4..]);
         ImplementationUse = EndianUtilities.ToByteArray(buffer.Slice(10, 6));
         return 16;
     }

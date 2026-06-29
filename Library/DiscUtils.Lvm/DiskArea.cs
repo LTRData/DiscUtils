@@ -38,7 +38,7 @@ internal class DiskArea : IByteArraySerializable
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         Offset = EndianUtilities.ToUInt64LittleEndian(buffer);
-        Length = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(8));
+        Length = EndianUtilities.ToUInt64LittleEndian(buffer[8..]);
         return Size;
     }
 

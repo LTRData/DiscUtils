@@ -148,7 +148,7 @@ internal class Metadata
             throw new ArgumentException("invalid parameter line", nameof(line));
         }
 
-        return new(key: line.Slice(0, index).Trim(), value: line.Slice(index + 1, line.Length - (index + 1)).Trim());
+        return new(key: line[..index].Trim(), value: line[(index + 1)..].Trim());
     }
 
     internal static string RemoveComment(string line)
@@ -159,6 +159,6 @@ internal class Metadata
             return line;
         }
 
-        return line.Substring(0, index);
+        return line[..index];
     }
 }

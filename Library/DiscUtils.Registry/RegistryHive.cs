@@ -143,7 +143,7 @@ public class RegistryHive : IDisposable
 
         Span<byte> buffer = stackalloc byte[HiveHeader.HeaderSize];
         var validBufferSize = FileStream.Read(buffer);
-        buffer.Slice(validBufferSize).Clear();
+        buffer[validBufferSize..].Clear();
 
         _header = new();
         var headerSize = _header.ReadFrom(buffer, throwOnInvalidData: false);
@@ -287,7 +287,7 @@ public class RegistryHive : IDisposable
         while (pos < _header.Length)
         {
             FileStream.Position = BinStart + pos;
-            FileStream.ReadExactly(buffer.Slice(0, BinHeader.HeaderSize));
+            FileStream.ReadExactly(buffer[..BinHeader.HeaderSize]);
             var header = new BinHeader();
             header.ReadFrom(buffer);
             _bins.Add(header);

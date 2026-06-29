@@ -47,12 +47,12 @@ internal class BlockGroup64 : BlockGroup
     {
         base.ReadFrom(buffer);
 
-        BlockBitmapBlockHigh = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x20));
-        InodeBitmapBlockHigh = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x24));
-        InodeTableBlockHigh = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x28));
-        FreeBlocksCountHigh = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(0x2C));
-        FreeInodesCountHigh = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(0x2E));
-        UsedDirsCountHigh = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(0x30));
+        BlockBitmapBlockHigh = EndianUtilities.ToUInt32LittleEndian(buffer[0x20..]);
+        InodeBitmapBlockHigh = EndianUtilities.ToUInt32LittleEndian(buffer[0x24..]);
+        InodeTableBlockHigh = EndianUtilities.ToUInt32LittleEndian(buffer[0x28..]);
+        FreeBlocksCountHigh = EndianUtilities.ToUInt16LittleEndian(buffer[0x2C..]);
+        FreeInodesCountHigh = EndianUtilities.ToUInt16LittleEndian(buffer[0x2E..]);
+        UsedDirsCountHigh = EndianUtilities.ToUInt16LittleEndian(buffer[0x30..]);
 
         return _descriptorSize;
     }
@@ -74,11 +74,11 @@ internal class BlockGroup : IByteArraySerializable
     public virtual int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         BlockBitmapBlock = EndianUtilities.ToUInt32LittleEndian(buffer);
-        InodeBitmapBlock = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(4));
-        InodeTableBlock = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(8));
-        FreeBlocksCount = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(12));
-        FreeInodesCount = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(14));
-        UsedDirsCount = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(16));
+        InodeBitmapBlock = EndianUtilities.ToUInt32LittleEndian(buffer[4..]);
+        InodeTableBlock = EndianUtilities.ToUInt32LittleEndian(buffer[8..]);
+        FreeBlocksCount = EndianUtilities.ToUInt16LittleEndian(buffer[12..]);
+        FreeInodesCount = EndianUtilities.ToUInt16LittleEndian(buffer[14..]);
+        UsedDirsCount = EndianUtilities.ToUInt16LittleEndian(buffer[16..]);
 
         return DescriptorSize;
     }

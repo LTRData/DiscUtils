@@ -68,7 +68,7 @@ internal class IndexNode
         while (pos < Header.TotalSizeOfEntries)
         {
             var entry = new IndexEntry(index.IsFileIndex);
-            entry.Read(buffer.Slice(pos));
+            entry.Read(buffer[pos..]);
             _entries.Add(entry);
 
             if ((entry.Flags & IndexEntryFlags.End) != 0)
@@ -187,7 +187,7 @@ internal class IndexNode
         var pos = (int)Header.OffsetToFirstEntry;
         foreach (var entry in _entries)
         {
-            entry.WriteTo(buffer.Slice(pos));
+            entry.WriteTo(buffer[pos..]);
             pos += entry.Size;
         }
 

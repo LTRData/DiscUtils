@@ -566,7 +566,7 @@ public class ClusterStream : CompatibilityStream
 
             currentCluster.AsMemory(CurrentClusterOffset, toRead).CopyTo(buffer);
             _position += toRead;
-            buffer = buffer.Slice(toRead);
+            buffer = buffer[toRead..];
             totalRead += toRead;
         }
 
@@ -610,7 +610,7 @@ public class ClusterStream : CompatibilityStream
 
             currentCluster.AsSpan(CurrentClusterOffset, toRead).CopyTo(buffer);
             _position += toRead;
-            buffer = buffer.Slice(toRead);
+            buffer = buffer[toRead..];
             totalRead += toRead;
         }
 
@@ -739,7 +739,7 @@ public class ClusterStream : CompatibilityStream
             var toWrite = Math.Min(remainingInCluster, buffer.Length);
             SeekClusterFromPosition(true, false);
             var currentCluster = await GetSeekedClusterAsync(cancellationToken).ConfigureAwait(false);
-            buffer.Slice(0, toWrite).CopyTo(currentCluster.AsMemory(CurrentClusterOffset));
+            buffer[..toWrite].CopyTo(currentCluster.AsMemory(CurrentClusterOffset));
             _currentClusterDirty = true;
             _position += toWrite;
             // pushing the limits!
@@ -753,7 +753,7 @@ public class ClusterStream : CompatibilityStream
                 _dataLength = _position;
             }
 
-            buffer = buffer.Slice(toWrite);
+            buffer = buffer[toWrite..];
         }
     }
 
@@ -777,7 +777,7 @@ public class ClusterStream : CompatibilityStream
             var toWrite = Math.Min(remainingInCluster, buffer.Length);
             SeekClusterFromPosition(true, false);
             var currentCluster = GetSeekedCluster();
-            buffer.Slice(0, toWrite).CopyTo(currentCluster.AsSpan(CurrentClusterOffset));
+            buffer[..toWrite].CopyTo(currentCluster.AsSpan(CurrentClusterOffset));
             _currentClusterDirty = true;
             _position += toWrite;
             // pushing the limits!
@@ -791,7 +791,7 @@ public class ClusterStream : CompatibilityStream
                 _dataLength = _position;
             }
 
-            buffer = buffer.Slice(toWrite);
+            buffer = buffer[toWrite..];
         }
     }
 }

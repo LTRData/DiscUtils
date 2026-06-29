@@ -16,7 +16,7 @@ internal ref struct LookupHuffmanDecoder
         Span<ushort> table)
     {
         _symbolCount = symbolCount;
-        _lengths = lengths.Slice(0, symbolCount);
+        _lengths = lengths[..symbolCount];
         _table = table;
         _numBits = 0;
     }
@@ -28,7 +28,7 @@ internal ref struct LookupHuffmanDecoder
             return false;
         }
 
-        codeLengths.Slice(0, _symbolCount).CopyTo(_lengths);
+        codeLengths[.._symbolCount].CopyTo(_lengths);
 
         int maxLength = 0;
         for (int i = 0; i < _symbolCount; i++)
@@ -58,7 +58,7 @@ internal ref struct LookupHuffmanDecoder
             return false;
         }
 
-        var table = _table.Slice(0, tableSize);
+        var table = _table[..tableSize];
         table.Fill(ushort.MaxValue);
 
         int position = 0;

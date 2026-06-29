@@ -68,13 +68,13 @@ internal sealed class SubKeyIndirectListCell : ListCell
     {
         var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
 
-        ListType = latin1Encoding.GetString(buffer.Slice(0, 2));
-        int numElements = EndianUtilities.ToInt16LittleEndian(buffer.Slice(2));
+        ListType = latin1Encoding.GetString(buffer[..2]);
+        int numElements = EndianUtilities.ToInt16LittleEndian(buffer[2..]);
         CellIndexes = new List<int>(numElements);
 
         for (var i = 0; i < numElements; ++i)
         {
-            CellIndexes.Add(EndianUtilities.ToInt32LittleEndian(buffer.Slice(0x4 + i * 0x4)));
+            CellIndexes.Add(EndianUtilities.ToInt32LittleEndian(buffer[(0x4 + i * 0x4)..]));
         }
 
         return 4 + CellIndexes.Count * 4;
@@ -84,12 +84,12 @@ internal sealed class SubKeyIndirectListCell : ListCell
     {
         EncodingUtilities
             .GetLatin1Encoding()
-            .GetBytes(ListType, buffer.Slice(0, 2));
+            .GetBytes(ListType, buffer[..2]);
 
-        EndianUtilities.WriteBytesLittleEndian((ushort)CellIndexes.Count, buffer.Slice(2));
+        EndianUtilities.WriteBytesLittleEndian((ushort)CellIndexes.Count, buffer[2..]);
         for (var i = 0; i < CellIndexes.Count; ++i)
         {
-            EndianUtilities.WriteBytesLittleEndian(CellIndexes[i], buffer.Slice(4 + i * 4));
+            EndianUtilities.WriteBytesLittleEndian(CellIndexes[i], buffer[(4 + i * 4)..]);
         }
     }
 

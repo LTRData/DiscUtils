@@ -236,7 +236,7 @@ public class Lz4CompressionOptions : CompressionOptions
     {
         _version = (Lz4CompressionFormatVersion)EndianUtilities.ToInt32LittleEndian(buffer);
         // Read flags but ignore them
-        _highCompression = EndianUtilities.ToInt32LittleEndian(buffer.Slice(4)) == LZ4_HC;
+        _highCompression = EndianUtilities.ToInt32LittleEndian(buffer[4..]) == LZ4_HC;
         return Size;
     }
 
@@ -244,7 +244,7 @@ public class Lz4CompressionOptions : CompressionOptions
     public override void WriteTo(Span<byte> buffer)
     {
         EndianUtilities.WriteBytesLittleEndian((uint)_version, buffer);
-        EndianUtilities.WriteBytesLittleEndian(_highCompression ? LZ4_HC : 0, buffer.Slice(4));
+        EndianUtilities.WriteBytesLittleEndian(_highCompression ? LZ4_HC : 0, buffer[4..]);
     }
 }
 
@@ -292,7 +292,7 @@ public class XzCompressionOptions : CompressionOptions
     {
         DictionarySize = EndianUtilities.ToInt32LittleEndian(buffer);
         // Read flags but ignore them
-        _ = EndianUtilities.ToInt32LittleEndian(buffer.Slice(4));
+        _ = EndianUtilities.ToInt32LittleEndian(buffer[4..]);
         return Size;
     }
 
@@ -300,7 +300,7 @@ public class XzCompressionOptions : CompressionOptions
     public override void WriteTo(Span<byte> buffer)
     {
         EndianUtilities.WriteBytesLittleEndian(DictionarySize, buffer);
-        EndianUtilities.WriteBytesLittleEndian((uint)0, buffer.Slice(4));
+        EndianUtilities.WriteBytesLittleEndian((uint)0, buffer[4..]);
     }
 }
 

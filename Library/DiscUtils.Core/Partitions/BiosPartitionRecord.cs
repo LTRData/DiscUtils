@@ -41,8 +41,8 @@ internal class BiosPartitionRecord : IComparable<BiosPartitionRecord>
         EndHead = data[5];
         EndSector = (byte)(data[6] & 0x3F);
         EndCylinder = (ushort)(data[7] | ((data[6] & 0xC0) << 2));
-        LBAStart = EndianUtilities.ToUInt32LittleEndian(data.Slice(8));
-        LBALength = EndianUtilities.ToUInt32LittleEndian(data.Slice(12));
+        LBAStart = EndianUtilities.ToUInt32LittleEndian(data[8..]);
+        LBALength = EndianUtilities.ToUInt32LittleEndian(data[12..]);
         Index = index;
     }
 
@@ -89,7 +89,7 @@ internal class BiosPartitionRecord : IComparable<BiosPartitionRecord>
         buffer[5] = EndHead;
         buffer[6] = (byte)((EndSector & 0x3F) | ((EndCylinder >> 2) & 0xC0));
         buffer[7] = (byte)EndCylinder;
-        EndianUtilities.WriteBytesLittleEndian(LBAStart, buffer.Slice(8));
-        EndianUtilities.WriteBytesLittleEndian(LBALength, buffer.Slice(12));
+        EndianUtilities.WriteBytesLittleEndian(LBAStart, buffer[8..]);
+        EndianUtilities.WriteBytesLittleEndian(LBALength, buffer[12..]);
     }
 }

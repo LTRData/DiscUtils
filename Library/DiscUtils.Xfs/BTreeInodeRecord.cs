@@ -48,7 +48,7 @@ internal class BTreeInodeRecord : IByteArraySerializable
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         StartInode = EndianUtilities.ToUInt32BigEndian(buffer);
-        FreeCount = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x4));
+        FreeCount = EndianUtilities.ToUInt32BigEndian(buffer[0x4..]);
         Free = new BitArray(EndianUtilities.ToByteArray(buffer.Slice(0x8, 0x8)));
         return Size;
     }

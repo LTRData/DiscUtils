@@ -136,12 +136,12 @@ public class NativeFileSystem : DiscFileSystem, IFileSystemWithEnumerationOption
 
         if (sourceFile.StartsWithDirectorySeparator())
         {
-            sourceFile = sourceFile.Substring(1);
+            sourceFile = sourceFile[1..];
         }
 
         if (destinationFile.StartsWithDirectorySeparator())
         {
-            destinationFile = destinationFile.Substring(1);
+            destinationFile = destinationFile[1..];
         }
 
         File.Copy(Path.Combine(BasePath, sourceFile), Path.Combine(BasePath, destinationFile), true);
@@ -160,7 +160,7 @@ public class NativeFileSystem : DiscFileSystem, IFileSystemWithEnumerationOption
 
         if (path.StartsWithDirectorySeparator())
         {
-            path = path.Substring(1);
+            path = path[1..];
         }
 
         Directory.CreateDirectory(Path.Combine(BasePath, path));
@@ -179,7 +179,7 @@ public class NativeFileSystem : DiscFileSystem, IFileSystemWithEnumerationOption
 
         if (path.StartsWithDirectorySeparator())
         {
-            path = path.Substring(1);
+            path = path[1..];
         }
 
         Directory.Delete(Path.Combine(BasePath, path));
@@ -221,7 +221,7 @@ public class NativeFileSystem : DiscFileSystem, IFileSystemWithEnumerationOption
 
         if (path.StartsWithDirectorySeparator())
         {
-            path = path.Substring(1);
+            path = path[1..];
         }
 
         File.Delete(Path.Combine(BasePath, path));
@@ -236,7 +236,7 @@ public class NativeFileSystem : DiscFileSystem, IFileSystemWithEnumerationOption
     {
         if (path.StartsWithDirectorySeparator())
         {
-            path = path.Substring(1);
+            path = path[1..];
         }
 
         return Directory.Exists(Path.Combine(BasePath, path));
@@ -251,7 +251,7 @@ public class NativeFileSystem : DiscFileSystem, IFileSystemWithEnumerationOption
     {
         if (path.StartsWithDirectorySeparator())
         {
-            path = path.Substring(1);
+            path = path[1..];
         }
 
         return File.Exists(Path.Combine(BasePath, path));
@@ -317,7 +317,7 @@ public class NativeFileSystem : DiscFileSystem, IFileSystemWithEnumerationOption
     {
         if (path.StartsWithDirectorySeparator())
         {
-            path = path.Substring(1);
+            path = path[1..];
         }
 
         try
@@ -346,7 +346,7 @@ public class NativeFileSystem : DiscFileSystem, IFileSystemWithEnumerationOption
     {
         if (path.StartsWithDirectorySeparator())
         {
-            path = path.Substring(1);
+            path = path[1..];
         }
 
         try
@@ -414,7 +414,7 @@ public class NativeFileSystem : DiscFileSystem, IFileSystemWithEnumerationOption
     {
         if (path.StartsWithDirectorySeparator())
         {
-            path = path.Substring(1);
+            path = path[1..];
         }
 
         try
@@ -443,7 +443,7 @@ public class NativeFileSystem : DiscFileSystem, IFileSystemWithEnumerationOption
     {
         if (path.StartsWithDirectorySeparator())
         {
-            path = path.Substring(1);
+            path = path[1..];
         }
 
         try
@@ -512,7 +512,7 @@ public class NativeFileSystem : DiscFileSystem, IFileSystemWithEnumerationOption
     {
         if (path.StartsWithDirectorySeparator())
         {
-            path = path.Substring(1);
+            path = path[1..];
         }
 
         try
@@ -541,7 +541,7 @@ public class NativeFileSystem : DiscFileSystem, IFileSystemWithEnumerationOption
     {
         if (path.StartsWithDirectorySeparator())
         {
-            path = path.Substring(1);
+            path = path[1..];
         }
 
         try
@@ -573,12 +573,12 @@ public class NativeFileSystem : DiscFileSystem, IFileSystemWithEnumerationOption
 
         if (sourceDirectoryName.StartsWithDirectorySeparator())
         {
-            sourceDirectoryName = sourceDirectoryName.Substring(1);
+            sourceDirectoryName = sourceDirectoryName[1..];
         }
 
         if (destinationDirectoryName.StartsWithDirectorySeparator())
         {
-            destinationDirectoryName = destinationDirectoryName.Substring(1);
+            destinationDirectoryName = destinationDirectoryName[1..];
         }
 
         Directory.Move(Path.Combine(BasePath, sourceDirectoryName),
@@ -610,7 +610,7 @@ public class NativeFileSystem : DiscFileSystem, IFileSystemWithEnumerationOption
 
         if (destinationName.StartsWithDirectorySeparator())
         {
-            destinationName = destinationName.Substring(1);
+            destinationName = destinationName[1..];
         }
 
         if (FileExists(Path.Combine(BasePath, destinationName)))
@@ -627,7 +627,7 @@ public class NativeFileSystem : DiscFileSystem, IFileSystemWithEnumerationOption
 
         if (sourceName.StartsWithDirectorySeparator())
         {
-            sourceName = sourceName.Substring(1);
+            sourceName = sourceName[1..];
         }
 
         File.Move(Path.Combine(BasePath, sourceName), Path.Combine(BasePath, destinationName));
@@ -660,7 +660,7 @@ public class NativeFileSystem : DiscFileSystem, IFileSystemWithEnumerationOption
 
         if (path.StartsWithDirectorySeparator())
         {
-            path = path.Substring(1);
+            path = path[1..];
         }
 
         var fileShare = FileShare.None;
@@ -682,7 +682,7 @@ public class NativeFileSystem : DiscFileSystem, IFileSystemWithEnumerationOption
     {
         if (path.StartsWithDirectorySeparator())
         {
-            path = path.Substring(1);
+            path = path[1..];
         }
 
         return File.GetAttributes(Path.Combine(BasePath, path));
@@ -702,7 +702,7 @@ public class NativeFileSystem : DiscFileSystem, IFileSystemWithEnumerationOption
 
         if (path.StartsWithDirectorySeparator())
         {
-            path = path.Substring(1);
+            path = path[1..];
         }
 
         File.SetAttributes(Path.Combine(BasePath, path), newValue);
@@ -737,7 +737,7 @@ public class NativeFileSystem : DiscFileSystem, IFileSystemWithEnumerationOption
     {
         if (path.StartsWithDirectorySeparator())
         {
-            path = path.Substring(1);
+            path = path[1..];
         }
 
         return Directory.GetCreationTimeUtc(Path.Combine(BasePath, path));
@@ -757,7 +757,7 @@ public class NativeFileSystem : DiscFileSystem, IFileSystemWithEnumerationOption
 
         if (path.StartsWithDirectorySeparator())
         {
-            path = path.Substring(1);
+            path = path[1..];
         }
 
         Directory.SetCreationTimeUtc(Path.Combine(BasePath, path), newTime);
@@ -792,7 +792,7 @@ public class NativeFileSystem : DiscFileSystem, IFileSystemWithEnumerationOption
     {
         if (path.StartsWithDirectorySeparator())
         {
-            path = path.Substring(1);
+            path = path[1..];
         }
 
         return Directory.GetLastAccessTimeUtc(Path.Combine(BasePath, path));
@@ -812,7 +812,7 @@ public class NativeFileSystem : DiscFileSystem, IFileSystemWithEnumerationOption
 
         if (path.StartsWithDirectorySeparator())
         {
-            path = path.Substring(1);
+            path = path[1..];
         }
 
         Directory.SetLastAccessTimeUtc(Path.Combine(BasePath, path), newTime);
@@ -847,7 +847,7 @@ public class NativeFileSystem : DiscFileSystem, IFileSystemWithEnumerationOption
     {
         if (path.StartsWithDirectorySeparator())
         {
-            path = path.Substring(1);
+            path = path[1..];
         }
 
         return Directory.GetLastWriteTimeUtc(Path.Combine(BasePath, path));
@@ -867,7 +867,7 @@ public class NativeFileSystem : DiscFileSystem, IFileSystemWithEnumerationOption
 
         if (path.StartsWithDirectorySeparator())
         {
-            path = path.Substring(1);
+            path = path[1..];
         }
 
         Directory.SetLastWriteTimeUtc(Path.Combine(BasePath, path), newTime);
@@ -882,7 +882,7 @@ public class NativeFileSystem : DiscFileSystem, IFileSystemWithEnumerationOption
     {
         if (path.StartsWithDirectorySeparator())
         {
-            path = path.Substring(1);
+            path = path[1..];
         }
         
         return new FileInfo(Path.Combine(BasePath, path)).Length;
@@ -952,6 +952,6 @@ public class NativeFileSystem : DiscFileSystem, IFileSystemWithEnumerationOption
 
     private string CleanItems(string dirtyItems)
     {
-        return dirtyItems.Substring(BasePath.Length - 1);
+        return dirtyItems[(BasePath.Length - 1)..];
     }
 }

@@ -91,7 +91,7 @@ internal class Mode2Buffer : Streams.Buffer
             await _wrapped.ReadExactlyAsync(sector * DiscImageFile.Mode2SectorSize, _iobuffer.AsMemory(0, DiscImageFile.Mode2SectorSize), cancellationToken).ConfigureAwait(false);
 
             var bytesToCopy = Math.Min(DiscImageFile.Mode1SectorSize - sectorOffset, totalToRead - totalRead);
-            _iobuffer.AsMemory(24 + sectorOffset, bytesToCopy).CopyTo(buffer.Slice(totalRead));
+            _iobuffer.AsMemory(24 + sectorOffset, bytesToCopy).CopyTo(buffer[totalRead..]);
             totalRead += bytesToCopy;
         }
 
@@ -112,7 +112,7 @@ internal class Mode2Buffer : Streams.Buffer
             _wrapped.ReadExactly(sector * DiscImageFile.Mode2SectorSize, _iobuffer, 0, DiscImageFile.Mode2SectorSize);
 
             var bytesToCopy = Math.Min(DiscImageFile.Mode1SectorSize - sectorOffset, totalToRead - totalRead);
-            _iobuffer.AsSpan(24 + sectorOffset, bytesToCopy).CopyTo(buffer.Slice(totalRead));
+            _iobuffer.AsSpan(24 + sectorOffset, bytesToCopy).CopyTo(buffer[totalRead..]);
             totalRead += bytesToCopy;
         }
 

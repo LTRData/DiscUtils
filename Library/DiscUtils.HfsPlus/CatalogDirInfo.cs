@@ -36,8 +36,8 @@ internal sealed class CatalogDirInfo : CommonCatalogFileInfo
     {
         base.ReadFrom(buffer);
 
-        Flags = EndianUtilities.ToUInt16BigEndian(buffer.Slice(2));
-        Valence = EndianUtilities.ToUInt32BigEndian(buffer.Slice(4));
+        Flags = EndianUtilities.ToUInt16BigEndian(buffer[2..]);
+        Valence = EndianUtilities.ToUInt32BigEndian(buffer[4..]);
 
         return 0;
     }

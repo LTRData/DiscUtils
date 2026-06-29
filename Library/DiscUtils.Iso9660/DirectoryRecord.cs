@@ -45,13 +45,13 @@ internal class DirectoryRecord
         record = new DirectoryRecord
         {
             ExtendedAttributeRecordLength = src[1],
-            LocationOfExtent = IsoUtilities.ToUInt32FromBoth(src.Slice(2)),
-            DataLength = IsoUtilities.ToUInt32FromBoth(src.Slice(10)),
-            RecordingDateAndTime = IsoUtilities.ToUTCDateTimeFromDirectoryTime(src.Slice(18)),
+            LocationOfExtent = IsoUtilities.ToUInt32FromBoth(src[2..]),
+            DataLength = IsoUtilities.ToUInt32FromBoth(src[10..]),
+            RecordingDateAndTime = IsoUtilities.ToUTCDateTimeFromDirectoryTime(src[18..]),
             Flags = (FileFlags)src[25],
             FileUnitSize = src[26],
             InterleaveGapSize = src[27],
-            VolumeSequenceNumber = IsoUtilities.ToUInt16FromBoth(src.Slice(28))
+            VolumeSequenceNumber = IsoUtilities.ToUInt16FromBoth(src[28..])
         };
         var lengthOfFileIdentifier = src[32];
         record.FileIdentifier = IsoUtilities.ReadChars(src.Slice(33, lengthOfFileIdentifier), enc);
@@ -87,13 +87,13 @@ internal class DirectoryRecord
         var length = CalcLength(FileIdentifier, enc);
         buffer[0] = (byte)length;
         buffer[1] = ExtendedAttributeRecordLength;
-        IsoUtilities.ToBothFromUInt32(buffer.Slice(2), LocationOfExtent);
-        IsoUtilities.ToBothFromUInt32(buffer.Slice(10), DataLength);
-        IsoUtilities.ToDirectoryTimeFromUTC(buffer.Slice(18), RecordingDateAndTime);
+        IsoUtilities.ToBothFromUInt32(buffer[2..], LocationOfExtent);
+        IsoUtilities.ToBothFromUInt32(buffer[10..], DataLength);
+        IsoUtilities.ToDirectoryTimeFromUTC(buffer[18..], RecordingDateAndTime);
         buffer[25] = (byte)Flags;
         buffer[26] = FileUnitSize;
         buffer[27] = InterleaveGapSize;
-        IsoUtilities.ToBothFromUInt16(buffer.Slice(28), VolumeSequenceNumber);
+        IsoUtilities.ToBothFromUInt16(buffer[28..], VolumeSequenceNumber);
         byte lengthOfFileIdentifier;
 
         if (FileIdentifier.Length == 1 && FileIdentifier[0] <= 1)

@@ -36,7 +36,7 @@ internal class UdifChecksum : IByteArraySerializable
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         Type = EndianUtilities.ToUInt32BigEndian(buffer);
-        ChecksumSize = EndianUtilities.ToUInt32BigEndian(buffer.Slice(4));
+        ChecksumSize = EndianUtilities.ToUInt32BigEndian(buffer[4..]);
         Data = EndianUtilities.ToByteArray(buffer.Slice(8, 128));
 
         return 136;

@@ -48,15 +48,15 @@ internal sealed class LogEntryHeader : IByteArraySerializable
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         Signature = EndianUtilities.ToUInt32LittleEndian(buffer);
-        Checksum = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(4));
-        EntryLength = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(8));
-        Tail = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(12));
-        SequenceNumber = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(16));
-        DescriptorCount = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(24));
-        Reserved = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(28));
-        LogGuid = EndianUtilities.ToGuidLittleEndian(buffer.Slice(32));
-        FlushedFileOffset = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(48));
-        LastFileOffset = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(56));
+        Checksum = EndianUtilities.ToUInt32LittleEndian(buffer[4..]);
+        EntryLength = EndianUtilities.ToUInt32LittleEndian(buffer[8..]);
+        Tail = EndianUtilities.ToUInt32LittleEndian(buffer[12..]);
+        SequenceNumber = EndianUtilities.ToUInt64LittleEndian(buffer[16..]);
+        DescriptorCount = EndianUtilities.ToUInt32LittleEndian(buffer[24..]);
+        Reserved = EndianUtilities.ToUInt32LittleEndian(buffer[28..]);
+        LogGuid = EndianUtilities.ToGuidLittleEndian(buffer[32..]);
+        FlushedFileOffset = EndianUtilities.ToUInt64LittleEndian(buffer[48..]);
+        LastFileOffset = EndianUtilities.ToUInt64LittleEndian(buffer[56..]);
 
         return ByteCount;
     }

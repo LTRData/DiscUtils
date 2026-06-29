@@ -51,29 +51,29 @@ internal class FileHeader : IByteArraySerializable
     {
         var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
 
-        Tag = buffer.Slice(0, 8).ReadNullTerminatedAsciiString();
-        HeaderSize = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(8));
-        Version = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(12));
-        Flags = (FileFlags)EndianUtilities.ToUInt32LittleEndian(buffer.Slice(16));
-        CompressionSize = EndianUtilities.ToInt32LittleEndian(buffer.Slice(20));
-        WimGuid = EndianUtilities.ToGuidLittleEndian(buffer.Slice(24));
-        PartNumber = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(40));
-        TotalParts = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(42));
-        ImageCount = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(44));
+        Tag = buffer[..8].ReadNullTerminatedAsciiString();
+        HeaderSize = EndianUtilities.ToUInt32LittleEndian(buffer[8..]);
+        Version = EndianUtilities.ToUInt32LittleEndian(buffer[12..]);
+        Flags = (FileFlags)EndianUtilities.ToUInt32LittleEndian(buffer[16..]);
+        CompressionSize = EndianUtilities.ToInt32LittleEndian(buffer[20..]);
+        WimGuid = EndianUtilities.ToGuidLittleEndian(buffer[24..]);
+        PartNumber = EndianUtilities.ToUInt16LittleEndian(buffer[40..]);
+        TotalParts = EndianUtilities.ToUInt16LittleEndian(buffer[42..]);
+        ImageCount = EndianUtilities.ToUInt32LittleEndian(buffer[44..]);
 
         OffsetTableHeader = new ShortResourceHeader();
-        OffsetTableHeader.Read(buffer.Slice(48));
+        OffsetTableHeader.Read(buffer[48..]);
 
         XmlDataHeader = new ShortResourceHeader();
-        XmlDataHeader.Read(buffer.Slice(72));
+        XmlDataHeader.Read(buffer[72..]);
 
         BootMetaData = new ShortResourceHeader();
-        BootMetaData.Read(buffer.Slice(96));
+        BootMetaData.Read(buffer[96..]);
 
-        BootIndex = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(120));
+        BootIndex = EndianUtilities.ToUInt32LittleEndian(buffer[120..]);
 
         IntegrityHeader = new ShortResourceHeader();
-        IntegrityHeader.Read(buffer.Slice(124));
+        IntegrityHeader.Read(buffer[124..]);
 
         return Size;
     }

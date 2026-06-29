@@ -186,7 +186,7 @@ internal class DiskStream : SparseStream.ReadOnlySparseStream
 
         _currentChunkData.Position = chunkOffset;
 
-        var numRead = await _currentChunkData.ReadAsync(buffer.Slice(0, toRead), cancellationToken).ConfigureAwait(false);
+        var numRead = await _currentChunkData.ReadAsync(buffer[..toRead], cancellationToken).ConfigureAwait(false);
         _position += numRead;
         return numRead;
     }
@@ -226,7 +226,7 @@ internal class DiskStream : SparseStream.ReadOnlySparseStream
 
         _currentChunkData.Position = chunkOffset;
 
-        var numRead = _currentChunkData.Read(buffer.Slice(0, toRead));
+        var numRead = _currentChunkData.Read(buffer[..toRead]);
         _position += numRead;
         return numRead;
     }

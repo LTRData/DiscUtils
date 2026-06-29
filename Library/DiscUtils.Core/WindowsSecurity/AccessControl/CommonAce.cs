@@ -34,7 +34,7 @@ public sealed class CommonAce : QualifiedAce
     internal CommonAce(ReadOnlySpan<byte> binaryForm)
         : base(binaryForm)
     {
-        int len = ReadUShort(binaryForm.Slice(2));
+        int len = ReadUShort(binaryForm[2..]);
         if (len > binaryForm.Length)
         {
             throw new ArgumentException("Invalid ACE - truncated", nameof(binaryForm));
@@ -45,8 +45,8 @@ public sealed class CommonAce : QualifiedAce
             throw new ArgumentException("Invalid ACE", nameof(binaryForm));
         }
 
-        AccessMask = ReadInt(binaryForm.Slice(4));
-        SecurityIdentifier = new SecurityIdentifier(binaryForm.Slice(8));
+        AccessMask = ReadInt(binaryForm[4..]);
+        SecurityIdentifier = new SecurityIdentifier(binaryForm[8..]);
 
         var opaqueLen = len - (8 + SecurityIdentifier.BinaryLength);
         if (opaqueLen > 0)
@@ -61,13 +61,13 @@ public sealed class CommonAce : QualifiedAce
         var len = BinaryLength;
         binaryForm[0] = (byte)AceType;
         binaryForm[1] = (byte)AceFlags;
-        WriteUShort((ushort)len, binaryForm.Slice(2));
-        WriteInt(AccessMask, binaryForm.Slice(4));
+        WriteUShort((ushort)len, binaryForm[2..]);
+        WriteInt(AccessMask, binaryForm[4..]);
 
-        SecurityIdentifier!.GetBinaryForm(binaryForm.Slice(8));
+        SecurityIdentifier!.GetBinaryForm(binaryForm[8..]);
 
         var opaque = GetOpaque();
-        opaque?.CopyTo(binaryForm.Slice(8 + SecurityIdentifier.BinaryLength));
+        opaque?.CopyTo(binaryForm[(8 + SecurityIdentifier.BinaryLength)..]);
     }
 
     public static int MaxOpaqueLength(bool isCallback)

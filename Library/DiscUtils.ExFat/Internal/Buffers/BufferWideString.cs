@@ -79,6 +79,6 @@ public readonly struct BufferWideString : IValueProvider<string>
     /// <param name="charsLength">The length.</param>
     public BufferWideString(Memory<byte> buffer, int charsLength)
     {
-        this.buffer = buffer.Slice(0, charsLength * 2);
+        this.buffer = buffer[..(charsLength * 2)];
     }
 }

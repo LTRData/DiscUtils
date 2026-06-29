@@ -121,7 +121,7 @@ internal class FileExtent : BuilderExtent
         totalRead += numRead;
         while (numRead > 0 && totalRead < block.Length)
         {
-            numRead = await _readStream.ReadAsync(block.Slice(totalRead), cancellationToken).ConfigureAwait(false);
+            numRead = await _readStream.ReadAsync(block[totalRead..], cancellationToken).ConfigureAwait(false);
             totalRead += numRead;
         }
 
@@ -145,7 +145,7 @@ internal class FileExtent : BuilderExtent
         totalRead += numRead;
         while (numRead > 0 && totalRead < block.Length)
         {
-            numRead = _readStream.Read(block.Slice(totalRead));
+            numRead = _readStream.Read(block[totalRead..]);
             totalRead += numRead;
         }
 

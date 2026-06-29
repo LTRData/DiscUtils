@@ -44,14 +44,14 @@ internal class JournalSuperBlock : IByteArraySerializable
             throw new IOException("Invalid journal magic - probably not an Ext file system");
         }
 
-        var blocktype = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x4));
+        var blocktype = EndianUtilities.ToUInt32BigEndian(buffer[0x4..]);
         if (blocktype is not 3 and not 4)
         {
             throw new IOException("Invalid journal block type - no superblock found");
         }
 
-        BlockSize = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0xc));
-        MaxLength = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x10));
+        BlockSize = EndianUtilities.ToUInt32BigEndian(buffer[0xc..]);
+        MaxLength = EndianUtilities.ToUInt32BigEndian(buffer[0x10..]);
 
         return 1024;
     }

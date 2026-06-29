@@ -38,8 +38,8 @@ internal class BlockDirectoryDataUnused : BlockDirectoryData
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         Freetag = EndianUtilities.ToUInt16BigEndian(buffer);
-        Length = EndianUtilities.ToUInt16BigEndian(buffer.Slice(0x2));
-        Tag = EndianUtilities.ToUInt16BigEndian(buffer.Slice(Length - 0x2));
+        Length = EndianUtilities.ToUInt16BigEndian(buffer[0x2..]);
+        Tag = EndianUtilities.ToUInt16BigEndian(buffer[(Length - 0x2)..]);
         return Size;
     }
 }

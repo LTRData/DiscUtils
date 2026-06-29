@@ -40,9 +40,9 @@ internal class CompressionResourceHeader
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         HeaderSize = EndianUtilities.ToUInt32BigEndian(buffer);
-        TotalSize = EndianUtilities.ToUInt32BigEndian(buffer.Slice(4));
-        DataSize = EndianUtilities.ToUInt32BigEndian(buffer.Slice(8));
-        Flags = EndianUtilities.ToUInt32BigEndian(buffer.Slice(12));
+        TotalSize = EndianUtilities.ToUInt32BigEndian(buffer[4..]);
+        DataSize = EndianUtilities.ToUInt32BigEndian(buffer[8..]);
+        Flags = EndianUtilities.ToUInt32BigEndian(buffer[12..]);
 
         return Size;
     }

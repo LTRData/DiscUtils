@@ -71,16 +71,16 @@ internal sealed class PartitionMapEntry : PartitionInfo, IByteArraySerializable
         var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
 
         Signature = EndianUtilities.ToUInt16BigEndian(buffer);
-        MapEntries = EndianUtilities.ToUInt32BigEndian(buffer.Slice(4));
-        PhysicalBlockStart = EndianUtilities.ToUInt32BigEndian(buffer.Slice(8));
-        PhysicalBlocks = EndianUtilities.ToUInt32BigEndian(buffer.Slice(12));
+        MapEntries = EndianUtilities.ToUInt32BigEndian(buffer[4..]);
+        PhysicalBlockStart = EndianUtilities.ToUInt32BigEndian(buffer[8..]);
+        PhysicalBlocks = EndianUtilities.ToUInt32BigEndian(buffer[12..]);
         Name = latin1Encoding.GetString(buffer.Slice(16, 32)).TrimEnd('\0');
         Type = latin1Encoding.GetString(buffer.Slice(48, 32)).TrimEnd('\0');
-        LogicalBlockStart = EndianUtilities.ToUInt32BigEndian(buffer.Slice(80));
-        LogicalBlocks = EndianUtilities.ToUInt32BigEndian(buffer.Slice(84));
-        Flags = EndianUtilities.ToUInt32BigEndian(buffer.Slice(88));
-        BootBlock = EndianUtilities.ToUInt32BigEndian(buffer.Slice(92));
-        BootBytes = EndianUtilities.ToUInt32BigEndian(buffer.Slice(96));
+        LogicalBlockStart = EndianUtilities.ToUInt32BigEndian(buffer[80..]);
+        LogicalBlocks = EndianUtilities.ToUInt32BigEndian(buffer[84..]);
+        Flags = EndianUtilities.ToUInt32BigEndian(buffer[88..]);
+        BootBlock = EndianUtilities.ToUInt32BigEndian(buffer[92..]);
+        BootBytes = EndianUtilities.ToUInt32BigEndian(buffer[96..]);
 
         return 512;
     }

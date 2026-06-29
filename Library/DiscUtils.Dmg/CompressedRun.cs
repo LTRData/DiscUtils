@@ -38,10 +38,10 @@ internal class CompressedRun : IByteArraySerializable
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         Type = (RunType)EndianUtilities.ToUInt32BigEndian(buffer);
-        SectorStart = EndianUtilities.ToInt64BigEndian(buffer.Slice(8));
-        SectorCount = EndianUtilities.ToInt64BigEndian(buffer.Slice(16));
-        CompOffset = EndianUtilities.ToInt64BigEndian(buffer.Slice(24));
-        CompLength = EndianUtilities.ToInt64BigEndian(buffer.Slice(32));
+        SectorStart = EndianUtilities.ToInt64BigEndian(buffer[8..]);
+        SectorCount = EndianUtilities.ToInt64BigEndian(buffer[16..]);
+        CompOffset = EndianUtilities.ToInt64BigEndian(buffer[24..]);
+        CompLength = EndianUtilities.ToInt64BigEndian(buffer[32..]);
 
         return 40;
     }

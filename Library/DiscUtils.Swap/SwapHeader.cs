@@ -58,17 +58,17 @@ public class SwapHeader : IByteArraySerializable
             return Size;
         }
 
-        Version = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x400));
-        LastPage = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x404));
-        BadPages = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x408));
-        Uuid = EndianUtilities.ToGuidLittleEndian(buffer.Slice(0x40c));
+        Version = EndianUtilities.ToUInt32LittleEndian(buffer[0x400..]);
+        LastPage = EndianUtilities.ToUInt32LittleEndian(buffer[0x404..]);
+        BadPages = EndianUtilities.ToUInt32LittleEndian(buffer[0x408..]);
+        Uuid = EndianUtilities.ToGuidLittleEndian(buffer[0x40c..]);
 
         var volume = buffer.Slice(0x41c, 16);
         var nullIndex = volume.IndexOf((byte)0);
 
         if (nullIndex > 0)
         {
-            Volume = Encoding.UTF8.GetString(volume.Slice(0, nullIndex));
+            Volume = Encoding.UTF8.GetString(volume[..nullIndex]);
         }
 
         return Size;

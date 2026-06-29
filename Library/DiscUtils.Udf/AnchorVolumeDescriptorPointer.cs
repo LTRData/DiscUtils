@@ -35,10 +35,10 @@ internal class AnchorVolumeDescriptorPointer : TaggedDescriptor<AnchorVolumeDesc
     public override int Parse(ReadOnlySpan<byte> buffer)
     {
         MainDescriptorSequence = new ExtentDescriptor();
-        MainDescriptorSequence.ReadFrom(buffer.Slice(Tag.Size));
+        MainDescriptorSequence.ReadFrom(buffer[Tag.Size..]);
 
         ReserveDescriptorSequence = new ExtentDescriptor();
-        ReserveDescriptorSequence.ReadFrom(buffer.Slice(Tag.Size + MainDescriptorSequence.Size));
+        ReserveDescriptorSequence.ReadFrom(buffer[(Tag.Size + MainDescriptorSequence.Size)..]);
 
         return 512;
     }

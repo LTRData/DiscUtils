@@ -249,9 +249,9 @@ internal class Context : VfsContext
         RawStream.Seek((long)physical, SeekOrigin.Begin);
         var dataSize = level > 0 ? SuperBlock.NodeSize : SuperBlock.LeafSize;
         Span<byte> buffer = stackalloc byte[checked((int)dataSize)];
-        buffer = buffer.Slice(0, RawStream.Read(buffer));
+        buffer = buffer[..RawStream.Read(buffer)];
         var result = NodeHeader.Create(buffer, physical);
-        VerifyChecksum(result.Checksum, buffer.Slice(0x20, (int)dataSize - 0x20));
+        VerifyChecksum(result.Checksum, buffer[0x20..(int)dataSize]);
         return result;
     }
 

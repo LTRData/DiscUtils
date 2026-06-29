@@ -36,7 +36,7 @@ internal sealed class ReparsePointRecord : IByteArraySerializable, IDiagnosticTr
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         Tag = EndianUtilities.ToUInt32LittleEndian(buffer);
-        var length = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(4));
+        var length = EndianUtilities.ToUInt16LittleEndian(buffer[4..]);
         Content = buffer.Slice(8, length).ToArray();
         return 8 + length;
     }
@@ -44,9 +44,9 @@ internal sealed class ReparsePointRecord : IByteArraySerializable, IDiagnosticTr
     public void WriteTo(Span<byte> buffer)
     {
         EndianUtilities.WriteBytesLittleEndian(Tag, buffer);
-        EndianUtilities.WriteBytesLittleEndian((ushort)Content.Length, buffer.Slice(4));
-        EndianUtilities.WriteBytesLittleEndian((ushort)0, buffer.Slice(6));
-        Content.AsSpan().CopyTo(buffer.Slice(8));
+        EndianUtilities.WriteBytesLittleEndian((ushort)Content.Length, buffer[4..]);
+        EndianUtilities.WriteBytesLittleEndian((ushort)0, buffer[6..]);
+        Content.AsSpan().CopyTo(buffer[8..]);
     }
 
     public void Dump(TextWriter writer, string linePrefix)

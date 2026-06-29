@@ -143,8 +143,8 @@ public sealed class BuildDirectoryInfo : BuildDirectoryMember
         var sorted = GetSortedMembers();
 
         // Two pseudo entries, effectively '.' and '..'
-        pos += WriteMember(this, "\0", Encoding.ASCII, buffer.Slice(pos), locationTable, enc);
-        pos += WriteMember(_parent, "\x01", Encoding.ASCII, buffer.Slice(pos), locationTable, enc);
+        pos += WriteMember(this, "\0", Encoding.ASCII, buffer[pos..], locationTable, enc);
+        pos += WriteMember(_parent, "\x01", Encoding.ASCII, buffer[pos..], locationTable, enc);
 
         foreach (var m in sorted)
         {
@@ -157,7 +157,7 @@ public sealed class BuildDirectoryInfo : BuildDirectoryMember
                 pos += padLength;
             }
 
-            pos += WriteMember(m, null, enc, buffer.Slice(pos), locationTable, enc);
+            pos += WriteMember(m, null, enc, buffer[pos..], locationTable, enc);
         }
 
         // Ensure final padding data is zero'd
@@ -193,7 +193,7 @@ public sealed class BuildDirectoryInfo : BuildDirectoryMember
 
         if (longName.Length > 30)
         {
-            longName = longName.Slice(0, 30);
+            longName = longName[..30];
         }
 
         Span<char> shortNameChars = stackalloc char[longName.Length];
@@ -217,7 +217,7 @@ public sealed class BuildDirectoryInfo : BuildDirectoryMember
 
                 if (shortName.Length + attemptStr.Length >= 30)
                 {
-                    shortName = shortName.Remove(shortName.Length - attemptStr.Length - 1);
+                    shortName = shortName[..(shortName.Length - attemptStr.Length - 1)];
                 }
 
                 shortName = $"{shortName}_{attemptStr}";

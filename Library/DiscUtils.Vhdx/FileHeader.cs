@@ -47,8 +47,8 @@ internal sealed class FileHeader : IByteArraySerializable
 
     public void WriteTo(Span<byte> buffer)
     {
-        buffer.Slice(0, Size).Clear();
+        buffer[..Size].Clear();
         EndianUtilities.WriteBytesLittleEndian(Signature, buffer);
-        Encoding.Unicode.GetBytes(Creator.AsSpan(), buffer.Slice(8));
+        Encoding.Unicode.GetBytes(Creator.AsSpan(), buffer[8..]);
     }
 }

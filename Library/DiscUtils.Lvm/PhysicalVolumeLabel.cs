@@ -45,11 +45,11 @@ internal class PhysicalVolumeLabel : IByteArraySerializable
     {
         var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
 
-        Label = latin1Encoding.GetString(buffer.Slice(0, 0x8));
-        Sector = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x8));
-        Crc = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x10));
-        CalculatedCrc = PhysicalVolume.CalcCrc(buffer.Slice(0x14, PhysicalVolume.SECTOR_SIZE - 0x14));
-        Offset = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x14));
+        Label = latin1Encoding.GetString(buffer[..0x8]);
+        Sector = EndianUtilities.ToUInt64LittleEndian(buffer[0x8..]);
+        Crc = EndianUtilities.ToUInt32LittleEndian(buffer[0x10..]);
+        CalculatedCrc = PhysicalVolume.CalcCrc(buffer[0x14..PhysicalVolume.SECTOR_SIZE]);
+        Offset = EndianUtilities.ToUInt32LittleEndian(buffer[0x14..]);
         Label2 = latin1Encoding.GetString(buffer.Slice(0x18, 0x8));
 
         return Size;

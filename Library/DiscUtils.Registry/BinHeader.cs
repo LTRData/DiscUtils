@@ -47,17 +47,17 @@ internal struct BinHeader : IByteArraySerializable
             throw new RegistryCorruptException("Invalid signature for registry bin");
         }
 
-        FileOffset = EndianUtilities.ToInt32LittleEndian(buffer.Slice(0x04));
-        BinSize = EndianUtilities.ToInt32LittleEndian(buffer.Slice(0x08));
-        NextOffset = EndianUtilities.ToInt32LittleEndian(buffer.Slice(0x1C));
+        FileOffset = EndianUtilities.ToInt32LittleEndian(buffer[0x04..]);
+        BinSize = EndianUtilities.ToInt32LittleEndian(buffer[0x08..]);
+        NextOffset = EndianUtilities.ToInt32LittleEndian(buffer[0x1C..]);
         return HeaderSize;
     }
 
     public void WriteTo(Span<byte> buffer)
     {
         EndianUtilities.WriteBytesLittleEndian(Signature, buffer);
-        EndianUtilities.WriteBytesLittleEndian(FileOffset, buffer.Slice(0x04));
-        EndianUtilities.WriteBytesLittleEndian(BinSize, buffer.Slice(0x08));
-        EndianUtilities.WriteBytesLittleEndian(NextOffset, buffer.Slice(0x1C));
+        EndianUtilities.WriteBytesLittleEndian(FileOffset, buffer[0x04..]);
+        EndianUtilities.WriteBytesLittleEndian(BinSize, buffer[0x08..]);
+        EndianUtilities.WriteBytesLittleEndian(NextOffset, buffer[0x1C..]);
     }
 }

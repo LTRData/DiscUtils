@@ -546,8 +546,8 @@ public sealed class Provider : NavigationCmdletProvider, IContentCmdletProvider
         }
         else
         {
-            diskPath = path.Substring(0, mountSepIdx);
-            relPath = path.Substring(mountSepIdx + 1);
+            diskPath = path[..mountSepIdx];
+            relPath = path[(mountSepIdx + 1)..];
         }
 
         var disk = Disk;
@@ -574,7 +574,7 @@ public sealed class Provider : NavigationCmdletProvider, IContentCmdletProvider
 
         var volMgr = DriveInfo != null ? DriveInfo.VolumeManager : new VolumeManager(disk);
         var volumes = volMgr.GetLogicalVolumes();
-        var volNumStr = pathElems[0].StartsWith("Volume", StringComparison.OrdinalIgnoreCase) ? pathElems[0].Substring(6) : null;
+        var volNumStr = pathElems[0].StartsWith("Volume", StringComparison.OrdinalIgnoreCase) ? pathElems[0][6..] : null;
 
         VolumeInfo volInfo;
         if (int.TryParse(volNumStr, out var volNum) || volNum < 0 || volNum >= volumes.Length)

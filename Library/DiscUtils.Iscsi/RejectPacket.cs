@@ -47,9 +47,9 @@ internal class RejectPacket : BaseResponse
         }
 
         Reason = (RejectReason)headerData[2];
-        StatusSequenceNumber = EndianUtilities.ToUInt32BigEndian(headerData.Slice(24));
-        ExpectedCommandSequenceNumber = EndianUtilities.ToUInt32BigEndian(headerData.Slice(28));
-        MaxCommandSequenceNumber = EndianUtilities.ToUInt32BigEndian(headerData.Slice(32));
-        DataSequenceNumber = EndianUtilities.ToUInt32BigEndian(headerData.Slice(36));
+        StatusSequenceNumber = EndianUtilities.ToUInt32BigEndian(headerData[24..]);
+        ExpectedCommandSequenceNumber = EndianUtilities.ToUInt32BigEndian(headerData[28..]);
+        MaxCommandSequenceNumber = EndianUtilities.ToUInt32BigEndian(headerData[32..]);
+        DataSequenceNumber = EndianUtilities.ToUInt32BigEndian(headerData[36..]);
     }
 }

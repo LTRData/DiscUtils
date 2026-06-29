@@ -181,7 +181,7 @@ public sealed class RegistryKey
 
                     for (var i = 0; i < _cell.NumValues; ++i)
                     {
-                        var valueIndex = EndianUtilities.ToInt32LittleEndian(valueList.Span.Slice(i * 4));
+                        var valueIndex = EndianUtilities.ToInt32LittleEndian(valueList.Span[(i * 4)..]);
                         yield return new RegistryValue(_hive, _hive.GetCell<ValueCell>(valueIndex));
                     }
                 }
@@ -451,7 +451,7 @@ public sealed class RegistryKey
                 var i = 0;
                 while (i < _cell.NumValues)
                 {
-                    var valueIndex = EndianUtilities.ToInt32LittleEndian(valueList.Slice(i * 4));
+                    var valueIndex = EndianUtilities.ToInt32LittleEndian(valueList[(i * 4)..]);
                     var valueCell = _hive.GetCell<ValueCell>(valueIndex);
                     if (string.Equals(valueCell.Name, name, StringComparison.OrdinalIgnoreCase))
                     {
@@ -468,9 +468,9 @@ public sealed class RegistryKey
                 // Move following value's to fill gap
                 if (i < _cell.NumValues)
                 {
-                    valueList.Slice((i + 1) * 4, (_cell.NumValues - i) * 4).CopyTo(valueList.Slice(i * 4));
+                    valueList.Slice((i + 1) * 4, (_cell.NumValues - i) * 4).CopyTo(valueList[(i * 4)..]);
 
-                    _hive.WriteRawCellData(_cell.ValueListIndex, valueList.Slice(0, _cell.NumValues * 4));
+                    _hive.WriteRawCellData(_cell.ValueListIndex, valueList[..(_cell.NumValues * 4)]);
                 }
 
                 // TODO: Update maxbytes for value name and value content if this was the largest value for either.
@@ -535,9 +535,9 @@ public sealed class RegistryKey
 
         var delim = subkeyspan.IndexOf(RegistryPathSeparator);
 
-        var thisKey = delim >= 0 ? subkeyspan.Slice(0, delim).ToString() : subkeyspan.ToString();
+        var thisKey = delim >= 0 ? subkeyspan[..delim].ToString() : subkeyspan.ToString();
 
-        var nextKey = delim >= 0 ? subkeyspan.Slice(delim + 1).TrimStart(RegistryPathSeparator).ToString() : null;
+        var nextKey = delim >= 0 ? subkeyspan[(delim + 1)..].TrimStart(RegistryPathSeparator).ToString() : null;
 
         var cellIndex = FindSubKeyCell(thisKey);
 
@@ -588,9 +588,9 @@ public sealed class RegistryKey
 
         var delim = subkeyspan.IndexOf(RegistryPathSeparator);
 
-        var thisKey = delim >= 0 ? subkeyspan.Slice(0, delim).ToString() : subkeyspan.ToString();
+        var thisKey = delim >= 0 ? subkeyspan[..delim].ToString() : subkeyspan.ToString();
 
-        var nextKey = delim >= 0 ? subkeyspan.Slice(delim + 1).TrimStart(RegistryPathSeparator).ToString() : null;
+        var nextKey = delim >= 0 ? subkeyspan[(delim + 1)..].TrimStart(RegistryPathSeparator).ToString() : null;
 
         var cellIndex = FindSubKeyCell(thisKey);
 
@@ -665,9 +665,9 @@ public sealed class RegistryKey
 
         var delim = subkeyspan.IndexOf(RegistryPathSeparator);
 
-        var thisKey = delim >= 0 ? subkeyspan.Slice(0, delim).ToString() : subkeyspan.ToString();
+        var thisKey = delim >= 0 ? subkeyspan[..delim].ToString() : subkeyspan.ToString();
 
-        var nextKey = delim >= 0 ? subkeyspan.Slice(delim + 1).TrimStart(RegistryPathSeparator).ToString() : null;
+        var nextKey = delim >= 0 ? subkeyspan[(delim + 1)..].TrimStart(RegistryPathSeparator).ToString() : null;
 
         var subkeyCellIndex = FindSubKeyCell(thisKey);
 
@@ -742,7 +742,7 @@ public sealed class RegistryKey
 
                 for (var i = 0; i < _cell.NumValues; ++i)
                 {
-                    var valueIndex = EndianUtilities.ToInt32LittleEndian(valueList.Slice(i * 4));
+                    var valueIndex = EndianUtilities.ToInt32LittleEndian(valueList[(i * 4)..]);
                     var cell = _hive.GetCell<ValueCell>(valueIndex);
                     if (cell is not null &&
                         string.Equals(cell.Name, name, StringComparison.OrdinalIgnoreCase))
@@ -770,7 +770,7 @@ public sealed class RegistryKey
             var insertIdx = 0;
             while (insertIdx < _cell.NumValues)
             {
-                var valueCellIndex = EndianUtilities.ToInt32LittleEndian(valueList.Slice(insertIdx * 4));
+                var valueCellIndex = EndianUtilities.ToInt32LittleEndian(valueList[(insertIdx * 4)..]);
                 var cell = _hive.GetCell<ValueCell>(valueCellIndex);
                 if (string.Compare(name, cell.Name, StringComparison.OrdinalIgnoreCase) < 0)
                 {
@@ -789,9 +789,9 @@ public sealed class RegistryKey
             var newValueList = newValueListMem.AsSpan(0, _cell.NumValues * 4 + 4);
             try
             {
-                valueList.Slice(0, insertIdx * 4).CopyTo(newValueList);
-                EndianUtilities.WriteBytesLittleEndian(valueCell.Index, newValueList.Slice(insertIdx * 4));
-                valueList.Slice(insertIdx * 4, (_cell.NumValues - insertIdx) * 4).CopyTo(newValueList.Slice(insertIdx * 4 + 4));
+                valueList[..(insertIdx * 4)].CopyTo(newValueList);
+                EndianUtilities.WriteBytesLittleEndian(valueCell.Index, newValueList[(insertIdx * 4)..]);
+                valueList.Slice(insertIdx * 4, (_cell.NumValues - insertIdx) * 4).CopyTo(newValueList[(insertIdx * 4 + 4)..]);
                 if (_cell.ValueListIndex == -1 ||
                     !_hive.WriteRawCellData(_cell.ValueListIndex, newValueList))
                 {
@@ -912,7 +912,7 @@ public sealed class RegistryKey
 
                 for (var i = 0; i < cell.NumValues; ++i)
                 {
-                    var valueIndex = EndianUtilities.ToInt32LittleEndian(valueList.Slice(i * 4));
+                    var valueIndex = EndianUtilities.ToInt32LittleEndian(valueList[(i * 4)..]);
                     _hive.FreeCell(valueIndex);
                 }
             }

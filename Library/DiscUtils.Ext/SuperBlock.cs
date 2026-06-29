@@ -109,87 +109,87 @@ internal class SuperBlock : IByteArraySerializable
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
-        Magic = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(56));
+        Magic = EndianUtilities.ToUInt16LittleEndian(buffer[56..]);
         if (Magic != Ext2Magic)
         {
             return Size;
         }
 
         InodesCount = EndianUtilities.ToUInt32LittleEndian(buffer);
-        BlocksCount = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(4));
-        ReservedBlocksCount = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(8));
-        FreeBlocksCount = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(12));
-        FreeInodesCount = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(16));
-        FirstDataBlock = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(20));
-        LogBlockSize = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(24));
-        LogFragSize = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(28));
-        BlocksPerGroup = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(32));
-        FragsPerGroup = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(36));
-        InodesPerGroup = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(40));
-        MountTime = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(44));
-        WriteTime = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(48));
-        MountCount = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(52));
-        MaxMountCount = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(54));
-        State = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(58));
-        Errors = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(60));
-        MinorRevisionLevel = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(62));
-        LastCheckTime = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(64));
-        CheckInterval = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(68));
-        CreatorOS = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(72));
-        RevisionLevel = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(76));
-        DefaultReservedBlockUid = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(80));
-        DefaultReservedBlockGid = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(82));
+        BlocksCount = EndianUtilities.ToUInt32LittleEndian(buffer[4..]);
+        ReservedBlocksCount = EndianUtilities.ToUInt32LittleEndian(buffer[8..]);
+        FreeBlocksCount = EndianUtilities.ToUInt32LittleEndian(buffer[12..]);
+        FreeInodesCount = EndianUtilities.ToUInt32LittleEndian(buffer[16..]);
+        FirstDataBlock = EndianUtilities.ToUInt32LittleEndian(buffer[20..]);
+        LogBlockSize = EndianUtilities.ToUInt32LittleEndian(buffer[24..]);
+        LogFragSize = EndianUtilities.ToUInt32LittleEndian(buffer[28..]);
+        BlocksPerGroup = EndianUtilities.ToUInt32LittleEndian(buffer[32..]);
+        FragsPerGroup = EndianUtilities.ToUInt32LittleEndian(buffer[36..]);
+        InodesPerGroup = EndianUtilities.ToUInt32LittleEndian(buffer[40..]);
+        MountTime = EndianUtilities.ToUInt32LittleEndian(buffer[44..]);
+        WriteTime = EndianUtilities.ToUInt32LittleEndian(buffer[48..]);
+        MountCount = EndianUtilities.ToUInt16LittleEndian(buffer[52..]);
+        MaxMountCount = EndianUtilities.ToUInt16LittleEndian(buffer[54..]);
+        State = EndianUtilities.ToUInt16LittleEndian(buffer[58..]);
+        Errors = EndianUtilities.ToUInt16LittleEndian(buffer[60..]);
+        MinorRevisionLevel = EndianUtilities.ToUInt16LittleEndian(buffer[62..]);
+        LastCheckTime = EndianUtilities.ToUInt32LittleEndian(buffer[64..]);
+        CheckInterval = EndianUtilities.ToUInt32LittleEndian(buffer[68..]);
+        CreatorOS = EndianUtilities.ToUInt32LittleEndian(buffer[72..]);
+        RevisionLevel = EndianUtilities.ToUInt32LittleEndian(buffer[76..]);
+        DefaultReservedBlockUid = EndianUtilities.ToUInt16LittleEndian(buffer[80..]);
+        DefaultReservedBlockGid = EndianUtilities.ToUInt16LittleEndian(buffer[82..]);
 
-        FirstInode = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(84));
-        InodeSize = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(88));
-        BlockGroupNumber = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(90));
-        CompatibleFeatures = (CompatibleFeatures)EndianUtilities.ToUInt32LittleEndian(buffer.Slice(92));
-        IncompatibleFeatures = (IncompatibleFeatures)EndianUtilities.ToUInt32LittleEndian(buffer.Slice(96));
+        FirstInode = EndianUtilities.ToUInt32LittleEndian(buffer[84..]);
+        InodeSize = EndianUtilities.ToUInt16LittleEndian(buffer[88..]);
+        BlockGroupNumber = EndianUtilities.ToUInt16LittleEndian(buffer[90..]);
+        CompatibleFeatures = (CompatibleFeatures)EndianUtilities.ToUInt32LittleEndian(buffer[92..]);
+        IncompatibleFeatures = (IncompatibleFeatures)EndianUtilities.ToUInt32LittleEndian(buffer[96..]);
         ReadOnlyCompatibleFeatures =
-            (ReadOnlyCompatibleFeatures)EndianUtilities.ToUInt32LittleEndian(buffer.Slice(100));
-        UniqueId = EndianUtilities.ToGuidLittleEndian(buffer.Slice(104));
+            (ReadOnlyCompatibleFeatures)EndianUtilities.ToUInt32LittleEndian(buffer[100..]);
+        UniqueId = EndianUtilities.ToGuidLittleEndian(buffer[104..]);
         VolumeName = EndianUtilities.BytesToZString(buffer.Slice(120, 16));
         LastMountPoint = EndianUtilities.BytesToZString(buffer.Slice(136, 64));
-        CompressionAlgorithmUsageBitmap = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(200));
+        CompressionAlgorithmUsageBitmap = EndianUtilities.ToUInt32LittleEndian(buffer[200..]);
 
         PreallocateBlockCount = buffer[204];
         DirPreallocateBlockCount = buffer[205];
-        ReservedGDTBlocks = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(206));
+        ReservedGDTBlocks = EndianUtilities.ToUInt16LittleEndian(buffer[206..]);
 
-        JournalSuperBlockUniqueId = EndianUtilities.ToGuidLittleEndian(buffer.Slice(208));
-        JournalInode = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(224));
-        JournalDevice = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(228));
-        LastOrphan = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(232));
+        JournalSuperBlockUniqueId = EndianUtilities.ToGuidLittleEndian(buffer[208..]);
+        JournalInode = EndianUtilities.ToUInt32LittleEndian(buffer[224..]);
+        JournalDevice = EndianUtilities.ToUInt32LittleEndian(buffer[228..]);
+        LastOrphan = EndianUtilities.ToUInt32LittleEndian(buffer[232..]);
         HashSeed = new uint[4];
-        HashSeed[0] = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(236));
-        HashSeed[1] = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(240));
-        HashSeed[2] = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(244));
-        HashSeed[3] = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(248));
+        HashSeed[0] = EndianUtilities.ToUInt32LittleEndian(buffer[236..]);
+        HashSeed[1] = EndianUtilities.ToUInt32LittleEndian(buffer[240..]);
+        HashSeed[2] = EndianUtilities.ToUInt32LittleEndian(buffer[244..]);
+        HashSeed[3] = EndianUtilities.ToUInt32LittleEndian(buffer[248..]);
         DefaultHashVersion = buffer[252];
-        DescriptorSize = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(254));
-        DefaultMountOptions = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(256));
-        FirstMetablockBlockGroup = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(260));
-        MkfsTime = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(264));
+        DescriptorSize = EndianUtilities.ToUInt16LittleEndian(buffer[254..]);
+        DefaultMountOptions = EndianUtilities.ToUInt32LittleEndian(buffer[256..]);
+        FirstMetablockBlockGroup = EndianUtilities.ToUInt32LittleEndian(buffer[260..]);
+        MkfsTime = EndianUtilities.ToUInt32LittleEndian(buffer[264..]);
 
         JournalBackup = new uint[17];
         for (var i = 0; i < 17; ++i)
         {
-            JournalBackup[i] = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(268 + 4 * i));
+            JournalBackup[i] = EndianUtilities.ToUInt32LittleEndian(buffer[(268 + 4 * i)..]);
         }
 
-        BlocksCountHigh = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(336));
-        ReservedBlocksCountHigh = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(340));
-        FreeBlocksCountHigh = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(344));
-        MinimumExtraInodeSize = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(348));
-        WantExtraInodeSize = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(350));
-        Flags = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(352));
-        RaidStride = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(356));
-        MultiMountProtectionInterval = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(358));
-        MultiMountProtectionBlock = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(360));
-        RaidStripeWidth = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(368));
+        BlocksCountHigh = EndianUtilities.ToUInt32LittleEndian(buffer[336..]);
+        ReservedBlocksCountHigh = EndianUtilities.ToUInt32LittleEndian(buffer[340..]);
+        FreeBlocksCountHigh = EndianUtilities.ToUInt32LittleEndian(buffer[344..]);
+        MinimumExtraInodeSize = EndianUtilities.ToUInt16LittleEndian(buffer[348..]);
+        WantExtraInodeSize = EndianUtilities.ToUInt16LittleEndian(buffer[350..]);
+        Flags = EndianUtilities.ToUInt32LittleEndian(buffer[352..]);
+        RaidStride = EndianUtilities.ToUInt16LittleEndian(buffer[356..]);
+        MultiMountProtectionInterval = EndianUtilities.ToUInt16LittleEndian(buffer[358..]);
+        MultiMountProtectionBlock = EndianUtilities.ToUInt64LittleEndian(buffer[360..]);
+        RaidStripeWidth = EndianUtilities.ToUInt32LittleEndian(buffer[368..]);
         LogGroupsPerFlex = buffer[372];
 
-        OverheadBlocksCount = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(584));
+        OverheadBlocksCount = EndianUtilities.ToUInt32LittleEndian(buffer[584..]);
 
         return 1024;
     }

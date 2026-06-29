@@ -66,7 +66,7 @@ public sealed class TarHeader
     {
         var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
 
-        FileName = latin1Encoding.GetString(ReadNullTerminatedString(buffer.Slice(0, 100)));
+        FileName = latin1Encoding.GetString(ReadNullTerminatedString(buffer[..100]));
         FileMode = (UnixFilePermissions)OctalToLong(ReadNullTerminatedString(buffer.Slice(100, 8)));
         OwnerId = (int)OctalToLong(ReadNullTerminatedString(buffer.Slice(108, 8)));
         GroupId = (int)OctalToLong(ReadNullTerminatedString(buffer.Slice(116, 8)));
@@ -95,7 +95,7 @@ public sealed class TarHeader
 
     public static bool IsValid(ReadOnlySpan<byte> buffer)
     {
-        if (buffer.Slice(0, 100).IndexOf((byte)0) > 0 &&
+        if (buffer[..100].IndexOf((byte)0) > 0 &&
             IsValidOctalString(buffer.Slice(100, 8)) &&
             IsValidOctalString(buffer.Slice(108, 8)) &&
             IsValidOctalString(buffer.Slice(116, 8)) &&
@@ -137,7 +137,7 @@ public sealed class TarHeader
     {
         if (EndianUtilities.ToInt32LittleEndian(buffer) == 128)
         {
-            return EndianUtilities.ToInt64BigEndian(buffer.Slice(4));
+            return EndianUtilities.ToInt64BigEndian(buffer[4..]);
         }
         else
         {
@@ -153,7 +153,7 @@ public sealed class TarHeader
 
         if (FileName.Length < 100)
         {
-            latin1Encoding.GetBytes(FileName, buffer.Slice(0, 99));
+            latin1Encoding.GetBytes(FileName, buffer[..99]);
         }
         else
         {
@@ -168,7 +168,7 @@ public sealed class TarHeader
             latin1Encoding.GetBytes(prefix, buffer.Slice(345, 130));
 
             var filename = FileName.AsSpan(split + 1);
-            latin1Encoding.GetBytes(filename, buffer.Slice(0, 99));
+            latin1Encoding.GetBytes(filename, buffer[..99]);
         }
 
         latin1Encoding.GetBytes(LongToOctal((long)FileMode, 7), buffer.Slice(100, 7));
@@ -195,18 +195,18 @@ public sealed class TarHeader
     {
         while (v.Length > 0 && v[0] == ' ')
         {
-            v = v.Slice(1);
+            v = v[1..];
         }
 
         var z = v.IndexOf((byte)0);
         if (z >= 0)
         {
-            v = v.Slice(0, z);
+            v = v[..z];
         }
 
         while (v.Length > 0 && v[v.Length - 1] == ' ')
         {
-            v = v.Slice(0, v.Length - 1);
+            v = v[..^1];
         }
 
         return v;

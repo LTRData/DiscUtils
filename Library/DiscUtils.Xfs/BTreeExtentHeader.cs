@@ -46,10 +46,10 @@ internal abstract class BTreeExtentHeader : IByteArraySerializable
     public virtual int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         Magic = EndianUtilities.ToUInt32BigEndian(buffer);
-        Level = EndianUtilities.ToUInt16BigEndian(buffer.Slice(0x4));
-        NumberOfRecords = EndianUtilities.ToUInt16BigEndian(buffer.Slice(0x6));
-        LeftSibling = EndianUtilities.ToInt64BigEndian(buffer.Slice(0x8));
-        RightSibling = EndianUtilities.ToInt64BigEndian(buffer.Slice(0xC));
+        Level = EndianUtilities.ToUInt16BigEndian(buffer[0x4..]);
+        NumberOfRecords = EndianUtilities.ToUInt16BigEndian(buffer[0x6..]);
+        LeftSibling = EndianUtilities.ToInt64BigEndian(buffer[0x8..]);
+        RightSibling = EndianUtilities.ToInt64BigEndian(buffer[0xC..]);
         return 24;
     }
 

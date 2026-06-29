@@ -100,7 +100,7 @@ public class TarFileSystem : VirtualFileSystem
 
         if (path.StartsWith('.'))
         {
-            path = path.Substring(1);
+            path = path[1..];
         }
 
         path = path.Replace('/', '\\');

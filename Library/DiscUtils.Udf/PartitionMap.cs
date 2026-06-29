@@ -54,7 +54,7 @@ internal abstract class PartitionMap : IByteArraySerializable
         }
         else if (type == 2)
         {
-            EntityIdentifier id = EndianUtilities.ToStruct<UdfEntityIdentifier>(buffer.Slice(4));
+            EntityIdentifier id = EndianUtilities.ToStruct<UdfEntityIdentifier>(buffer[4..]);
             result = id.Identifier switch
             {
                 "*UDF Virtual Partition" => new VirtualPartitionMap(),

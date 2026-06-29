@@ -121,7 +121,7 @@ internal sealed class CompressedClusterStream : ClusterStream
             var cacheOffset = (int)(focusVcn - _cacheBufferVcn);
             var toCopy = Math.Min(_attr.CompressionUnitSize - cacheOffset, count - totalRead);
 
-            _cacheBuffer.AsSpan(cacheOffset * _bytesPerCluster, toCopy * _bytesPerCluster).CopyTo(buffer.Slice(totalRead * _bytesPerCluster));
+            _cacheBuffer.AsSpan(cacheOffset * _bytesPerCluster, toCopy * _bytesPerCluster).CopyTo(buffer[(totalRead * _bytesPerCluster)..]);
 
             totalRead += toCopy;
         }
@@ -143,7 +143,7 @@ internal sealed class CompressedClusterStream : ClusterStream
             var cacheOffset = (int)(focusVcn - _cacheBufferVcn);
             var toCopy = Math.Min(_attr.CompressionUnitSize - cacheOffset, count - totalRead);
 
-            _cacheBuffer.AsMemory(cacheOffset * _bytesPerCluster, toCopy * _bytesPerCluster).CopyTo(buffer.Slice(totalRead * _bytesPerCluster));
+            _cacheBuffer.AsMemory(cacheOffset * _bytesPerCluster, toCopy * _bytesPerCluster).CopyTo(buffer[(totalRead * _bytesPerCluster)..]);
 
             totalRead += toCopy;
         }
@@ -210,7 +210,7 @@ internal sealed class CompressedClusterStream : ClusterStream
             if (cuStart == focusVcn && count - totalWritten >= _attr.CompressionUnitSize)
             {
                 // Aligned write...
-                var bytes = buffer.Slice(totalWritten * _bytesPerCluster);
+                var bytes = buffer[(totalWritten * _bytesPerCluster)..];
                 totalAllocated += CompressAndWriteClusters(focusVcn, _attr.CompressionUnitSize, bytes);
 
                 totalWritten += _attr.CompressionUnitSize;
@@ -252,7 +252,7 @@ internal sealed class CompressedClusterStream : ClusterStream
             if (cuStart == focusVcn && count - totalWritten >= _attr.CompressionUnitSize)
             {
                 // Aligned write...
-                var bytes = buffer.Slice(totalWritten * _bytesPerCluster);
+                var bytes = buffer[(totalWritten * _bytesPerCluster)..];
                 totalAllocated += await CompressAndWriteClustersAsync(focusVcn, _attr.CompressionUnitSize, bytes, cancellationToken).ConfigureAwait(false);
 
                 totalWritten += _attr.CompressionUnitSize;
@@ -392,7 +392,7 @@ internal sealed class CompressedClusterStream : ClusterStream
 
         var totalAllocated = 0;
 
-        var result = compressor.TryCompress(buffer.Slice(_attr.CompressionUnitSize * _bytesPerCluster), _ioBuffer,
+        var result = compressor.TryCompress(buffer[(_attr.CompressionUnitSize * _bytesPerCluster)..], _ioBuffer,
             out var compressedLength);
         if (result == CompressionResult.AllZeros)
         {
@@ -423,7 +423,7 @@ internal sealed class CompressedClusterStream : ClusterStream
 
         var totalAllocated = 0;
 
-        var result = compressor.TryCompress(buffer.Span.Slice(_attr.CompressionUnitSize * _bytesPerCluster), _ioBuffer,
+        var result = compressor.TryCompress(buffer.Span[(_attr.CompressionUnitSize * _bytesPerCluster)..], _ioBuffer,
             out var compressedLength);
         if (result == CompressionResult.AllZeros)
         {

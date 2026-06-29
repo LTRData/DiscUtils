@@ -37,7 +37,7 @@ internal class CompressedGrainHeader : IByteArraySerializable
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         LogicalBlockAddress = EndianUtilities.ToInt64LittleEndian(buffer);
-        DataSize = EndianUtilities.ToInt32LittleEndian(buffer.Slice(8));
+        DataSize = EndianUtilities.ToInt32LittleEndian(buffer[8..]);
         return Size;
     }
 

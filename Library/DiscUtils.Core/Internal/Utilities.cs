@@ -61,7 +61,7 @@ public static class Utilities
             return default; // No directory, just a file name
         }
 
-        return trimmed.Slice(0, index);
+        return trimmed[..index];
     }
 
     /// <summary>
@@ -99,7 +99,7 @@ public static class Utilities
             return path; // No directory, just a file name
         }
 
-        return path.Slice(index + 1);
+        return path[(index + 1)..];
     }
 
     /// <summary>
@@ -259,7 +259,7 @@ public static class Utilities
             (basePath[0] is '\\' or '/') &&
             merged[1] == ':' && merged[2] == '\\')
         {
-            return merged.Substring(2);
+            return merged[2..];
         }
 
         return merged;
@@ -284,7 +284,7 @@ public static class Utilities
 
         if (basePathElements.Length > 0 && basePath[basePath.Length - 1] != Path.DirectorySeparatorChar)
         {
-            basePathElements = basePathElements.Slice(0, basePathElements.Length - 1);
+            basePathElements = basePathElements[..^1];
         }
 
         // Find first part of paths that don't match
@@ -364,13 +364,13 @@ public static class Utilities
         var i = name.LastIndexOf('.');
 
         // Check for more than one dot
-        if (i >= 0 && name.Slice(0, i).LastIndexOf('.') >= 0)
+        if (i >= 0 && name[..i].LastIndexOf('.') >= 0)
         {
             return false;
         }
 
-        var namePart = i >= 0 ? name.Slice(0, i) : name;
-        var extPart = i >= 0 ? name.Slice(i + 1) : default;
+        var namePart = i >= 0 ? name[..i] : name;
+        var extPart = i >= 0 ? name[(i + 1)..] : default;
 
         if (namePart.Length is 0 or > 8
             || extPart.Length > 3)

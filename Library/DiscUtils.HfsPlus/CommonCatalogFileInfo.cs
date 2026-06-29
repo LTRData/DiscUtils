@@ -42,14 +42,14 @@ internal abstract class CommonCatalogFileInfo : IByteArraySerializable
     public virtual int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         RecordType = (CatalogRecordType)EndianUtilities.ToInt16BigEndian(buffer);
-        FileId = EndianUtilities.ToUInt32BigEndian(buffer.Slice(8));
-        CreateTime = HfsPlusUtilities.ReadHFSPlusDate(DateTimeKind.Utc, buffer.Slice(12));
-        ContentModifyTime = HfsPlusUtilities.ReadHFSPlusDate(DateTimeKind.Utc, buffer.Slice(16));
-        AttributeModifyTime = HfsPlusUtilities.ReadHFSPlusDate(DateTimeKind.Utc, buffer.Slice(20));
-        AccessTime = HfsPlusUtilities.ReadHFSPlusDate(DateTimeKind.Utc, buffer.Slice(24));
-        BackupTime = HfsPlusUtilities.ReadHFSPlusDate(DateTimeKind.Utc, buffer.Slice(28));
+        FileId = EndianUtilities.ToUInt32BigEndian(buffer[8..]);
+        CreateTime = HfsPlusUtilities.ReadHFSPlusDate(DateTimeKind.Utc, buffer[12..]);
+        ContentModifyTime = HfsPlusUtilities.ReadHFSPlusDate(DateTimeKind.Utc, buffer[16..]);
+        AttributeModifyTime = HfsPlusUtilities.ReadHFSPlusDate(DateTimeKind.Utc, buffer[20..]);
+        AccessTime = HfsPlusUtilities.ReadHFSPlusDate(DateTimeKind.Utc, buffer[24..]);
+        BackupTime = HfsPlusUtilities.ReadHFSPlusDate(DateTimeKind.Utc, buffer[28..]);
 
-        FileSystemInfo = HfsPlusUtilities.ReadBsdInfo(buffer.Slice(32), out var special);
+        FileSystemInfo = HfsPlusUtilities.ReadBsdInfo(buffer[32..], out var special);
         UnixSpecialField = special;
 
         return 0;

@@ -86,7 +86,7 @@ public sealed class ServiceDiscoveryClient : IDisposable
 
         foreach (PointerRecord record in records)
         {
-            yield return record.TargetName.Substring(0, record.TargetName.Length - (domain.Length + 1));
+            yield return record.TargetName[..^(domain.Length + 1)];
         }
     }
 

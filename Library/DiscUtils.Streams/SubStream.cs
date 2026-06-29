@@ -146,7 +146,7 @@ public class SubStream : MappedStream
         }
 
         Parent.Position = _first + Position;
-        var numRead = await Parent.ReadAsync(buffer.Slice(0, (int)Math.Min(buffer.Length, Math.Min(MaximumLength - Position, int.MaxValue))), cancellationToken).ConfigureAwait(false);
+        var numRead = await Parent.ReadAsync(buffer[..(int)Math.Min(buffer.Length, Math.Min(MaximumLength - Position, int.MaxValue))], cancellationToken).ConfigureAwait(false);
         Position += numRead;
         return numRead;
     }
@@ -164,7 +164,7 @@ public class SubStream : MappedStream
         }
 
         Parent.Position = _first + Position;
-        var numRead = Parent.Read(buffer.Slice(0, (int)Math.Min(buffer.Length, Math.Min(MaximumLength - Position, int.MaxValue))));
+        var numRead = Parent.Read(buffer[..(int)Math.Min(buffer.Length, Math.Min(MaximumLength - Position, int.MaxValue))]);
         Position += numRead;
         return numRead;
     }

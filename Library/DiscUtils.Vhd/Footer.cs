@@ -147,20 +147,20 @@ internal class Footer
 
         return new Footer
         {
-            Cookie = latin1Encoding.GetString(buffer.Slice(0, 8)),
-            Features = EndianUtilities.ToUInt32BigEndian(buffer.Slice(8)),
-            FileFormatVersion = EndianUtilities.ToUInt32BigEndian(buffer.Slice(12)),
-            DataOffset = EndianUtilities.ToInt64BigEndian(buffer.Slice(16)),
-            Timestamp = EpochUtc.AddSeconds(EndianUtilities.ToUInt32BigEndian(buffer.Slice(24))),
+            Cookie = latin1Encoding.GetString(buffer[..8]),
+            Features = EndianUtilities.ToUInt32BigEndian(buffer[8..]),
+            FileFormatVersion = EndianUtilities.ToUInt32BigEndian(buffer[12..]),
+            DataOffset = EndianUtilities.ToInt64BigEndian(buffer[16..]),
+            Timestamp = EpochUtc.AddSeconds(EndianUtilities.ToUInt32BigEndian(buffer[24..])),
             CreatorApp = latin1Encoding.GetString(buffer.Slice(28, 4)),
-            CreatorVersion = EndianUtilities.ToUInt32BigEndian(buffer.Slice(32)),
+            CreatorVersion = EndianUtilities.ToUInt32BigEndian(buffer[32..]),
             CreatorHostOS = latin1Encoding.GetString(buffer.Slice(36, 4)),
-            OriginalSize = EndianUtilities.ToInt64BigEndian(buffer.Slice(40)),
-            CurrentSize = EndianUtilities.ToInt64BigEndian(buffer.Slice(48)),
-            Geometry = new Geometry(EndianUtilities.ToUInt16BigEndian(buffer.Slice(56)), buffer[58], buffer[59]),
-            DiskType = (FileType)EndianUtilities.ToUInt32BigEndian(buffer.Slice(60)),
-            Checksum = EndianUtilities.ToUInt32BigEndian(buffer.Slice(64)),
-            UniqueId = EndianUtilities.ToGuidBigEndian(buffer.Slice(68)),
+            OriginalSize = EndianUtilities.ToInt64BigEndian(buffer[40..]),
+            CurrentSize = EndianUtilities.ToInt64BigEndian(buffer[48..]),
+            Geometry = new Geometry(EndianUtilities.ToUInt16BigEndian(buffer[56..]), buffer[58], buffer[59]),
+            DiskType = (FileType)EndianUtilities.ToUInt32BigEndian(buffer[60..]),
+            Checksum = EndianUtilities.ToUInt32BigEndian(buffer[64..]),
+            UniqueId = EndianUtilities.ToGuidBigEndian(buffer[68..]),
             SavedState = buffer[84]
         };
     }
@@ -169,22 +169,22 @@ internal class Footer
     {
         var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
 
-        latin1Encoding.GetBytes(Cookie.AsSpan(), buffer.Slice(0, 8));
-        EndianUtilities.WriteBytesBigEndian(Features, buffer.Slice(8));
-        EndianUtilities.WriteBytesBigEndian(FileFormatVersion, buffer.Slice(12));
-        EndianUtilities.WriteBytesBigEndian(DataOffset, buffer.Slice(16));
-        EndianUtilities.WriteBytesBigEndian((uint)(Timestamp - EpochUtc).TotalSeconds, buffer.Slice(24));
+        latin1Encoding.GetBytes(Cookie.AsSpan(), buffer[..8]);
+        EndianUtilities.WriteBytesBigEndian(Features, buffer[8..]);
+        EndianUtilities.WriteBytesBigEndian(FileFormatVersion, buffer[12..]);
+        EndianUtilities.WriteBytesBigEndian(DataOffset, buffer[16..]);
+        EndianUtilities.WriteBytesBigEndian((uint)(Timestamp - EpochUtc).TotalSeconds, buffer[24..]);
         latin1Encoding.GetBytes(CreatorApp.AsSpan(), buffer.Slice(28, 4));
-        EndianUtilities.WriteBytesBigEndian(CreatorVersion, buffer.Slice(32));
+        EndianUtilities.WriteBytesBigEndian(CreatorVersion, buffer[32..]);
         latin1Encoding.GetBytes(CreatorHostOS.AsSpan(), buffer.Slice(36, 4));
-        EndianUtilities.WriteBytesBigEndian(OriginalSize, buffer.Slice(40));
-        EndianUtilities.WriteBytesBigEndian(CurrentSize, buffer.Slice(48));
-        EndianUtilities.WriteBytesBigEndian((ushort)Geometry.Cylinders, buffer.Slice(56));
+        EndianUtilities.WriteBytesBigEndian(OriginalSize, buffer[40..]);
+        EndianUtilities.WriteBytesBigEndian(CurrentSize, buffer[48..]);
+        EndianUtilities.WriteBytesBigEndian((ushort)Geometry.Cylinders, buffer[56..]);
         buffer[58] = (byte)Geometry.HeadsPerCylinder;
         buffer[59] = (byte)Geometry.SectorsPerTrack;
-        EndianUtilities.WriteBytesBigEndian((uint)DiskType, buffer.Slice(60));
-        EndianUtilities.WriteBytesBigEndian(Checksum, buffer.Slice(64));
-        EndianUtilities.WriteBytesBigEndian(UniqueId, buffer.Slice(68));
+        EndianUtilities.WriteBytesBigEndian((uint)DiskType, buffer[60..]);
+        EndianUtilities.WriteBytesBigEndian(Checksum, buffer[64..]);
+        EndianUtilities.WriteBytesBigEndian(UniqueId, buffer[68..]);
         buffer[84] = SavedState;
         buffer.Slice(85, 427).Clear();
     }

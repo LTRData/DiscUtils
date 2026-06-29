@@ -98,7 +98,7 @@ public sealed class SecurityIdentifier : IdentityReference, IComparable<Security
             return false;
         }
 
-        buffer = binaryForm.Slice(0, 8 + numSubAuthorities * 4).ToArray();
+        buffer = binaryForm[..(8 + numSubAuthorities * 4)].ToArray();
         return true;
     }
 
@@ -112,7 +112,7 @@ public sealed class SecurityIdentifier : IdentityReference, IComparable<Security
             throw new InvalidOperationException("Too many subauthorities.");
         }
 
-        EndianUtilities.WriteBytesLittleEndian(rid, newBinary.Slice(newBinary.Length - 4));
+        EndianUtilities.WriteBytesLittleEndian(rid, newBinary[^4..]);
         return new(newBinary);
     }
 
@@ -381,7 +381,7 @@ public sealed class SecurityIdentifier : IdentityReference, IComparable<Security
         string sid;
         int len;
 
-        if (sddlForm.Slice(pos).StartsWith("S-".AsSpan(), StringComparison.OrdinalIgnoreCase))
+        if (sddlForm[pos..].StartsWith("S-".AsSpan(), StringComparison.OrdinalIgnoreCase))
         {
             // Looks like a SID, try to parse it.
             var endPos = pos;
@@ -399,7 +399,7 @@ public sealed class SecurityIdentifier : IdentityReference, IComparable<Security
                 endPos--;
             }
 
-            sid = sddlForm.Slice(pos, endPos - pos).ToString();
+            sid = sddlForm[pos..endPos].ToString();
             len = endPos - pos;
         }
         else
@@ -518,7 +518,7 @@ public sealed class SecurityIdentifier : IdentityReference, IComparable<Security
                 CultureInfo.InvariantCulture,
                 out result);
 #else
-            return ulong.TryParse(s.Substring(2),
+            return ulong.TryParse(s[2..],
                 NumberStyles.HexNumber,
                 CultureInfo.InvariantCulture,
                 out result);
@@ -542,7 +542,7 @@ public sealed class SecurityIdentifier : IdentityReference, IComparable<Security
                 CultureInfo.InvariantCulture,
                 out result);
 #else
-            return uint.TryParse(s.Substring(2),
+            return uint.TryParse(s[2..],
                 NumberStyles.HexNumber,
                 CultureInfo.InvariantCulture,
                 out result);

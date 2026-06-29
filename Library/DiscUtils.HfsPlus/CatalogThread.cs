@@ -36,8 +36,8 @@ internal sealed class CatalogThread : IByteArraySerializable
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         RecordType = (CatalogRecordType)EndianUtilities.ToInt16BigEndian(buffer);
-        ParentId = EndianUtilities.ToUInt32BigEndian(buffer.Slice(4));
-        Name = HfsPlusUtilities.ReadUniStr255(buffer.Slice(8));
+        ParentId = EndianUtilities.ToUInt32BigEndian(buffer[4..]);
+        Name = HfsPlusUtilities.ReadUniStr255(buffer[8..]);
 
         return 0;
     }

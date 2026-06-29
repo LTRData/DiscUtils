@@ -54,7 +54,7 @@ internal struct DirectoryRecord : IByteArraySerializable
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         Inode = EndianUtilities.ToUInt32LittleEndian(buffer);
-        var recordLen = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(4));
+        var recordLen = EndianUtilities.ToUInt16LittleEndian(buffer[4..]);
         int nameLen = buffer[6];
         FileType = buffer[7];
         Name = _nameEncoding.GetString(buffer.Slice(8, nameLen)).SanitizeFileName();

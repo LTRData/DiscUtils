@@ -42,18 +42,18 @@ public sealed class RawAcl : GenericAcl
             throw new ArgumentException("Invalid ACL - unknown revision", nameof(binaryForm));
         }
 
-        int binaryLength = ReadUShort(binaryForm.Slice(2));
+        int binaryLength = ReadUShort(binaryForm[2..]);
         if (binaryLength > binaryForm.Length)
         {
             throw new ArgumentException("Invalid ACL - truncated", nameof(binaryForm));
         }
 
         var pos = 8;
-        int numAces = ReadUShort(binaryForm.Slice(4));
+        int numAces = ReadUShort(binaryForm[4..]);
         _list = new List<GenericAce>(numAces);
         for (var i = 0; i < numAces; ++i)
         {
-            var newAce = GenericAce.CreateFromBinaryForm(binaryForm.Slice(pos));
+            var newAce = GenericAce.CreateFromBinaryForm(binaryForm[pos..]);
             _list.Add(newAce);
             pos += newAce.BinaryLength;
         }
@@ -74,18 +74,18 @@ public sealed class RawAcl : GenericAcl
             return false;
         }
 
-        int binaryLength = ReadUShort(binaryForm.Slice(2));
+        int binaryLength = ReadUShort(binaryForm[2..]);
         if (binaryLength > binaryForm.Length)
         {
             return false;
         }
 
         var pos = 8;
-        int numAces = ReadUShort(binaryForm.Slice(4));
+        int numAces = ReadUShort(binaryForm[4..]);
         var list = new List<GenericAce>(numAces);
         for (var i = 0; i < numAces; ++i)
         {
-            if (!GenericAce.TryCreateFromBinaryForm(binaryForm.Slice(pos), out var newAce))
+            if (!GenericAce.TryCreateFromBinaryForm(binaryForm[pos..], out var newAce))
             {
                 return false;
             }
@@ -132,14 +132,14 @@ public sealed class RawAcl : GenericAcl
     {
         binaryForm[0] = Revision;
         binaryForm[1] = 0;
-        WriteUShort((ushort)BinaryLength, binaryForm.Slice(2));
-        WriteUShort((ushort)_list.Count, binaryForm.Slice(4));
-        WriteUShort(0, binaryForm.Slice(6));
+        WriteUShort((ushort)BinaryLength, binaryForm[2..]);
+        WriteUShort((ushort)_list.Count, binaryForm[4..]);
+        WriteUShort(0, binaryForm[6..]);
 
         var pos = 8;
         foreach (var ace in _list)
         {
-            ace.GetBinaryForm(binaryForm.Slice(pos));
+            ace.GetBinaryForm(binaryForm[pos..]);
             pos += ace.BinaryLength;
         }
     }

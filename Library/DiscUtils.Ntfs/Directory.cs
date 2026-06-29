@@ -116,7 +116,7 @@ internal class Directory : File
         var streamSepPos = name.IndexOf(':');
         if (streamSepPos >= 0)
         {
-            searchName = name.Substring(0, streamSepPos);
+            searchName = name[..streamSepPos];
         }
 
         var entry = Index.FindFirst(new FileNameQuery(searchName, _context.UpperCase));
@@ -227,7 +227,7 @@ internal class Directory : File
 #if NET6_0_OR_GREATER
             candidate = $"{baseName.AsSpan(0, Math.Min(8 - suffix.Length, baseName.Length))}{suffix}{(ext.Length > 0 ? $".{ext}" : string.Empty)}";
 #else
-            candidate = $"{baseName.Substring(0, Math.Min(8 - suffix.Length, baseName.Length))}{suffix}{(ext.Length > 0 ? $".{ext}" : string.Empty)}";
+            candidate = $"{baseName[..Math.Min(8 - suffix.Length, baseName.Length)]}{suffix}{(ext.Length > 0 ? $".{ext}" : string.Empty)}";
 #endif
             i++;
         } while (GetEntryByName(candidate) != null);

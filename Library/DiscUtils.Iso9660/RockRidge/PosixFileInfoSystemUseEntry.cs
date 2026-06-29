@@ -36,14 +36,14 @@ internal sealed class PosixFileInfoSystemUseEntry : SystemUseEntry
     {
         CheckAndSetCommonProperties(name, length, version, 36, 1);
 
-        FileMode = IsoUtilities.ToUInt32FromBoth(data.Slice(4));
-        NumLinks = IsoUtilities.ToUInt32FromBoth(data.Slice(12));
-        UserId = IsoUtilities.ToUInt32FromBoth(data.Slice(20));
-        GroupId = IsoUtilities.ToUInt32FromBoth(data.Slice(28));
+        FileMode = IsoUtilities.ToUInt32FromBoth(data[4..]);
+        NumLinks = IsoUtilities.ToUInt32FromBoth(data[12..]);
+        UserId = IsoUtilities.ToUInt32FromBoth(data[20..]);
+        GroupId = IsoUtilities.ToUInt32FromBoth(data[28..]);
         Inode = 0;
         if (length >= 44)
         {
-            Inode = IsoUtilities.ToUInt32FromBoth(data.Slice(36));
+            Inode = IsoUtilities.ToUInt32FromBoth(data[36..]);
         }
     }
 }

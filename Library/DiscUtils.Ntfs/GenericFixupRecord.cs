@@ -38,7 +38,7 @@ internal sealed class GenericFixupRecord : FixupRecordBase
 
     protected override void Read(ReadOnlySpan<byte> buffer)
     {
-        var newContent = buffer.Slice(0, (UpdateSequenceCount - 1) * _bytesPerSector).ToArray();
+        var newContent = buffer[..((UpdateSequenceCount - 1) * _bytesPerSector)].ToArray();
         Content = newContent;
     }
 

@@ -145,9 +145,9 @@ public class LunInfo
             if (queryElem.Span.StartsWith("LUN=".AsSpan(), StringComparison.OrdinalIgnoreCase))
             {
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP
-                lun = ulong.Parse(queryElem.Span.Slice(4), NumberStyles.None, CultureInfo.InvariantCulture);
+                lun = ulong.Parse(queryElem.Span[4..], NumberStyles.None, CultureInfo.InvariantCulture);
 #else
-                lun = ulong.Parse(queryElem.Span.Slice(4).ToString(), CultureInfo.InvariantCulture);
+                lun = ulong.Parse(queryElem.Span[4..].ToString(), CultureInfo.InvariantCulture);
 #endif
                 if (lun < 256)
                 {

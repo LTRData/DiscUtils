@@ -41,7 +41,7 @@ public partial class VirtualFileSystem : DiscFileSystem, IWindowsFileSystem, IUn
 
         if (index >= 0)
         {
-            return path.Remove(index);
+            return path[..index];
         }
 
         return string.Empty;
@@ -58,7 +58,7 @@ public partial class VirtualFileSystem : DiscFileSystem, IWindowsFileSystem, IUn
 
         if (index >= 0)
         {
-            return path.Substring(index + 1);
+            return path[(index + 1)..];
         }
 
         return path;

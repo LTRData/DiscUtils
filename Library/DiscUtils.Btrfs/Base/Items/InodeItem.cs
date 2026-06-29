@@ -119,21 +119,21 @@ internal class InodeItem : BaseItem
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         Generation = EndianUtilities.ToUInt64LittleEndian(buffer);
-        TransId = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(8));
-        FileSize = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(16));
-        NBytes = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(24));
-        BlockGroup = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(32));
-        LinkCount = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(40));
-        Uid = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(44));
-        Gid = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(48));
-        Mode = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(52));
-        RDev = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(56));
-        Flags = (InodeFlag)EndianUtilities.ToUInt64LittleEndian(buffer.Slice(64));
-        Sequence = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(72));
-        ATime = EndianUtilities.ToStruct<TimeSpec>(buffer.Slice(112));
-        CTime = EndianUtilities.ToStruct<TimeSpec>(buffer.Slice(124));
-        MTime = EndianUtilities.ToStruct<TimeSpec>(buffer.Slice(136));
-        OTime = EndianUtilities.ToStruct<TimeSpec>(buffer.Slice(148));
+        TransId = EndianUtilities.ToUInt64LittleEndian(buffer[8..]);
+        FileSize = EndianUtilities.ToUInt64LittleEndian(buffer[16..]);
+        NBytes = EndianUtilities.ToUInt64LittleEndian(buffer[24..]);
+        BlockGroup = EndianUtilities.ToUInt64LittleEndian(buffer[32..]);
+        LinkCount = EndianUtilities.ToUInt32LittleEndian(buffer[40..]);
+        Uid = EndianUtilities.ToUInt32LittleEndian(buffer[44..]);
+        Gid = EndianUtilities.ToUInt32LittleEndian(buffer[48..]);
+        Mode = EndianUtilities.ToUInt32LittleEndian(buffer[52..]);
+        RDev = EndianUtilities.ToUInt64LittleEndian(buffer[56..]);
+        Flags = (InodeFlag)EndianUtilities.ToUInt64LittleEndian(buffer[64..]);
+        Sequence = EndianUtilities.ToUInt64LittleEndian(buffer[72..]);
+        ATime = EndianUtilities.ToStruct<TimeSpec>(buffer[112..]);
+        CTime = EndianUtilities.ToStruct<TimeSpec>(buffer[124..]);
+        MTime = EndianUtilities.ToStruct<TimeSpec>(buffer[136..]);
+        OTime = EndianUtilities.ToStruct<TimeSpec>(buffer[148..]);
         return Size;
     }
 }

@@ -51,11 +51,11 @@ internal class LeafDirectoryV5 : LeafDirectory
     protected override int ReadHeader(ReadOnlySpan<byte> buffer)
     {
         Magic = EndianUtilities.ToUInt32BigEndian(buffer);
-        Crc = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x04));
-        BlockNumber = EndianUtilities.ToUInt64BigEndian(buffer.Slice(0x08));
-        LogSequenceNumber = EndianUtilities.ToUInt64BigEndian(buffer.Slice(0x10));
-        Uuid = EndianUtilities.ToGuidBigEndian(buffer.Slice(0x18));
-        Owner = EndianUtilities.ToUInt64BigEndian(buffer.Slice(0x28));
+        Crc = EndianUtilities.ToUInt32BigEndian(buffer[0x04..]);
+        BlockNumber = EndianUtilities.ToUInt64BigEndian(buffer[0x08..]);
+        LogSequenceNumber = EndianUtilities.ToUInt64BigEndian(buffer[0x10..]);
+        Uuid = EndianUtilities.ToGuidBigEndian(buffer[0x18..]);
+        Owner = EndianUtilities.ToUInt64BigEndian(buffer[0x28..]);
         return 0x30;
     }
 }

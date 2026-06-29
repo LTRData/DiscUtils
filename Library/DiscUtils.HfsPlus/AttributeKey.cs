@@ -49,9 +49,9 @@ internal class AttributeKey : BTreeKey
     {
         _keyLength = EndianUtilities.ToUInt16BigEndian(buffer);
         //_pad = EndianUtilities.ToUInt16BigEndian(buffer.Slice(2));
-        FileId = new CatalogNodeId(EndianUtilities.ToUInt32BigEndian(buffer.Slice(4)));
+        FileId = new CatalogNodeId(EndianUtilities.ToUInt32BigEndian(buffer[4..]));
         //_startBlock = EndianUtilities.ToUInt32BigEndian(buffer.Slice(8));
-        Name = HfsPlusUtilities.ReadUniStr255(buffer.Slice(12));
+        Name = HfsPlusUtilities.ReadUniStr255(buffer[12..]);
 
         return _keyLength + 2;
     }

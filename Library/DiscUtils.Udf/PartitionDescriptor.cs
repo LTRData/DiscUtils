@@ -43,15 +43,15 @@ internal class PartitionDescriptor : TaggedDescriptor<PartitionDescriptor>
 
     public override int Parse(ReadOnlySpan<byte> buffer)
     {
-        VolumeDescriptorSequenceNumber = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(16));
-        PartitionFlags = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(20));
-        PartitionNumber = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(22));
-        PartitionContents = EndianUtilities.ToStruct<ApplicationEntityIdentifier>(buffer.Slice(24));
+        VolumeDescriptorSequenceNumber = EndianUtilities.ToUInt32LittleEndian(buffer[16..]);
+        PartitionFlags = EndianUtilities.ToUInt16LittleEndian(buffer[20..]);
+        PartitionNumber = EndianUtilities.ToUInt16LittleEndian(buffer[22..]);
+        PartitionContents = EndianUtilities.ToStruct<ApplicationEntityIdentifier>(buffer[24..]);
         PartitionContentsUse = EndianUtilities.ToByteArray(buffer.Slice(56, 128));
-        AccessType = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(184));
-        PartitionStartingLocation = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(188));
-        PartitionLength = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(192));
-        ImplementationIdentifier = EndianUtilities.ToStruct<ImplementationEntityIdentifier>(buffer.Slice(196));
+        AccessType = EndianUtilities.ToUInt32LittleEndian(buffer[184..]);
+        PartitionStartingLocation = EndianUtilities.ToUInt32LittleEndian(buffer[188..]);
+        PartitionLength = EndianUtilities.ToUInt32LittleEndian(buffer[192..]);
+        ImplementationIdentifier = EndianUtilities.ToStruct<ImplementationEntityIdentifier>(buffer[196..]);
         ImplementationUse = EndianUtilities.ToByteArray(buffer.Slice(228, 128));
 
         return 512;

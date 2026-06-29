@@ -102,7 +102,7 @@ public sealed class LZNT1 : IBlockCompressor
 
                     lzDictionary.MaxMatchAmount = Math.Min(1 << lengthBits, BlockSize - 1);
 
-                    var lzSearchMatch = lzDictionary.Search(source.Slice(subBlock),
+                    var lzSearchMatch = lzDictionary.Search(source[subBlock..],
                         sourcePointer - subBlock, decompressedSize);
                     if (lzSearchMatch.size > 0)
                     {
@@ -121,9 +121,9 @@ public sealed class LZNT1 : IBlockCompressor
                         var convertedSize = (rawLength - 3) & ((1 << lengthMask) - 1);
 
                         var convertedData = (ushort)(convertedOffset | convertedSize);
-                        EndianUtilities.WriteBytesLittleEndian(convertedData, compressed.Slice(destPointer));
+                        EndianUtilities.WriteBytesLittleEndian(convertedData, compressed[destPointer..]);
 
-                        lzDictionary.AddEntryRange(source.Slice(subBlock), sourcePointer - subBlock,
+                        lzDictionary.AddEntryRange(source[subBlock..], sourcePointer - subBlock,
                             lzSearchMatch.size);
                         sourcePointer += lzSearchMatch.size;
                         destPointer += 2;
@@ -145,7 +145,7 @@ public sealed class LZNT1 : IBlockCompressor
                         }
 
                         compressed[destPointer] = source[sourcePointer];
-                        lzDictionary.AddEntry(source.Slice(subBlock), sourcePointer - subBlock);
+                        lzDictionary.AddEntry(source[subBlock..], sourcePointer - subBlock);
 
                         sourcePointer++;
                         destPointer++;
@@ -167,10 +167,10 @@ public sealed class LZNT1 : IBlockCompressor
             if (compressedSize >= BlockSize)
             {
                 // Set the header to indicate non-compressed block
-                EndianUtilities.WriteBytesLittleEndian((ushort)(0x3000 | (BlockSize - 1)), compressed.Slice(
-                    headerPosition));
+                EndianUtilities.WriteBytesLittleEndian((ushort)(0x3000 | (BlockSize - 1)), compressed[
+                    headerPosition..]);
 
-                source.Slice(sourceCurrentBlock, BlockSize).CopyTo(compressed.Slice(headerPosition + 2));
+                source.Slice(sourceCurrentBlock, BlockSize).CopyTo(compressed[(headerPosition + 2)..]);
                 destPointer = headerPosition + 2 + BlockSize;
 
                 // Make sure decompression stops by setting the next two bytes to null, prevents us from having to 
@@ -181,8 +181,8 @@ public sealed class LZNT1 : IBlockCompressor
             else
             {
                 // Set the header to indicate compressed and the right length
-                EndianUtilities.WriteBytesLittleEndian((ushort)(0xb000 | (compressedSize - 1)), compressed.Slice(
-                    headerPosition));
+                EndianUtilities.WriteBytesLittleEndian((ushort)(0xb000 | (compressedSize - 1)), compressed[
+                    headerPosition..]);
             }
 
             lzDictionary.Reset();
@@ -211,7 +211,7 @@ public sealed class LZNT1 : IBlockCompressor
 
         while (sourceIdx < source.Length)
         {
-            var header = EndianUtilities.ToUInt16LittleEndian(source.Slice(sourceIdx));
+            var header = EndianUtilities.ToUInt16LittleEndian(source[sourceIdx..]);
             sourceIdx += 2;
 
             // Look for null-terminating sub-block header
@@ -223,7 +223,7 @@ public sealed class LZNT1 : IBlockCompressor
             if ((header & SubBlockIsCompressedFlag) == 0)
             {
                 var blockSize = (header & SubBlockSizeMask) + 1;
-                source.Slice(sourceIdx, blockSize).CopyTo(decompressed.Slice(decompressedSize));
+                source.Slice(sourceIdx, blockSize).CopyTo(decompressed[decompressedSize..]);
                 sourceIdx += blockSize;
                 decompressedSize += blockSize;
             }
@@ -262,7 +262,7 @@ public sealed class LZNT1 : IBlockCompressor
                             var lengthBits = (ushort)(16 - _compressionBits[decompressedSize - destSubBlockStart]);
                             var lengthMask = (ushort)((1 << lengthBits) - 1);
 
-                            var phraseToken = EndianUtilities.ToUInt16LittleEndian(source.Slice(sourceIdx));
+                            var phraseToken = EndianUtilities.ToUInt16LittleEndian(source[sourceIdx..]);
                             sourceIdx += 2;
 
                             var destBackAddr = decompressedSize - (phraseToken >> lengthBits) - 1;

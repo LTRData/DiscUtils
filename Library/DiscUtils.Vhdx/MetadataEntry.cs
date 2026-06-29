@@ -38,10 +38,10 @@ internal sealed class MetadataEntry : IByteArraySerializable
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         ItemId = EndianUtilities.ToGuidLittleEndian(buffer);
-        Offset = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(16));
-        Length = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(20));
-        Flags = (MetadataEntryFlags)EndianUtilities.ToUInt32LittleEndian(buffer.Slice(24));
-        Reserved = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(28));
+        Offset = EndianUtilities.ToUInt32LittleEndian(buffer[16..]);
+        Length = EndianUtilities.ToUInt32LittleEndian(buffer[20..]);
+        Flags = (MetadataEntryFlags)EndianUtilities.ToUInt32LittleEndian(buffer[24..]);
+        Reserved = EndianUtilities.ToUInt32LittleEndian(buffer[28..]);
 
         return 32;
     }
@@ -49,9 +49,9 @@ internal sealed class MetadataEntry : IByteArraySerializable
     public void WriteTo(Span<byte> buffer)
     {
         EndianUtilities.WriteBytesLittleEndian(ItemId, buffer);
-        EndianUtilities.WriteBytesLittleEndian(Offset, buffer.Slice(16));
-        EndianUtilities.WriteBytesLittleEndian(Length, buffer.Slice(20));
-        EndianUtilities.WriteBytesLittleEndian((uint)Flags, buffer.Slice(24));
-        EndianUtilities.WriteBytesLittleEndian(Reserved, buffer.Slice(28));
+        EndianUtilities.WriteBytesLittleEndian(Offset, buffer[16..]);
+        EndianUtilities.WriteBytesLittleEndian(Length, buffer[20..]);
+        EndianUtilities.WriteBytesLittleEndian((uint)Flags, buffer[24..]);
+        EndianUtilities.WriteBytesLittleEndian(Reserved, buffer[28..]);
     }
 }

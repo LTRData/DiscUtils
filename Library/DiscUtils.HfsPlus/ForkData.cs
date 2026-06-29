@@ -39,13 +39,13 @@ internal sealed class ForkData : IByteArraySerializable
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         LogicalSize = EndianUtilities.ToUInt64BigEndian(buffer);
-        ClumpSize = EndianUtilities.ToUInt32BigEndian(buffer.Slice(8));
-        TotalBlocks = EndianUtilities.ToUInt32BigEndian(buffer.Slice(12));
+        ClumpSize = EndianUtilities.ToUInt32BigEndian(buffer[8..]);
+        TotalBlocks = EndianUtilities.ToUInt32BigEndian(buffer[12..]);
 
         Extents = new ExtentDescriptor[8];
         for (var i = 0; i < 8; ++i)
         {
-            Extents[i] = EndianUtilities.ToStruct<ExtentDescriptor>(buffer.Slice(16 + i * 8));
+            Extents[i] = EndianUtilities.ToStruct<ExtentDescriptor>(buffer[(16 + i * 8)..]);
         }
 
         return StructSize;

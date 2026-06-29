@@ -47,10 +47,10 @@ internal class LogoutResponse : BaseResponse
         }
 
         Response = (LogoutResponseCode)headerData[2];
-        StatusSequenceNumber = EndianUtilities.ToUInt32BigEndian(headerData.Slice(24));
-        ExpectedCommandSequenceNumber = EndianUtilities.ToUInt32BigEndian(headerData.Slice(28));
-        MaxCommandSequenceNumber = EndianUtilities.ToUInt32BigEndian(headerData.Slice(32));
-        Time2Wait = EndianUtilities.ToUInt16BigEndian(headerData.Slice(40));
-        Time2Retain = EndianUtilities.ToUInt16BigEndian(headerData.Slice(42));
+        StatusSequenceNumber = EndianUtilities.ToUInt32BigEndian(headerData[24..]);
+        ExpectedCommandSequenceNumber = EndianUtilities.ToUInt32BigEndian(headerData[28..]);
+        MaxCommandSequenceNumber = EndianUtilities.ToUInt32BigEndian(headerData[32..]);
+        Time2Wait = EndianUtilities.ToUInt16BigEndian(headerData[40..]);
+        Time2Retain = EndianUtilities.ToUInt16BigEndian(headerData[42..]);
     }
 }

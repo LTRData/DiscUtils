@@ -46,19 +46,19 @@ internal class BTreeExtentRoot : IByteArraySerializable
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         Level = EndianUtilities.ToUInt16BigEndian(buffer);
-        NumberOfRecords = EndianUtilities.ToUInt16BigEndian(buffer.Slice(2));
+        NumberOfRecords = EndianUtilities.ToUInt16BigEndian(buffer[2..]);
         var offset = 0x4;
         Keys = new ulong[NumberOfRecords];
         Pointer = new ulong[NumberOfRecords];
         for (var i = 0; i < NumberOfRecords; i++)
         {
-            Keys[i] = EndianUtilities.ToUInt64BigEndian(buffer.Slice(offset + i * 0x8));
+            Keys[i] = EndianUtilities.ToUInt64BigEndian(buffer[(offset + i * 0x8)..]);
         }
 
         offset += ((buffer.Length - offset) / 16) * 8;
         for (var i = 0; i < NumberOfRecords; i++)
         {
-            Pointer[i] = EndianUtilities.ToUInt64BigEndian(buffer.Slice(offset + i * 0x8));
+            Pointer[i] = EndianUtilities.ToUInt64BigEndian(buffer[(offset + i * 0x8)..]);
         }
 
         return Size;

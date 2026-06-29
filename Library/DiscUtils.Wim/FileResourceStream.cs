@@ -297,7 +297,7 @@ internal class FileResourceStream : SparseStream.ReadOnlySparseStream
         if (_blockDecompressor is null
             || (_header.Flags & ResourceFlags.Compressed) == 0 || _chunkLength[chunk] == targetUncompressed)
         {
-            return _baseStream.ReadMaximum(buffer.Span.Slice(0, compressedSize));
+            return _baseStream.ReadMaximum(buffer.Span[..compressedSize]);
         }
 
         var rawChunk = ArrayPool<byte>.Shared.Rent(compressedSize);
@@ -309,7 +309,7 @@ internal class FileResourceStream : SparseStream.ReadOnlySparseStream
 
             bufferSpan.Clear();
 
-            if (!_blockDecompressor.TryDecompress(rawChunk.AsSpan(0, compressedSize), bufferSpan.Slice(0, targetUncompressed), out var bytesWritten))
+            if (!_blockDecompressor.TryDecompress(rawChunk.AsSpan(0, compressedSize), bufferSpan[..targetUncompressed], out var bytesWritten))
             {
                 throw new IOException($"Failed to decompress chunk {chunk} in resource at location {_header.FileOffset}");
             }
@@ -337,7 +337,7 @@ internal class FileResourceStream : SparseStream.ReadOnlySparseStream
         if (_blockDecompressor is null
             || (_header.Flags & ResourceFlags.Compressed) == 0 || _chunkLength[chunk] == targetUncompressed)
         {
-            return await _baseStream.ReadMaximumAsync(buffer.Slice(0, compressedSize), cancellationToken).ConfigureAwait(false);
+            return await _baseStream.ReadMaximumAsync(buffer[..compressedSize], cancellationToken).ConfigureAwait(false);
         }
 
         var rawChunk = ArrayPool<byte>.Shared.Rent(compressedSize);
@@ -345,7 +345,7 @@ internal class FileResourceStream : SparseStream.ReadOnlySparseStream
         {
             await _baseStream.ReadExactlyAsync(rawChunk.AsMemory(0, compressedSize), cancellationToken).ConfigureAwait(false);
 
-            if (!_blockDecompressor.TryDecompress(rawChunk.AsSpan(0, compressedSize), buffer.Span.Slice(0, targetUncompressed), out var bytesWritten))
+            if (!_blockDecompressor.TryDecompress(rawChunk.AsSpan(0, compressedSize), buffer.Span[..targetUncompressed], out var bytesWritten))
             {
                 throw new IOException($"Failed to decompress chunk {chunk} in resource at location {_header.FileOffset}");
             }

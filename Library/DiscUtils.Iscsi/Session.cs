@@ -333,12 +333,12 @@ public sealed class Session : IDisposable
             if (startBlock + blockCount >= uint.MaxValue || blockCount >= ushort.MaxValue)
             {
                 var cmd = new ScsiWrite16Command((ulong)lun, startBlock, blockCount);
-                return Send(cmd, buffer.Slice(0, blockCount * blockSize), default);
+                return Send(cmd, buffer[..(blockCount * blockSize)], default);
             }
             else
             {
                 var cmd = new ScsiWrite10Command((ulong)lun, (uint)startBlock, (ushort)blockCount);
-                return Send(cmd, buffer.Slice(0, blockCount * blockSize), default);
+                return Send(cmd, buffer[..(blockCount * blockSize)], default);
             }
         }
     }
@@ -359,12 +359,12 @@ public sealed class Session : IDisposable
             if (startBlock + blockCount >= uint.MaxValue || blockCount >= ushort.MaxValue)
             {
                 var cmd = new ScsiWrite16Command((ulong)lun, startBlock, blockCount);
-                return SendAsync(cmd, buffer.Slice(0, blockCount * blockSize), default, cancellationToken);
+                return SendAsync(cmd, buffer[..(blockCount * blockSize)], default, cancellationToken);
             }
             else
             {
                 var cmd = new ScsiWrite10Command((ulong)lun, (uint)startBlock, (ushort)blockCount);
-                return SendAsync(cmd, buffer.Slice(0, blockCount * blockSize), default, cancellationToken);
+                return SendAsync(cmd, buffer[..(blockCount * blockSize)], default, cancellationToken);
             }
         }
     }

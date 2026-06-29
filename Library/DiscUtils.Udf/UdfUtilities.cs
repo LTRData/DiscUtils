@@ -104,7 +104,7 @@ internal static class UdfUtilities
             minutesWest = (-1 & ~0xFFF) | minutesWest;
         }
 
-        int year = ForceRange(1, 9999, EndianUtilities.ToInt16LittleEndian(buffer.Slice(2)));
+        int year = ForceRange(1, 9999, EndianUtilities.ToInt16LittleEndian(buffer[2..]));
         int month = ForceRange(1, 12, buffer[4]);
         int day = ForceRange(1, 31, buffer[5]);
         int hour = ForceRange(0, 23, buffer[6]);
@@ -129,7 +129,7 @@ internal static class UdfUtilities
     public static string ReadDString(ReadOnlySpan<byte> buffer)
     {
         int byteLen = buffer[buffer.Length - 1];
-        return ReadDCharacters(buffer.Slice(0, byteLen));
+        return ReadDCharacters(buffer[..byteLen]);
     }
 
     public static string ReadDCharacters(ReadOnlySpan<byte> buffer)

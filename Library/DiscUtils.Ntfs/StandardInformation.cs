@@ -47,20 +47,20 @@ internal sealed class StandardInformation : IByteArraySerializable, IDiagnosticT
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         CreationTime = ReadDateTime(buffer);
-        ModificationTime = ReadDateTime(buffer.Slice(0x08));
-        MftChangedTime = ReadDateTime(buffer.Slice(0x10));
-        LastAccessTime = ReadDateTime(buffer.Slice(0x18));
-        FileAttributes = (NtfsFileAttributes)EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x20));
-        MaxVersions = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x24));
-        Version = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x28));
-        ClassId = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x2C));
+        ModificationTime = ReadDateTime(buffer[0x08..]);
+        MftChangedTime = ReadDateTime(buffer[0x10..]);
+        LastAccessTime = ReadDateTime(buffer[0x18..]);
+        FileAttributes = (NtfsFileAttributes)EndianUtilities.ToUInt32LittleEndian(buffer[0x20..]);
+        MaxVersions = EndianUtilities.ToUInt32LittleEndian(buffer[0x24..]);
+        Version = EndianUtilities.ToUInt32LittleEndian(buffer[0x28..]);
+        ClassId = EndianUtilities.ToUInt32LittleEndian(buffer[0x2C..]);
 
         if (buffer.Length > 0x30)
         {
-            OwnerId = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x30));
-            SecurityId = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x34));
-            QuotaCharged = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x38));
-            UpdateSequenceNumber = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x40));
+            OwnerId = EndianUtilities.ToUInt32LittleEndian(buffer[0x30..]);
+            SecurityId = EndianUtilities.ToUInt32LittleEndian(buffer[0x34..]);
+            QuotaCharged = EndianUtilities.ToUInt64LittleEndian(buffer[0x38..]);
+            UpdateSequenceNumber = EndianUtilities.ToUInt64LittleEndian(buffer[0x40..]);
             _haveExtraFields = true;
             return 0x48;
         }
@@ -72,20 +72,20 @@ internal sealed class StandardInformation : IByteArraySerializable, IDiagnosticT
     public void WriteTo(Span<byte> buffer)
     {
         EndianUtilities.WriteBytesLittleEndian(CreationTime.ToFileTimeUtc(), buffer);
-        EndianUtilities.WriteBytesLittleEndian(ModificationTime.ToFileTimeUtc(), buffer.Slice(0x08));
-        EndianUtilities.WriteBytesLittleEndian(MftChangedTime.ToFileTimeUtc(), buffer.Slice(0x10));
-        EndianUtilities.WriteBytesLittleEndian(LastAccessTime.ToFileTimeUtc(), buffer.Slice(0x18));
-        EndianUtilities.WriteBytesLittleEndian((uint)FileAttributes, buffer.Slice(0x20));
-        EndianUtilities.WriteBytesLittleEndian(MaxVersions, buffer.Slice(0x24));
-        EndianUtilities.WriteBytesLittleEndian(Version, buffer.Slice(0x28));
-        EndianUtilities.WriteBytesLittleEndian(ClassId, buffer.Slice(0x2C));
+        EndianUtilities.WriteBytesLittleEndian(ModificationTime.ToFileTimeUtc(), buffer[0x08..]);
+        EndianUtilities.WriteBytesLittleEndian(MftChangedTime.ToFileTimeUtc(), buffer[0x10..]);
+        EndianUtilities.WriteBytesLittleEndian(LastAccessTime.ToFileTimeUtc(), buffer[0x18..]);
+        EndianUtilities.WriteBytesLittleEndian((uint)FileAttributes, buffer[0x20..]);
+        EndianUtilities.WriteBytesLittleEndian(MaxVersions, buffer[0x24..]);
+        EndianUtilities.WriteBytesLittleEndian(Version, buffer[0x28..]);
+        EndianUtilities.WriteBytesLittleEndian(ClassId, buffer[0x2C..]);
 
         if (_haveExtraFields)
         {
-            EndianUtilities.WriteBytesLittleEndian(OwnerId, buffer.Slice(0x30));
-            EndianUtilities.WriteBytesLittleEndian(SecurityId, buffer.Slice(0x34));
-            EndianUtilities.WriteBytesLittleEndian(QuotaCharged, buffer.Slice(0x38));
-            EndianUtilities.WriteBytesLittleEndian(UpdateSequenceNumber, buffer.Slice(0x40));
+            EndianUtilities.WriteBytesLittleEndian(OwnerId, buffer[0x30..]);
+            EndianUtilities.WriteBytesLittleEndian(SecurityId, buffer[0x34..]);
+            EndianUtilities.WriteBytesLittleEndian(QuotaCharged, buffer[0x38..]);
+            EndianUtilities.WriteBytesLittleEndian(UpdateSequenceNumber, buffer[0x40..]);
         }
     }
 

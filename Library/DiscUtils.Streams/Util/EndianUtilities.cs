@@ -146,7 +146,7 @@ public static class EndianUtilities
 
         if (!_isLittleEndian)
         {
-            WriteBytesLittleEndian(MemoryMarshal.Read<uint>(buffer.Slice(0, 4)), buffer.Slice(0, 4));
+            WriteBytesLittleEndian(MemoryMarshal.Read<uint>(buffer[..4]), buffer[..4]);
             WriteBytesLittleEndian(MemoryMarshal.Read<ushort>(buffer.Slice(4, 2)), buffer.Slice(4, 2));
             WriteBytesLittleEndian(MemoryMarshal.Read<ushort>(buffer.Slice(6, 2)), buffer.Slice(6, 2));
         }
@@ -266,7 +266,7 @@ public static class EndianUtilities
 
         if (_isLittleEndian)
         {
-            WriteBytesBigEndian(MemoryMarshal.Read<uint>(buffer.Slice(0, 4)), buffer.Slice(0, 4));
+            WriteBytesBigEndian(MemoryMarshal.Read<uint>(buffer[..4]), buffer[..4]);
             WriteBytesBigEndian(MemoryMarshal.Read<ushort>(buffer.Slice(4, 2)), buffer.Slice(4, 2));
             WriteBytesBigEndian(MemoryMarshal.Read<ushort>(buffer.Slice(6, 2)), buffer.Slice(6, 2));
         }
@@ -363,7 +363,7 @@ public static class EndianUtilities
         }
         else
         {
-            return ((ulong)ToUInt32LittleEndian(buffer.Slice(4, 4)) << 32) | ToUInt32LittleEndian(buffer.Slice(0, 4));
+            return ((ulong)ToUInt32LittleEndian(buffer.Slice(4, 4)) << 32) | ToUInt32LittleEndian(buffer[..4]);
         }
     }
 
@@ -489,7 +489,7 @@ public static class EndianUtilities
         }
         else
         {
-            return ((ulong)ToUInt32BigEndian(buffer.Slice(0, 4)) << 32) | ToUInt32BigEndian(buffer.Slice(4, 4));
+            return ((ulong)ToUInt32BigEndian(buffer[..4]) << 32) | ToUInt32BigEndian(buffer.Slice(4, 4));
         }
     }
 
@@ -542,7 +542,7 @@ public static class EndianUtilities
         else
         {
             return new Guid(
-                ToUInt32LittleEndian(buffer.Slice(0, 4)),
+                ToUInt32LittleEndian(buffer[..4]),
                 ToUInt16LittleEndian(buffer.Slice(4, 2)),
                 ToUInt16LittleEndian(buffer.Slice(6, 2)),
                 buffer[8],
@@ -568,7 +568,7 @@ public static class EndianUtilities
         else
         {
             return new Guid(
-                ToUInt32BigEndian(buffer.Slice(0, 4)),
+                ToUInt32BigEndian(buffer[..4]),
                 ToUInt16BigEndian(buffer.Slice(4, 2)),
                 ToUInt16BigEndian(buffer.Slice(6, 2)),
                 buffer[8],
@@ -615,7 +615,7 @@ public static class EndianUtilities
 
         if (endpos >= 0)
         {
-            chars = chars.Slice(0, endpos);
+            chars = chars[..endpos];
         }
 
         var count = 1;
@@ -736,7 +736,7 @@ public static class EndianUtilities
 
         if (z >= 0)
         {
-            data = data.Slice(0, z);
+            data = data[..z];
         }
 
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP

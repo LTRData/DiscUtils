@@ -80,14 +80,14 @@ internal sealed class ParentLocator : IByteArraySerializable
 
         Entries = [];
 
-        Count = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(18));
+        Count = EndianUtilities.ToUInt16LittleEndian(buffer[18..]);
         for (ushort i = 0; i < Count; ++i)
         {
             var kvOffset = 20 + i * 12;
-            var keyOffset = EndianUtilities.ToInt32LittleEndian(buffer.Slice(kvOffset + 0));
-            var valueOffset = EndianUtilities.ToInt32LittleEndian(buffer.Slice(kvOffset + 4));
-            int keyLength = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(kvOffset + 8));
-            int valueLength = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(kvOffset + 10));
+            var keyOffset = EndianUtilities.ToInt32LittleEndian(buffer[(kvOffset + 0)..]);
+            var valueOffset = EndianUtilities.ToInt32LittleEndian(buffer[(kvOffset + 4)..]);
+            int keyLength = EndianUtilities.ToUInt16LittleEndian(buffer[(kvOffset + 8)..]);
+            int valueLength = EndianUtilities.ToUInt16LittleEndian(buffer[(kvOffset + 10)..]);
 
             try
             {
@@ -114,8 +114,8 @@ internal sealed class ParentLocator : IByteArraySerializable
         Count = (ushort)Entries.Count;
 
         EndianUtilities.WriteBytesLittleEndian(LocatorType, buffer);
-        EndianUtilities.WriteBytesLittleEndian(Reserved, buffer.Slice(16));
-        EndianUtilities.WriteBytesLittleEndian(Count, buffer.Slice(18));
+        EndianUtilities.WriteBytesLittleEndian(Reserved, buffer[16..]);
+        EndianUtilities.WriteBytesLittleEndian(Count, buffer[18..]);
 
         var entryOffset = 0;
         var item = 0;
@@ -125,14 +125,14 @@ internal sealed class ParentLocator : IByteArraySerializable
             var keyData = EndianUtilities.StringToLittleEndianUnicodeBytes(entry.Key);
             var valueData = EndianUtilities.StringToLittleEndianUnicodeBytes(entry.Value);
 
-            keyData.CopyTo(buffer.Slice(20 + Count * 12 + entryOffset));
-            EndianUtilities.WriteBytesLittleEndian((ushort)(20 + Count * 12 + entryOffset), buffer.Slice(20 + item * 12));
-            EndianUtilities.WriteBytesLittleEndian((ushort)keyData.Length, buffer.Slice(20 + item * 12 + 8));
+            keyData.CopyTo(buffer[(20 + Count * 12 + entryOffset)..]);
+            EndianUtilities.WriteBytesLittleEndian((ushort)(20 + Count * 12 + entryOffset), buffer[(20 + item * 12)..]);
+            EndianUtilities.WriteBytesLittleEndian((ushort)keyData.Length, buffer[(20 + item * 12 + 8)..]);
             entryOffset += keyData.Length;
 
-            valueData.CopyTo(buffer.Slice(20 + Count * 12 + entryOffset));
-            EndianUtilities.WriteBytesLittleEndian((ushort)(20 + Count * 12 + entryOffset), buffer.Slice(20 + item * 12 + 4));
-            EndianUtilities.WriteBytesLittleEndian((ushort)valueData.Length, buffer.Slice(20 + item * 12 + 10));
+            valueData.CopyTo(buffer[(20 + Count * 12 + entryOffset)..]);
+            EndianUtilities.WriteBytesLittleEndian((ushort)(20 + Count * 12 + entryOffset), buffer[(20 + item * 12 + 4)..]);
+            EndianUtilities.WriteBytesLittleEndian((ushort)valueData.Length, buffer[(20 + item * 12 + 10)..]);
             entryOffset += valueData.Length;
 
             ++item;

@@ -150,7 +150,7 @@ internal class ClusterStream : CompatibilityStream
         {
             var clusterOffset = (int)(_position % _reader.ClusterSize);
             var toCopy = Math.Min(_reader.ClusterSize - clusterOffset, target - numRead);
-            _clusterBuffer.AsSpan(clusterOffset, toCopy).CopyTo(buffer.Slice(numRead));
+            _clusterBuffer.AsSpan(clusterOffset, toCopy).CopyTo(buffer[numRead..]);
 
             // Remember how many we've read in total
             numRead += toCopy;
@@ -207,7 +207,7 @@ internal class ClusterStream : CompatibilityStream
         {
             var clusterOffset = (int)(_position % _reader.ClusterSize);
             var toCopy = Math.Min(_reader.ClusterSize - clusterOffset, target - numRead);
-            _clusterBuffer.AsMemory(clusterOffset, toCopy).CopyTo(buffer.Slice(numRead));
+            _clusterBuffer.AsMemory(clusterOffset, toCopy).CopyTo(buffer[numRead..]);
 
             // Remember how many we've read in total
             numRead += toCopy;
@@ -322,8 +322,8 @@ internal class ClusterStream : CompatibilityStream
 
                 // Fill this cluster with as much data as we can (WriteToCluster preserves existing cluster
                 // data, if necessary)
-                var numWritten = WriteToCluster(cluster, (int)(_position % _reader.ClusterSize), buffer.Slice(0, bytesRemaining));
-                buffer = buffer.Slice(numWritten);
+                var numWritten = WriteToCluster(cluster, (int)(_position % _reader.ClusterSize), buffer[..bytesRemaining]);
+                buffer = buffer[numWritten..];
                 bytesRemaining -= numWritten;
                 _position += numWritten;
             }
@@ -362,8 +362,8 @@ internal class ClusterStream : CompatibilityStream
 
                 // Fill this cluster with as much data as we can (WriteToCluster preserves existing cluster
                 // data, if necessary)
-                var numWritten = await WriteToClusterAsync(cluster, (int)(_position % _reader.ClusterSize), buffer.Slice(0, bytesRemaining), cancellationToken).ConfigureAwait(false);
-                buffer = buffer.Slice(numWritten);
+                var numWritten = await WriteToClusterAsync(cluster, (int)(_position % _reader.ClusterSize), buffer[..bytesRemaining], cancellationToken).ConfigureAwait(false);
+                buffer = buffer[numWritten..];
                 bytesRemaining -= numWritten;
                 _position += numWritten;
             }
@@ -392,7 +392,7 @@ internal class ClusterStream : CompatibilityStream
         if (pos == 0 && buffer.Length >= _reader.ClusterSize)
         {
             _currentCluster = cluster;
-            buffer.Slice(0, _reader.ClusterSize).CopyTo(_clusterBuffer);
+            buffer[.._reader.ClusterSize].CopyTo(_clusterBuffer);
 
             WriteCurrentCluster();
 
@@ -403,7 +403,7 @@ internal class ClusterStream : CompatibilityStream
         LoadCluster(cluster);
 
         var copyLength = Math.Min(buffer.Length, _reader.ClusterSize - pos % _reader.ClusterSize);
-        buffer.Slice(0, copyLength).CopyTo(_clusterBuffer.AsSpan(pos));
+        buffer[..copyLength].CopyTo(_clusterBuffer.AsSpan(pos));
 
         WriteCurrentCluster();
 
@@ -425,7 +425,7 @@ internal class ClusterStream : CompatibilityStream
         if (pos == 0 && buffer.Length >= _reader.ClusterSize)
         {
             _currentCluster = cluster;
-            buffer.Slice(0, _reader.ClusterSize).CopyTo(_clusterBuffer);
+            buffer[.._reader.ClusterSize].CopyTo(_clusterBuffer);
 
             await WriteCurrentClusterAsync(cancellationToken).ConfigureAwait(false);
 
@@ -436,7 +436,7 @@ internal class ClusterStream : CompatibilityStream
         await LoadClusterAsync(cluster, cancellationToken).ConfigureAwait(false);
 
         var copyLength = Math.Min(buffer.Length, _reader.ClusterSize - pos % _reader.ClusterSize);
-        buffer.Slice(0, copyLength).CopyTo(_clusterBuffer.AsMemory(pos));
+        buffer[..copyLength].CopyTo(_clusterBuffer.AsMemory(pos));
 
         await WriteCurrentClusterAsync(cancellationToken).ConfigureAwait(false);
 

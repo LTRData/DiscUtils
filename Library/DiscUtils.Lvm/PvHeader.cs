@@ -40,13 +40,13 @@ internal class PvHeader : IByteArraySerializable
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         Uuid = ReadUuid(buffer);
-        DeviceSize = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x20));
+        DeviceSize = EndianUtilities.ToUInt64LittleEndian(buffer[0x20..]);
         var areas = new List<DiskArea>();
         var areaOffset = 0x28;
         while (true)
         {
             var area = new DiskArea();
-            areaOffset += area.ReadFrom(buffer.Slice(areaOffset));
+            areaOffset += area.ReadFrom(buffer[areaOffset..]);
             if (area.Offset == 0 && area.Length == 0)
             {
                 break;
@@ -60,7 +60,7 @@ internal class PvHeader : IByteArraySerializable
         while (true)
         {
             var area = new DiskArea();
-            areaOffset += area.ReadFrom(buffer.Slice(areaOffset));
+            areaOffset += area.ReadFrom(buffer[areaOffset..]);
             if (area.Offset == 0 && area.Length == 0)
             {
                 break;
@@ -84,7 +84,7 @@ internal class PvHeader : IByteArraySerializable
         var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
 
         return new StringBuilder()
-            .Append(latin1Encoding.GetString(buffer.Slice(0, 0x6))).Append('-')
+            .Append(latin1Encoding.GetString(buffer[..0x6])).Append('-')
             .Append(latin1Encoding.GetString(buffer.Slice(0x6, 0x4))).Append('-')
             .Append(latin1Encoding.GetString(buffer.Slice(0xA, 0x4))).Append('-')
             .Append(latin1Encoding.GetString(buffer.Slice(0xE, 0x4))).Append('-')

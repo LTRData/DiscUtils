@@ -51,13 +51,13 @@ internal class BTreeExtentNode : BTreeExtentHeader
         Pointer = new ulong[NumberOfRecords];
         for (var i = 0; i < NumberOfRecords; i++)
         {
-            Keys[i] = EndianUtilities.ToUInt64BigEndian(buffer.Slice(offset + i * 0x8));
+            Keys[i] = EndianUtilities.ToUInt64BigEndian(buffer[(offset + i * 0x8)..]);
         }
 
         offset += ((buffer.Length - offset) / 16) * 8;
         for (var i = 0; i < NumberOfRecords; i++)
         {
-            Pointer[i] = EndianUtilities.ToUInt64BigEndian(buffer.Slice(offset + i * 0x8));
+            Pointer[i] = EndianUtilities.ToUInt64BigEndian(buffer[(offset + i * 0x8)..]);
         }
 
         return Size;

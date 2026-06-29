@@ -448,12 +448,12 @@ public sealed class Provider : NavigationCmdletProvider, IDynamicPropertyCmdletP
         }
         else
         {
-            filePath = path.Substring(0, mountSepIdx);
-            relPath = path.Substring(mountSepIdx + 1);
+            filePath = path[..mountSepIdx];
+            relPath = path[(mountSepIdx + 1)..];
 
             if (relPath.Length > 0 && relPath[0] == Path.DirectorySeparatorChar)
             {
-                relPath = relPath.Substring(1);
+                relPath = relPath[1..];
             }
         }
 

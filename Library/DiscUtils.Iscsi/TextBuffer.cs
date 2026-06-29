@@ -115,7 +115,7 @@ internal class TextBuffer
                 throw new InvalidProtocolException("Invalid text buffer");
             }
 
-            var name = Encoding.ASCII.GetString(buffer.Slice(nameStart, i - nameStart));
+            var name = Encoding.ASCII.GetString(buffer[nameStart..i]);
 
             ++i;
             var valueStart = i;
@@ -124,7 +124,7 @@ internal class TextBuffer
                 ++i;
             }
 
-            var value = Encoding.ASCII.GetString(buffer.Slice(valueStart, i - valueStart));
+            var value = Encoding.ASCII.GetString(buffer[valueStart..i]);
             ++i;
 
             Add(name, value);

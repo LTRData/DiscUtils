@@ -47,23 +47,23 @@ internal class FileHeader
     {
         Tag = EncodingUtilities
             .GetLatin1Encoding()
-            .GetString(buffer.Slice(0, 8));
+            .GetString(buffer[..8]);
 
         if (Tag != "$SDI0001")
         {
             throw new InvalidDataException("SDI format marker not found");
         }
 
-        Type = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x08));
-        BootCodeOffset = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x10));
-        BootCodeSize = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x18));
-        VendorId = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x20));
-        DeviceId = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x28));
-        DeviceModel = EndianUtilities.ToGuidLittleEndian(buffer.Slice(0x30));
-        DeviceRole = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x40));
-        RuntimeGuid = EndianUtilities.ToGuidLittleEndian(buffer.Slice(0x50));
-        RuntimeOEMRev = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x60));
-        PageAlignment = EndianUtilities.ToInt64LittleEndian(buffer.Slice(0x70));
-        Checksum = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x1F8));
+        Type = EndianUtilities.ToUInt64LittleEndian(buffer[0x08..]);
+        BootCodeOffset = EndianUtilities.ToUInt64LittleEndian(buffer[0x10..]);
+        BootCodeSize = EndianUtilities.ToUInt64LittleEndian(buffer[0x18..]);
+        VendorId = EndianUtilities.ToUInt64LittleEndian(buffer[0x20..]);
+        DeviceId = EndianUtilities.ToUInt64LittleEndian(buffer[0x28..]);
+        DeviceModel = EndianUtilities.ToGuidLittleEndian(buffer[0x30..]);
+        DeviceRole = EndianUtilities.ToUInt64LittleEndian(buffer[0x40..]);
+        RuntimeGuid = EndianUtilities.ToGuidLittleEndian(buffer[0x50..]);
+        RuntimeOEMRev = EndianUtilities.ToUInt64LittleEndian(buffer[0x60..]);
+        PageAlignment = EndianUtilities.ToInt64LittleEndian(buffer[0x70..]);
+        Checksum = EndianUtilities.ToUInt64LittleEndian(buffer[0x1F8..]);
     }
 }

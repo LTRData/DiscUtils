@@ -35,7 +35,7 @@ internal sealed class ExtentDescriptor : IByteArraySerializable
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         StartBlock = EndianUtilities.ToUInt32BigEndian(buffer);
-        BlockCount = EndianUtilities.ToUInt32BigEndian(buffer.Slice(4));
+        BlockCount = EndianUtilities.ToUInt32BigEndian(buffer[4..]);
 
         return 8;
     }

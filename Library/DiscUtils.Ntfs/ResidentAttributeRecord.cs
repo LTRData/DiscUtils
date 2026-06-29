@@ -124,15 +124,15 @@ internal sealed class ResidentAttributeRecord : AttributeRecord
         var dataOffset = (ushort)MathUtilities.RoundUp(0x18 + nameLength * 2, 8);
         var length = (int)MathUtilities.RoundUp(dataOffset + _memoryBuffer.Capacity, 8);
 
-        EndianUtilities.WriteBytesLittleEndian((uint)_type, buffer.Slice(0x00));
-        EndianUtilities.WriteBytesLittleEndian(length, buffer.Slice(0x04));
+        EndianUtilities.WriteBytesLittleEndian((uint)_type, buffer[..]);
+        EndianUtilities.WriteBytesLittleEndian(length, buffer[0x04..]);
         buffer[0x08] = _nonResidentFlag;
         buffer[0x09] = nameLength;
-        EndianUtilities.WriteBytesLittleEndian(nameOffset, buffer.Slice(0x0A));
-        EndianUtilities.WriteBytesLittleEndian((ushort)_flags, buffer.Slice(0x0C));
-        EndianUtilities.WriteBytesLittleEndian(_attributeId, buffer.Slice(0x0E));
-        EndianUtilities.WriteBytesLittleEndian((int)_memoryBuffer.Capacity, buffer.Slice(0x10));
-        EndianUtilities.WriteBytesLittleEndian(dataOffset, buffer.Slice(0x14));
+        EndianUtilities.WriteBytesLittleEndian(nameOffset, buffer[0x0A..]);
+        EndianUtilities.WriteBytesLittleEndian((ushort)_flags, buffer[0x0C..]);
+        EndianUtilities.WriteBytesLittleEndian(_attributeId, buffer[0x0E..]);
+        EndianUtilities.WriteBytesLittleEndian((int)_memoryBuffer.Capacity, buffer[0x10..]);
+        EndianUtilities.WriteBytesLittleEndian(dataOffset, buffer[0x14..]);
         buffer[0x16] = _indexedFlag;
         buffer[0x17] = 0; // Padding
 
@@ -157,8 +157,8 @@ internal sealed class ResidentAttributeRecord : AttributeRecord
     {
         base.Read(buffer, out length);
 
-        var dataLength = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x10));
-        var dataOffset = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(0x14));
+        var dataLength = EndianUtilities.ToUInt32LittleEndian(buffer[0x10..]);
+        var dataOffset = EndianUtilities.ToUInt16LittleEndian(buffer[0x14..]);
         _indexedFlag = buffer[0x16];
 
         if (dataOffset + dataLength > length)

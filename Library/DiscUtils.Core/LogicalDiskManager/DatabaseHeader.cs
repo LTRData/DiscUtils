@@ -57,34 +57,34 @@ internal class DatabaseHeader
     {
         var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
 
-        Signature = latin1Encoding.GetString(buffer.Slice(0x00, 4));
-        NumVBlks = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x04));
-        BlockSize = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x08));
-        HeaderSize = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x0C));
-        Unknown1 = EndianUtilities.ToUInt16BigEndian(buffer.Slice(0x10));
-        VersionNum = EndianUtilities.ToUInt16BigEndian(buffer.Slice(0x12));
-        VersionDenom = EndianUtilities.ToUInt16BigEndian(buffer.Slice(0x14));
+        Signature = latin1Encoding.GetString(buffer[..4]);
+        NumVBlks = EndianUtilities.ToUInt32BigEndian(buffer[0x04..]);
+        BlockSize = EndianUtilities.ToUInt32BigEndian(buffer[0x08..]);
+        HeaderSize = EndianUtilities.ToUInt32BigEndian(buffer[0x0C..]);
+        Unknown1 = EndianUtilities.ToUInt16BigEndian(buffer[0x10..]);
+        VersionNum = EndianUtilities.ToUInt16BigEndian(buffer[0x12..]);
+        VersionDenom = EndianUtilities.ToUInt16BigEndian(buffer[0x14..]);
         GroupName = latin1Encoding.GetString(buffer.Slice(0x16, 31)).Trim('\0');
         DiskGroupId = latin1Encoding.GetString(buffer.Slice(0x35, 0x40)).Trim('\0');
 
         // May be wrong way round...
-        CommittedSequence = EndianUtilities.ToInt64BigEndian(buffer.Slice(0x75));
-        PendingSequence = EndianUtilities.ToInt64BigEndian(buffer.Slice(0x7D));
+        CommittedSequence = EndianUtilities.ToInt64BigEndian(buffer[0x75..]);
+        PendingSequence = EndianUtilities.ToInt64BigEndian(buffer[0x7D..]);
 
-        Unknown2 = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x85));
-        Unknown3 = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x89));
-        Unknown4 = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x8D));
-        Unknown5 = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x91));
-        Unknown6 = EndianUtilities.ToInt64BigEndian(buffer.Slice(0x95));
-        Unknown7 = EndianUtilities.ToInt64BigEndian(buffer.Slice(0x9D));
-        Unknown8 = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0xA5));
-        Unknown9 = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0xA9));
-        UnknownA = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0xAD));
+        Unknown2 = EndianUtilities.ToUInt32BigEndian(buffer[0x85..]);
+        Unknown3 = EndianUtilities.ToUInt32BigEndian(buffer[0x89..]);
+        Unknown4 = EndianUtilities.ToUInt32BigEndian(buffer[0x8D..]);
+        Unknown5 = EndianUtilities.ToUInt32BigEndian(buffer[0x91..]);
+        Unknown6 = EndianUtilities.ToInt64BigEndian(buffer[0x95..]);
+        Unknown7 = EndianUtilities.ToInt64BigEndian(buffer[0x9D..]);
+        Unknown8 = EndianUtilities.ToUInt32BigEndian(buffer[0xA5..]);
+        Unknown9 = EndianUtilities.ToUInt32BigEndian(buffer[0xA9..]);
+        UnknownA = EndianUtilities.ToUInt32BigEndian(buffer[0xAD..]);
 
-        UnknownB = EndianUtilities.ToInt64BigEndian(buffer.Slice(0xB1));
-        UnknownC = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0xB9));
+        UnknownB = EndianUtilities.ToInt64BigEndian(buffer[0xB1..]);
+        UnknownC = EndianUtilities.ToUInt32BigEndian(buffer[0xB9..]);
 
-        Timestamp = DateTime.FromFileTimeUtc(EndianUtilities.ToInt64BigEndian(buffer.Slice(0xBD)));
+        Timestamp = DateTime.FromFileTimeUtc(EndianUtilities.ToInt64BigEndian(buffer[0xBD..]));
     }
 
     ////}

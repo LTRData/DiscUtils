@@ -59,12 +59,12 @@ internal class ExtendedDirectoryInode : Inode, IDirectoryInode
     {
         base.ReadFrom(buffer);
 
-        NumLinks = EndianUtilities.ToInt32LittleEndian(buffer.Slice(16));
-        _fileSize = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(20));
-        StartBlock = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(24));
-        ParentInode = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(28));
+        NumLinks = EndianUtilities.ToInt32LittleEndian(buffer[16..]);
+        _fileSize = EndianUtilities.ToUInt32LittleEndian(buffer[20..]);
+        StartBlock = EndianUtilities.ToUInt32LittleEndian(buffer[24..]);
+        ParentInode = EndianUtilities.ToUInt32LittleEndian(buffer[28..]);
         //_indexCount = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(32));
-        Offset = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(34));
+        Offset = EndianUtilities.ToUInt16LittleEndian(buffer[34..]);
         //_extendedAttributes = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(36));
 
         return 40;

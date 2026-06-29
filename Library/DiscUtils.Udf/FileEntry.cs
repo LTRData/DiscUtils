@@ -57,25 +57,25 @@ internal class FileEntry : IByteArraySerializable
     public virtual int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         DescriptorTag = EndianUtilities.ToStruct<DescriptorTag>(buffer);
-        InformationControlBlock = EndianUtilities.ToStruct<InformationControlBlock>(buffer.Slice(16));
-        Uid = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(36));
-        Gid = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(40));
-        Permissions = (FilePermissions)EndianUtilities.ToUInt32LittleEndian(buffer.Slice(44));
-        FileLinkCount = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(48));
+        InformationControlBlock = EndianUtilities.ToStruct<InformationControlBlock>(buffer[16..]);
+        Uid = EndianUtilities.ToUInt32LittleEndian(buffer[36..]);
+        Gid = EndianUtilities.ToUInt32LittleEndian(buffer[40..]);
+        Permissions = (FilePermissions)EndianUtilities.ToUInt32LittleEndian(buffer[44..]);
+        FileLinkCount = EndianUtilities.ToUInt16LittleEndian(buffer[48..]);
         RecordFormat = buffer[50];
         RecordDisplayAttributes = buffer[51];
-        RecordLength = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(52));
-        InformationLength = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(56));
-        LogicalBlocksRecorded = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(64));
-        AccessTime = UdfUtilities.ParseTimestamp(buffer.Slice(72));
-        ModificationTime = UdfUtilities.ParseTimestamp(buffer.Slice(84));
-        AttributeTime = UdfUtilities.ParseTimestamp(buffer.Slice(96));
-        Checkpoint = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(108));
-        ExtendedAttributeIcb = EndianUtilities.ToStruct<LongAllocationDescriptor>(buffer.Slice(112));
-        ImplementationIdentifier = EndianUtilities.ToStruct<ImplementationEntityIdentifier>(buffer.Slice(128));
-        UniqueId = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(160));
-        ExtendedAttributesLength = EndianUtilities.ToInt32LittleEndian(buffer.Slice(168));
-        AllocationDescriptorsLength = EndianUtilities.ToInt32LittleEndian(buffer.Slice(172));
+        RecordLength = EndianUtilities.ToUInt16LittleEndian(buffer[52..]);
+        InformationLength = EndianUtilities.ToUInt64LittleEndian(buffer[56..]);
+        LogicalBlocksRecorded = EndianUtilities.ToUInt64LittleEndian(buffer[64..]);
+        AccessTime = UdfUtilities.ParseTimestamp(buffer[72..]);
+        ModificationTime = UdfUtilities.ParseTimestamp(buffer[84..]);
+        AttributeTime = UdfUtilities.ParseTimestamp(buffer[96..]);
+        Checkpoint = EndianUtilities.ToUInt32LittleEndian(buffer[108..]);
+        ExtendedAttributeIcb = EndianUtilities.ToStruct<LongAllocationDescriptor>(buffer[112..]);
+        ImplementationIdentifier = EndianUtilities.ToStruct<ImplementationEntityIdentifier>(buffer[128..]);
+        UniqueId = EndianUtilities.ToUInt64LittleEndian(buffer[160..]);
+        ExtendedAttributesLength = EndianUtilities.ToInt32LittleEndian(buffer[168..]);
+        AllocationDescriptorsLength = EndianUtilities.ToInt32LittleEndian(buffer[172..]);
         AllocationDescriptors = EndianUtilities.ToByteArray(buffer.Slice(176 + ExtendedAttributesLength,
             AllocationDescriptorsLength));
 
@@ -97,7 +97,7 @@ internal class FileEntry : IByteArraySerializable
             var eaTag = new DescriptorTag();
             eaTag.ReadFrom(eaData.Span);
 
-            var implAttrLocation = EndianUtilities.ToInt32LittleEndian(eaData.Span.Slice(16));
+            var implAttrLocation = EndianUtilities.ToInt32LittleEndian(eaData.Span[16..]);
             //var appAttrLocation = EndianUtilities.ToInt32LittleEndian(eaData.Span.Slice(20));
 
             var pos = 24;
@@ -114,7 +114,7 @@ internal class FileEntry : IByteArraySerializable
                     ea = new ExtendedAttributeRecord();
                 }
 
-                var numRead = ea.ReadFrom(eaData.Span.Slice(pos));
+                var numRead = ea.ReadFrom(eaData.Span[pos..]);
                 yield return ea;
 
                 pos += numRead;

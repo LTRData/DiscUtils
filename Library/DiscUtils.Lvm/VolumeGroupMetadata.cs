@@ -50,18 +50,18 @@ internal class VolumeGroupMetadata : IByteArraySerializable
         var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
 
         Crc = EndianUtilities.ToUInt32LittleEndian(buffer);
-        CalculatedCrc = PhysicalVolume.CalcCrc(buffer.Slice(0x4, PhysicalVolume.SECTOR_SIZE - 0x4));
+        CalculatedCrc = PhysicalVolume.CalcCrc(buffer[0x4..PhysicalVolume.SECTOR_SIZE]);
         Magic = latin1Encoding.GetString(buffer.Slice(0x4, 0x10));
-        Version = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x14));
-        Start = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x18));
-        Length = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x20));
+        Version = EndianUtilities.ToUInt32LittleEndian(buffer[0x14..]);
+        Start = EndianUtilities.ToUInt64LittleEndian(buffer[0x18..]);
+        Length = EndianUtilities.ToUInt64LittleEndian(buffer[0x20..]);
 
         var locations = new List<RawLocation>();
         var locationOffset = 0x28;
         while (true)
         {
             var location = new RawLocation();
-            locationOffset += location.ReadFrom(buffer.Slice(locationOffset));
+            locationOffset += location.ReadFrom(buffer[locationOffset..]);
             if (location.Offset == 0 && location.Length == 0 && location.Checksum == 0 && location.Flags == 0)
             {
                 break;

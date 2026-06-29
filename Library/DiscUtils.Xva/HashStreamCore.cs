@@ -87,7 +87,7 @@ internal class HashStreamCore : CompatibilityStream
 
         var numRead = await _wrapped.ReadAsync(buffer, cancellationToken).ConfigureAwait(false);
 
-        _hashAlg.AppendData(buffer.Span.Slice(0, numRead));
+        _hashAlg.AppendData(buffer.Span[..numRead]);
         _hashPos += numRead;
 
         return numRead;
@@ -102,7 +102,7 @@ internal class HashStreamCore : CompatibilityStream
 
         var numRead = _wrapped.Read(buffer);
 
-        _hashAlg.AppendData(buffer.Slice(0, numRead));
+        _hashAlg.AppendData(buffer[..numRead]);
         _hashPos += numRead;
 
         return numRead;

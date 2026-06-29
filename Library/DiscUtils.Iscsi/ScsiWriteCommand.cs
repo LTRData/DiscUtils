@@ -51,9 +51,9 @@ internal class ScsiWrite10Command : ScsiCommand
     {
         buffer[0] = (byte)ScsiOpCode.Write10;
         buffer[1] = 0;
-        EndianUtilities.WriteBytesBigEndian(_logicalBlockAddress, buffer.Slice(2));
+        EndianUtilities.WriteBytesBigEndian(_logicalBlockAddress, buffer[2..]);
         buffer[6] = 0;
-        EndianUtilities.WriteBytesBigEndian(NumBlocks, buffer.Slice(7));
+        EndianUtilities.WriteBytesBigEndian(NumBlocks, buffer[7..]);
         buffer[9] = 0;
     }
 }
@@ -84,8 +84,8 @@ internal class ScsiWrite16Command : ScsiCommand
     {
         buffer[0] = (byte)ScsiOpCode.Write16;
         buffer[1] = 0;
-        EndianUtilities.WriteBytesBigEndian(_logicalBlockAddress, buffer.Slice(2));
-        EndianUtilities.WriteBytesBigEndian(NumBlocks, buffer.Slice(10));
+        EndianUtilities.WriteBytesBigEndian(_logicalBlockAddress, buffer[2..]);
+        EndianUtilities.WriteBytesBigEndian(NumBlocks, buffer[10..]);
         buffer[14] = 0;
         buffer[15] = 0;
     }

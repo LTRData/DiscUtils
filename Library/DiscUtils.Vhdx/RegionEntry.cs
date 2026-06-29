@@ -40,9 +40,9 @@ internal sealed class RegionEntry : IByteArraySerializable
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         Guid = EndianUtilities.ToGuidLittleEndian(buffer);
-        FileOffset = EndianUtilities.ToInt64LittleEndian(buffer.Slice(16));
-        Length = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(24));
-        Flags = (RegionFlags)EndianUtilities.ToUInt32LittleEndian(buffer.Slice(28));
+        FileOffset = EndianUtilities.ToInt64LittleEndian(buffer[16..]);
+        Length = EndianUtilities.ToUInt32LittleEndian(buffer[24..]);
+        Flags = (RegionFlags)EndianUtilities.ToUInt32LittleEndian(buffer[28..]);
 
         return 32;
     }
@@ -50,8 +50,8 @@ internal sealed class RegionEntry : IByteArraySerializable
     public void WriteTo(Span<byte> buffer)
     {
         EndianUtilities.WriteBytesLittleEndian(Guid, buffer);
-        EndianUtilities.WriteBytesLittleEndian(FileOffset, buffer.Slice(16));
-        EndianUtilities.WriteBytesLittleEndian(Length, buffer.Slice(24));
-        EndianUtilities.WriteBytesLittleEndian((uint)Flags, buffer.Slice(28));
+        EndianUtilities.WriteBytesLittleEndian(FileOffset, buffer[16..]);
+        EndianUtilities.WriteBytesLittleEndian(Length, buffer[24..]);
+        EndianUtilities.WriteBytesLittleEndian((uint)Flags, buffer[28..]);
     }
 }

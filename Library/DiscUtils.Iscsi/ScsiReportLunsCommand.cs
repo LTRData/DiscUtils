@@ -52,7 +52,7 @@ internal class ScsiReportLunsCommand : ScsiCommand
         buffer[3] = 0; // Reserved
         buffer[4] = 0; // Reserved
         buffer[5] = 0; // Reserved
-        EndianUtilities.WriteBytesBigEndian(_expected, buffer.Slice(6));
+        EndianUtilities.WriteBytesBigEndian(_expected, buffer[6..]);
         buffer[10] = 0; // Reserved
         buffer[11] = 0; // Control
     }

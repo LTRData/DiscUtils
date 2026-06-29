@@ -62,27 +62,27 @@ internal class CommonVolumeDescriptor : BaseVolumeDescriptor
 
         SystemIdentifier = IsoUtilities.ReadChars(src.Slice(8, 32), CharacterEncoding);
         VolumeIdentifier = IsoUtilities.ReadChars(src.Slice(40, 32), CharacterEncoding);
-        VolumeSpaceSize = IsoUtilities.ToUInt32FromBoth(src.Slice(80));
-        VolumeSetSize = IsoUtilities.ToUInt16FromBoth(src.Slice(120));
-        VolumeSequenceNumber = IsoUtilities.ToUInt16FromBoth(src.Slice(124));
-        LogicalBlockSize = IsoUtilities.ToUInt16FromBoth(src.Slice(128));
-        PathTableSize = IsoUtilities.ToUInt32FromBoth(src.Slice(132));
-        TypeLPathTableLocation = EndianUtilities.ToUInt32LittleEndian(src.Slice(140));
-        OptionalTypeLPathTableLocation = EndianUtilities.ToUInt32LittleEndian(src.Slice(144));
-        TypeMPathTableLocation = EndianUtilities.ToUInt32BigEndian(src.Slice(148));
-        OptionalTypeMPathTableLocation = EndianUtilities.ToUInt32BigEndian(src.Slice(152));
-        DirectoryRecord.ReadFrom(src.Slice(156), CharacterEncoding, out RootDirectory);
-        VolumeSetIdentifier = IsoUtilities.ReadChars(src.Slice(190, 318 - 190), CharacterEncoding);
-        PublisherIdentifier = IsoUtilities.ReadChars(src.Slice(318, 446 - 318), CharacterEncoding);
-        DataPreparerIdentifier = IsoUtilities.ReadChars(src.Slice(446, 574 - 446), CharacterEncoding);
-        ApplicationIdentifier = IsoUtilities.ReadChars(src.Slice(574, 702 - 574), CharacterEncoding);
-        CopyrightFileIdentifier = IsoUtilities.ReadChars(src.Slice(702, 739 - 702), CharacterEncoding);
-        AbstractFileIdentifier = IsoUtilities.ReadChars(src.Slice(739, 776 - 739), CharacterEncoding);
-        BibliographicFileIdentifier = IsoUtilities.ReadChars(src.Slice(776, 813 - 776), CharacterEncoding);
-        CreationDateAndTime = IsoUtilities.ToDateTimeFromVolumeDescriptorTime(src.Slice(813));
-        ModificationDateAndTime = IsoUtilities.ToDateTimeFromVolumeDescriptorTime(src.Slice(830));
-        ExpirationDateAndTime = IsoUtilities.ToDateTimeFromVolumeDescriptorTime(src.Slice(847));
-        EffectiveDateAndTime = IsoUtilities.ToDateTimeFromVolumeDescriptorTime(src.Slice(864));
+        VolumeSpaceSize = IsoUtilities.ToUInt32FromBoth(src[80..]);
+        VolumeSetSize = IsoUtilities.ToUInt16FromBoth(src[120..]);
+        VolumeSequenceNumber = IsoUtilities.ToUInt16FromBoth(src[124..]);
+        LogicalBlockSize = IsoUtilities.ToUInt16FromBoth(src[128..]);
+        PathTableSize = IsoUtilities.ToUInt32FromBoth(src[132..]);
+        TypeLPathTableLocation = EndianUtilities.ToUInt32LittleEndian(src[140..]);
+        OptionalTypeLPathTableLocation = EndianUtilities.ToUInt32LittleEndian(src[144..]);
+        TypeMPathTableLocation = EndianUtilities.ToUInt32BigEndian(src[148..]);
+        OptionalTypeMPathTableLocation = EndianUtilities.ToUInt32BigEndian(src[152..]);
+        DirectoryRecord.ReadFrom(src[156..], CharacterEncoding, out RootDirectory);
+        VolumeSetIdentifier = IsoUtilities.ReadChars(src[190..318], CharacterEncoding);
+        PublisherIdentifier = IsoUtilities.ReadChars(src[318..446], CharacterEncoding);
+        DataPreparerIdentifier = IsoUtilities.ReadChars(src[446..574], CharacterEncoding);
+        ApplicationIdentifier = IsoUtilities.ReadChars(src[574..702], CharacterEncoding);
+        CopyrightFileIdentifier = IsoUtilities.ReadChars(src[702..739], CharacterEncoding);
+        AbstractFileIdentifier = IsoUtilities.ReadChars(src[739..776], CharacterEncoding);
+        BibliographicFileIdentifier = IsoUtilities.ReadChars(src[776..813], CharacterEncoding);
+        CreationDateAndTime = IsoUtilities.ToDateTimeFromVolumeDescriptorTime(src[813..]);
+        ModificationDateAndTime = IsoUtilities.ToDateTimeFromVolumeDescriptorTime(src[830..]);
+        ExpirationDateAndTime = IsoUtilities.ToDateTimeFromVolumeDescriptorTime(src[847..]);
+        EffectiveDateAndTime = IsoUtilities.ToDateTimeFromVolumeDescriptorTime(src[864..]);
         FileStructureVersion = src[881];
     }
 

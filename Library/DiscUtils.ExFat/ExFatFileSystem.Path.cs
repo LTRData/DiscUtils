@@ -33,7 +33,7 @@ partial class ExFatFileSystem
             return path;
         }
 
-        return path.Substring(lastIndex + 1);
+        return path[(lastIndex + 1)..];
     }
 
     private string GetDirectoryName(string path)
@@ -49,6 +49,6 @@ partial class ExFatFileSystem
             return "";
         }
 
-        return path.Substring(0, lastIndex);
+        return path[..lastIndex];
     }
 }

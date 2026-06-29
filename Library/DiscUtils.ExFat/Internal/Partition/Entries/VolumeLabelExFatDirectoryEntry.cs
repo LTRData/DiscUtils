@@ -38,7 +38,7 @@ public class VolumeLabelExFatDirectoryEntry : ExFatDirectoryEntry
     /// </value>
     public string VolumeLabel
     {
-        get => AllVolumeLabel.Value.Substring(0, CharacterCount.Value);
+        get => AllVolumeLabel.Value[..CharacterCount.Value];
         set
         {
             CharacterCount.Value = (byte)value.Length;
@@ -52,7 +52,7 @@ public class VolumeLabelExFatDirectoryEntry : ExFatDirectoryEntry
     /// <param name="buffer">The buffer.</param>
     public VolumeLabelExFatDirectoryEntry(Memory<byte> buffer) : base(buffer)
     {
-        CharacterCount = new BufferUInt8(buffer.Slice(1));
-        AllVolumeLabel = new BufferWideString(buffer.Slice(2), 11);
+        CharacterCount = new BufferUInt8(buffer[1..]);
+        AllVolumeLabel = new BufferWideString(buffer[2..], 11);
     }
 }

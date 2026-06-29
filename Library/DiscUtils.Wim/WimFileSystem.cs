@@ -244,8 +244,8 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
         }
 
         return MemoryMarshal.Read<long>(dirEntry.Hash.AsSpan())
-            ^ MemoryMarshal.Read<long>(dirEntry.Hash.AsSpan().Slice(8))
-            ^ MemoryMarshal.Read<int>(dirEntry.Hash.AsSpan().Slice(16));
+            ^ MemoryMarshal.Read<long>(dirEntry.Hash.AsSpan()[8..])
+            ^ MemoryMarshal.Read<int>(dirEntry.Hash.AsSpan()[16..]);
     }
 
     /// <summary>
@@ -627,8 +627,8 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
 
         if (streamSepPos >= 0)
         {
-            filePart = path.Substring(0, streamSepPos);
-            altStreamPart = path.Substring(streamSepPos + 1);
+            filePart = path[..streamSepPos];
+            altStreamPart = path[(streamSepPos + 1)..];
         }
         else
         {
@@ -696,7 +696,7 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
     {
         if (path.EndsWithDirectorySeparator())
         {
-            path = path.Substring(0, path.Length - 1);
+            path = path[..^1];
         }
 
         if (!string.IsNullOrEmpty(path) && !path.StartsWithDirectorySeparator())

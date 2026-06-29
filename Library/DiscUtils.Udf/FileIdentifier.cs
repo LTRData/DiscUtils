@@ -63,11 +63,11 @@ internal class FileIdentifier : VfsDirEntry, IByteArraySerializable
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         DescriptorTag = EndianUtilities.ToStruct<DescriptorTag>(buffer);
-        FileVersionNumber = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(16));
+        FileVersionNumber = EndianUtilities.ToUInt16LittleEndian(buffer[16..]);
         FileCharacteristics = (FileCharacteristic)buffer[18];
         NameLength = buffer[19];
-        FileLocation = EndianUtilities.ToStruct<LongAllocationDescriptor>(buffer.Slice(20));
-        ImplementationUseLength = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(36));
+        FileLocation = EndianUtilities.ToStruct<LongAllocationDescriptor>(buffer[20..]);
+        ImplementationUseLength = EndianUtilities.ToUInt16LittleEndian(buffer[36..]);
         ImplementationUse = EndianUtilities.ToByteArray(buffer.Slice(38, ImplementationUseLength));
         Name = UdfUtilities.ReadDCharacters(buffer.Slice(38 + ImplementationUseLength, NameLength));
 

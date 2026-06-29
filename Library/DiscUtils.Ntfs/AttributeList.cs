@@ -59,7 +59,7 @@ internal class AttributeList : IByteArraySerializable, IDiagnosticTraceable, ICo
         while (pos < buffer.Length)
         {
             var r = new AttributeListRecord();
-            pos += r.ReadFrom(buffer.Slice(pos));
+            pos += r.ReadFrom(buffer[pos..]);
             _records.Add(r);
         }
 
@@ -71,7 +71,7 @@ internal class AttributeList : IByteArraySerializable, IDiagnosticTraceable, ICo
         var pos = 0;
         foreach (var record in _records)
         {
-            record.WriteTo(buffer.Slice(pos));
+            record.WriteTo(buffer[pos..]);
             pos += record.Size;
         }
     }

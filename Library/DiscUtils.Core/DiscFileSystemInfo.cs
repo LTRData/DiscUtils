@@ -92,7 +92,7 @@ public class DiscFileSystemInfo
             var sepIdx = name.LastIndexOf('.');
             if (sepIdx >= 0)
             {
-                return name.Substring(sepIdx + 1);
+                return name[(sepIdx + 1)..];
             }
 
             return string.Empty;

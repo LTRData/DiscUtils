@@ -41,7 +41,7 @@ internal class BootValidationEntry
 
     public BootValidationEntry(ReadOnlySpan<byte> src)
     {
-        _data = src.Slice(0, 32).ToArray();
+        _data = src[..32].ToArray();
 
         HeaderId = _data[0];
         PlatformId = _data[1];

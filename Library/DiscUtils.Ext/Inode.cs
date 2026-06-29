@@ -62,16 +62,16 @@ internal struct Inode : IByteArraySerializable
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         Mode = EndianUtilities.ToUInt16LittleEndian(buffer);
-        UserIdLow = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(2));
-        FileSize = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(4));
-        AccessTime = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(8));
-        CreationTime = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(12));
-        ModificationTime = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(16));
-        DeletionTime = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(20));
-        GroupIdLow = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(24));
-        LinksCount = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(26));
-        BlocksCount = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(28));
-        Flags = (InodeFlags)EndianUtilities.ToUInt32LittleEndian(buffer.Slice(32));
+        UserIdLow = EndianUtilities.ToUInt16LittleEndian(buffer[2..]);
+        FileSize = EndianUtilities.ToUInt32LittleEndian(buffer[4..]);
+        AccessTime = EndianUtilities.ToUInt32LittleEndian(buffer[8..]);
+        CreationTime = EndianUtilities.ToUInt32LittleEndian(buffer[12..]);
+        ModificationTime = EndianUtilities.ToUInt32LittleEndian(buffer[16..]);
+        DeletionTime = EndianUtilities.ToUInt32LittleEndian(buffer[20..]);
+        GroupIdLow = EndianUtilities.ToUInt16LittleEndian(buffer[24..]);
+        LinksCount = EndianUtilities.ToUInt16LittleEndian(buffer[26..]);
+        BlocksCount = EndianUtilities.ToUInt32LittleEndian(buffer[28..]);
+        Flags = (InodeFlags)EndianUtilities.ToUInt32LittleEndian(buffer[32..]);
 
         FastSymlink = null;
         Extents = default;
@@ -82,24 +82,24 @@ internal struct Inode : IByteArraySerializable
         }
         else if ((Flags & InodeFlags.ExtentsUsed) != 0)
         {
-            Extents = EndianUtilities.ToStruct<ExtentBlock>(buffer.Slice(40));
+            Extents = EndianUtilities.ToStruct<ExtentBlock>(buffer[40..]);
         }
         else
         {
             DirectBlocks = new uint[12];
             for (var i = 0; i < 12; ++i)
             {
-                DirectBlocks[i] = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(40 + i * 4));
+                DirectBlocks[i] = EndianUtilities.ToUInt32LittleEndian(buffer[(40 + i * 4)..]);
             }
 
-            IndirectBlock = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(88));
-            DoubleIndirectBlock = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(92));
-            TripleIndirectBlock = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(96));
+            IndirectBlock = EndianUtilities.ToUInt32LittleEndian(buffer[88..]);
+            DoubleIndirectBlock = EndianUtilities.ToUInt32LittleEndian(buffer[92..]);
+            TripleIndirectBlock = EndianUtilities.ToUInt32LittleEndian(buffer[96..]);
         }
 
-        FileVersion = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(100));
-        FileAcl = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(104));
-        DirAcl = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(108));
+        FileVersion = EndianUtilities.ToUInt32LittleEndian(buffer[100..]);
+        FileAcl = EndianUtilities.ToUInt32LittleEndian(buffer[104..]);
+        DirAcl = EndianUtilities.ToUInt32LittleEndian(buffer[108..]);
         
         if (FileType == UnixFileType.Regular
             && DirAcl != 0)
@@ -107,11 +107,11 @@ internal struct Inode : IByteArraySerializable
             FileSize |= ((long)DirAcl) << 32;
         }
         
-        FragAddress = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(112));
+        FragAddress = EndianUtilities.ToUInt32LittleEndian(buffer[112..]);
         Fragment = buffer[116];
         FragmentSize = buffer[117];
-        UserIdHigh = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(120));
-        GroupIdHigh = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(122));
+        UserIdHigh = EndianUtilities.ToUInt16LittleEndian(buffer[120..]);
+        GroupIdHigh = EndianUtilities.ToUInt16LittleEndian(buffer[122..]);
 
         return 128;
     }

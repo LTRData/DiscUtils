@@ -139,7 +139,7 @@ internal class NtfsAttributeBuffer : Buffer, IMappedBuffer
             if (pos >= record.InitializedDataLength)
             {
                 // We're just reading zero bytes from the uninitialized area
-                buffer.Span.Slice(0, totalToRead).Clear();
+                buffer.Span[..totalToRead].Clear();
                 return totalToRead;
             }
 
@@ -154,7 +154,7 @@ internal class NtfsAttributeBuffer : Buffer, IMappedBuffer
         {
             var extentBuffer = _attribute.RawBuffer;
 
-            var justRead = await extentBuffer.ReadAsync(pos + numRead, buffer.Slice(numRead, toRead - numRead), cancellationToken).ConfigureAwait(false);
+            var justRead = await extentBuffer.ReadAsync(pos + numRead, buffer[numRead..toRead], cancellationToken).ConfigureAwait(false);
             if (justRead == 0)
             {
                 break;
@@ -190,7 +190,7 @@ internal class NtfsAttributeBuffer : Buffer, IMappedBuffer
             if (pos >= record.InitializedDataLength)
             {
                 // We're just reading zero bytes from the uninitialized area
-                buffer.Slice(0, totalToRead).Clear();
+                buffer[..totalToRead].Clear();
                 return totalToRead;
             }
 
@@ -205,7 +205,7 @@ internal class NtfsAttributeBuffer : Buffer, IMappedBuffer
         {
             var extentBuffer = _attribute.RawBuffer;
 
-            var justRead = extentBuffer.Read(pos + numRead, buffer.Slice(numRead, toRead - numRead));
+            var justRead = extentBuffer.Read(pos + numRead, buffer[numRead..toRead]);
             if (justRead == 0)
             {
                 break;

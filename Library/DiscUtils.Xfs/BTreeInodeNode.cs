@@ -54,12 +54,12 @@ internal class BTreeInodeNode : BtreeHeader
         Pointer = new uint[NumberOfRecords];
         for (var i = 0; i < NumberOfRecords; i++)
         {
-            Keys[i] = EndianUtilities.ToUInt32BigEndian(buffer.Slice(offset));
+            Keys[i] = EndianUtilities.ToUInt32BigEndian(buffer[offset..]);
         }
 
         for (var i = 0; i < NumberOfRecords; i++)
         {
-            Pointer[i] = EndianUtilities.ToUInt32BigEndian(buffer.Slice(offset));
+            Pointer[i] = EndianUtilities.ToUInt32BigEndian(buffer[offset..]);
         }
 
         return Size;

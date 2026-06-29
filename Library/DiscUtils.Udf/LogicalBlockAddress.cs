@@ -35,7 +35,7 @@ internal struct LogicalBlockAddress : IByteArraySerializable
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         LogicalBlock = EndianUtilities.ToUInt32LittleEndian(buffer);
-        Partition = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(4));
+        Partition = EndianUtilities.ToUInt16LittleEndian(buffer[4..]);
         return 6;
     }
 

@@ -75,7 +75,7 @@ internal sealed class RegionTable : IByteArraySerializable
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
-        buffer.Slice(0, FixedSize).CopyTo(_data);
+        buffer[..FixedSize].CopyTo(_data);
 
         Signature = EndianUtilities.ToUInt32LittleEndian(_data, 0);
         Checksum = EndianUtilities.ToUInt32LittleEndian(_data, 4);

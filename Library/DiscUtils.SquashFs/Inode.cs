@@ -48,22 +48,22 @@ internal abstract class Inode : IByteArraySerializable
     public virtual int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         Type = (InodeType)EndianUtilities.ToUInt16LittleEndian(buffer);
-        Mode = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(2));
-        UidKey = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(4));
-        GidKey = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(6));
-        ModificationTime = DateTimeOffset.FromUnixTimeSeconds(EndianUtilities.ToUInt32LittleEndian(buffer.Slice(8))).UtcDateTime;
-        InodeNumber = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(12));
+        Mode = EndianUtilities.ToUInt16LittleEndian(buffer[2..]);
+        UidKey = EndianUtilities.ToUInt16LittleEndian(buffer[4..]);
+        GidKey = EndianUtilities.ToUInt16LittleEndian(buffer[6..]);
+        ModificationTime = DateTimeOffset.FromUnixTimeSeconds(EndianUtilities.ToUInt32LittleEndian(buffer[8..])).UtcDateTime;
+        InodeNumber = EndianUtilities.ToUInt32LittleEndian(buffer[12..]);
         return 16;
     }
 
     public virtual void WriteTo(Span<byte> buffer)
     {
         EndianUtilities.WriteBytesLittleEndian((ushort)Type, buffer);
-        EndianUtilities.WriteBytesLittleEndian(Mode, buffer.Slice(2));
-        EndianUtilities.WriteBytesLittleEndian(UidKey, buffer.Slice(4));
-        EndianUtilities.WriteBytesLittleEndian(GidKey, buffer.Slice(6));
-        EndianUtilities.WriteBytesLittleEndian(Convert.ToUInt32(new DateTimeOffset(ModificationTime).ToUnixTimeSeconds()), buffer.Slice(8));
-        EndianUtilities.WriteBytesLittleEndian(InodeNumber, buffer.Slice(12));
+        EndianUtilities.WriteBytesLittleEndian(Mode, buffer[2..]);
+        EndianUtilities.WriteBytesLittleEndian(UidKey, buffer[4..]);
+        EndianUtilities.WriteBytesLittleEndian(GidKey, buffer[6..]);
+        EndianUtilities.WriteBytesLittleEndian(Convert.ToUInt32(new DateTimeOffset(ModificationTime).ToUnixTimeSeconds()), buffer[8..]);
+        EndianUtilities.WriteBytesLittleEndian(InodeNumber, buffer[12..]);
     }
 
     public static Inode Read(MetablockReader inodeReader)

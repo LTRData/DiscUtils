@@ -39,7 +39,7 @@ internal class BootVolumeDescriptor : BaseVolumeDescriptor
         : base(src)
     {
         SystemId = EndianUtilities.BytesToZString(src.Slice(0x7, 0x20));
-        CatalogSector = EndianUtilities.ToUInt32LittleEndian(src.Slice(0x47));
+        CatalogSector = EndianUtilities.ToUInt32LittleEndian(src[0x47..]);
     }
 
     public uint CatalogSector { get; }
@@ -54,6 +54,6 @@ internal class BootVolumeDescriptor : BaseVolumeDescriptor
             .GetLatin1Encoding()
             .GetBytes(ElToritoSystemIdentifier, buffer.Slice(7, 0x20));
 
-        EndianUtilities.WriteBytesLittleEndian(CatalogSector, buffer.Slice(0x47));
+        EndianUtilities.WriteBytesLittleEndian(CatalogSector, buffer[0x47..]);
     }
 }

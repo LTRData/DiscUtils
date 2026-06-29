@@ -44,8 +44,8 @@ internal class Header
 
         return new Header
         {
-            Cookie = latin1Encoding.GetString(data.Slice(0, 8)),
-            DataOffset = EndianUtilities.ToInt64BigEndian(data.Slice(8))
+            Cookie = latin1Encoding.GetString(data[..8]),
+            DataOffset = EndianUtilities.ToInt64BigEndian(data[8..])
         };
     }
 }

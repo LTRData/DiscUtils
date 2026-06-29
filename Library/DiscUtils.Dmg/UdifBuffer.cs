@@ -132,7 +132,7 @@ internal class UdifBuffer : Buffer
                 case RunType.ZlibCompressed:
                 case RunType.BZlibCompressed:
                 case RunType.LzfseCompressed:
-                    _decompBuffer.AsMemory(bufferOffset, toCopy).CopyTo(buffer.Slice(totalCopied));
+                    _decompBuffer.AsMemory(bufferOffset, toCopy).CopyTo(buffer[totalCopied..]);
                     break;
 
                 default:
@@ -173,7 +173,7 @@ internal class UdifBuffer : Buffer
                 case RunType.ZlibCompressed:
                 case RunType.BZlibCompressed:
                 case RunType.LzfseCompressed:
-                    _decompBuffer.AsSpan(bufferOffset, toCopy).CopyTo(buffer.Slice(totalCopied));
+                    _decompBuffer.AsSpan(bufferOffset, toCopy).CopyTo(buffer[totalCopied..]);
                     break;
 
                 default:

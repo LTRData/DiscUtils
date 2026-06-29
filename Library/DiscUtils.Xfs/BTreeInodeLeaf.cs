@@ -47,7 +47,7 @@ internal class BTreeInodeLeaf : BtreeHeader
         for (var i = 0; i < NumberOfRecords; i++)
         {
             var rec = new BTreeInodeRecord();
-            offset += rec.ReadFrom(buffer.Slice(offset));
+            offset += rec.ReadFrom(buffer[offset..]);
             Records[i] = rec;
         }
 

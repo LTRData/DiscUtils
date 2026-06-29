@@ -166,15 +166,15 @@ internal sealed class Quotas
         public int ReadFrom(ReadOnlySpan<byte> buffer)
         {
             Version = EndianUtilities.ToInt32LittleEndian(buffer);
-            Flags = EndianUtilities.ToInt32LittleEndian(buffer.Slice(0x04));
-            BytesUsed = EndianUtilities.ToInt64LittleEndian(buffer.Slice(0x08));
-            ChangeTime = DateTime.FromFileTimeUtc(EndianUtilities.ToInt64LittleEndian(buffer.Slice(0x10)));
-            WarningLimit = EndianUtilities.ToInt64LittleEndian(buffer.Slice(0x18));
-            HardLimit = EndianUtilities.ToInt64LittleEndian(buffer.Slice(0x20));
-            ExceededTime = EndianUtilities.ToInt64LittleEndian(buffer.Slice(0x28));
+            Flags = EndianUtilities.ToInt32LittleEndian(buffer[0x04..]);
+            BytesUsed = EndianUtilities.ToInt64LittleEndian(buffer[0x08..]);
+            ChangeTime = DateTime.FromFileTimeUtc(EndianUtilities.ToInt64LittleEndian(buffer[0x10..]));
+            WarningLimit = EndianUtilities.ToInt64LittleEndian(buffer[0x18..]);
+            HardLimit = EndianUtilities.ToInt64LittleEndian(buffer[0x20..]);
+            ExceededTime = EndianUtilities.ToInt64LittleEndian(buffer[0x28..]);
             if (buffer.Length > 0x30)
             {
-                Sid = new SecurityIdentifier(buffer.Slice(0x30));
+                Sid = new SecurityIdentifier(buffer[0x30..]);
                 return 0x30 + Sid.BinaryLength;
             }
 
@@ -184,13 +184,13 @@ internal sealed class Quotas
         public void WriteTo(Span<byte> buffer)
         {
             EndianUtilities.WriteBytesLittleEndian(Version, buffer);
-            EndianUtilities.WriteBytesLittleEndian(Flags, buffer.Slice(0x04));
-            EndianUtilities.WriteBytesLittleEndian(BytesUsed, buffer.Slice(0x08));
-            EndianUtilities.WriteBytesLittleEndian(ChangeTime.ToFileTimeUtc(), buffer.Slice(0x10));
-            EndianUtilities.WriteBytesLittleEndian(WarningLimit, buffer.Slice(0x18));
-            EndianUtilities.WriteBytesLittleEndian(HardLimit, buffer.Slice(0x20));
-            EndianUtilities.WriteBytesLittleEndian(ExceededTime, buffer.Slice(0x28));
-            Sid?.GetBinaryForm(buffer.Slice(0x30));
+            EndianUtilities.WriteBytesLittleEndian(Flags, buffer[0x04..]);
+            EndianUtilities.WriteBytesLittleEndian(BytesUsed, buffer[0x08..]);
+            EndianUtilities.WriteBytesLittleEndian(ChangeTime.ToFileTimeUtc(), buffer[0x10..]);
+            EndianUtilities.WriteBytesLittleEndian(WarningLimit, buffer[0x18..]);
+            EndianUtilities.WriteBytesLittleEndian(HardLimit, buffer[0x20..]);
+            EndianUtilities.WriteBytesLittleEndian(ExceededTime, buffer[0x28..]);
+            Sid?.GetBinaryForm(buffer[0x30..]);
         }
 
         public override string ToString()

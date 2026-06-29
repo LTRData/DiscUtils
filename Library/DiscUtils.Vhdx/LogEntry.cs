@@ -191,9 +191,9 @@ internal sealed class LogEntry
 
         public override int ReadFrom(ReadOnlySpan<byte> buffer)
         {
-            ZeroLength = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(8));
-            FileOffset = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(16));
-            SequenceNumber = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(24));
+            ZeroLength = EndianUtilities.ToUInt64LittleEndian(buffer[8..]);
+            FileOffset = EndianUtilities.ToUInt64LittleEndian(buffer[16..]);
+            SequenceNumber = EndianUtilities.ToUInt64LittleEndian(buffer[24..]);
 
             return 32;
         }
@@ -254,10 +254,10 @@ internal sealed class LogEntry
 
         public override int ReadFrom(ReadOnlySpan<byte> buffer)
         {
-            TrailingBytes = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(4));
-            LeadingBytes = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(8));
-            FileOffset = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(16));
-            SequenceNumber = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(24));
+            TrailingBytes = EndianUtilities.ToUInt32LittleEndian(buffer[4..]);
+            LeadingBytes = EndianUtilities.ToUInt64LittleEndian(buffer[8..]);
+            FileOffset = EndianUtilities.ToUInt64LittleEndian(buffer[16..]);
+            SequenceNumber = EndianUtilities.ToUInt64LittleEndian(buffer[24..]);
 
             DataSignature = EndianUtilities.ToUInt32LittleEndian(_data, _offset);
 

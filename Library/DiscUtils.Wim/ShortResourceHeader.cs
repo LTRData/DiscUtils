@@ -39,7 +39,7 @@ internal class ShortResourceHeader
         CompressedSize = EndianUtilities.ToInt64LittleEndian(buffer);
         Flags = (ResourceFlags)((CompressedSize >> 56) & 0xFF);
         CompressedSize &= 0x00FFFFFFFFFFFFFF;
-        FileOffset = EndianUtilities.ToInt64LittleEndian(buffer.Slice(8));
-        OriginalSize = EndianUtilities.ToInt64LittleEndian(buffer.Slice(16));
+        FileOffset = EndianUtilities.ToInt64LittleEndian(buffer[8..]);
+        OriginalSize = EndianUtilities.ToInt64LittleEndian(buffer[16..]);
     }
 }

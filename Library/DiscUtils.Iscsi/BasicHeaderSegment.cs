@@ -56,7 +56,7 @@ internal class BasicHeaderSegment : IByteArraySerializable
         }
         TotalAhsLength = buffer[4];
         DataSegmentLength = (buffer[5] << 16) | (buffer[6] << 8) | buffer[7];
-        InitiatorTaskTag = EndianUtilities.ToUInt32BigEndian(buffer.Slice(16));
+        InitiatorTaskTag = EndianUtilities.ToUInt32BigEndian(buffer[16..]);
         return 48;
     }
 
@@ -68,7 +68,7 @@ internal class BasicHeaderSegment : IByteArraySerializable
         buffer[5] = (byte)((DataSegmentLength >> 16) & 0xFF);
         buffer[6] = (byte)((DataSegmentLength >> 8) & 0xFF);
         buffer[7] = (byte)(DataSegmentLength & 0xFF);
-        EndianUtilities.WriteBytesBigEndian(InitiatorTaskTag, buffer.Slice(16));
+        EndianUtilities.WriteBytesBigEndian(InitiatorTaskTag, buffer[16..]);
     }
 
     #endregion

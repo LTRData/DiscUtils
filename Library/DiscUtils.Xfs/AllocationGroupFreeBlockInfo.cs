@@ -132,29 +132,29 @@ internal class AllocationGroupFreeBlockInfo : IByteArraySerializable
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         Magic = EndianUtilities.ToUInt32BigEndian(buffer);
-        Version = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x4));
-        SequenceNumber = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x8));
-        Length = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0xC));
+        Version = EndianUtilities.ToUInt32BigEndian(buffer[0x4..]);
+        SequenceNumber = EndianUtilities.ToUInt32BigEndian(buffer[0x8..]);
+        Length = EndianUtilities.ToUInt32BigEndian(buffer[0xC..]);
         RootBlockNumbers = new uint[2];
-        RootBlockNumbers[0] = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x10));
-        RootBlockNumbers[1] = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x14));
-        Spare0 = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x18));
+        RootBlockNumbers[0] = EndianUtilities.ToUInt32BigEndian(buffer[0x10..]);
+        RootBlockNumbers[1] = EndianUtilities.ToUInt32BigEndian(buffer[0x14..]);
+        Spare0 = EndianUtilities.ToUInt32BigEndian(buffer[0x18..]);
         Levels = new uint[2];
 
-        Levels[0] = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x1C));
-        Levels[1] = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x20));
-        Spare1 = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x24));
-        FreeListFirst = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x28));
-        FreeListLast = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x2C));
-        FreeListCount = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x30));
-        FreeBlocks = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x34));
-        Longest = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x38));
-        BTreeBlocks = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x3C));
+        Levels[0] = EndianUtilities.ToUInt32BigEndian(buffer[0x1C..]);
+        Levels[1] = EndianUtilities.ToUInt32BigEndian(buffer[0x20..]);
+        Spare1 = EndianUtilities.ToUInt32BigEndian(buffer[0x24..]);
+        FreeListFirst = EndianUtilities.ToUInt32BigEndian(buffer[0x28..]);
+        FreeListLast = EndianUtilities.ToUInt32BigEndian(buffer[0x2C..]);
+        FreeListCount = EndianUtilities.ToUInt32BigEndian(buffer[0x30..]);
+        FreeBlocks = EndianUtilities.ToUInt32BigEndian(buffer[0x34..]);
+        Longest = EndianUtilities.ToUInt32BigEndian(buffer[0x38..]);
+        BTreeBlocks = EndianUtilities.ToUInt32BigEndian(buffer[0x3C..]);
         if (SbVersion >= 5)
         {
-            UniqueId = EndianUtilities.ToGuidBigEndian(buffer.Slice(0x40));
-            Lsn = EndianUtilities.ToUInt64BigEndian(buffer.Slice(0x50));
-            Crc = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x58));
+            UniqueId = EndianUtilities.ToGuidBigEndian(buffer[0x40..]);
+            Lsn = EndianUtilities.ToUInt64BigEndian(buffer[0x50..]);
+            Crc = EndianUtilities.ToUInt32BigEndian(buffer[0x58..]);
         }
 
         return Size;

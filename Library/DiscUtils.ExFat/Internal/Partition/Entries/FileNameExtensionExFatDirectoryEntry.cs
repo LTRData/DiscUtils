@@ -37,7 +37,7 @@ public class FileNameExtensionExFatDirectoryEntry : ExFatDirectoryEntry
     /// <param name="buffer">The buffer.</param>
     public FileNameExtensionExFatDirectoryEntry(Memory<byte> buffer) : base(buffer)
     {
-        GeneralSecondaryFlags = new EnumValueProvider<ExFatGeneralSecondaryFlags, byte>(new BufferUInt8(buffer.Slice(1)));
-        FileName = new BufferWideString(buffer.Slice(2), 15);
+        GeneralSecondaryFlags = new EnumValueProvider<ExFatGeneralSecondaryFlags, byte>(new BufferUInt8(buffer[1..]));
+        FileName = new BufferWideString(buffer[2..], 15);
     }
 }

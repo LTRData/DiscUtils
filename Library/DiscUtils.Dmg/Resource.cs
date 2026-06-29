@@ -52,7 +52,7 @@ internal abstract class Resource
             if (attrString.StartsWith("0x".AsSpan(), StringComparison.OrdinalIgnoreCase))
             {
                 style = NumberStyles.HexNumber;
-                attrString = attrString.Slice(2);
+                attrString = attrString[2..];
             }
 
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP

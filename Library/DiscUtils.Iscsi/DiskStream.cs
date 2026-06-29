@@ -97,7 +97,7 @@ internal class DiskStream : SparseStream
         var firstBlock = _position / _blockSize;
         var lastBlock = MathUtilities.Ceil(_position + maxToRead, _blockSize);
 
-        return _session.Read(_lun, firstBlock, checked((int)(lastBlock - firstBlock)), buffer.Slice(0, maxToRead));
+        return _session.Read(_lun, firstBlock, checked((int)(lastBlock - firstBlock)), buffer[..maxToRead]);
     }
 
     public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
@@ -118,7 +118,7 @@ internal class DiskStream : SparseStream
         var firstBlock = _position / _blockSize;
         var lastBlock = MathUtilities.Ceil(_position + maxToRead, _blockSize);
 
-        return _session.ReadAsync(_lun, firstBlock, checked((int)(lastBlock - firstBlock)), buffer.Slice(0, maxToRead), cancellationToken);
+        return _session.ReadAsync(_lun, firstBlock, checked((int)(lastBlock - firstBlock)), buffer[..maxToRead], cancellationToken);
     }
 
     public override long Seek(long offset, SeekOrigin origin)
@@ -182,7 +182,7 @@ internal class DiskStream : SparseStream
                 var maxWrite = Math.Min(buffer.Length - numWritten, maxBytesPerWrite);
                 var numBlocks = MathUtilities.Ceil(maxWrite, _blockSize);
 
-                var written = _session.Write(_lun, currentBlock, (int)numBlocks, _blockSize, buffer.Slice(numWritten));
+                var written = _session.Write(_lun, currentBlock, (int)numBlocks, _blockSize, buffer[numWritten..]);
 
                 if (written == 0)
                 {
@@ -230,7 +230,7 @@ internal class DiskStream : SparseStream
                 var maxWrite = Math.Min(buffer.Length - numWritten, maxBytesPerWrite);
                 var numBlocks = MathUtilities.Ceil(maxWrite, _blockSize);
 
-                var written = await _session.WriteAsync(_lun, currentBlock, (int)numBlocks, _blockSize, buffer.Slice(numWritten), cancellationToken).ConfigureAwait(false);
+                var written = await _session.WriteAsync(_lun, currentBlock, (int)numBlocks, _blockSize, buffer[numWritten..], cancellationToken).ConfigureAwait(false);
 
                 if (written == 0)
                 {

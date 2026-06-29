@@ -32,6 +32,6 @@ internal sealed class ChildLinkSystemUseEntry : SystemUseEntry
     {
         CheckAndSetCommonProperties(name, length, version, 12, 1);
 
-        ChildDirLocation = IsoUtilities.ToUInt32FromBoth(data.Slice(4));
+        ChildDirLocation = IsoUtilities.ToUInt32FromBoth(data[4..]);
     }
 }

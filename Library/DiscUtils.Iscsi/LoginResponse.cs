@@ -59,17 +59,17 @@ internal class LoginResponse : BaseResponse
         UnpackState(headerData[1]);
         MaxVersion = headerData[2];
         ActiveVersion = headerData[3];
-        TargetSessionId = EndianUtilities.ToUInt16BigEndian(headerData.Slice(14));
+        TargetSessionId = EndianUtilities.ToUInt16BigEndian(headerData[14..]);
         StatusPresent = true;
 
         // RFC 3720: offset 24 = Target Transfer Tag (TTT), offset 28 = StatSN
-        TargetTransferTag = EndianUtilities.ToUInt32BigEndian(headerData.Slice(24));
-        StatusSequenceNumber = EndianUtilities.ToUInt32BigEndian(headerData.Slice(28));
+        TargetTransferTag = EndianUtilities.ToUInt32BigEndian(headerData[24..]);
+        StatusSequenceNumber = EndianUtilities.ToUInt32BigEndian(headerData[28..]);
 
-        ExpectedCommandSequenceNumber = EndianUtilities.ToUInt32BigEndian(headerData.Slice(32));
-        MaxCommandSequenceNumber = EndianUtilities.ToUInt32BigEndian(headerData.Slice(36));
+        ExpectedCommandSequenceNumber = EndianUtilities.ToUInt32BigEndian(headerData[32..]);
+        MaxCommandSequenceNumber = EndianUtilities.ToUInt32BigEndian(headerData[36..]);
         StatusClass = headerData[36];
-        StatusCode = (LoginStatusCode)EndianUtilities.ToUInt16BigEndian(headerData.Slice(36));
+        StatusCode = (LoginStatusCode)EndianUtilities.ToUInt16BigEndian(headerData[36..]);
 
         TextData = bodyData;
     }

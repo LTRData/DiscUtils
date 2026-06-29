@@ -41,13 +41,13 @@ internal class InformationControlBlock : IByteArraySerializable
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         PriorDirectEntries = EndianUtilities.ToUInt32LittleEndian(buffer);
-        StrategyType = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(4));
-        StrategyParameter = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(6));
-        MaxEntries = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(8));
+        StrategyType = EndianUtilities.ToUInt16LittleEndian(buffer[4..]);
+        StrategyParameter = EndianUtilities.ToUInt16LittleEndian(buffer[6..]);
+        MaxEntries = EndianUtilities.ToUInt16LittleEndian(buffer[8..]);
         FileType = (FileType)buffer[11];
-        ParentICBLocation = EndianUtilities.ToStruct<LogicalBlockAddress>(buffer.Slice(12));
+        ParentICBLocation = EndianUtilities.ToStruct<LogicalBlockAddress>(buffer[12..]);
 
-        var flagsField = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(18));
+        var flagsField = EndianUtilities.ToUInt16LittleEndian(buffer[18..]);
         AllocationType = (AllocationType)(flagsField & 0x3);
         Flags = (InformationControlBlockFlags)(flagsField & 0xFFFC);
 

@@ -2200,8 +2200,8 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
         var streamSepPos = fileName.IndexOf(':');
         if (streamSepPos >= 0)
         {
-            attributeName = fileName.Substring(streamSepPos + 1);
-            plainPath = plainPath.Substring(0, path.Length - (fileName.Length - streamSepPos));
+            attributeName = fileName[(streamSepPos + 1)..];
+            plainPath = plainPath[..(path.Length - (fileName.Length - streamSepPos))];
         }
     }
 

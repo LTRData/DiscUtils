@@ -146,12 +146,12 @@ public sealed class BuildFileInfo : BuildDirectoryMember, IEquatable<BuildFileIn
 
         if (name.Length + extension.Length > 30)
         {
-            extension = extension.Slice(0, Math.Min(extension.Length, 3));
+            extension = extension[..Math.Min(extension.Length, 3)];
         }
 
         if (name.Length + extension.Length > 30)
         {
-            name = name.Slice(0, 30 - extension.Length);
+            name = name[..(30 - extension.Length)];
         }
 
         for (var attempt = 0; attempt < int.MaxValue; attempt++)
@@ -162,7 +162,7 @@ public sealed class BuildFileInfo : BuildDirectoryMember, IEquatable<BuildFileIn
 
                 if (name.Length + attemptStr.Length >= 30)
                 {
-                    name = name.Slice(0, name.Length - attemptStr.Length - 1);
+                    name = name[..(name.Length - attemptStr.Length - 1)];
                 }
 
 #if NET6_0_OR_GREATER

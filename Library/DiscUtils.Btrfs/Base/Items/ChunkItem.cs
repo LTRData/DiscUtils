@@ -84,20 +84,20 @@ internal class ChunkItem : BaseItem
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         ChunkSize = EndianUtilities.ToUInt64LittleEndian(buffer);
-        ObjectId = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x8));
-        StripeLength = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x10));
-        Type = (BlockGroupFlag)EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x18));
-        OptimalIoAlignment = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x20));
-        OptimalIoWidth = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x24));
-        MinimalIoSize = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x28));
-        StripeCount = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(0x2c));
-        SubStripes = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(0x2e));
+        ObjectId = EndianUtilities.ToUInt64LittleEndian(buffer[0x8..]);
+        StripeLength = EndianUtilities.ToUInt64LittleEndian(buffer[0x10..]);
+        Type = (BlockGroupFlag)EndianUtilities.ToUInt64LittleEndian(buffer[0x18..]);
+        OptimalIoAlignment = EndianUtilities.ToUInt32LittleEndian(buffer[0x20..]);
+        OptimalIoWidth = EndianUtilities.ToUInt32LittleEndian(buffer[0x24..]);
+        MinimalIoSize = EndianUtilities.ToUInt32LittleEndian(buffer[0x28..]);
+        StripeCount = EndianUtilities.ToUInt16LittleEndian(buffer[0x2c..]);
+        SubStripes = EndianUtilities.ToUInt16LittleEndian(buffer[0x2e..]);
         Stripes = new Stripe[StripeCount];
         var offset = 0x30;
         for (var i = 0; i < StripeCount; i++)
         {
             Stripes[i] = new Stripe();
-            offset += Stripes[i].ReadFrom(buffer.Slice(offset));
+            offset += Stripes[i].ReadFrom(buffer[offset..]);
         }
 
         return Size;

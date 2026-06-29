@@ -35,7 +35,7 @@ internal sealed class Point : IByteArraySerializable
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         Vertical = EndianUtilities.ToInt16BigEndian(buffer);
-        Horizontal = EndianUtilities.ToInt16BigEndian(buffer.Slice(2));
+        Horizontal = EndianUtilities.ToInt16BigEndian(buffer[2..]);
 
         return 4;
     }

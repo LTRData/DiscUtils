@@ -67,8 +67,8 @@ public class DataRun
 
     internal int Write(Span<byte> buffer)
     {
-        var runLengthSize = WriteVarLong(buffer.Slice(1), RunLength);
-        var runOffsetSize = IsSparse ? 0 : WriteVarLong(buffer.Slice(1 + runLengthSize), RunOffset);
+        var runLengthSize = WriteVarLong(buffer[1..], RunLength);
+        var runOffsetSize = IsSparse ? 0 : WriteVarLong(buffer[(1 + runLengthSize)..], RunOffset);
 
         buffer[0] = (byte)((runLengthSize & 0x0F) | ((runOffsetSize << 4) & 0xF0));
 

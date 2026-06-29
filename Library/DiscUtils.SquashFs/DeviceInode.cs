@@ -35,8 +35,8 @@ internal sealed class DeviceInode : Inode
     {
         base.ReadFrom(buffer);
 
-        NumLinks = EndianUtilities.ToInt32LittleEndian(buffer.Slice(16));
-        DeviceId = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(20));
+        NumLinks = EndianUtilities.ToInt32LittleEndian(buffer[16..]);
+        DeviceId = EndianUtilities.ToUInt32LittleEndian(buffer[20..]);
 
         return 24;
     }

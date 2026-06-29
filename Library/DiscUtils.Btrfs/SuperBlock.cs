@@ -176,36 +176,36 @@ internal class SuperBlock : IByteArraySerializable
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
-        Magic = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x40));
+        Magic = EndianUtilities.ToUInt64LittleEndian(buffer[0x40..]);
         if (Magic != BtrfsMagic)
         {
             return Size;
         }
 
-        Checksum = EndianUtilities.ToByteArray(buffer.Slice(0, 0x20));
-        FsUuid = EndianUtilities.ToGuidLittleEndian(buffer.Slice(0x20));
-        PhysicalAddress = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x30));
-        Flags = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x38));
-        Generation = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x48));
-        Root = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x50));
+        Checksum = EndianUtilities.ToByteArray(buffer[..0x20]);
+        FsUuid = EndianUtilities.ToGuidLittleEndian(buffer[0x20..]);
+        PhysicalAddress = EndianUtilities.ToUInt64LittleEndian(buffer[0x30..]);
+        Flags = EndianUtilities.ToUInt64LittleEndian(buffer[0x38..]);
+        Generation = EndianUtilities.ToUInt64LittleEndian(buffer[0x48..]);
+        Root = EndianUtilities.ToUInt64LittleEndian(buffer[0x50..]);
 
-        ChunkRoot = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x58));
-        LogRoot = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x60));
-        LogRootTransId = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x68));
-        TotalBytes = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x70));
-        BytesUsed = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x78));
-        RootDirObjectid = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x80));
-        NumDevices = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x88));
-        SectorSize = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x90));
-        NodeSize = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x94));
-        LeafSize = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x98));
-        StripeSize = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x9c));
+        ChunkRoot = EndianUtilities.ToUInt64LittleEndian(buffer[0x58..]);
+        LogRoot = EndianUtilities.ToUInt64LittleEndian(buffer[0x60..]);
+        LogRootTransId = EndianUtilities.ToUInt64LittleEndian(buffer[0x68..]);
+        TotalBytes = EndianUtilities.ToUInt64LittleEndian(buffer[0x70..]);
+        BytesUsed = EndianUtilities.ToUInt64LittleEndian(buffer[0x78..]);
+        RootDirObjectid = EndianUtilities.ToUInt64LittleEndian(buffer[0x80..]);
+        NumDevices = EndianUtilities.ToUInt64LittleEndian(buffer[0x88..]);
+        SectorSize = EndianUtilities.ToUInt32LittleEndian(buffer[0x90..]);
+        NodeSize = EndianUtilities.ToUInt32LittleEndian(buffer[0x94..]);
+        LeafSize = EndianUtilities.ToUInt32LittleEndian(buffer[0x98..]);
+        StripeSize = EndianUtilities.ToUInt32LittleEndian(buffer[0x9c..]);
 
-        ChunkRootGeneration = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0xa4));
-        CompatFlags = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0xac));
-        CompatRoFlags = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0xb4));
-        IncompatFlags = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0xbc));
-        ChecksumType = (ChecksumType)EndianUtilities.ToUInt16LittleEndian(buffer.Slice(0xc4));
+        ChunkRootGeneration = EndianUtilities.ToUInt64LittleEndian(buffer[0xa4..]);
+        CompatFlags = EndianUtilities.ToUInt64LittleEndian(buffer[0xac..]);
+        CompatRoFlags = EndianUtilities.ToUInt64LittleEndian(buffer[0xb4..]);
+        IncompatFlags = EndianUtilities.ToUInt64LittleEndian(buffer[0xbc..]);
+        ChecksumType = (ChecksumType)EndianUtilities.ToUInt16LittleEndian(buffer[0xc4..]);
         RootLevel = buffer[0xc6];
         ChunkRootLevel = buffer[0xc7];
         LogRootLevel = buffer[0xc8];
@@ -214,19 +214,19 @@ internal class SuperBlock : IByteArraySerializable
         var eos = labelData.IndexOf((byte)0);
         if (eos != -1)
         {
-            Label = Encoding.UTF8.GetString(labelData.Slice(0, eos));
+            Label = Encoding.UTF8.GetString(labelData[..eos]);
         }
 
         //22b 	100 		reserved
-        var n = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0xa0));
+        var n = EndianUtilities.ToUInt32LittleEndian(buffer[0xa0..]);
         var offset = 0x32b;
         var systemChunks = new List<ChunkItem>();
         while (n > 0)
         {
             var key = new Key();
-            offset += key.ReadFrom(buffer.Slice(offset));
+            offset += key.ReadFrom(buffer[offset..]);
             var chunkItem = new ChunkItem(key);
-            offset += chunkItem.ReadFrom(buffer.Slice(offset));
+            offset += chunkItem.ReadFrom(buffer[offset..]);
             systemChunks.Add(chunkItem);
             n = n - (uint)key.Size - (uint)chunkItem.Size;
         }

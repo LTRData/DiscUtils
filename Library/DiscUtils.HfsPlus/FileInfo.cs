@@ -37,9 +37,9 @@ internal class FileInfo : IByteArraySerializable
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         FileType = EndianUtilities.ToUInt32BigEndian(buffer);
-        FileCreator = EndianUtilities.ToUInt32BigEndian(buffer.Slice(4));
-        FinderFlags = (FinderFlags)EndianUtilities.ToUInt16BigEndian(buffer.Slice(8));
-        Point = EndianUtilities.ToStruct<Point>(buffer.Slice(10));
+        FileCreator = EndianUtilities.ToUInt32BigEndian(buffer[4..]);
+        FinderFlags = (FinderFlags)EndianUtilities.ToUInt16BigEndian(buffer[8..]);
+        Point = EndianUtilities.ToStruct<Point>(buffer[10..]);
 
         return 16;
     }

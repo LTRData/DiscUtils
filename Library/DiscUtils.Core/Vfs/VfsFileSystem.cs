@@ -489,7 +489,7 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
         var streamSepPos = fileName.IndexOf(':');
         if (streamSepPos >= 0)
         {
-            attributeName = fileName.Substring(streamSepPos + 1);
+            attributeName = fileName[(streamSepPos + 1)..];
         }
 
         SparseStream stream;

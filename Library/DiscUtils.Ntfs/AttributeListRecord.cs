@@ -44,7 +44,7 @@ internal class AttributeListRecord : IDiagnosticTraceable, IByteArraySerializabl
     public int ReadFrom(ReadOnlySpan<byte> data)
     {
         Type = (AttributeType)EndianUtilities.ToUInt32LittleEndian(data);
-        RecordLength = EndianUtilities.ToUInt16LittleEndian(data.Slice(0x04));
+        RecordLength = EndianUtilities.ToUInt16LittleEndian(data[0x04..]);
         NameLength = data[0x06];
         NameOffset = data[0x07];
 
@@ -62,9 +62,9 @@ internal class AttributeListRecord : IDiagnosticTraceable, IByteArraySerializabl
             Name = null;
         }
 
-        StartVcn = EndianUtilities.ToUInt64LittleEndian(data.Slice(0x08));
-        BaseFileReference = new FileRecordReference(EndianUtilities.ToUInt64LittleEndian(data.Slice(0x10)));
-        AttributeId = EndianUtilities.ToUInt16LittleEndian(data.Slice(0x18));
+        StartVcn = EndianUtilities.ToUInt64LittleEndian(data[0x08..]);
+        BaseFileReference = new FileRecordReference(EndianUtilities.ToUInt64LittleEndian(data[0x10..]));
+        AttributeId = EndianUtilities.ToUInt16LittleEndian(data[0x18..]);
 
         return RecordLength;
     }
@@ -78,18 +78,18 @@ internal class AttributeListRecord : IDiagnosticTraceable, IByteArraySerializabl
         }
         else
         {
-            NameLength = (byte)(Encoding.Unicode.GetBytes(Name.AsSpan(), buffer.Slice(NameOffset)) / 2);
+            NameLength = (byte)(Encoding.Unicode.GetBytes(Name.AsSpan(), buffer[NameOffset..]) / 2);
         }
 
         RecordLength = (ushort)MathUtilities.RoundUp(NameOffset + NameLength * 2, 8);
 
         EndianUtilities.WriteBytesLittleEndian((uint)Type, buffer);
-        EndianUtilities.WriteBytesLittleEndian(RecordLength, buffer.Slice(0x04));
+        EndianUtilities.WriteBytesLittleEndian(RecordLength, buffer[0x04..]);
         buffer[0x06] = NameLength;
         buffer[0x07] = NameOffset;
-        EndianUtilities.WriteBytesLittleEndian(StartVcn, buffer.Slice(0x08));
-        EndianUtilities.WriteBytesLittleEndian(BaseFileReference.Value, buffer.Slice(0x10));
-        EndianUtilities.WriteBytesLittleEndian(AttributeId, buffer.Slice(0x18));
+        EndianUtilities.WriteBytesLittleEndian(StartVcn, buffer[0x08..]);
+        EndianUtilities.WriteBytesLittleEndian(BaseFileReference.Value, buffer[0x10..]);
+        EndianUtilities.WriteBytesLittleEndian(AttributeId, buffer[0x18..]);
     }
 
     public int CompareTo(AttributeListRecord other)

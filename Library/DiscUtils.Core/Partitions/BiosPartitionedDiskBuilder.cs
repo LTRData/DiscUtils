@@ -124,7 +124,7 @@ public class BiosPartitionedDiskBuilder : StreamBuilder
             foreach (var extent in new BiosPartitionTable(sourceDisk).GetMetadataDiskExtents())
             {
                 sourceDisk.Content.Position = extent.Start;
-                var buffer = sector.Slice(0, checked((int)extent.Length));
+                var buffer = sector[..checked((int)extent.Length)];
                 sourceDisk.Content.ReadExactly(buffer);
                 _bootSectors.Position = extent.Start;
                 _bootSectors.Write(buffer);

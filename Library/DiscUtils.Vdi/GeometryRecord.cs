@@ -75,18 +75,18 @@ internal class GeometryRecord
 
     public void Read(ReadOnlySpan<byte> buffer)
     {
-        Cylinders = EndianUtilities.ToInt32LittleEndian(buffer.Slice(0));
-        Heads = EndianUtilities.ToInt32LittleEndian(buffer.Slice(4));
-        Sectors = EndianUtilities.ToInt32LittleEndian(buffer.Slice(8));
-        SectorSize = EndianUtilities.ToInt32LittleEndian(buffer.Slice(12));
+        Cylinders = EndianUtilities.ToInt32LittleEndian(buffer[..]);
+        Heads = EndianUtilities.ToInt32LittleEndian(buffer[4..]);
+        Sectors = EndianUtilities.ToInt32LittleEndian(buffer[8..]);
+        SectorSize = EndianUtilities.ToInt32LittleEndian(buffer[12..]);
     }
 
     public void Write(Span<byte> buffer)
     {
-        EndianUtilities.WriteBytesLittleEndian(Cylinders, buffer.Slice(0));
-        EndianUtilities.WriteBytesLittleEndian(Heads, buffer.Slice(4));
-        EndianUtilities.WriteBytesLittleEndian(Sectors, buffer.Slice(8));
-        EndianUtilities.WriteBytesLittleEndian(SectorSize, buffer.Slice(12));
+        EndianUtilities.WriteBytesLittleEndian(Cylinders, buffer[..]);
+        EndianUtilities.WriteBytesLittleEndian(Heads, buffer[4..]);
+        EndianUtilities.WriteBytesLittleEndian(Sectors, buffer[8..]);
+        EndianUtilities.WriteBytesLittleEndian(SectorSize, buffer[12..]);
     }
 
     public Geometry ToGeometry(long actualCapacity)

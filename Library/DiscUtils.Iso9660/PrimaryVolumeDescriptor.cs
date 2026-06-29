@@ -49,16 +49,16 @@ internal class PrimaryVolumeDescriptor : CommonVolumeDescriptor
         base.WriteTo(buffer);
         IsoUtilities.WriteAChars(buffer.Slice(8, 32), SystemIdentifier.AsSpan());
         IsoUtilities.WriteString(buffer.Slice(40, 32), pad: true, VolumeIdentifier.AsSpan(), Encoding.ASCII, true);
-        IsoUtilities.ToBothFromUInt32(buffer.Slice(80), VolumeSpaceSize);
-        IsoUtilities.ToBothFromUInt16(buffer.Slice(120), VolumeSetSize);
-        IsoUtilities.ToBothFromUInt16(buffer.Slice(124), VolumeSequenceNumber);
-        IsoUtilities.ToBothFromUInt16(buffer.Slice(128), LogicalBlockSize);
-        IsoUtilities.ToBothFromUInt32(buffer.Slice(132), PathTableSize);
-        IsoUtilities.ToBytesFromUInt32(buffer.Slice(140), TypeLPathTableLocation);
-        IsoUtilities.ToBytesFromUInt32(buffer.Slice(144), OptionalTypeLPathTableLocation);
-        EndianUtilities.WriteBytesBigEndian(TypeMPathTableLocation, buffer.Slice(148));
-        EndianUtilities.WriteBytesBigEndian(OptionalTypeMPathTableLocation, buffer.Slice(152));
-        RootDirectory.WriteTo(buffer.Slice(156), Encoding.ASCII);
+        IsoUtilities.ToBothFromUInt32(buffer[80..], VolumeSpaceSize);
+        IsoUtilities.ToBothFromUInt16(buffer[120..], VolumeSetSize);
+        IsoUtilities.ToBothFromUInt16(buffer[124..], VolumeSequenceNumber);
+        IsoUtilities.ToBothFromUInt16(buffer[128..], LogicalBlockSize);
+        IsoUtilities.ToBothFromUInt32(buffer[132..], PathTableSize);
+        IsoUtilities.ToBytesFromUInt32(buffer[140..], TypeLPathTableLocation);
+        IsoUtilities.ToBytesFromUInt32(buffer[144..], OptionalTypeLPathTableLocation);
+        EndianUtilities.WriteBytesBigEndian(TypeMPathTableLocation, buffer[148..]);
+        EndianUtilities.WriteBytesBigEndian(OptionalTypeMPathTableLocation, buffer[152..]);
+        RootDirectory.WriteTo(buffer[156..], Encoding.ASCII);
         IsoUtilities.WriteDChars(buffer.Slice(190, 129), VolumeSetIdentifier.AsSpan());
         IsoUtilities.WriteAChars(buffer.Slice(318, 129), PublisherIdentifier.AsSpan());
         IsoUtilities.WriteAChars(buffer.Slice(446, 129), DataPreparerIdentifier.AsSpan());
@@ -66,10 +66,10 @@ internal class PrimaryVolumeDescriptor : CommonVolumeDescriptor
         IsoUtilities.WriteDChars(buffer.Slice(702, 37), CopyrightFileIdentifier.AsSpan()); // ToDo
         IsoUtilities.WriteDChars(buffer.Slice(739, 37), AbstractFileIdentifier.AsSpan()); // ToDo
         IsoUtilities.WriteDChars(buffer.Slice(776, 37), BibliographicFileIdentifier.AsSpan()); // ToDo
-        IsoUtilities.ToVolumeDescriptorTimeFromUTC(buffer.Slice(813), CreationDateAndTime);
-        IsoUtilities.ToVolumeDescriptorTimeFromUTC(buffer.Slice(830), ModificationDateAndTime);
-        IsoUtilities.ToVolumeDescriptorTimeFromUTC(buffer.Slice(847), ExpirationDateAndTime);
-        IsoUtilities.ToVolumeDescriptorTimeFromUTC(buffer.Slice(864), EffectiveDateAndTime);
+        IsoUtilities.ToVolumeDescriptorTimeFromUTC(buffer[813..], CreationDateAndTime);
+        IsoUtilities.ToVolumeDescriptorTimeFromUTC(buffer[830..], ModificationDateAndTime);
+        IsoUtilities.ToVolumeDescriptorTimeFromUTC(buffer[847..], ExpirationDateAndTime);
+        IsoUtilities.ToVolumeDescriptorTimeFromUTC(buffer[864..], EffectiveDateAndTime);
         buffer[881] = FileStructureVersion;
     }
 }

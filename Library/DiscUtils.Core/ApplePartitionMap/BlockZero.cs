@@ -40,12 +40,12 @@ internal struct BlockZero : IByteArraySerializable
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         Signature = EndianUtilities.ToUInt16BigEndian(buffer);
-        BlockSize = EndianUtilities.ToUInt16BigEndian(buffer.Slice(2));
-        BlockCount = EndianUtilities.ToUInt32BigEndian(buffer.Slice(4));
-        DeviceType = EndianUtilities.ToUInt16BigEndian(buffer.Slice(8));
-        DeviceId = EndianUtilities.ToUInt16BigEndian(buffer.Slice(10));
-        DriverData = EndianUtilities.ToUInt32BigEndian(buffer.Slice(12));
-        DriverCount = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(16));
+        BlockSize = EndianUtilities.ToUInt16BigEndian(buffer[2..]);
+        BlockCount = EndianUtilities.ToUInt32BigEndian(buffer[4..]);
+        DeviceType = EndianUtilities.ToUInt16BigEndian(buffer[8..]);
+        DeviceId = EndianUtilities.ToUInt16BigEndian(buffer[10..]);
+        DriverData = EndianUtilities.ToUInt32BigEndian(buffer[12..]);
+        DriverCount = EndianUtilities.ToUInt16LittleEndian(buffer[16..]);
 
         return 512;
     }

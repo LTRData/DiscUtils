@@ -41,17 +41,17 @@ internal class IndexHeader
 
     public IndexHeader(ReadOnlySpan<byte> data)
     {
-        OffsetToFirstEntry = EndianUtilities.ToUInt32LittleEndian(data.Slice(0x00));
-        TotalSizeOfEntries = EndianUtilities.ToUInt32LittleEndian(data.Slice(0x04));
-        AllocatedSizeOfEntries = EndianUtilities.ToUInt32LittleEndian(data.Slice(0x08));
+        OffsetToFirstEntry = EndianUtilities.ToUInt32LittleEndian(data[..]);
+        TotalSizeOfEntries = EndianUtilities.ToUInt32LittleEndian(data[0x04..]);
+        AllocatedSizeOfEntries = EndianUtilities.ToUInt32LittleEndian(data[0x08..]);
         HasChildNodes = data[0x0C];
     }
 
     internal void WriteTo(Span<byte> buffer)
     {
-        EndianUtilities.WriteBytesLittleEndian(OffsetToFirstEntry, buffer.Slice(0x00));
-        EndianUtilities.WriteBytesLittleEndian(TotalSizeOfEntries, buffer.Slice(0x04));
-        EndianUtilities.WriteBytesLittleEndian(AllocatedSizeOfEntries, buffer.Slice(0x08));
+        EndianUtilities.WriteBytesLittleEndian(OffsetToFirstEntry, buffer[..]);
+        EndianUtilities.WriteBytesLittleEndian(TotalSizeOfEntries, buffer[0x04..]);
+        EndianUtilities.WriteBytesLittleEndian(AllocatedSizeOfEntries, buffer[0x08..]);
         buffer[0x0C] = HasChildNodes;
         buffer[0x0D] = 0;
         buffer[0x0E] = 0;

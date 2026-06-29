@@ -34,6 +34,6 @@ public readonly struct BufferUInt8 : IValueProvider<byte>
     /// <param name="buffer">The buffer.</param>
     public BufferUInt8(Memory<byte> buffer)
     {
-        this.buffer = buffer.Slice(0, sizeof(byte));
+        this.buffer = buffer[..sizeof(byte)];
     }
 }

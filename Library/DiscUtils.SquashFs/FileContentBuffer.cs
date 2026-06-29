@@ -139,7 +139,7 @@ internal class FileContentBuffer : Streams.Buffer
         {
             if (currentPos >= startOfFragment)
             {
-                var read = ReadFrag((int)(currentPos - startOfFragment), buffer.Slice(totalRead, totalToRead - totalRead));
+                var read = ReadFrag((int)(currentPos - startOfFragment), buffer[totalRead..totalToRead]);
                 return totalRead + read;
             }
 
@@ -155,7 +155,7 @@ internal class FileContentBuffer : Streams.Buffer
             var block = _context.ReadBlock(currentBlockDiskStart, _blockLengths[currentBlock]);
 
             var toCopy = Math.Min(block.Available - blockOffset, totalToRead - totalRead);
-            block.Data.AsSpan(blockOffset, toCopy).CopyTo(buffer.Slice(totalRead));
+            block.Data.AsSpan(blockOffset, toCopy).CopyTo(buffer[totalRead..]);
             totalRead += toCopy;
             currentPos += toCopy;
         }

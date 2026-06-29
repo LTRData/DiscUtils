@@ -186,22 +186,22 @@ public class ExFatBootSector
     {
         _bytes = bytes;
         var buffer = new Memory<byte>(_bytes);
-        JmpBoot = new BufferBytes(buffer.Slice(0, 3));
+        JmpBoot = new BufferBytes(buffer[..3]);
         OemName = new BufferByteString(buffer.Slice(3, 8));
-        VolumeLengthSectors = new BufferUInt64(buffer.Slice(72));
-        FatOffsetSector = new BufferUInt32(buffer.Slice(80));
-        FatLengthSectors = new BufferUInt32(buffer.Slice(84));
-        ClusterOffsetSector = new BufferUInt32(buffer.Slice(88));
-        ClusterCount = new BufferUInt32(buffer.Slice(92));
-        RootDirectoryCluster = new BufferUInt32(buffer.Slice(96));
-        VolumeSerialNumber = new BufferUInt32(buffer.Slice(100));
-        FileSystemRevision = new BufferUInt16(buffer.Slice(104));
-        VolumeFlags = new BufferUInt16(buffer.Slice(106));
-        BytesPerSector = new CacheValueProvider<uint>(new ShiftValueProvider(new BufferUInt8(buffer.Slice(108))));
-        SectorsPerCluster = new ShiftValueProvider(new BufferUInt8(buffer.Slice(109)));
-        NumberOfFats = new BufferUInt8(buffer.Slice(110));
-        DriveSelect = new BufferUInt8(buffer.Slice(111));
-        PercentInUse = new BufferUInt8(buffer.Slice(112));
+        VolumeLengthSectors = new BufferUInt64(buffer[72..]);
+        FatOffsetSector = new BufferUInt32(buffer[80..]);
+        FatLengthSectors = new BufferUInt32(buffer[84..]);
+        ClusterOffsetSector = new BufferUInt32(buffer[88..]);
+        ClusterCount = new BufferUInt32(buffer[92..]);
+        RootDirectoryCluster = new BufferUInt32(buffer[96..]);
+        VolumeSerialNumber = new BufferUInt32(buffer[100..]);
+        FileSystemRevision = new BufferUInt16(buffer[104..]);
+        VolumeFlags = new BufferUInt16(buffer[106..]);
+        BytesPerSector = new CacheValueProvider<uint>(new ShiftValueProvider(new BufferUInt8(buffer[108..])));
+        SectorsPerCluster = new ShiftValueProvider(new BufferUInt8(buffer[109..]));
+        NumberOfFats = new BufferUInt8(buffer[110..]);
+        DriveSelect = new BufferUInt8(buffer[111..]);
+        PercentInUse = new BufferUInt8(buffer[112..]);
     }
 
     /// <summary>

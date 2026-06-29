@@ -122,7 +122,7 @@ public class SubBuffer : Buffer
             return new(0);
         }
 
-        return _parent.ReadAsync(pos + _first, buffer.Slice(0, (int)Math.Min(buffer.Length, Math.Min(_length - pos, int.MaxValue))), cancellationToken);
+        return _parent.ReadAsync(pos + _first, buffer[..(int)Math.Min(buffer.Length, Math.Min(_length - pos, int.MaxValue))], cancellationToken);
     }
 
     /// <summary>
@@ -138,7 +138,7 @@ public class SubBuffer : Buffer
             return 0;
         }
 
-        return _parent.Read(pos + _first, buffer.Slice(0, (int)Math.Min(buffer.Length, Math.Min(_length - pos, int.MaxValue))));
+        return _parent.Read(pos + _first, buffer[..(int)Math.Min(buffer.Length, Math.Min(_length - pos, int.MaxValue))]);
     }
 
     /// <summary>

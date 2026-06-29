@@ -201,14 +201,14 @@ internal class MetadataSegmentSection
             }
 
             // Extract the first value
-            var volumeNameSpan = data.Slice(0, firstCommaIndex);
+            var volumeNameSpan = data[..firstCommaIndex];
             data = data[(firstCommaIndex + 1)..];
 
             // Find the second comma separating the pair
             var secondCommaIndex = data.IndexOf(',');
             var extentNumberSpan = secondCommaIndex == -1
                 ? data // Last value
-                : data.Slice(0, secondCommaIndex);
+                : data[..secondCommaIndex];
 
             // Create and parse the MetadataStripe
             var metadataStripe = new MetadataStripe();

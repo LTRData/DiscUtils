@@ -79,7 +79,7 @@ internal sealed class MetadataTable : IByteArraySerializable
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
-        buffer.Slice(0, 32).CopyTo(_headerData);
+        buffer[..32].CopyTo(_headerData);
 
         Signature = EndianUtilities.ToUInt64LittleEndian(_headerData, 0);
         EntryCount = EndianUtilities.ToUInt16LittleEndian(_headerData, 10);
@@ -89,7 +89,7 @@ internal sealed class MetadataTable : IByteArraySerializable
         {
             for (var i = 0; i < EntryCount; ++i)
             {
-                var entry = EndianUtilities.ToStruct<MetadataEntry>(buffer.Slice(32 + i * 32));
+                var entry = EndianUtilities.ToStruct<MetadataEntry>(buffer[(32 + i * 32)..]);
                 Entries[MetadataEntryKey.FromEntry(entry)] = entry;
             }
         }
@@ -108,7 +108,7 @@ internal sealed class MetadataTable : IByteArraySerializable
         var bufferOffset = 32;
         foreach (var entry in Entries)
         {
-            entry.Value.WriteTo(buffer.Slice(bufferOffset));
+            entry.Value.WriteTo(buffer[bufferOffset..]);
             bufferOffset += 32;
         }
     }

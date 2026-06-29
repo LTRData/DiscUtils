@@ -48,7 +48,7 @@ internal struct ExtentBlock : IByteArraySerializable
             Extents = new Extent[Header.Entries];
             for (var i = 0; i < Extents.Length; ++i)
             {
-                Extents[i] = EndianUtilities.ToStruct<Extent>(buffer.Slice(12 + i * 12));
+                Extents[i] = EndianUtilities.ToStruct<Extent>(buffer[(12 + i * 12)..]);
             }
         }
         else
@@ -57,7 +57,7 @@ internal struct ExtentBlock : IByteArraySerializable
             Index = new ExtentIndex[Header.Entries];
             for (var i = 0; i < Index.Length; ++i)
             {
-                Index[i] = EndianUtilities.ToStruct<ExtentIndex>(buffer.Slice(12 + i * 12));
+                Index[i] = EndianUtilities.ToStruct<ExtentIndex>(buffer[(12 + i * 12)..]);
             }
         }
 

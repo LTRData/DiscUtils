@@ -115,14 +115,14 @@ internal class BTreeIndexNode<TKey> : BTreeKeyedNode<TKey>
 
         _records = new BTreeIndexRecord<TKey>[numRecords];
 
-        int start = EndianUtilities.ToUInt16BigEndian(buffer.Slice(nodeSize - 2));
+        int start = EndianUtilities.ToUInt16BigEndian(buffer[(nodeSize - 2)..]);
 
         for (var i = 0; i < numRecords; ++i)
         {
-            int end = EndianUtilities.ToUInt16BigEndian(buffer.Slice(nodeSize - (i + 2) * 2));
+            int end = EndianUtilities.ToUInt16BigEndian(buffer[(nodeSize - (i + 2) * 2)..]);
 
             _records[i] = new BTreeIndexRecord<TKey>(end - start);
-            _records[i].ReadFrom(buffer.Slice(start));
+            _records[i].ReadFrom(buffer[start..]);
 
             start = end;
         }

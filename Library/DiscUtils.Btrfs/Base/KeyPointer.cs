@@ -50,8 +50,8 @@ internal class KeyPointer : IByteArraySerializable
     {
         Key = new Key();
         var offset = Key.ReadFrom(buffer);
-        BlockNumber = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(offset));
-        Generation = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(offset + 0x8));
+        BlockNumber = EndianUtilities.ToUInt64LittleEndian(buffer[offset..]);
+        Generation = EndianUtilities.ToUInt64LittleEndian(buffer[(offset + 0x8)..]);
         return Size;
     }
 

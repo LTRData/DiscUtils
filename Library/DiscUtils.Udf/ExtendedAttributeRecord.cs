@@ -37,8 +37,8 @@ internal class ExtendedAttributeRecord : IByteArraySerializable
     {
         AttributeType = EndianUtilities.ToUInt32LittleEndian(buffer);
         AttributeSubType = buffer[4];
-        var dataLength = EndianUtilities.ToInt32LittleEndian(buffer.Slice(8));
-        AttributeData = buffer.Slice(12, dataLength - 12).ToArray();
+        var dataLength = EndianUtilities.ToInt32LittleEndian(buffer[8..]);
+        AttributeData = buffer[12..dataLength].ToArray();
 
         return dataLength;
     }

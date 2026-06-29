@@ -360,7 +360,7 @@ public sealed class BlockCacheStream : SparseStream
             {
                 var bytesToRead = Math.Min(buffer.Length - totalBytesRead, block.Available - offsetInNextBlock);
 
-                block.Data.AsSpan(offsetInNextBlock, bytesToRead).CopyTo(buffer.Slice(totalBytesRead));
+                block.Data.AsSpan(offsetInNextBlock, bytesToRead).CopyTo(buffer[totalBytesRead..]);
                 offsetInNextBlock = 0;
                 totalBytesRead += bytesToRead;
                 _position += bytesToRead;
@@ -410,7 +410,7 @@ public sealed class BlockCacheStream : SparseStream
 
                 // Propogate the data onto the caller
                 var bytesToCopy = Math.Min(buffer.Length - totalBytesRead, bytesRead - offsetInNextBlock);
-                _readBuffer.AsSpan(offsetInNextBlock, bytesToCopy).CopyTo(buffer.Slice(totalBytesRead));
+                _readBuffer.AsSpan(offsetInNextBlock, bytesToCopy).CopyTo(buffer[totalBytesRead..]);
                 totalBytesRead += bytesToCopy;
                 _position += bytesToCopy;
                 offsetInNextBlock = 0;
@@ -488,7 +488,7 @@ public sealed class BlockCacheStream : SparseStream
             {
                 var bytesToRead = Math.Min(buffer.Length - totalBytesRead, block.Available - offsetInNextBlock);
 
-                block.Data.AsMemory(offsetInNextBlock, bytesToRead).CopyTo(buffer.Slice(totalBytesRead));
+                block.Data.AsMemory(offsetInNextBlock, bytesToRead).CopyTo(buffer[totalBytesRead..]);
                 offsetInNextBlock = 0;
                 totalBytesRead += bytesToRead;
                 _position += bytesToRead;
@@ -538,7 +538,7 @@ public sealed class BlockCacheStream : SparseStream
 
                 // Propogate the data onto the caller
                 var bytesToCopy = Math.Min(buffer.Length - totalBytesRead, bytesRead - offsetInNextBlock);
-                _readBuffer.AsMemory(offsetInNextBlock, bytesToCopy).CopyTo(buffer.Slice(totalBytesRead));
+                _readBuffer.AsMemory(offsetInNextBlock, bytesToCopy).CopyTo(buffer[totalBytesRead..]);
                 totalBytesRead += bytesToCopy;
                 _position += bytesToCopy;
                 offsetInNextBlock = 0;

@@ -143,7 +143,7 @@ internal class ChapAuthenticator : Authenticator
                     "0x".AsSpan().CopyTo(span);
                     for (var i = 0; i < hash.Length; ++i)
                     {
-                        span = span.Slice(2);
+                        span = span[2..];
                         hash[i].TryFormat(span, out _, "x2");
                     }
                 });

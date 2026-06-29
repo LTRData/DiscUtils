@@ -51,7 +51,7 @@ internal sealed class BTreeIndexRecord<TKey> : BTreeNodeRecord
             ++keySize;
         }
 
-        ChildId = EndianUtilities.ToUInt32BigEndian(buffer.Slice(keySize));
+        ChildId = EndianUtilities.ToUInt32BigEndian(buffer[keySize..]);
 
         return _size;
     }

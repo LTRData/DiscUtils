@@ -93,7 +93,7 @@ internal sealed class SecurityDescriptors : IDiagnosticTraceable
                 var pos = (int)entry.Value.SdsOffset;
 
                 var rec = new SecurityDescriptorRecord();
-                if (!rec.Read(buffer.Slice(pos)))
+                if (!rec.Read(buffer[pos..]))
                 {
                     break;
                 }
@@ -319,14 +319,14 @@ internal sealed class SecurityDescriptors : IDiagnosticTraceable
         public int ReadFrom(ReadOnlySpan<byte> buffer)
         {
             Hash = EndianUtilities.ToUInt32LittleEndian(buffer);
-            Id = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(4));
+            Id = EndianUtilities.ToUInt32LittleEndian(buffer[4..]);
             return 8;
         }
 
         public void WriteTo(Span<byte> buffer)
         {
             EndianUtilities.WriteBytesLittleEndian(Hash, buffer);
-            EndianUtilities.WriteBytesLittleEndian(Id, buffer.Slice(4));
+            EndianUtilities.WriteBytesLittleEndian(Id, buffer[4..]);
         }
 
         public override string ToString() =>
@@ -340,18 +340,18 @@ internal sealed class SecurityDescriptors : IDiagnosticTraceable
         public int ReadFrom(ReadOnlySpan<byte> buffer)
         {
             Hash = EndianUtilities.ToUInt32LittleEndian(buffer);
-            Id = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x04));
-            SdsOffset = EndianUtilities.ToInt64LittleEndian(buffer.Slice(0x08));
-            SdsLength = EndianUtilities.ToInt32LittleEndian(buffer.Slice(0x10));
+            Id = EndianUtilities.ToUInt32LittleEndian(buffer[0x04..]);
+            SdsOffset = EndianUtilities.ToInt64LittleEndian(buffer[0x08..]);
+            SdsLength = EndianUtilities.ToInt32LittleEndian(buffer[0x10..]);
             return 0x14;
         }
 
         public void WriteTo(Span<byte> buffer)
         {
             EndianUtilities.WriteBytesLittleEndian(Hash, buffer);
-            EndianUtilities.WriteBytesLittleEndian(Id, buffer.Slice(0x04));
-            EndianUtilities.WriteBytesLittleEndian(SdsOffset, buffer.Slice(0x08));
-            EndianUtilities.WriteBytesLittleEndian(SdsLength, buffer.Slice(0x10));
+            EndianUtilities.WriteBytesLittleEndian(Id, buffer[0x04..]);
+            EndianUtilities.WriteBytesLittleEndian(SdsOffset, buffer[0x08..]);
+            EndianUtilities.WriteBytesLittleEndian(SdsLength, buffer[0x10..]);
             ////Array.Copy(new byte[] { (byte)'I', 0, (byte)'I', 0 }, 0, buffer.Slice(0x14, 4));
         }
     }
@@ -388,18 +388,18 @@ internal sealed class SecurityDescriptors : IDiagnosticTraceable
         public int ReadFrom(ReadOnlySpan<byte> buffer)
         {
             Hash = EndianUtilities.ToUInt32LittleEndian(buffer);
-            Id = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x04));
-            SdsOffset = EndianUtilities.ToInt64LittleEndian(buffer.Slice(0x08));
-            SdsLength = EndianUtilities.ToInt32LittleEndian(buffer.Slice(0x10));
+            Id = EndianUtilities.ToUInt32LittleEndian(buffer[0x04..]);
+            SdsOffset = EndianUtilities.ToInt64LittleEndian(buffer[0x08..]);
+            SdsLength = EndianUtilities.ToInt32LittleEndian(buffer[0x10..]);
             return 0x14;
         }
 
         public void WriteTo(Span<byte> buffer)
         {
             EndianUtilities.WriteBytesLittleEndian(Hash, buffer);
-            EndianUtilities.WriteBytesLittleEndian(Id, buffer.Slice(0x04));
-            EndianUtilities.WriteBytesLittleEndian(SdsOffset, buffer.Slice(0x08));
-            EndianUtilities.WriteBytesLittleEndian(SdsLength, buffer.Slice(0x10));
+            EndianUtilities.WriteBytesLittleEndian(Id, buffer[0x04..]);
+            EndianUtilities.WriteBytesLittleEndian(SdsOffset, buffer[0x08..]);
+            EndianUtilities.WriteBytesLittleEndian(SdsLength, buffer[0x10..]);
         }
     }
 

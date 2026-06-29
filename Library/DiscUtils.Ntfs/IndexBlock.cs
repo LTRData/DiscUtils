@@ -108,16 +108,16 @@ internal class IndexBlock : FixupRecordBase
     protected override void Read(ReadOnlySpan<byte> buffer)
     {
         // Skip FixupRecord fields...
-        _logSequenceNumber = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x08));
-        _indexBlockVcn = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x10));
-        Node = new IndexNode(WriteToDisk, UpdateSequenceSize, _index, _isRoot, buffer.Slice(FieldSize));
+        _logSequenceNumber = EndianUtilities.ToUInt64LittleEndian(buffer[0x08..]);
+        _indexBlockVcn = EndianUtilities.ToUInt64LittleEndian(buffer[0x10..]);
+        Node = new IndexNode(WriteToDisk, UpdateSequenceSize, _index, _isRoot, buffer[FieldSize..]);
     }
 
     protected override ushort Write(Span<byte> buffer)
     {
-        EndianUtilities.WriteBytesLittleEndian(_logSequenceNumber, buffer.Slice(0x08));
-        EndianUtilities.WriteBytesLittleEndian(_indexBlockVcn, buffer.Slice(0x10));
-        return (ushort)(FieldSize + Node.WriteTo(buffer.Slice(FieldSize)));
+        EndianUtilities.WriteBytesLittleEndian(_logSequenceNumber, buffer[0x08..]);
+        EndianUtilities.WriteBytesLittleEndian(_indexBlockVcn, buffer[0x10..]);
+        return (ushort)(FieldSize + Node.WriteTo(buffer[FieldSize..]));
     }
 
     protected override int CalcSize()
