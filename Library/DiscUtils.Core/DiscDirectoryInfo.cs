@@ -45,7 +45,7 @@ public class DiscDirectoryInfo : DiscFileSystemInfo
     /// <summary>
     /// Gets a value indicating whether the directory exists.
     /// </summary>
-    public override bool Exists => FileSystem.DirectoryExists(Path);
+    public override bool Exists => FileSystem.DirectoryExists(FullPath);
 
     /// <summary>
     /// Gets the full path of the directory.
@@ -57,7 +57,7 @@ public class DiscDirectoryInfo : DiscFileSystemInfo
     /// </summary>
     public virtual void Create()
     {
-        FileSystem.CreateDirectory(Path);
+        FileSystem.CreateDirectory(FullPath);
     }
 
     /// <summary>
@@ -65,7 +65,7 @@ public class DiscDirectoryInfo : DiscFileSystemInfo
     /// </summary>
     public override void Delete()
     {
-        FileSystem.DeleteDirectory(Path, false);
+        FileSystem.DeleteDirectory(FullPath, false);
     }
 
     /// <summary>
@@ -74,7 +74,7 @@ public class DiscDirectoryInfo : DiscFileSystemInfo
     /// <param name="recursive"><c>true</c> to delete all child node, <c>false</c> to fail if the directory is not empty.</param>
     public void Delete(bool recursive)
     {
-        FileSystem.DeleteDirectory(Path, recursive);
+        FileSystem.DeleteDirectory(FullPath, recursive);
     }
 
     /// <summary>
@@ -83,7 +83,7 @@ public class DiscDirectoryInfo : DiscFileSystemInfo
     /// <param name="destinationDirName">The destination directory name.</param>
     public void MoveTo(string destinationDirName)
     {
-        FileSystem.MoveDirectory(Path, destinationDirName);
+        FileSystem.MoveDirectory(FullPath, destinationDirName);
     }
 
     /// <summary>
@@ -92,7 +92,7 @@ public class DiscDirectoryInfo : DiscFileSystemInfo
     /// <returns>An array of child directories.</returns>
     public IEnumerable<DiscDirectoryInfo> GetDirectories()
     {
-        return FileSystem.GetDirectories(Path)
+        return FileSystem.GetDirectories(FullPath)
             .Select(p => new DiscDirectoryInfo(FileSystem, p));
     }
 
@@ -119,8 +119,19 @@ public class DiscDirectoryInfo : DiscFileSystemInfo
     /// children, or all children are returned.</remarks>
     public IEnumerable<DiscDirectoryInfo> GetDirectories(string pattern, SearchOption searchOption)
     {
-        return FileSystem.GetDirectories(Path, pattern, searchOption)
+        return FileSystem.GetDirectories(FullPath, pattern, searchOption)
             .Select(p => new DiscDirectoryInfo(FileSystem, p));
+    }
+
+    /// <summary>
+    /// Gets an object representing a possible subdirectory.
+    /// </summary>
+    /// <param name="name">The subdirectory name.</param>
+    /// <returns>The representing object.</returns>
+    /// <remarks>The subdirectory does not need to exist.</remarks>
+    public DiscDirectoryInfo GetDirectory(string name)
+    {
+        return FileSystem.GetDirectoryInfo(Path.Combine(FullPath, name));
     }
 
     /// <summary>
@@ -129,7 +140,7 @@ public class DiscDirectoryInfo : DiscFileSystemInfo
     /// <returns>An array of files.</returns>
     public IEnumerable<DiscFileInfo> GetFiles()
     {
-        return FileSystem.GetFiles(Path).Select(p => new DiscFileInfo(FileSystem, p));
+        return FileSystem.GetFiles(FullPath).Select(p => new DiscFileInfo(FileSystem, p));
     }
 
     /// <summary>
@@ -155,8 +166,19 @@ public class DiscDirectoryInfo : DiscFileSystemInfo
     /// children, or all children are returned.</remarks>
     public IEnumerable<DiscFileInfo> GetFiles(string pattern, SearchOption searchOption)
     {
-        return FileSystem.GetFiles(Path, pattern, searchOption)
+        return FileSystem.GetFiles(FullPath, pattern, searchOption)
             .Select(p => new DiscFileInfo(FileSystem, p));
+    }
+
+    /// <summary>
+    /// Gets an object representing a possible file.
+    /// </summary>
+    /// <param name="name">The file name.</param>
+    /// <returns>The representing object.</returns>
+    /// <remarks>The file does not need to exist.</remarks>
+    public DiscFileInfo GetFile(string name)
+    {
+        return FileSystem.GetFileInfo(Path.Combine(FullPath, name));
     }
 
     /// <summary>
@@ -165,7 +187,7 @@ public class DiscDirectoryInfo : DiscFileSystemInfo
     /// <returns>An array of files and directories.</returns>
     public IEnumerable<DiscFileSystemInfo> GetFileSystemInfos()
     {
-        return FileSystem.GetFileSystemEntries(Path)
+        return FileSystem.GetFileSystemEntries(FullPath)
             .Select(p => new DiscFileSystemInfo(FileSystem, p));
     }
 
@@ -178,7 +200,18 @@ public class DiscDirectoryInfo : DiscFileSystemInfo
     /// and ? (matching 1 character).</remarks>
     public IEnumerable<DiscFileSystemInfo> GetFileSystemInfos(string pattern)
     {
-        return FileSystem.GetFileSystemEntries(Path, pattern)
+        return FileSystem.GetFileSystemEntries(FullPath, pattern)
             .Select(p => new DiscFileSystemInfo(FileSystem, p));
+    }
+
+    /// <summary>
+    /// Gets an object representing a possible file system object (file or directory).
+    /// </summary>
+    /// <param name="name">The file or subdirectory name.</param>
+    /// <returns>The representing object.</returns>
+    /// <remarks>The file system object does not need to exist.</remarks>
+    public DiscFileSystemInfo GetFileSystemInfo(string name)
+    {
+        return FileSystem.GetFileSystemInfo(Path.Combine(FullPath, name));
     }
 }
