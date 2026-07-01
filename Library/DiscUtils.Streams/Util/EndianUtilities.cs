@@ -618,7 +618,7 @@ public static class EndianUtilities
         }
 
 #if NET8_0_OR_GREATER
-        var count = chars.Count('\0');
+        var count = chars.Count('\0') + 1;
 #else
         var count = 1;
 

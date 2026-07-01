@@ -656,11 +656,7 @@ public abstract class SparseStream : CompatibilityStream
 
         public override long Length => content.Length;
 
-        public override long Position
-        {
-            get { lock (sync) { return content.Position; } }
-            set { lock (sync) { content.Position = value; } }
-        }
+        public override long Position { get; set; }
 
         public override void Flush()
         {
@@ -683,7 +679,9 @@ public abstract class SparseStream : CompatibilityStream
             lock (sync)
             {
                 content.Position = Position;
-                return content.Read(buffer);
+                var r = content.Read(buffer);
+                Position += r;
+                return r;
             }
         }
 
@@ -692,26 +690,44 @@ public abstract class SparseStream : CompatibilityStream
             lock (sync)
             {
                 content.Position = Position;
-                return content.Read(buffer, offset, count);
+                var r = content.Read(buffer, offset, count);
+                Position += r;
+                return r;
             }
         }
 
-        public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
+            Task<int> t;
+
             lock (sync)
             {
                 content.Position = Position;
-                return content.ReadAsync(buffer, offset, count, cancellationToken);
+                t = content.ReadAsync(buffer, offset, count, cancellationToken);
             }
+
+            var r = await t.ConfigureAwait(false);
+
+            Position += r;
+
+            return r;
         }
 
-        public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
+        public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
         {
+            ValueTask<int> t;
+
             lock (sync)
             {
                 content.Position = Position;
-                return content.ReadAsync(buffer, cancellationToken);
+                t = content.ReadAsync(buffer, cancellationToken);
             }
+
+            var r = await t.ConfigureAwait(false);
+
+            Position += r;
+
+            return r;
         }
 
         public override int ReadByte()
@@ -719,7 +735,9 @@ public abstract class SparseStream : CompatibilityStream
             lock (sync)
             {
                 content.Position = Position;
-                return content.ReadByte();
+                var c = content.ReadByte();
+                Position += c == -1 ? 0 : 1;
+                return c;
             }
         }
 
@@ -736,7 +754,9 @@ public abstract class SparseStream : CompatibilityStream
         {
             lock (sync)
             {
-                return content.EndRead(asyncResult);
+                var r = content.EndRead(asyncResult);
+                Position += r;
+                return r;
             }
         }
 
@@ -779,6 +799,7 @@ public abstract class SparseStream : CompatibilityStream
             {
                 content.Position = Position;
                 content.Write(buffer);
+                Position += buffer.Length;
             }
         }
 
@@ -788,6 +809,7 @@ public abstract class SparseStream : CompatibilityStream
             {
                 content.Position = Position;
                 content.Write(buffer, offset, count);
+                Position += count;
             }
         }
 
@@ -796,7 +818,9 @@ public abstract class SparseStream : CompatibilityStream
             lock (sync)
             {
                 content.Position = Position;
-                return content.WriteAsync(buffer, offset, count, cancellationToken);
+                var t = content.WriteAsync(buffer, offset, count, cancellationToken);
+                Position += count;
+                return t;
             }
         }
 
@@ -805,7 +829,9 @@ public abstract class SparseStream : CompatibilityStream
             lock (sync)
             {
                 content.Position = Position;
-                return content.WriteAsync(buffer, cancellationToken);
+                var t = content.WriteAsync(buffer, cancellationToken);
+                Position += buffer.Length;
+                return t;
             }
         }
 
@@ -815,6 +841,7 @@ public abstract class SparseStream : CompatibilityStream
             {
                 content.Position = Position;
                 content.WriteByte(value);
+                Position++;
             }
         }
 
@@ -823,7 +850,9 @@ public abstract class SparseStream : CompatibilityStream
             lock (sync)
             {
                 content.Position = Position;
-                return content.BeginWrite(buffer, offset, count, callback, state);
+                var r = content.BeginWrite(buffer, offset, count, callback, state);
+                Position += count;
+                return r;
             }
         }
 
@@ -842,16 +871,23 @@ public abstract class SparseStream : CompatibilityStream
             {
                 content.Position = Position;
                 content.CopyTo(destination, bufferSize);
+                Position = content.Position;
             }
         }
 
-        public override Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken)
+        public override async Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken)
         {
+            Task t;
+
             lock (sync)
             {
                 content.Position = Position;
-                return content.CopyToAsync(destination, bufferSize, cancellationToken);
+                t = content.CopyToAsync(destination, bufferSize, cancellationToken);
             }
+
+            await t.ConfigureAwait(false);
+            
+            Position = content.Position;
         }
 #endif
 
@@ -865,6 +901,7 @@ public abstract class SparseStream : CompatibilityStream
             {
                 content.Position = Position;
                 content.Clear(count);
+                Position += count;
             }
         }
 
@@ -873,7 +910,9 @@ public abstract class SparseStream : CompatibilityStream
             lock (sync)
             {
                 content.Position = Position;
-                return content.ClearAsync(count, cancellationToken);
+                var t = content.ClearAsync(count, cancellationToken);
+                Position += count;
+                return t;
             }
         }
 
