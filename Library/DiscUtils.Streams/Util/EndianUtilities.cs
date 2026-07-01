@@ -605,8 +605,7 @@ public static class EndianUtilities
     {
         var chars = MemoryMarshal.Cast<byte, char>(bytes);
 
-        if (chars.Length == 0
-            || chars[0] == '\0')
+        if (chars.Length <= 2)
         {
             return [];
         }
@@ -618,6 +617,9 @@ public static class EndianUtilities
             chars = chars[..endpos];
         }
 
+#if NET8_0_OR_GREATER
+        var count = chars.Count('\0');
+#else
         var count = 1;
 
         foreach (var c in chars)
@@ -627,6 +629,7 @@ public static class EndianUtilities
                 count++;
             }
         }
+#endif
 
         var array = new string[count];
 
@@ -658,14 +661,7 @@ public static class EndianUtilities
     }
 
     public static string LittleEndianUnicodeBytesToString(byte[] bytes, int offset, int count)
-    {
-        if (!BitConverter.IsLittleEndian)
-        {
-            return Encoding.Unicode.GetString(bytes, offset, count);
-        }
-
-        return LittleEndianUnicodeBytesToString(bytes.AsSpan(offset, count));
-    }
+        => LittleEndianUnicodeBytesToString(bytes.AsSpan(offset, count));
 
     public static ReadOnlySpan<byte> StringToLittleEndianUnicodeBytes(ReadOnlySpan<char> chars)
     {
@@ -755,5 +751,5 @@ public static class EndianUtilities
 #endif
     }
 
-    #endregion
+#endregion
 }
