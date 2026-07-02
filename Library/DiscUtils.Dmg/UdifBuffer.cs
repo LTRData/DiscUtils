@@ -422,12 +422,21 @@ internal class UdifBuffer : Buffer
                 break;
 
             case RunType.LzfseCompressed:
+#if NET5_0_OR_GREATER
+                using (var cs = new SubStream(_stream, run.CompOffset, run.CompLength))
+                using (var ds = new MemoryStream(toCopy))
+                {
+                    LzfseSharp.LzfseDecoder.Decompress(cs, ds);
+                    ds.ReadExactly(_decompBuffer, 0, toCopy);
+                }
+#else
                 _stream.Position = run.CompOffset;
                 var lzfseCompressed = _stream.ReadExactly((int)run.CompLength);
                 if (Lzfse.LzfseCompressor.Decompress(lzfseCompressed, _decompBuffer) != toCopy)
                 {
                     throw new InvalidDataException("Run too short when decompressed");
                 }
+#endif
 
                 break;
 
@@ -479,12 +488,21 @@ internal class UdifBuffer : Buffer
                 break;
 
             case RunType.LzfseCompressed:
+#if NET5_0_OR_GREATER
+                using (var cs = new SubStream(_stream, run.CompOffset, run.CompLength))
+                using (var ds = new MemoryStream(toCopy))
+                {
+                    await LzfseSharp.LzfseDecoder.DecompressAsync(cs, ds, cancellationToken).ConfigureAwait(false);
+                    ds.ReadExactly(_decompBuffer, 0, toCopy);
+                }
+#else
                 _stream.Position = run.CompOffset;
                 var lzfseCompressed = await _stream.ReadExactlyAsync((int)run.CompLength, cancellationToken).ConfigureAwait(false);
                 if (Lzfse.LzfseCompressor.Decompress(lzfseCompressed, _decompBuffer) != toCopy)
                 {
                     throw new InvalidDataException("Run too short when decompressed");
                 }
+#endif
 
                 break;
 

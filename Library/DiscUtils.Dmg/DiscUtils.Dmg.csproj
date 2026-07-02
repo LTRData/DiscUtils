@@ -8,7 +8,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DiscUtils.Core\DiscUtils.Core.csproj" />
-    <PackageReference Include="lzfse-net" Version="1.0.15" />
+
+	<PackageReference Include="lzfse-net" Version="*" Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net5.0'))" />
+	<PackageReference Include="LzfseSharp" Version="*" Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net5.0'))" />
   </ItemGroup>
 
 </Project>
