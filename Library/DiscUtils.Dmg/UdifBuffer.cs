@@ -427,6 +427,7 @@ internal class UdifBuffer : Buffer
                 using (var ds = new MemoryStream(toCopy))
                 {
                     LzfseSharp.LzfseDecoder.Decompress(cs, ds);
+                    ds.Position = 0;
                     ds.ReadExactly(_decompBuffer, 0, toCopy);
                 }
 #else
@@ -493,6 +494,7 @@ internal class UdifBuffer : Buffer
                 using (var ds = new MemoryStream(toCopy))
                 {
                     await LzfseSharp.LzfseDecoder.DecompressAsync(cs, ds, cancellationToken).ConfigureAwait(false);
+                    ds.Position = 0;
                     ds.ReadExactly(_decompBuffer, 0, toCopy);
                 }
 #else

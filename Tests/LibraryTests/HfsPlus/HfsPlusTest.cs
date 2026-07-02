@@ -39,13 +39,12 @@ public class HfsPlusTest
         SetupHelper.RegisterAssembly(typeof(HfsPlusFileSystem).Assembly);
     }
 
-#if NETCOREAPP
     private const string SystemVersionPath = @"System\Library\CoreServices\SystemVersion.plist";
 
-    [MacOSOnlyFact]
+    [AppleDeveloperDiskImageFact]
     public void ReadFilesystemTest()
     {
-        var path = MacOSOnlyFactAttribute.DeveloperImage!;
+        var path = AppleDeveloperDiskImageFactAttribute.DeveloperImage!;
 
         using Stream developerDiskImageStream = File.OpenRead(path);
         using var disk = new Disk(developerDiskImageStream, Ownership.None);
@@ -71,5 +70,4 @@ public class HfsPlusTest
             Plist.Parse(copyStream);
         }
     }
-#endif
 }
