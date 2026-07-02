@@ -35,7 +35,7 @@ class Program : ProgramBase
     private CommandLineSwitch _typeSwitch;
     private CommandLineSwitch _blockSizeSwitch;
 
-    static void Main(string[] args)
+    static void Main(params string[] args)
     {
         var program = new Program();
         program.Run(args);

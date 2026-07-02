@@ -35,7 +35,7 @@ class Program : ProgramBase
     CommandLineParameter _folder;
     CommandLineSwitch _recursive;
 
-    static void Main(string[] args)
+    static void Main(params string[] args)
     {
         SetupHelper.RegisterAssembly(typeof(HfsPlusFileSystem).Assembly);
 

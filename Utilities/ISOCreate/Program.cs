@@ -34,7 +34,7 @@ class Program : ProgramBase
     private CommandLineParameter _bootImage;
     private CommandLineSwitch _volLabelSwitch;
 
-    static void Main(string[] args)
+    static void Main(params string[] args)
     {
         var program = new Program();
         program.Run(args);

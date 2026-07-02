@@ -52,7 +52,7 @@ class Program : ProgramBase
     private CommandLineMultiParameter _volumes;
     private CommandLineParameter _destDisk;
 
-    static void Main(string[] args)
+    static void Main(params string[] args)
     {
         DiscUtils.Containers.SetupHelper.SetupContainers();
         var program = new Program();
