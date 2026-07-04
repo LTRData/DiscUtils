@@ -108,7 +108,17 @@ public sealed class GuidPartitionTable : PartitionTable
     {
         // Create the protective MBR partition record.
         var pt = BiosPartitionTable.Initialize(disk, diskGeometry);
-        pt.CreatePrimaryByCylinder(0, diskGeometry.Cylinders - 1, BiosPartitionTypes.GptProtective, false);
+
+        // The UEFI spec ("Protective MBR") requires the 0xEE record to have
+        // StartingLBA exactly 1 (the LBA of the GPT header) and SizeInLBA equal
+        // to the size of the disk minus one, capped at 0xFFFFFFFF. A cylinder
+        // aligned record starts at LBA 63 instead, which the Linux kernel
+        // (block/partitions/efi.c pmbr_part_valid, requires starting_lba == 1)
+        // and EDK2 firmware (MdeModulePkg PartitionDxe, UNPACK_UINT32(StartingLBA) == 1)
+        // reject, causing the whole GPT to be ignored. Use a sector-based record
+        // starting at LBA 1 covering the rest of the disk instead.
+        var sectorCount = disk.Length / diskGeometry.BytesPerSector;
+        pt.CreatePrimaryBySector(1, Math.Min(sectorCount - 1, uint.MaxValue), BiosPartitionTypes.GptProtective, false);
 
         // Create the GPT headers, and blank-out the entry areas
         const int EntryCount = 128;
