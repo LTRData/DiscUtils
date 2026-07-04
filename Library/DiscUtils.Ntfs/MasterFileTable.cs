@@ -111,7 +111,7 @@ internal class MasterFileTable : IDiagnosticTraceable, IDisposable
     private readonly ObjectCache<long, FileRecord> _recordCache;
     private readonly NtfsOptions _options;
 
-    private Stream _recordStream;
+    private SparseStream _recordStream;
 
     private File _self;
 
@@ -643,7 +643,7 @@ internal class MasterFileTable : IDiagnosticTraceable, IDisposable
         return clusterBitmap;
     }
 
-    private static void Wipe(Stream s)
+    private static void Wipe(SparseStream s)
     {
         s.Position = 0;
 
