@@ -73,7 +73,8 @@ internal class File : IVfsFileWithStreams
 
     public FileAttributes FileAttributes
     {
-        get => Utilities.FileAttributesFromUnixFileType(_catalogInfo.FileSystemInfo.FileType);
+        get => Utilities.FileAttributesFromUnixFileType(_catalogInfo.FileSystemInfo.FileType)
+            | (_catalogInfo is CatalogDirInfo ? FileAttributes.Directory : 0);
 
         set => throw new NotSupportedException();
     }
@@ -84,7 +85,7 @@ internal class File : IVfsFileWithStreams
         {
             if (_catalogInfo is not CatalogFileInfo fileInfo)
             {
-                throw new InvalidOperationException();
+                throw new IOException("Attempt to get length of a directory");
             }
 
             return (long)fileInfo.DataFork.LogicalSize;

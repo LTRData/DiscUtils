@@ -40,7 +40,8 @@ internal sealed class DirEntry : VfsDirEntry
 
     public override DateTime CreationTimeUtc => CatalogFileInfo.CreateTime;
 
-    public override FileAttributes FileAttributes => Utilities.FileAttributesFromUnixFileType(CatalogFileInfo.FileSystemInfo.FileType);
+    public override FileAttributes FileAttributes => Utilities.FileAttributesFromUnixFileType(CatalogFileInfo.FileSystemInfo.FileType)
+        | (CatalogFileInfo is CatalogDirInfo ? FileAttributes.Directory : 0);
 
     public override string FileName { get; }
 

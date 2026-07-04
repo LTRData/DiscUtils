@@ -662,9 +662,15 @@ public abstract class VfsFileSystem<TDirEntry, TFile, TDirectory, TContext> : Di
     public override long GetFileLength(string path)
     {
         var file = GetFile(path);
-        if (file == null || (file.FileAttributes & FileAttributes.Directory) != 0)
+        
+        if (file is null)
         {
             throw new FileNotFoundException("No such file", path);
+        }
+
+        if ((file.FileAttributes & FileAttributes.Directory) != 0)
+        {
+            throw new IOException("Attempt to get length of a directory");
         }
 
         return file.FileLength;

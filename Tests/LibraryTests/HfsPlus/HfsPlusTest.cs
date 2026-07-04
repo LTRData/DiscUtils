@@ -25,6 +25,7 @@ using DiscUtils.Dmg;
 using DiscUtils.HfsPlus;
 using DiscUtils.Setup;
 using DiscUtils.Streams;
+using System;
 using System.IO;
 
 #pragma warning disable IDE0079 // Remove unnecessary suppression
@@ -68,6 +69,22 @@ public class HfsPlusTest
 
             copyStream.Seek(0, SeekOrigin.Begin);
             Plist.Parse(copyStream);
+
+            foreach (var name in hfs.GetFileSystemEntries(""))
+            {
+                var entry = hfs.GetFileSystemInfo(name);
+
+                Assert.NotNull(entry);
+
+                if (entry.IsDirectory)
+                {
+                    Assert.Throws<IOException>(() => hfs.GetFileLength(entry.FullName));
+                }
+                else
+                {
+                    _ = hfs.GetFileLength(entry.FullName);
+                }
+            }
         }
     }
 }

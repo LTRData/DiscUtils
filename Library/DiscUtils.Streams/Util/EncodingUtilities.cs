@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace DiscUtils.Streams;
 
@@ -10,9 +11,11 @@ public static class EncodingUtilities
     /// </summary>
     /// <returns>Encoding</returns>
 #if NET6_0_OR_GREATER
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Encoding GetLatin1Encoding()
         => Encoding.Latin1;
 #else
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Encoding GetLatin1Encoding()
         => latin1 ??= Encoding.GetEncoding("Latin1");
 
