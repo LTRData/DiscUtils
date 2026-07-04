@@ -24,7 +24,9 @@ using LTRData.Extensions.Buffers;
 using LTRData.Extensions.Split;
 using System;
 using System.Buffers;
+using System.Buffers.Binary;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
@@ -36,106 +38,55 @@ public static class EndianUtilities
 {
     #region Bit Twiddling
 
-    private static readonly bool _isLittleEndian = BitConverter.IsLittleEndian;
-
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteBytesLittleEndian(ushort val, byte[] buffer, int offset)
-        => WriteBytesLittleEndian(val, buffer.AsSpan(offset, sizeof(ushort)));
+        => BinaryPrimitives.WriteUInt16LittleEndian(buffer.AsSpan(offset), val);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteBytesLittleEndian(ushort val, Span<byte> buffer)
-    {
-        if (_isLittleEndian)
-        {
-#if NET8_0_OR_GREATER
-            MemoryMarshal.Write(buffer, val);
-#else
-            MemoryMarshal.Write(buffer, ref val);
-#endif
-        }
-        else
-        {
-            buffer[0] = (byte)(val & 0xFF);
-            buffer[1] = (byte)((val >> 8) & 0xFF);
-        }
-    }
+        => BinaryPrimitives.WriteUInt16LittleEndian(buffer, val);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteBytesLittleEndian(uint val, byte[] buffer, int offset)
-        => WriteBytesLittleEndian(val, buffer.AsSpan(offset, sizeof(uint)));
+        => BinaryPrimitives.WriteUInt32LittleEndian(buffer.AsSpan(offset), val);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteBytesLittleEndian(uint val, Span<byte> buffer)
-    {
-        if (_isLittleEndian)
-        {
-#if NET8_0_OR_GREATER
-            MemoryMarshal.Write(buffer, val);
-#else
-            MemoryMarshal.Write(buffer, ref val);
-#endif
-        }
-        else
-        {
-            buffer[0] = (byte)(val & 0xFF);
-            buffer[1] = (byte)((val >> 8) & 0xFF);
-            buffer[2] = (byte)((val >> 16) & 0xFF);
-            buffer[3] = (byte)((val >> 24) & 0xFF);
-        }
-    }
+        => BinaryPrimitives.WriteUInt32LittleEndian(buffer, val);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteBytesLittleEndian(ulong val, byte[] buffer, int offset)
-        => WriteBytesLittleEndian(val, buffer.AsSpan(offset, sizeof(ulong)));
+        => BinaryPrimitives.WriteUInt64LittleEndian(buffer.AsSpan(offset), val);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteBytesLittleEndian(ulong val, Span<byte> buffer)
-    {
-        if (_isLittleEndian)
-        {
-#if NET8_0_OR_GREATER
-            MemoryMarshal.Write(buffer, val);
-#else
-            MemoryMarshal.Write(buffer, ref val);
-#endif
-        }
-        else
-        {
-            buffer[0] = (byte)(val & 0xFF);
-            buffer[1] = (byte)((val >> 8) & 0xFF);
-            buffer[2] = (byte)((val >> 16) & 0xFF);
-            buffer[3] = (byte)((val >> 24) & 0xFF);
-            buffer[4] = (byte)((val >> 32) & 0xFF);
-            buffer[5] = (byte)((val >> 40) & 0xFF);
-            buffer[6] = (byte)((val >> 48) & 0xFF);
-            buffer[7] = (byte)((val >> 56) & 0xFF);
-        }
-    }
+        => BinaryPrimitives.WriteUInt64LittleEndian(buffer, val);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteBytesLittleEndian(short val, Span<byte> buffer)
-    {
-        WriteBytesLittleEndian((ushort)val, buffer);
-    }
+        => BinaryPrimitives.WriteInt16LittleEndian(buffer, val);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteBytesLittleEndian(short val, byte[] buffer, int offset)
-    {
-        WriteBytesLittleEndian((ushort)val, buffer, offset);
-    }
+        => BinaryPrimitives.WriteInt16LittleEndian(buffer.AsSpan(offset), val);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteBytesLittleEndian(int val, Span<byte> buffer)
-    {
-        WriteBytesLittleEndian((uint)val, buffer);
-    }
+        => BinaryPrimitives.WriteInt32LittleEndian(buffer, val);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteBytesLittleEndian(int val, byte[] buffer, int offset)
-    {
-        WriteBytesLittleEndian((uint)val, buffer, offset);
-    }
+        => BinaryPrimitives.WriteInt32LittleEndian(buffer.AsSpan(offset), val);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteBytesLittleEndian(long val, Span<byte> buffer)
-    {
-        WriteBytesLittleEndian((ulong)val, buffer);
-    }
+        => BinaryPrimitives.WriteInt64LittleEndian(buffer, val);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteBytesLittleEndian(long val, byte[] buffer, int offset)
-    {
-        WriteBytesLittleEndian((ulong)val, buffer, offset);
-    }
+        => BinaryPrimitives.WriteInt64LittleEndian(buffer.AsSpan(offset), val);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteBytesLittleEndian(Guid val, Span<byte> buffer)
     {
 #if NET8_0_OR_GREATER
@@ -144,118 +95,71 @@ public static class EndianUtilities
         MemoryMarshal.Write(buffer, ref val);
 #endif
 
-        if (!_isLittleEndian)
+        if (!BitConverter.IsLittleEndian)
         {
-            WriteBytesLittleEndian(MemoryMarshal.Read<uint>(buffer[..4]), buffer[..4]);
-            WriteBytesLittleEndian(MemoryMarshal.Read<ushort>(buffer.Slice(4, 2)), buffer.Slice(4, 2));
-            WriteBytesLittleEndian(MemoryMarshal.Read<ushort>(buffer.Slice(6, 2)), buffer.Slice(6, 2));
+            Unsafe.As<byte, uint>(ref buffer[0]) = BinaryPrimitives.ReverseEndianness(Unsafe.As<byte, uint>(ref buffer[0]));
+            Unsafe.As<byte, ushort>(ref buffer[4]) = BinaryPrimitives.ReverseEndianness(Unsafe.As<byte, ushort>(ref buffer[4]));
+            Unsafe.As<byte, ushort>(ref buffer[6]) = BinaryPrimitives.ReverseEndianness(Unsafe.As<byte, ushort>(ref buffer[6]));
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteBytesLittleEndian(Guid val, byte[] buffer, int offset)
         => WriteBytesLittleEndian(val, buffer.AsSpan(offset));
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteBytesBigEndian(ushort val, byte[] buffer, int offset)
-        => WriteBytesBigEndian(val, buffer.AsSpan(offset, sizeof(ushort)));
+        => BinaryPrimitives.WriteUInt16BigEndian(buffer.AsSpan(offset), val);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteBytesBigEndian(ushort val, Span<byte> buffer)
-    {
-        if (!_isLittleEndian)
-        {
-#if NET8_0_OR_GREATER
-            MemoryMarshal.Write(buffer, val);
-#else
-            MemoryMarshal.Write(buffer, ref val);
-#endif
-        }
-        else
-        {
-            buffer[0] = (byte)(val >> 8);
-            buffer[1] = (byte)(val & 0xFF);
-        }
-    }
+        => BinaryPrimitives.WriteUInt16BigEndian(buffer, val);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteBytesBigEndian(uint val, byte[] buffer, int offset)
-        => WriteBytesBigEndian(val, buffer.AsSpan(offset, sizeof(uint)));
+        => BinaryPrimitives.WriteUInt32BigEndian(buffer.AsSpan(offset), val);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteBytesBigEndian(uint val, Span<byte> buffer)
-    {
-        if (!_isLittleEndian)
-        {
-#if NET8_0_OR_GREATER
-            MemoryMarshal.Write(buffer, val);
-#else
-            MemoryMarshal.Write(buffer, ref val);
-#endif
-        }
-        else
-        {
-            buffer[0] = (byte)((val >> 24) & 0xFF);
-            buffer[1] = (byte)((val >> 16) & 0xFF);
-            buffer[2] = (byte)((val >> 8) & 0xFF);
-            buffer[3] = (byte)(val & 0xFF);
-        }
-    }
+        => BinaryPrimitives.WriteUInt32BigEndian(buffer, val);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteBytesBigEndian(ulong val, byte[] buffer, int offset)
-        => WriteBytesBigEndian(val, buffer.AsSpan(offset, sizeof(ulong)));
+        => BinaryPrimitives.WriteUInt64BigEndian(buffer.AsSpan(offset), val);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteBytesBigEndian(ulong val, Span<byte> buffer)
-    {
-        if (!_isLittleEndian)
-        {
-#if NET8_0_OR_GREATER
-            MemoryMarshal.Write(buffer, val);
-#else
-            MemoryMarshal.Write(buffer, ref val);
-#endif
-        }
-        else
-        {
-            buffer[0] = (byte)((val >> 56) & 0xFF);
-            buffer[1] = (byte)((val >> 48) & 0xFF);
-            buffer[2] = (byte)((val >> 40) & 0xFF);
-            buffer[3] = (byte)((val >> 32) & 0xFF);
-            buffer[4] = (byte)((val >> 24) & 0xFF);
-            buffer[5] = (byte)((val >> 16) & 0xFF);
-            buffer[6] = (byte)((val >> 8) & 0xFF);
-            buffer[7] = (byte)(val & 0xFF);
-        }
-    }
+        => BinaryPrimitives.WriteUInt64BigEndian(buffer, val);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteBytesBigEndian(short val, byte[] buffer, int offset)
-    {
-        WriteBytesBigEndian((ushort)val, buffer, offset);
-    }
+        => BinaryPrimitives.WriteInt16BigEndian(buffer.AsSpan(offset), val);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteBytesBigEndian(short val, Span<byte> buffer)
-    {
-        WriteBytesBigEndian((ushort)val, buffer);
-    }
+        => BinaryPrimitives.WriteInt16BigEndian(buffer, val);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteBytesBigEndian(int val, Span<byte> buffer)
-    {
-        WriteBytesBigEndian((uint)val, buffer);
-    }
+        => BinaryPrimitives.WriteInt32BigEndian(buffer, val);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteBytesBigEndian(int val, byte[] buffer, int offset)
-    {
-        WriteBytesBigEndian((uint)val, buffer, offset);
-    }
+        => BinaryPrimitives.WriteInt32BigEndian(buffer.AsSpan(offset), val);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteBytesBigEndian(long val, Span<byte> buffer)
-    {
-        WriteBytesBigEndian((ulong)val, buffer);
-    }
+        => BinaryPrimitives.WriteInt64BigEndian(buffer, val);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteBytesBigEndian(long val, byte[] buffer, int offset)
-    {
-        WriteBytesBigEndian((ulong)val, buffer, offset);
-    }
+        => BinaryPrimitives.WriteInt64BigEndian(buffer.AsSpan(offset), val);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteBytesBigEndian(Guid val, byte[] buffer, int offset)
         => WriteBytesBigEndian(val, buffer.AsSpan(offset, 16));
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteBytesBigEndian(Guid val, Span<byte> buffer)
     {
 #if NET8_0_OR_GREATER
@@ -264,64 +168,31 @@ public static class EndianUtilities
         MemoryMarshal.Write(buffer, ref val);
 #endif
 
-        if (_isLittleEndian)
+        if (BitConverter.IsLittleEndian)
         {
-            WriteBytesBigEndian(MemoryMarshal.Read<uint>(buffer[..4]), buffer[..4]);
-            WriteBytesBigEndian(MemoryMarshal.Read<ushort>(buffer.Slice(4, 2)), buffer.Slice(4, 2));
-            WriteBytesBigEndian(MemoryMarshal.Read<ushort>(buffer.Slice(6, 2)), buffer.Slice(6, 2));
+            Unsafe.As<byte, uint>(ref buffer[0]) = BinaryPrimitives.ReverseEndianness(Unsafe.As<byte, uint>(ref buffer[0]));
+            Unsafe.As<byte, ushort>(ref buffer[4]) = BinaryPrimitives.ReverseEndianness(Unsafe.As<byte, ushort>(ref buffer[4]));
+            Unsafe.As<byte, ushort>(ref buffer[6]) = BinaryPrimitives.ReverseEndianness(Unsafe.As<byte, ushort>(ref buffer[6]));
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ushort ToUInt16LittleEndian(byte[] buffer, int offset)
-    {
-        if (_isLittleEndian)
-        {
-            return BitConverter.ToUInt16(buffer, offset);
-        }
-        else
-        {
-            return (ushort)(((buffer[offset + 1] << 8) & 0xFF00) | ((buffer[offset + 0] << 0) & 0x00FF));
-        }
-    }
+        => BinaryPrimitives.ReadUInt16LittleEndian(buffer.AsSpan(offset));
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ushort ToUInt16LittleEndian(ReadOnlySpan<byte> buffer)
-    {
-        if (_isLittleEndian)
-        {
-            return MemoryMarshal.Read<ushort>(buffer);
-        }
-        else
-        {
-            return (ushort)(((buffer[1] << 8) & 0xFF00) | ((buffer[0] << 0) & 0x00FF));
-        }
-    }
+        => BinaryPrimitives.ReadUInt16LittleEndian(buffer);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static uint ToUInt32LittleEndian(byte[] buffer, int offset)
-    {
-        if (_isLittleEndian)
-        {
-            return BitConverter.ToUInt32(buffer, offset);
-        }
-        else
-        {
-            return (uint)(((buffer[offset + 3] << 24) & 0xFF000000U) | ((buffer[offset + 2] << 16) & 0x00FF0000U)
-                      | ((buffer[offset + 1] << 8) & 0x0000FF00U) | ((buffer[offset + 0] << 0) & 0x000000FFU));
-        }
-    }
+        => BinaryPrimitives.ReadUInt32LittleEndian(buffer.AsSpan(offset));
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static uint ToUInt32LittleEndian(ReadOnlySpan<byte> buffer)
-    {
-        if (_isLittleEndian)
-        {
-            return MemoryMarshal.Read<uint>(buffer);
-        }
-        else
-        {
-            return (uint)(((buffer[3] << 24) & 0xFF000000U) | ((buffer[2] << 16) & 0x00FF0000U)
-                      | ((buffer[1] << 8) & 0x0000FF00U) | ((buffer[0] << 0) & 0x000000FFU));
-        }
-    }
+        => BinaryPrimitives.ReadUInt32LittleEndian(buffer);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static uint ReadUInt32LittleEndian(Stream stream)
     {
         Span<byte> buffer = stackalloc byte[sizeof(uint)];
@@ -343,50 +214,31 @@ public static class EndianUtilities
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ulong ToUInt64LittleEndian(byte[] buffer, int offset)
-    {
-        if (_isLittleEndian)
-        {
-            return BitConverter.ToUInt64(buffer, offset);
-        }
-        else
-        {
-            return ((ulong)ToUInt32LittleEndian(buffer, offset + 4) << 32) | ToUInt32LittleEndian(buffer, offset + 0);
-        }
-    }
+        => BinaryPrimitives.ReadUInt64LittleEndian(buffer.AsSpan(offset));
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ulong ToUInt64LittleEndian(ReadOnlySpan<byte> buffer)
-    {
-        if (_isLittleEndian)
-        {
-            return MemoryMarshal.Read<ulong>(buffer);
-        }
-        else
-        {
-            return ((ulong)ToUInt32LittleEndian(buffer.Slice(4, 4)) << 32) | ToUInt32LittleEndian(buffer[..4]);
-        }
-    }
+        => BinaryPrimitives.ReadUInt64LittleEndian(buffer);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static short ToInt16LittleEndian(byte[] buffer, int offset)
-    {
-        return (short)ToUInt16LittleEndian(buffer, offset);
-    }
+        => BinaryPrimitives.ReadInt16LittleEndian(buffer.AsSpan(offset));
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static short ToInt16LittleEndian(ReadOnlySpan<byte> buffer)
-    {
-        return (short)ToUInt16LittleEndian(buffer);
-    }
+        => BinaryPrimitives.ReadInt16LittleEndian(buffer);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int ToInt32LittleEndian(byte[] buffer, int offset)
-    {
-        return (int)ToUInt32LittleEndian(buffer, offset);
-    }
+        => BinaryPrimitives.ReadInt32LittleEndian(buffer.AsSpan(offset));
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int ToInt32LittleEndian(ReadOnlySpan<byte> buffer)
-    {
-        return (int)ToUInt32LittleEndian(buffer);
-    }
+        => BinaryPrimitives.ReadInt32LittleEndian(buffer);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int ReadInt32LittleEndian(Stream stream)
     {
         Span<byte> buffer = stackalloc byte[sizeof(int)];
@@ -408,134 +260,70 @@ public static class EndianUtilities
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static long ToInt64LittleEndian(byte[] buffer, int offset)
-    {
-        return (long)ToUInt64LittleEndian(buffer, offset);
-    }
+        => BinaryPrimitives.ReadInt64LittleEndian(buffer.AsSpan(offset));
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static long ToInt64LittleEndian(ReadOnlySpan<byte> buffer)
-    {
-        return (long)ToUInt64LittleEndian(buffer);
-    }
+        => BinaryPrimitives.ReadInt64LittleEndian(buffer);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ushort ToUInt16BigEndian(byte[] buffer, int offset)
-    {
-        if (!_isLittleEndian)
-        {
-            return BitConverter.ToUInt16(buffer, offset);
-        }
-        else
-        {
-            return (ushort)(((buffer[offset] << 8) & 0xFF00) | ((buffer[offset + 1] << 0) & 0x00FF));
-        }
-    }
+        => BinaryPrimitives.ReadUInt16BigEndian(buffer.AsSpan(offset));
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ushort ToUInt16BigEndian(ReadOnlySpan<byte> buffer)
-    {
-        if (!_isLittleEndian)
-        {
-            return MemoryMarshal.Read<ushort>(buffer);
-        }
-        else
-        {
-            return (ushort)(((buffer[0] << 8) & 0xFF00) | ((buffer[1] << 0) & 0x00FF));
-        }
-    }
+        => BinaryPrimitives.ReadUInt16BigEndian(buffer);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static uint ToUInt32BigEndian(byte[] buffer, int offset)
-    {
-        if (!_isLittleEndian)
-        {
-            return BitConverter.ToUInt32(buffer, offset);
-        }
-        else
-        {
-            var val = (uint)(((buffer[offset + 0] << 24) & 0xFF000000U) | ((buffer[offset + 1] << 16) & 0x00FF0000U)
-                          | ((buffer[offset + 2] << 8) & 0x0000FF00U) | ((buffer[offset + 3] << 0) & 0x000000FFU));
-            return val;
-        }
-    }
+        => BinaryPrimitives.ReadUInt32BigEndian(buffer.AsSpan(offset));
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static uint ToUInt32BigEndian(ReadOnlySpan<byte> buffer)
-    {
-        if (!_isLittleEndian)
-        {
-            return MemoryMarshal.Read<uint>(buffer);
-        }
-        else
-        {
-            var val = (uint)(((buffer[0] << 24) & 0xFF000000U) | ((buffer[1] << 16) & 0x00FF0000U)
-                          | ((buffer[2] << 8) & 0x0000FF00U) | ((buffer[3] << 0) & 0x000000FFU));
-            return val;
-        }
-    }
+        => BinaryPrimitives.ReadUInt32BigEndian(buffer);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ulong ToUInt64BigEndian(byte[] buffer, int offset)
-    {
-        if (!_isLittleEndian)
-        {
-            return BitConverter.ToUInt64(buffer, offset);
-        }
-        else
-        {
-            return ((ulong)ToUInt32BigEndian(buffer, offset + 0) << 32) | ToUInt32BigEndian(buffer, offset + 4);
-        }
-    }
+        => BinaryPrimitives.ReadUInt64BigEndian(buffer.AsSpan(offset));
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ulong ToUInt64BigEndian(ReadOnlySpan<byte> buffer)
-    {
-        if (!_isLittleEndian)
-        {
-            return MemoryMarshal.Read<ulong>(buffer);
-        }
-        else
-        {
-            return ((ulong)ToUInt32BigEndian(buffer[..4]) << 32) | ToUInt32BigEndian(buffer.Slice(4, 4));
-        }
-    }
+        => BinaryPrimitives.ReadUInt64BigEndian(buffer);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static short ToInt16BigEndian(byte[] buffer, int offset)
-    {
-        if (!_isLittleEndian)
-        {
-            return BitConverter.ToInt16(buffer, offset);
-        }
-        else
-        {
-            return (short)ToUInt16BigEndian(buffer, offset);
-        }
-    }
+        => BinaryPrimitives.ReadInt16BigEndian(buffer.AsSpan(offset));
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static short ToInt16BigEndian(ReadOnlySpan<byte> buffer)
-    {
-        return (short)ToUInt16BigEndian(buffer);
-    }
+        => BinaryPrimitives.ReadInt16BigEndian(buffer);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int ToInt32BigEndian(byte[] buffer, int offset)
-    {
-        return (int)ToUInt32BigEndian(buffer, offset);
-    }
+        => BinaryPrimitives.ReadInt32BigEndian(buffer.AsSpan(offset));
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int ToInt32BigEndian(ReadOnlySpan<byte> buffer)
-    {
-        return (int)ToUInt32BigEndian(buffer);
-    }
+        => BinaryPrimitives.ReadInt32BigEndian(buffer);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static long ToInt64BigEndian(byte[] buffer, int offset)
-    {
-        return (long)ToUInt64BigEndian(buffer, offset);
-    }
+        => BinaryPrimitives.ReadInt64BigEndian(buffer.AsSpan(offset));
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static long ToInt64BigEndian(ReadOnlySpan<byte> buffer)
-    {
-        return (long)ToUInt64BigEndian(buffer);
-    }
+        => BinaryPrimitives.ReadInt64BigEndian(buffer);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Guid ToGuidLittleEndian(byte[] buffer, int offset) =>
         ToGuidLittleEndian(buffer.AsSpan(offset));
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Guid ToGuidLittleEndian(ReadOnlySpan<byte> buffer)
     {
-        if (_isLittleEndian)
+        if (BitConverter.IsLittleEndian)
         {
             return MemoryMarshal.Read<Guid>(buffer);
         }
@@ -556,12 +344,14 @@ public static class EndianUtilities
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Guid ToGuidBigEndian(byte[] buffer, int offset) =>
         ToGuidBigEndian(buffer.AsSpan(offset));
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Guid ToGuidBigEndian(ReadOnlySpan<byte> buffer)
     {
-        if (!_isLittleEndian)
+        if (!BitConverter.IsLittleEndian)
         {
             return MemoryMarshal.Read<Guid>(buffer);
         }
@@ -582,9 +372,11 @@ public static class EndianUtilities
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static byte[] ToByteArray(ReadOnlySpan<byte> buffer)
         => buffer.ToArray();
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T ToStruct<T>(byte[] buffer, int offset)
         where T : IByteArraySerializable, new()
     {
@@ -593,6 +385,7 @@ public static class EndianUtilities
         return result;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T ToStruct<T>(ReadOnlySpan<byte> buffer)
         where T : IByteArraySerializable, new()
     {
@@ -660,6 +453,7 @@ public static class EndianUtilities
         return MemoryMarshal.Cast<byte, char>(bytes).ReadNullTerminatedUnicodeString();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string LittleEndianUnicodeBytesToString(byte[] bytes, int offset, int count)
         => LittleEndianUnicodeBytesToString(bytes.AsSpan(offset, count));
 
@@ -688,6 +482,7 @@ public static class EndianUtilities
         return MemoryMarshal.AsBytes(chars);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ReadOnlySpan<byte> StringToLittleEndianUnicodeBytes(string chars)
     {
         if (!BitConverter.IsLittleEndian)
@@ -699,7 +494,7 @@ public static class EndianUtilities
     }
 
     /// <summary>
-    /// Primitive conversion from ASCII to Unicode that stops at a null-terminator.
+    /// Primitive conversion from Latin1 to Unicode that stops at a null-terminator.
     /// </summary>
     /// <param name="data">The data to convert.</param>
     /// <param name="offset">The first byte to convert.</param>
@@ -720,7 +515,7 @@ public static class EndianUtilities
     }
 
     /// <summary>
-    /// Primitive conversion from ASCII to Unicode that stops at a null-terminator.
+    /// Primitive conversion from Latin1 to Unicode that stops at a null-terminator.
     /// </summary>
     /// <param name="data">The data to convert.</param>
     /// <returns>The string.</returns>
