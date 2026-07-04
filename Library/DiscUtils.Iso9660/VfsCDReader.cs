@@ -441,7 +441,7 @@ internal class VfsCDReader : VfsReadOnlyFileSystem<ReaderDirEntry, File, ReaderD
         Span<byte> bytes = stackalloc byte[512];
         stream.ReadExactly(bytes);
 
-        var bpbBytesPerSec = EndianUtilities.ToUInt16LittleEndian(bytes.Slice(11));
+        var bpbBytesPerSec = EndianUtilities.ToUInt16LittleEndian(bytes[11..]);
 
         if (bpbBytesPerSec != 512)
         {
@@ -454,8 +454,8 @@ internal class VfsCDReader : VfsReadOnlyFileSystem<ReaderDirEntry, File, ReaderD
             return 0;
         }
 
-        var bpbTotSec16 = EndianUtilities.ToUInt16LittleEndian(bytes.Slice(19));
-        var bpbTotSec32 = EndianUtilities.ToUInt32LittleEndian(bytes.Slice(32));
+        var bpbTotSec16 = EndianUtilities.ToUInt16LittleEndian(bytes[19..]);
+        var bpbTotSec32 = EndianUtilities.ToUInt32LittleEndian(bytes[32..]);
 
         if (!((bpbTotSec16 == 0) ^ (bpbTotSec32 == 0)))
         {
@@ -556,7 +556,7 @@ internal class VfsCDReader : VfsReadOnlyFileSystem<ReaderDirEntry, File, ReaderD
             var pos = name.LastIndexOf(';');
             if (pos > 0)
             {
-                return name.Substring(0, pos);
+                return name[..pos];
             }
         }
 

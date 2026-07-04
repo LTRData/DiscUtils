@@ -46,7 +46,7 @@ internal sealed class ReaderDirEntry : VfsDirEntry
         var semicolonIndex = name.LastIndexOf(';');
         if (semicolonIndex >= 0)
         {
-            return name.Substring(0, semicolonIndex);
+            return name[..semicolonIndex];
         }
 
         return name;
@@ -65,7 +65,7 @@ internal sealed class ReaderDirEntry : VfsDirEntry
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP
             if (!uint.TryParse(ShortName.AsSpan(versionDelimiter + 1), out _version))
 #else
-            if (!uint.TryParse(ShortName.Substring(versionDelimiter + 1), out _version))
+            if (!uint.TryParse(ShortName[(versionDelimiter + 1)..], out _version))
 #endif
             {
                 throw new IOException($"Invalid version number in file entry '{dirRecord.FileIdentifier}'");
@@ -73,7 +73,7 @@ internal sealed class ReaderDirEntry : VfsDirEntry
 
             if (context.HideVersions)
             {
-                ShortName = ShortName.Substring(0, versionDelimiter);
+                ShortName = ShortName[..versionDelimiter];
             }
         }
 

@@ -53,7 +53,7 @@ internal class InternalNode : NodeHeader
         for (var i = 0; i < ItemCount; i++)
         {
             KeyPointers[i] = new KeyPointer();
-            offset += KeyPointers[i].ReadFrom(buffer.Slice(offset));
+            offset += KeyPointers[i].ReadFrom(buffer[offset..]);
         }
 
         Nodes = new NodeHeader[ItemCount];

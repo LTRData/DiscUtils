@@ -29,7 +29,7 @@ namespace DiscUtils.Iso9660;
 internal class SupplementaryVolumeDescriptor : CommonVolumeDescriptor
 {
     public SupplementaryVolumeDescriptor(ReadOnlySpan<byte> src)
-        : base(src, IsoUtilities.EncodingFromBytes(src.Slice(88))) { }
+        : base(src, IsoUtilities.EncodingFromBytes(src[88..])) { }
 
     public SupplementaryVolumeDescriptor(
         uint volumeSpaceSize,
@@ -50,17 +50,17 @@ internal class SupplementaryVolumeDescriptor : CommonVolumeDescriptor
         base.WriteTo(buffer);
         IsoUtilities.WriteA1Chars(buffer.Slice(8, 32), SystemIdentifier.AsSpan(), CharacterEncoding);
         IsoUtilities.WriteString(buffer.Slice(40, 32), pad: true, VolumeIdentifier.AsSpan(), CharacterEncoding, true);
-        IsoUtilities.ToBothFromUInt32(buffer.Slice(80), VolumeSpaceSize);
-        IsoUtilities.EncodingToBytes(CharacterEncoding, buffer.Slice(88));
-        IsoUtilities.ToBothFromUInt16(buffer.Slice(120), VolumeSetSize);
-        IsoUtilities.ToBothFromUInt16(buffer.Slice(124), VolumeSequenceNumber);
-        IsoUtilities.ToBothFromUInt16(buffer.Slice(128), LogicalBlockSize);
-        IsoUtilities.ToBothFromUInt32(buffer.Slice(132), PathTableSize);
-        IsoUtilities.ToBytesFromUInt32(buffer.Slice(140), TypeLPathTableLocation);
-        IsoUtilities.ToBytesFromUInt32(buffer.Slice(144), OptionalTypeLPathTableLocation);
-        EndianUtilities.WriteBytesBigEndian(TypeMPathTableLocation, buffer.Slice(148));
-        EndianUtilities.WriteBytesBigEndian(OptionalTypeMPathTableLocation, buffer.Slice(152));
-        RootDirectory.WriteTo(buffer.Slice(156), CharacterEncoding);
+        IsoUtilities.ToBothFromUInt32(buffer[80..], VolumeSpaceSize);
+        IsoUtilities.EncodingToBytes(CharacterEncoding, buffer[88..]);
+        IsoUtilities.ToBothFromUInt16(buffer[120..], VolumeSetSize);
+        IsoUtilities.ToBothFromUInt16(buffer[124..], VolumeSequenceNumber);
+        IsoUtilities.ToBothFromUInt16(buffer[128..], LogicalBlockSize);
+        IsoUtilities.ToBothFromUInt32(buffer[132..], PathTableSize);
+        IsoUtilities.ToBytesFromUInt32(buffer[140..], TypeLPathTableLocation);
+        IsoUtilities.ToBytesFromUInt32(buffer[144..], OptionalTypeLPathTableLocation);
+        EndianUtilities.WriteBytesBigEndian(TypeMPathTableLocation, buffer[148..]);
+        EndianUtilities.WriteBytesBigEndian(OptionalTypeMPathTableLocation, buffer[152..]);
+        RootDirectory.WriteTo(buffer[156..], CharacterEncoding);
         IsoUtilities.WriteD1Chars(buffer.Slice(190, 129), VolumeSetIdentifier.AsSpan(), CharacterEncoding);
         IsoUtilities.WriteA1Chars(buffer.Slice(318, 129), PublisherIdentifier.AsSpan(), CharacterEncoding);
         IsoUtilities.WriteA1Chars(buffer.Slice(446, 129), DataPreparerIdentifier.AsSpan(), CharacterEncoding);
@@ -70,10 +70,10 @@ internal class SupplementaryVolumeDescriptor : CommonVolumeDescriptor
         IsoUtilities.WriteD1Chars(buffer.Slice(776, 37), BibliographicFileIdentifier.AsSpan(), CharacterEncoding);
 
         // FIXME!!
-        IsoUtilities.ToVolumeDescriptorTimeFromUTC(buffer.Slice(813), CreationDateAndTime);
-        IsoUtilities.ToVolumeDescriptorTimeFromUTC(buffer.Slice(830), ModificationDateAndTime);
-        IsoUtilities.ToVolumeDescriptorTimeFromUTC(buffer.Slice(847), ExpirationDateAndTime);
-        IsoUtilities.ToVolumeDescriptorTimeFromUTC(buffer.Slice(864), EffectiveDateAndTime);
+        IsoUtilities.ToVolumeDescriptorTimeFromUTC(buffer[813..], CreationDateAndTime);
+        IsoUtilities.ToVolumeDescriptorTimeFromUTC(buffer[830..], ModificationDateAndTime);
+        IsoUtilities.ToVolumeDescriptorTimeFromUTC(buffer[847..], ExpirationDateAndTime);
+        IsoUtilities.ToVolumeDescriptorTimeFromUTC(buffer[864..], EffectiveDateAndTime);
         buffer[881] = FileStructureVersion;
     }
 }

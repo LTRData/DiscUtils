@@ -48,9 +48,9 @@ internal class TextResponse : BaseResponse
         Continue = (headerData[1] & 0x40) != 0;
         //_lun = EndianUtilities.ToUInt64BigEndian(headerData.Slice(8));
         //_targetTransferTag = EndianUtilities.ToUInt32BigEndian(headerData.Slice(20));
-        StatusSequenceNumber = EndianUtilities.ToUInt32BigEndian(headerData.Slice(24));
-        ExpectedCommandSequenceNumber = EndianUtilities.ToUInt32BigEndian(headerData.Slice(28));
-        MaxCommandSequenceNumber = EndianUtilities.ToUInt32BigEndian(headerData.Slice(32));
+        StatusSequenceNumber = EndianUtilities.ToUInt32BigEndian(headerData[24..]);
+        ExpectedCommandSequenceNumber = EndianUtilities.ToUInt32BigEndian(headerData[28..]);
+        MaxCommandSequenceNumber = EndianUtilities.ToUInt32BigEndian(headerData[32..]);
 
         TextData = bodyData;
     }

@@ -244,8 +244,8 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
         }
 
         return MemoryMarshal.Read<long>(dirEntry.Hash.AsSpan())
-            ^ MemoryMarshal.Read<long>(dirEntry.Hash.AsSpan().Slice(8))
-            ^ MemoryMarshal.Read<int>(dirEntry.Hash.AsSpan().Slice(16));
+            ^ MemoryMarshal.Read<long>(dirEntry.Hash.AsSpan()[8..])
+            ^ MemoryMarshal.Read<int>(dirEntry.Hash.AsSpan()[16..]);
     }
 
     /// <summary>
@@ -356,6 +356,22 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
             .Select(dirEntry => Utilities.CombinePaths(path, dirEntry.FileName));
 
         return result;
+    }
+
+    /// <summary>
+    /// Gets the names of files and subdirectories in a specified directory matching a specified
+    /// search pattern.
+    /// </summary>
+    /// <param name="path">The path to search.</param>
+    /// <param name="searchPattern">The search string to match against.</param>
+    /// <param name="searchOption">Indicates whether to search subdirectories.</param>
+    /// <returns>Array of files and subdirectories matching the search pattern.</returns>
+    public override IEnumerable<string> GetFileSystemEntries(string path, string searchPattern, SearchOption searchOption)
+    {
+        var re = Utilities.ConvertWildcardsToRegEx(searchPattern, ignoreCase: true);
+
+        var results = DoSearch(path, re, searchOption == SearchOption.AllDirectories, true, true);
+        return results;
     }
 
     /// <summary>
@@ -611,8 +627,8 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
 
         if (streamSepPos >= 0)
         {
-            filePart = path.Substring(0, streamSepPos);
-            altStreamPart = path.Substring(streamSepPos + 1);
+            filePart = path[..streamSepPos];
+            altStreamPart = path[(streamSepPos + 1)..];
         }
         else
         {
@@ -680,7 +696,7 @@ public class WimFileSystem : ReadOnlyDiscFileSystem, IWindowsFileSystem
     {
         if (path.EndsWithDirectorySeparator())
         {
-            path = path.Substring(0, path.Length - 1);
+            path = path[..^1];
         }
 
         if (!string.IsNullOrEmpty(path) && !path.StartsWithDirectorySeparator())

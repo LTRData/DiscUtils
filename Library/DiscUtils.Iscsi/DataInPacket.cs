@@ -62,14 +62,14 @@ internal class DataInPacket : BaseResponse
             Status = (ScsiStatus)headerData[3];
         }
 
-        Lun = EndianUtilities.ToUInt64BigEndian(headerData.Slice(8));
-        TargetTransferTag = EndianUtilities.ToUInt32BigEndian(headerData.Slice(20));
-        StatusSequenceNumber = EndianUtilities.ToUInt32BigEndian(headerData.Slice(24));
-        ExpectedCommandSequenceNumber = EndianUtilities.ToUInt32BigEndian(headerData.Slice(28));
-        MaxCommandSequenceNumber = EndianUtilities.ToUInt32BigEndian(headerData.Slice(32));
-        DataSequenceNumber = EndianUtilities.ToUInt32BigEndian(headerData.Slice(36));
-        BufferOffset = EndianUtilities.ToUInt32BigEndian(headerData.Slice(40));
-        ResidualCount = EndianUtilities.ToUInt32BigEndian(headerData.Slice(44));
+        Lun = EndianUtilities.ToUInt64BigEndian(headerData[8..]);
+        TargetTransferTag = EndianUtilities.ToUInt32BigEndian(headerData[20..]);
+        StatusSequenceNumber = EndianUtilities.ToUInt32BigEndian(headerData[24..]);
+        ExpectedCommandSequenceNumber = EndianUtilities.ToUInt32BigEndian(headerData[28..]);
+        MaxCommandSequenceNumber = EndianUtilities.ToUInt32BigEndian(headerData[32..]);
+        DataSequenceNumber = EndianUtilities.ToUInt32BigEndian(headerData[36..]);
+        BufferOffset = EndianUtilities.ToUInt32BigEndian(headerData[40..]);
+        ResidualCount = EndianUtilities.ToUInt32BigEndian(headerData[44..]);
 
         ReadData = bodyData;
     }

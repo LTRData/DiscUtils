@@ -148,44 +148,46 @@ internal sealed class Bin
         return true;
     }
 
-    public Span<byte> ReadRawCellData(int cellIndex, Span<byte> maxBytes)
+    public Span<byte> ReadRawCellData(int cellIndex, Span<byte> maxBytes, bool ignoreBigData)
     {
         var index = cellIndex - _header.FileOffset;
         var len = Math.Abs(EndianUtilities.ToInt32LittleEndian(_buffer, index));
-        
+        var data = _buffer.AsSpan(index + 4, len - 4);
+
         // Check if this is a "big data" cell (signature "db")
         // Big data cells are used for values larger than ~16KB
-        if (len >= 6 && _buffer[index + 4] == 0x64 && _buffer[index + 5] == 0x62) // "db"
+        if (!ignoreBigData && len >= 6
+            && _buffer[index + 4] == 0x64 && _buffer[index + 5] == 0x62) // "db"
         {
-            // Big data format:
-            // 0x00: signature "db" (2 bytes)
-            // 0x02: number of segments (2 bytes)
-            // 0x04: offset to list of cell indices (4 bytes)
-            var numSegments = EndianUtilities.ToUInt16LittleEndian(_buffer.AsSpan(index + 6));
-            var listOffset = EndianUtilities.ToInt32LittleEndian(_buffer.AsSpan(index + 8));
-            
-            // Read the list of cell indices
-            var listIndex = listOffset - _header.FileOffset;
-            var bytesWritten = 0;
-            
-            for (var i = 0; i < numSegments && bytesWritten < maxBytes.Length; i++)
-            {
-                var segmentCellIndex = EndianUtilities.ToInt32LittleEndian(_buffer.AsSpan(listIndex + i * 4));
-                var segmentIndex = segmentCellIndex - _header.FileOffset;
-                var segmentLen = Math.Abs(EndianUtilities.ToInt32LittleEndian(_buffer, segmentIndex)) - 4;
-                
-                var bytesToCopy = Math.Min(segmentLen, maxBytes.Length - bytesWritten);
-                _buffer.AsSpan(segmentIndex + 4, bytesToCopy).CopyTo(maxBytes.Slice(bytesWritten));
-                bytesWritten += bytesToCopy;
-            }
-            
-            return maxBytes.Slice(0, bytesWritten);
+            return ReadBigDataCell(data, maxBytes);
         }
         
         // Regular cell data
-        var result = maxBytes.Slice(0, Math.Min(len - 4, maxBytes.Length));
-        _buffer.AsSpan(index + 4, result.Length).CopyTo(result);
+        var result = maxBytes[..Math.Min(data.Length, maxBytes.Length)];
+
+        data[..result.Length].CopyTo(result);
+
         return result;
+    }
+
+    private Span<byte> ReadBigDataCell(ReadOnlySpan<byte> dbCellData, Span<byte> dest)
+    {
+        int segmentCount = EndianUtilities.ToUInt16LittleEndian(dbCellData[2..]);
+        int listCellIndex = EndianUtilities.ToInt32LittleEndian(dbCellData[4..]);
+
+        var listCell = _hive.RawCellData(listCellIndex, stackalloc byte[segmentCount * 4], ignoreBigData: true);
+        int written = 0;
+
+        for (int i = 0; i < segmentCount && written < dest.Length; i++)
+        {
+            int segmentCellIndex = EndianUtilities.ToInt32LittleEndian(listCell[(i * 4)..]);
+            var remaining = dest[written..];
+
+            var segmentData = _hive.RawCellData(segmentCellIndex, remaining, ignoreBigData: true);
+            written += segmentData.Length;
+        }
+
+        return dest[..written];
     }
 
     internal bool WriteRawCellData(int cellIndex, ReadOnlySpan<byte> data)

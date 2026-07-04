@@ -65,8 +65,8 @@ internal sealed class CatalogKey : BTreeKey, IComparable<CatalogKey>
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         _keyLength = EndianUtilities.ToUInt16BigEndian(buffer);
-        NodeId = new CatalogNodeId(EndianUtilities.ToUInt32BigEndian(buffer.Slice(2)));
-        Name = HfsPlusUtilities.ReadUniStr255(buffer.Slice(6));
+        NodeId = new CatalogNodeId(EndianUtilities.ToUInt32BigEndian(buffer[2..]));
+        Name = HfsPlusUtilities.ReadUniStr255(buffer[6..]);
 
         return _keyLength + 2;
     }

@@ -53,11 +53,11 @@ internal sealed class ValueCell : Cell
 
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {
-        int nameLen = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(0x02));
-        DataLength = EndianUtilities.ToInt32LittleEndian(buffer.Slice(0x04));
-        DataIndex = EndianUtilities.ToInt32LittleEndian(buffer.Slice(0x08));
-        DataType = (RegistryValueType)EndianUtilities.ToInt32LittleEndian(buffer.Slice(0x0C));
-        _flags = (ValueFlags)EndianUtilities.ToUInt16LittleEndian(buffer.Slice(0x10));
+        int nameLen = EndianUtilities.ToUInt16LittleEndian(buffer[0x02..]);
+        DataLength = EndianUtilities.ToInt32LittleEndian(buffer[0x04..]);
+        DataIndex = EndianUtilities.ToInt32LittleEndian(buffer[0x08..]);
+        DataType = (RegistryValueType)EndianUtilities.ToInt32LittleEndian(buffer[0x0C..]);
+        _flags = (ValueFlags)EndianUtilities.ToUInt16LittleEndian(buffer[0x10..]);
 
         if ((_flags & ValueFlags.Named) != 0)
         {
@@ -86,12 +86,12 @@ internal sealed class ValueCell : Cell
 
         var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
 
-        "vk"u8.CopyTo(buffer.Slice(0, 2));
-        EndianUtilities.WriteBytesLittleEndian(nameLen, buffer.Slice(0x02));
-        EndianUtilities.WriteBytesLittleEndian(DataLength, buffer.Slice(0x04));
-        EndianUtilities.WriteBytesLittleEndian(DataIndex, buffer.Slice(0x08));
-        EndianUtilities.WriteBytesLittleEndian((int)DataType, buffer.Slice(0x0C));
-        EndianUtilities.WriteBytesLittleEndian((ushort)_flags, buffer.Slice(0x10));
+        "vk"u8.CopyTo(buffer[..2]);
+        EndianUtilities.WriteBytesLittleEndian(nameLen, buffer[0x02..]);
+        EndianUtilities.WriteBytesLittleEndian(DataLength, buffer[0x04..]);
+        EndianUtilities.WriteBytesLittleEndian(DataIndex, buffer[0x08..]);
+        EndianUtilities.WriteBytesLittleEndian((int)DataType, buffer[0x0C..]);
+        EndianUtilities.WriteBytesLittleEndian((ushort)_flags, buffer[0x10..]);
         if (nameLen != 0)
         {
             latin1Encoding.GetBytes(Name, buffer.Slice(0x14, nameLen));

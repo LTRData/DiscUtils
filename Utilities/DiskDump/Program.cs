@@ -43,7 +43,7 @@ class Program : ProgramBase
     private CommandLineSwitch _hideExtents;
     private CommandLineSwitch _diskType;
 
-    static void Main(string[] args)
+    static void Main(params string[] args)
     {
         var program = new Program();
         program.Run(args);

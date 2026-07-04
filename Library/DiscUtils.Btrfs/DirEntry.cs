@@ -147,7 +147,7 @@ internal class DirEntry : VfsDirEntry
 
     internal ulong FileSize => _inode?.FileSize ?? 0;
 
-    internal bool IsSubtree => _item is not null && _item.ChildLocation.ItemType == ItemType.RootItem;
+    internal bool IsSubtree => _item is { ChildLocation.ItemType: ItemType.RootItem };
 
     public uint UserId => _inode?.Uid ?? 0;
 

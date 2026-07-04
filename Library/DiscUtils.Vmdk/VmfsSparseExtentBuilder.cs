@@ -241,7 +241,7 @@ internal sealed class VmfsSparseExtentBuilder : StreamBuilder
                 (int)Math.Min(block.Length, grainSize * _grainContiguousRangeMapping[grainIdx] - grainOffset);
 
             _content.Position = _grainMapping[grainIdx] * grainSize + grainOffset;
-            return _content.Read(block.Slice(0, maxToRead));
+            return _content.Read(block[..maxToRead]);
         }
 
         public override void DisposeReadState()

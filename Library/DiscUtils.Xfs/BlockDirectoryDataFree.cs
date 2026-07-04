@@ -37,7 +37,7 @@ internal class BlockDirectoryDataFree : IByteArraySerializable
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         Offset = EndianUtilities.ToUInt16BigEndian(buffer);
-        Length = EndianUtilities.ToUInt16BigEndian(buffer.Slice(2));
+        Length = EndianUtilities.ToUInt16BigEndian(buffer[2..]);
         return Size;
     }
 

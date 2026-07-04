@@ -54,7 +54,7 @@ public sealed class VolumeInformation : IByteArraySerializable, IDiagnosticTrace
     {
         _majorVersion = buffer[0x08];
         _minorVersion = buffer[0x09];
-        Flags = (VolumeInformationFlags)EndianUtilities.ToUInt16LittleEndian(buffer.Slice(0x0A));
+        Flags = (VolumeInformationFlags)EndianUtilities.ToUInt16LittleEndian(buffer[0x0A..]);
         return 0x0C;
     }
 
@@ -63,7 +63,7 @@ public sealed class VolumeInformation : IByteArraySerializable, IDiagnosticTrace
         EndianUtilities.WriteBytesLittleEndian((ulong)0, buffer);
         buffer[0x08] = _majorVersion;
         buffer[0x09] = _minorVersion;
-        EndianUtilities.WriteBytesLittleEndian((ushort)Flags, buffer.Slice(0x0A));
+        EndianUtilities.WriteBytesLittleEndian((ushort)Flags, buffer[0x0A..]);
     }
 
     public void Dump(TextWriter writer, string indent)

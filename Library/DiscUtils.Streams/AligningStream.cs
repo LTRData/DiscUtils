@@ -222,7 +222,7 @@ public sealed class AligningStream : WrappingMappedStream<SparseStream>
             WrappedStream.Position = alignedPos;
             await WrappedStream.ReadAsync(_alignmentBuffer.AsMemory(0, _blockSize), cancellationToken).ConfigureAwait(false);
 
-            buffer.Slice(0, Math.Min(count, _blockSize - startOffset)).CopyTo(_alignmentBuffer.AsMemory(startOffset));
+            buffer[..Math.Min(count, _blockSize - startOffset)].CopyTo(_alignmentBuffer.AsMemory(startOffset));
 
             WrappedStream.Position = alignedPos;
             await WrappedStream.WriteAsync(_alignmentBuffer.AsMemory(0, _blockSize), cancellationToken).ConfigureAwait(false);
@@ -280,7 +280,7 @@ public sealed class AligningStream : WrappingMappedStream<SparseStream>
             WrappedStream.Position = alignedPos;
             WrappedStream.ReadExactly(_alignmentBuffer.AsSpan(0, _blockSize));
 
-            buffer.Slice(0, Math.Min(count, _blockSize - startOffset)).CopyTo(_alignmentBuffer.AsSpan(startOffset));
+            buffer[..Math.Min(count, _blockSize - startOffset)].CopyTo(_alignmentBuffer.AsSpan(startOffset));
 
             WrappedStream.Position = alignedPos;
             WrappedStream.Write(_alignmentBuffer.AsSpan(0, _blockSize));

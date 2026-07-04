@@ -35,14 +35,14 @@ internal sealed class UnallocatedSpaceDescriptor : TaggedDescriptor<UnallocatedS
 
     public override int Parse(ReadOnlySpan<byte> buffer)
     {
-        VolumeDescriptorSequenceNumber = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(16));
+        VolumeDescriptorSequenceNumber = EndianUtilities.ToUInt32LittleEndian(buffer[16..]);
 
-        var numDescriptors = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(20));
+        var numDescriptors = EndianUtilities.ToUInt32LittleEndian(buffer[20..]);
         Extents = new ExtentAllocationDescriptor[numDescriptors];
 
         for (var i = 0; i < numDescriptors; ++i)
         {
-            Extents[i] = EndianUtilities.ToStruct<ExtentAllocationDescriptor>(buffer.Slice(24 + i * 8));
+            Extents[i] = EndianUtilities.ToStruct<ExtentAllocationDescriptor>(buffer[(24 + i * 8)..]);
         }
 
         return (int)(24 + numDescriptors * 8);

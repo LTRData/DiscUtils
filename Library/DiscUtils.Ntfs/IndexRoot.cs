@@ -44,8 +44,8 @@ internal struct IndexRoot : IByteArraySerializable, IDiagnosticTraceable
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         AttributeType = EndianUtilities.ToUInt32LittleEndian(buffer);
-        CollationRule = (AttributeCollationRule)EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x04));
-        IndexAllocationSize = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x08));
+        CollationRule = (AttributeCollationRule)EndianUtilities.ToUInt32LittleEndian(buffer[0x04..]);
+        IndexAllocationSize = EndianUtilities.ToUInt32LittleEndian(buffer[0x08..]);
         RawClustersPerIndexRecord = buffer[0x0C];
         return 16;
     }
@@ -53,9 +53,9 @@ internal struct IndexRoot : IByteArraySerializable, IDiagnosticTraceable
     public void WriteTo(Span<byte> buffer)
     {
         EndianUtilities.WriteBytesLittleEndian(AttributeType, buffer);
-        EndianUtilities.WriteBytesLittleEndian((uint)CollationRule, buffer.Slice(0x04));
-        EndianUtilities.WriteBytesLittleEndian(IndexAllocationSize, buffer.Slice(0x08));
-        EndianUtilities.WriteBytesLittleEndian(RawClustersPerIndexRecord, buffer.Slice(0x0C));
+        EndianUtilities.WriteBytesLittleEndian((uint)CollationRule, buffer[0x04..]);
+        EndianUtilities.WriteBytesLittleEndian(IndexAllocationSize, buffer[0x08..]);
+        EndianUtilities.WriteBytesLittleEndian(RawClustersPerIndexRecord, buffer[0x0C..]);
     }
 
     public void Dump(TextWriter writer, string indent)

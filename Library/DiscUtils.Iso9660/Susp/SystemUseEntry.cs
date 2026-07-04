@@ -46,7 +46,7 @@ internal abstract class SystemUseEntry
 
         var name = EncodingUtilities
             .GetLatin1Encoding()
-            .GetString(data.Slice(0, 2));
+            .GetString(data[..2]);
 
         length = data[2];
         var version = data[3];

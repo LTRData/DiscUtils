@@ -79,8 +79,8 @@ internal sealed class ExtentKey : BTreeKey, IComparable<ExtentKey>
     {
         _keyLength = EndianUtilities.ToUInt16BigEndian(buffer);
         _forkType = buffer[2];
-        NodeId = new CatalogNodeId(EndianUtilities.ToUInt32BigEndian(buffer.Slice(4)));
-        _startBlock = EndianUtilities.ToUInt32BigEndian(buffer.Slice(8));
+        NodeId = new CatalogNodeId(EndianUtilities.ToUInt32BigEndian(buffer[4..]));
+        _startBlock = EndianUtilities.ToUInt32BigEndian(buffer[8..]);
         return _keyLength + 2;
     }
 

@@ -58,11 +58,11 @@ internal class ScsiInquiryCommand : ScsiCommand
 
     public override void WriteTo(Span<byte> buffer)
     {
-        buffer.Slice(0, 10).Clear();
+        buffer[..10].Clear();
         buffer[0] = (byte)ScsiOpCode.Inquiry; // OpCode
         buffer[1] = (byte)(_askForPage ? 0x01 : 0x00);
         buffer[2] = _pageCode;
-        EndianUtilities.WriteBytesBigEndian((ushort)_expected, buffer.Slice(3));
+        EndianUtilities.WriteBytesBigEndian((ushort)_expected, buffer[3..]);
         buffer[5] = 0;
     }
 }

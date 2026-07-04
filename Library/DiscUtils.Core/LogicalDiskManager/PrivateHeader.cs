@@ -56,31 +56,31 @@ internal class PrivateHeader
     {
         var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
 
-        Signature = latin1Encoding.GetString(buffer.Slice(0x00, 8));
-        Checksum = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x08));
-        Version = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x0C));
-        Timestamp = DateTime.FromFileTimeUtc(EndianUtilities.ToInt64BigEndian(buffer.Slice(0x10)));
-        Unknown2 = EndianUtilities.ToInt64BigEndian(buffer.Slice(0x18));
-        Unknown3 = EndianUtilities.ToInt64BigEndian(buffer.Slice(0x20));
-        Unknown4 = EndianUtilities.ToInt64BigEndian(buffer.Slice(0x28));
+        Signature = latin1Encoding.GetString(buffer[..8]);
+        Checksum = EndianUtilities.ToUInt32BigEndian(buffer[0x08..]);
+        Version = EndianUtilities.ToUInt32BigEndian(buffer[0x0C..]);
+        Timestamp = DateTime.FromFileTimeUtc(EndianUtilities.ToInt64BigEndian(buffer[0x10..]));
+        Unknown2 = EndianUtilities.ToInt64BigEndian(buffer[0x18..]);
+        Unknown3 = EndianUtilities.ToInt64BigEndian(buffer[0x20..]);
+        Unknown4 = EndianUtilities.ToInt64BigEndian(buffer[0x28..]);
         DiskId = latin1Encoding.GetString(buffer.Slice(0x30, 0x40)).Trim('\0');
         HostId = latin1Encoding.GetString(buffer.Slice(0x70, 0x40)).Trim('\0');
         DiskGroupId = latin1Encoding.GetString(buffer.Slice(0xB0, 0x40)).Trim('\0');
         DiskGroupName = latin1Encoding.GetString(buffer.Slice(0xF0, 31)).Trim('\0');
-        Unknown5 = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x10F));
-        DataStartLba = EndianUtilities.ToInt64BigEndian(buffer.Slice(0x11B));
-        DataSizeLba = EndianUtilities.ToInt64BigEndian(buffer.Slice(0x123));
-        ConfigurationStartLba = EndianUtilities.ToInt64BigEndian(buffer.Slice(0x12B));
-        ConfigurationSizeLba = EndianUtilities.ToInt64BigEndian(buffer.Slice(0x133));
-        TocSizeLba = EndianUtilities.ToInt64BigEndian(buffer.Slice(0x13B));
-        NextTocLba = EndianUtilities.ToInt64BigEndian(buffer.Slice(0x143));
+        Unknown5 = EndianUtilities.ToUInt32BigEndian(buffer[0x10F..]);
+        DataStartLba = EndianUtilities.ToInt64BigEndian(buffer[0x11B..]);
+        DataSizeLba = EndianUtilities.ToInt64BigEndian(buffer[0x123..]);
+        ConfigurationStartLba = EndianUtilities.ToInt64BigEndian(buffer[0x12B..]);
+        ConfigurationSizeLba = EndianUtilities.ToInt64BigEndian(buffer[0x133..]);
+        TocSizeLba = EndianUtilities.ToInt64BigEndian(buffer[0x13B..]);
+        NextTocLba = EndianUtilities.ToInt64BigEndian(buffer[0x143..]);
 
         // These two may be reversed
-        NumberOfConfigs = EndianUtilities.ToInt32BigEndian(buffer.Slice(0x14B));
-        NumberOfLogs = EndianUtilities.ToInt32BigEndian(buffer.Slice(0x14F));
+        NumberOfConfigs = EndianUtilities.ToInt32BigEndian(buffer[0x14B..]);
+        NumberOfLogs = EndianUtilities.ToInt32BigEndian(buffer[0x14F..]);
 
-        ConfigSizeLba = EndianUtilities.ToInt64BigEndian(buffer.Slice(0x153));
-        LogSizeLba = EndianUtilities.ToInt64BigEndian(buffer.Slice(0x15B));
+        ConfigSizeLba = EndianUtilities.ToInt64BigEndian(buffer[0x153..]);
+        LogSizeLba = EndianUtilities.ToInt64BigEndian(buffer[0x15B..]);
     }
 
     ////}

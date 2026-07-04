@@ -48,9 +48,9 @@ internal class ScsiRead10Command : ScsiCommand
     {
         buffer[0] = (byte)ScsiOpCode.Read10; // OpCode: READ(10)
         buffer[1] = 0;
-        EndianUtilities.WriteBytesBigEndian(_logicalBlockAddress, buffer.Slice(2));
+        EndianUtilities.WriteBytesBigEndian(_logicalBlockAddress, buffer[2..]);
         buffer[6] = 0;
-        EndianUtilities.WriteBytesBigEndian(_numBlocks, buffer.Slice(7));
+        EndianUtilities.WriteBytesBigEndian(_numBlocks, buffer[7..]);
         buffer[9] = 0;
     }
 }
@@ -78,8 +78,8 @@ internal class ScsiRead16Command : ScsiCommand
     {
         buffer[0] = (byte)ScsiOpCode.Read16; // OpCode: READ(16)
         buffer[1] = 0;
-        EndianUtilities.WriteBytesBigEndian(_logicalBlockAddress, buffer.Slice(2));
-        EndianUtilities.WriteBytesBigEndian(_numBlocks, buffer.Slice(10));
+        EndianUtilities.WriteBytesBigEndian(_logicalBlockAddress, buffer[2..]);
+        EndianUtilities.WriteBytesBigEndian(_numBlocks, buffer[10..]);
         buffer[14] = 0;
         buffer[15] = 0;
     }

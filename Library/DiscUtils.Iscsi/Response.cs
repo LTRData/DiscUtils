@@ -52,11 +52,11 @@ internal class Response : BaseResponse
         ResponseCode = headerData[2];
         StatusPresent = true;
         Status = (ScsiStatus)headerData[3];
-        StatusSequenceNumber = EndianUtilities.ToUInt32BigEndian(headerData.Slice(24));
-        ExpectedCommandSequenceNumber = EndianUtilities.ToUInt32BigEndian(headerData.Slice(28));
-        MaxCommandSequenceNumber = EndianUtilities.ToUInt32BigEndian(headerData.Slice(32));
-        ExpectedDataSequenceNumber = EndianUtilities.ToUInt32BigEndian(headerData.Slice(36));
-        BidiReadResidualCount = EndianUtilities.ToUInt32BigEndian(headerData.Slice(40));
-        ResidualCount = EndianUtilities.ToUInt32BigEndian(headerData.Slice(44));
+        StatusSequenceNumber = EndianUtilities.ToUInt32BigEndian(headerData[24..]);
+        ExpectedCommandSequenceNumber = EndianUtilities.ToUInt32BigEndian(headerData[28..]);
+        MaxCommandSequenceNumber = EndianUtilities.ToUInt32BigEndian(headerData[32..]);
+        ExpectedDataSequenceNumber = EndianUtilities.ToUInt32BigEndian(headerData[36..]);
+        BidiReadResidualCount = EndianUtilities.ToUInt32BigEndian(headerData[40..]);
+        ResidualCount = EndianUtilities.ToUInt32BigEndian(headerData[44..]);
     }
 }

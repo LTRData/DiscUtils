@@ -78,7 +78,7 @@ internal sealed class HostedSparseExtentStream : CommonSparseExtentStream
 
     public override bool CanWrite =>
         // No write support for streamOptimized disks
-        _fileStream is not null && _fileStream.CanWrite &&
+        _fileStream is { CanWrite: true } &&
             (_hostedHeader.Flags &
             (HostedSparseExtentFlags.CompressedGrains | HostedSparseExtentFlags.MarkersInUse)) == 0;
 

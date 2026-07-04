@@ -39,7 +39,7 @@ class Program : ProgramBase
     private CommandLineSwitch _showMeta;
     private CommandLineSwitch _showZeroSize;
 
-    static void Main(string[] args)
+    static void Main(params string[] args)
     {
         DiscUtils.Containers.SetupHelper.SetupContainers();
         var program = new Program();

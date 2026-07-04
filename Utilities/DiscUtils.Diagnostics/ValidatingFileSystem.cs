@@ -885,6 +885,23 @@ public class ValidatingFileSystem<TFileSystem, TChecker> : DiscFileSystem
     }
 
     /// <summary>
+    /// Gets the names of files and subdirectories in a specified directory matching a specified
+    /// search pattern.
+    /// </summary>
+    /// <param name="path">The path to search.</param>
+    /// <param name="searchPattern">The search string to match against.</param>
+    /// <param name="searchOption"></param>
+    /// <returns>Array of files and subdirectories matching the search pattern.</returns>
+    public override IEnumerable<string> GetFileSystemEntries(string path, string searchPattern, SearchOption searchOption)
+    {
+        Activity<TFileSystem, IEnumerable<string>> fn = delegate (TFileSystem fs, Dictionary<string, object> context)
+        {
+            return fs.GetFileSystemEntries(path, searchPattern, searchOption);
+        };
+        return PerformActivity(fn);
+    }
+
+    /// <summary>
     /// Moves a directory.
     /// </summary>
     /// <param name="sourceDirectoryName">The directory to move.</param>

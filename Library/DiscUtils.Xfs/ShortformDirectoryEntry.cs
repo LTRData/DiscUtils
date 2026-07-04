@@ -51,7 +51,7 @@ internal class ShortformDirectoryEntry : IByteArraySerializable, IDirectoryEntry
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         NameLength = buffer[0];
-        Offset = EndianUtilities.ToUInt16BigEndian(buffer.Slice(0x1));
+        Offset = EndianUtilities.ToUInt16BigEndian(buffer[0x1..]);
         Name = EndianUtilities.ToByteArray(buffer.Slice(0x3, NameLength));
         var offset = 0x3 + NameLength;
         if (_ftype)
@@ -62,11 +62,11 @@ internal class ShortformDirectoryEntry : IByteArraySerializable, IDirectoryEntry
 
         if (_useShortInode)
         {
-            Inode = EndianUtilities.ToUInt32BigEndian(buffer.Slice(offset));
+            Inode = EndianUtilities.ToUInt32BigEndian(buffer[offset..]);
         }
         else
         {
-            Inode = EndianUtilities.ToUInt64BigEndian(buffer.Slice(offset));
+            Inode = EndianUtilities.ToUInt64BigEndian(buffer[offset..]);
         }
 
         return Size;

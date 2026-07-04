@@ -143,14 +143,14 @@ internal abstract class AttributeRecord : IComparable<AttributeRecord>
 
     protected virtual void Read(ReadOnlySpan<byte> buffer, out int length)
     {
-        _type = (AttributeType)EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x00));
-        length = EndianUtilities.ToInt32LittleEndian(buffer.Slice(0x04));
+        _type = (AttributeType)EndianUtilities.ToUInt32LittleEndian(buffer[..]);
+        length = EndianUtilities.ToInt32LittleEndian(buffer[0x04..]);
 
         _nonResidentFlag = buffer[0x08];
         var nameLength = buffer[0x09];
-        var nameOffset = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(0x0A));
-        _flags = (AttributeFlags)EndianUtilities.ToUInt16LittleEndian(buffer.Slice(0x0C));
-        _attributeId = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(0x0E));
+        var nameOffset = EndianUtilities.ToUInt16LittleEndian(buffer[0x0A..]);
+        _flags = (AttributeFlags)EndianUtilities.ToUInt16LittleEndian(buffer[0x0C..]);
+        _attributeId = EndianUtilities.ToUInt16LittleEndian(buffer[0x0E..]);
 
         if (nameLength != 0x00)
         {

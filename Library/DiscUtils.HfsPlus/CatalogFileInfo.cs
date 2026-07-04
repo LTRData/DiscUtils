@@ -38,11 +38,11 @@ internal sealed class CatalogFileInfo : CommonCatalogFileInfo
     {
         base.ReadFrom(buffer);
 
-        Flags = EndianUtilities.ToUInt16BigEndian(buffer.Slice(2));
-        FileInfo = EndianUtilities.ToStruct<FileInfo>(buffer.Slice(48));
+        Flags = EndianUtilities.ToUInt16BigEndian(buffer[2..]);
+        FileInfo = EndianUtilities.ToStruct<FileInfo>(buffer[48..]);
 
-        DataFork = EndianUtilities.ToStruct<ForkData>(buffer.Slice(88));
-        ResourceFork = EndianUtilities.ToStruct<ForkData>(buffer.Slice(168));
+        DataFork = EndianUtilities.ToStruct<ForkData>(buffer[88..]);
+        ResourceFork = EndianUtilities.ToStruct<ForkData>(buffer[168..]);
 
         return 0;
     }

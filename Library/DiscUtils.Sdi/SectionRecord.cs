@@ -39,10 +39,10 @@ internal class SectionRecord
     {
         var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
 
-        SectionType = latin1Encoding.GetString(buffer.Slice(0, 8)).TrimEnd('\0');
-        Attr = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(8));
-        Offset = EndianUtilities.ToInt64LittleEndian(buffer.Slice(16));
-        Size = EndianUtilities.ToInt64LittleEndian(buffer.Slice(24));
-        PartitionType = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(32));
+        SectionType = latin1Encoding.GetString(buffer[..8]).TrimEnd('\0');
+        Attr = EndianUtilities.ToUInt64LittleEndian(buffer[8..]);
+        Offset = EndianUtilities.ToInt64LittleEndian(buffer[16..]);
+        Size = EndianUtilities.ToInt64LittleEndian(buffer[24..]);
+        PartitionType = EndianUtilities.ToUInt64LittleEndian(buffer[32..]);
     }
 }

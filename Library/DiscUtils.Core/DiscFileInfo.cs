@@ -47,7 +47,7 @@ public class DiscFileInfo : DiscFileSystemInfo
     /// <summary>
     /// Gets a value indicating whether the file exists.
     /// </summary>
-    public override bool Exists => FileSystem.FileExists(Path);
+    public override bool Exists => FileSystem.FileExists(FullPath);
 
     /// <summary>
     /// Gets or sets a value indicating whether the file is read-only.
@@ -72,26 +72,26 @@ public class DiscFileInfo : DiscFileSystemInfo
     /// <summary>
     /// Gets the length of the current file in bytes.
     /// </summary>
-    public virtual long Length => FileSystem.GetFileLength(Path);
+    public virtual long Length => FileSystem.GetFileLength(FullPath);
 
     /// <summary>
     /// Gets the contents of the file as a byte array.
     /// </summary>
-    public virtual byte[] ReadAllBytes() => FileSystem.ReadAllBytes(Path);
+    public virtual byte[] ReadAllBytes() => FileSystem.ReadAllBytes(FullPath);
 
     /// <summary>
     /// Asynchronously gets the contents of the file as a byte array.
     /// </summary>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public virtual ValueTask<byte[]> ReadAllBytesAsync(CancellationToken cancellationToken) => FileSystem.ReadAllBytesAsync(Path, cancellationToken);
+    public virtual ValueTask<byte[]> ReadAllBytesAsync(CancellationToken cancellationToken) => FileSystem.ReadAllBytesAsync(FullPath, cancellationToken);
 
     /// <summary>
     /// Deletes a file.
     /// </summary>
     public override void Delete()
     {
-        FileSystem.DeleteFile(Path);
+        FileSystem.DeleteFile(FullPath);
     }
 
     /// <summary>
@@ -119,7 +119,7 @@ public class DiscFileInfo : DiscFileSystemInfo
     /// <param name="overwrite">Whether to permit over-writing of an existing file.</param>
     public void CopyTo(string destinationFileName, bool overwrite)
     {
-        FileSystem.CopyFile(Path, destinationFileName, overwrite);
+        FileSystem.CopyFile(FullPath, destinationFileName, overwrite);
     }
 
     /// <summary>
@@ -146,7 +146,7 @@ public class DiscFileInfo : DiscFileSystemInfo
     /// <param name="destinationFileName">The new name of the file.</param>
     public virtual void MoveTo(string destinationFileName)
     {
-        FileSystem.MoveFile(Path, destinationFileName);
+        FileSystem.MoveFile(FullPath, destinationFileName);
     }
 
     /// <summary>
@@ -157,7 +157,7 @@ public class DiscFileInfo : DiscFileSystemInfo
     /// <remarks>Read-only file systems only support <c>FileMode.Open</c>.</remarks>
     public virtual Stream Open(FileMode mode)
     {
-        return FileSystem.OpenFile(Path, mode);
+        return FileSystem.OpenFile(FullPath, mode);
     }
 
     /// <summary>
@@ -169,7 +169,7 @@ public class DiscFileInfo : DiscFileSystemInfo
     /// <remarks>Read-only file systems only support <c>FileMode.Open</c> and <c>FileAccess.Read</c>.</remarks>
     public virtual Stream Open(FileMode mode, FileAccess access)
     {
-        return FileSystem.OpenFile(Path, mode, access);
+        return FileSystem.OpenFile(FullPath, mode, access);
     }
 
     /// <summary>

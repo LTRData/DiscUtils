@@ -223,30 +223,30 @@ internal struct Inode : IByteArraySerializable
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         Magic = EndianUtilities.ToUInt16BigEndian(buffer);
-        Mode = EndianUtilities.ToUInt16BigEndian(buffer.Slice(0x2));
+        Mode = EndianUtilities.ToUInt16BigEndian(buffer[0x2..]);
         Version = buffer[0x4];
         Format = (InodeFormat)buffer[0x5];
-        Onlink = EndianUtilities.ToUInt16BigEndian(buffer.Slice(0x6));
-        UserId = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x8));
-        GroupId = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0xC));
-        Nlink = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x10));
-        ProjectId = EndianUtilities.ToUInt16BigEndian(buffer.Slice(0x14));
+        Onlink = EndianUtilities.ToUInt16BigEndian(buffer[0x6..]);
+        UserId = EndianUtilities.ToUInt32BigEndian(buffer[0x8..]);
+        GroupId = EndianUtilities.ToUInt32BigEndian(buffer[0xC..]);
+        Nlink = EndianUtilities.ToUInt32BigEndian(buffer[0x10..]);
+        ProjectId = EndianUtilities.ToUInt16BigEndian(buffer[0x14..]);
         Padding = EndianUtilities.ToByteArray(buffer.Slice(0x16, 8));
-        FlushIterator = EndianUtilities.ToUInt16BigEndian(buffer.Slice(0x1E));
-        AccessTime = ReadTimestamp(buffer.Slice(0x20));
-        ModificationTime = ReadTimestamp(buffer.Slice(0x28));
-        CreationTime = ReadTimestamp(buffer.Slice(0x30));
-        Length = EndianUtilities.ToUInt64BigEndian(buffer.Slice(0x38));
-        BlockCount = EndianUtilities.ToUInt64BigEndian(buffer.Slice(0x40));
-        ExtentSize = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x48));
-        Extents = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x4C));
-        AttributeExtents = EndianUtilities.ToUInt16BigEndian(buffer.Slice(0x50));
+        FlushIterator = EndianUtilities.ToUInt16BigEndian(buffer[0x1E..]);
+        AccessTime = ReadTimestamp(buffer[0x20..]);
+        ModificationTime = ReadTimestamp(buffer[0x28..]);
+        CreationTime = ReadTimestamp(buffer[0x30..]);
+        Length = EndianUtilities.ToUInt64BigEndian(buffer[0x38..]);
+        BlockCount = EndianUtilities.ToUInt64BigEndian(buffer[0x40..]);
+        ExtentSize = EndianUtilities.ToUInt32BigEndian(buffer[0x48..]);
+        Extents = EndianUtilities.ToUInt32BigEndian(buffer[0x4C..]);
+        AttributeExtents = EndianUtilities.ToUInt16BigEndian(buffer[0x50..]);
         Forkoff = buffer[0x52];
         AttributeFormat = (sbyte)buffer[0x53];
-        DmApiEventMask = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x54));
-        DmState = EndianUtilities.ToUInt16BigEndian(buffer.Slice(0x58));
-        Flags = (InodeFlags)EndianUtilities.ToUInt16BigEndian(buffer.Slice(0x5A));
-        Generation = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x5C));
+        DmApiEventMask = EndianUtilities.ToUInt32BigEndian(buffer[0x54..]);
+        DmState = EndianUtilities.ToUInt16BigEndian(buffer[0x58..]);
+        Flags = (InodeFlags)EndianUtilities.ToUInt16BigEndian(buffer[0x5A..]);
+        Generation = EndianUtilities.ToUInt32BigEndian(buffer[0x5C..]);
         var dfOffset = Version < 3 ? 0x64 : 0xb0;
         int dfLength;
         if (Forkoff == 0)
@@ -265,7 +265,7 @@ internal struct Inode : IByteArraySerializable
     private static DateTime ReadTimestamp(ReadOnlySpan<byte> buffer)
     {
         var seconds = EndianUtilities.ToUInt32BigEndian(buffer);
-        var nanoSeconds = EndianUtilities.ToUInt32BigEndian(buffer.Slice(4));
+        var nanoSeconds = EndianUtilities.ToUInt32BigEndian(buffer[4..]);
         return DateTimeOffset.FromUnixTimeSeconds(seconds).AddTicks(nanoSeconds / 100).UtcDateTime;
     }
 

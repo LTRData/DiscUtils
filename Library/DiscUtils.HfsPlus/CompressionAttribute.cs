@@ -51,10 +51,10 @@ internal class CompressionAttribute
         //_recordType = EndianUtilities.ToUInt32BigEndian(buffer);
         //_reserved1 = EndianUtilities.ToUInt32BigEndian(buffer.Slice(4));
         //_reserved1 = EndianUtilities.ToUInt32BigEndian(buffer.Slice(8));
-        AttrSize = EndianUtilities.ToUInt32BigEndian(buffer.Slice(12));
-        _compressionMagic = EndianUtilities.ToUInt32BigEndian(buffer.Slice(16));
-        CompressionType = (FileCompressionType)EndianUtilities.ToUInt32LittleEndian(buffer.Slice(20));
-        UncompressedSize = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(24));
+        AttrSize = EndianUtilities.ToUInt32BigEndian(buffer[12..]);
+        _compressionMagic = EndianUtilities.ToUInt32BigEndian(buffer[16..]);
+        CompressionType = (FileCompressionType)EndianUtilities.ToUInt32LittleEndian(buffer[20..]);
+        UncompressedSize = EndianUtilities.ToUInt32LittleEndian(buffer[24..]);
         //_reserved3 = EndianUtilities.ToUInt32BigEndian(buffer.Slice(28));
 
         return Size;

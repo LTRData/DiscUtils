@@ -158,7 +158,7 @@ public sealed class SparseMemoryBuffer : Buffer
 
             if (!_buffers.TryGetValue(chunk, out var chunkBuffer))
             {
-                buffer.Slice(0, numToRead).Clear();
+                buffer[..numToRead].Clear();
             }
             else
             {
@@ -166,7 +166,7 @@ public sealed class SparseMemoryBuffer : Buffer
             }
 
             totalRead += numToRead;
-            buffer = buffer.Slice(numToRead);
+            buffer = buffer[numToRead..];
             pos += numToRead;
         }
 
@@ -218,9 +218,9 @@ public sealed class SparseMemoryBuffer : Buffer
                 _buffers[chunk] = chunkBuffer;
             }
 
-            buffer.Slice(0, numToWrite).CopyTo(chunkBuffer.AsSpan(chunkOffset));
+            buffer[..numToWrite].CopyTo(chunkBuffer.AsSpan(chunkOffset));
 
-            buffer = buffer.Slice(numToWrite);
+            buffer = buffer[numToWrite..];
 
             pos += numToWrite;
         }

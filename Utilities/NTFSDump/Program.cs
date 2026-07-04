@@ -36,7 +36,7 @@ class Program : ProgramBase
     private CommandLineSwitch _showSystem;
     private CommandLineSwitch _showMeta;
 
-    static void Main(string[] args)
+    static void Main(params string[] args)
     {
         DiscUtils.Containers.SetupHelper.SetupContainers();
         DiscUtils.Transports.SetupHelper.SetupTransports();

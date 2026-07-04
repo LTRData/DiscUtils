@@ -156,7 +156,7 @@ public class BuiltStream : SparseStream
 
         if (_position + buffer.Length > _length)
         {
-            buffer = buffer.Slice(0, (int)(_length - _position));
+            buffer = buffer[..(int)(_length - _position)];
         }
 
         var totalRead = 0;
@@ -197,12 +197,12 @@ public class BuiltStream : SparseStream
                 }
                 else
                 {
-                    numRead = await _baseStream.ReadAsync(buffer.Slice(totalRead), cancellationToken).ConfigureAwait(false);
+                    numRead = await _baseStream.ReadAsync(buffer[totalRead..], cancellationToken).ConfigureAwait(false);
                 }
             }
             else
             {
-                numRead = await _currentExtent.ReadAsync(_position, buffer.Slice(totalRead), cancellationToken).ConfigureAwait(false);
+                numRead = await _currentExtent.ReadAsync(_position, buffer[totalRead..], cancellationToken).ConfigureAwait(false);
             }
 
             if (numRead <= 0)
@@ -226,7 +226,7 @@ public class BuiltStream : SparseStream
 
         if (_position + buffer.Length > _length)
         {
-            buffer = buffer.Slice(0, (int)(_length - _position));
+            buffer = buffer[..(int)(_length - _position)];
         }
 
         var totalRead = 0;
@@ -267,12 +267,12 @@ public class BuiltStream : SparseStream
                 }
                 else
                 {
-                    numRead = _baseStream.Read(buffer.Slice(totalRead));
+                    numRead = _baseStream.Read(buffer[totalRead..]);
                 }
             }
             else
             {
-                numRead = _currentExtent.Read(_position, buffer.Slice(totalRead));
+                numRead = _currentExtent.Read(_position, buffer[totalRead..]);
             }
 
             if (numRead <= 0)

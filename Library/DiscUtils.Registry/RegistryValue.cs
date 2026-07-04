@@ -148,12 +148,12 @@ public sealed class RegistryValue
             Span<byte> buffer = stackalloc byte[4];
             EndianUtilities.WriteBytesLittleEndian(_cell.DataIndex, buffer);
 
-            var result = maxBytes.Slice(0, len);
-            buffer.Slice(0, Math.Min(len, buffer.Length)).CopyTo(result);
+            var result = maxBytes[..len];
+            buffer[..Math.Min(len, buffer.Length)].CopyTo(result);
             return result;
         }
 
-        return _hive.RawCellData(_cell.DataIndex, maxBytes.Slice(0, _cell.DataLength));
+        return _hive.RawCellData(_cell.DataIndex, maxBytes[.._cell.DataLength]);
     }
 
     /// <summary>
@@ -226,7 +226,7 @@ public sealed class RegistryValue
                     return null;
                 }
 
-                return EndianUtilities.LittleEndianUnicodeBytesToString(data).Trim('\0');
+                return EndianUtilities.LittleEndianUnicodeBytesToString(data);
 
             case RegistryValueType.Dword:
                 if (data.Length == 0)
@@ -250,8 +250,7 @@ public sealed class RegistryValue
                     return null;
                 }
 
-                var multiString = EndianUtilities.LittleEndianUnicodeBytesToString(data).TrimEnd('\0');
-                return multiString.Split('\0');
+                return EndianUtilities.LittleEndianUnicodeBytesToStringArray(data);
 
             case RegistryValueType.Qword:
                 if (data.Length == 0)

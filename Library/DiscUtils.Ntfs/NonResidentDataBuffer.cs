@@ -177,7 +177,7 @@ internal class NonResidentDataBuffer : Buffer, IMappedBuffer
 
                 var toRead = (int)Math.Min(remaining, _bytesPerCluster - clusterOffset);
 
-                _ioBuffer.AsSpan((int)clusterOffset, toRead).CopyTo(buffer.Slice((int)(focusPos - pos)));
+                _ioBuffer.AsSpan((int)clusterOffset, toRead).CopyTo(buffer[(int)(focusPos - pos)..]);
 
                 focusPos += toRead;
             }
@@ -185,7 +185,7 @@ internal class NonResidentDataBuffer : Buffer, IMappedBuffer
             {
                 // Aligned, full cluster reads...
                 var fullClusters = (int)(remaining / _bytesPerCluster);
-                _activeStream.ReadClusters(vcn, fullClusters, buffer.Slice((int)(focusPos - pos)));
+                _activeStream.ReadClusters(vcn, fullClusters, buffer[(int)(focusPos - pos)..]);
 
                 focusPos += fullClusters * _bytesPerCluster;
             }
@@ -222,7 +222,7 @@ internal class NonResidentDataBuffer : Buffer, IMappedBuffer
 
                 var toRead = (int)Math.Min(remaining, _bytesPerCluster - clusterOffset);
 
-                _ioBuffer.AsMemory((int)clusterOffset, toRead).CopyTo(buffer.Slice((int)(focusPos - pos)));
+                _ioBuffer.AsMemory((int)clusterOffset, toRead).CopyTo(buffer[(int)(focusPos - pos)..]);
 
                 focusPos += toRead;
             }
@@ -230,7 +230,7 @@ internal class NonResidentDataBuffer : Buffer, IMappedBuffer
             {
                 // Aligned, full cluster reads...
                 var fullClusters = (int)(remaining / _bytesPerCluster);
-                await _activeStream.ReadClustersAsync(vcn, fullClusters, buffer.Slice((int)(focusPos - pos)), cancellationToken).ConfigureAwait(false);
+                await _activeStream.ReadClustersAsync(vcn, fullClusters, buffer[(int)(focusPos - pos)..], cancellationToken).ConfigureAwait(false);
 
                 focusPos += fullClusters * _bytesPerCluster;
             }

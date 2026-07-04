@@ -36,7 +36,7 @@ class Program : ProgramBase
     private CommandLineSwitch _diskType;
     private CommandLineSwitch _hexDump;
 
-    static void Main(string[] args)
+    static void Main(params string[] args)
     {
         DiscUtils.Containers.SetupHelper.SetupContainers();
         DiscUtils.FileSystems.SetupHelper.SetupFileSystems();

@@ -59,31 +59,31 @@ public class RawSecurityDescriptor : GenericSecurityDescriptor
         }
 
         ResourceManagerControl = binaryForm[0x01];
-        _controlFlags = (ControlFlags)EndianUtilities.ToUInt16LittleEndian(binaryForm.Slice(0x02));
+        _controlFlags = (ControlFlags)EndianUtilities.ToUInt16LittleEndian(binaryForm[0x02..]);
 
-        var ownerPos = EndianUtilities.ToInt32LittleEndian(binaryForm.Slice(0x04));
-        var groupPos = EndianUtilities.ToInt32LittleEndian(binaryForm.Slice(0x08));
-        var saclPos = EndianUtilities.ToInt32LittleEndian(binaryForm.Slice(0x0C));
-        var daclPos = EndianUtilities.ToInt32LittleEndian(binaryForm.Slice(0x10));
+        var ownerPos = EndianUtilities.ToInt32LittleEndian(binaryForm[0x04..]);
+        var groupPos = EndianUtilities.ToInt32LittleEndian(binaryForm[0x08..]);
+        var saclPos = EndianUtilities.ToInt32LittleEndian(binaryForm[0x0C..]);
+        var daclPos = EndianUtilities.ToInt32LittleEndian(binaryForm[0x10..]);
 
         if (ownerPos != 0)
         {
-            Owner = new SecurityIdentifier(binaryForm.Slice(ownerPos));
+            Owner = new SecurityIdentifier(binaryForm[ownerPos..]);
         }
 
         if (groupPos != 0)
         {
-            Group = new SecurityIdentifier(binaryForm.Slice(groupPos));
+            Group = new SecurityIdentifier(binaryForm[groupPos..]);
         }
 
         if (saclPos != 0)
         {
-            SystemAcl = new RawAcl(binaryForm.Slice(saclPos));
+            SystemAcl = new RawAcl(binaryForm[saclPos..]);
         }
 
         if (daclPos != 0)
         {
-            DiscretionaryAcl = new RawAcl(binaryForm.Slice(daclPos));
+            DiscretionaryAcl = new RawAcl(binaryForm[daclPos..]);
         }
     }
 
@@ -99,17 +99,17 @@ public class RawSecurityDescriptor : GenericSecurityDescriptor
         var sd = new RawSecurityDescriptor
         {
             ResourceManagerControl = binaryForm[0x01],
-            _controlFlags = (ControlFlags)EndianUtilities.ToUInt16LittleEndian(binaryForm.Slice(0x02))
+            _controlFlags = (ControlFlags)EndianUtilities.ToUInt16LittleEndian(binaryForm[0x02..])
         };
 
-        var ownerPos = EndianUtilities.ToInt32LittleEndian(binaryForm.Slice(0x04));
-        var groupPos = EndianUtilities.ToInt32LittleEndian(binaryForm.Slice(0x08));
-        var saclPos = EndianUtilities.ToInt32LittleEndian(binaryForm.Slice(0x0C));
-        var daclPos = EndianUtilities.ToInt32LittleEndian(binaryForm.Slice(0x10));
+        var ownerPos = EndianUtilities.ToInt32LittleEndian(binaryForm[0x04..]);
+        var groupPos = EndianUtilities.ToInt32LittleEndian(binaryForm[0x08..]);
+        var saclPos = EndianUtilities.ToInt32LittleEndian(binaryForm[0x0C..]);
+        var daclPos = EndianUtilities.ToInt32LittleEndian(binaryForm[0x10..]);
 
         if (ownerPos != 0)
         {
-            if (!SecurityIdentifier.TryParse(binaryForm.Slice(ownerPos), out var owner))
+            if (!SecurityIdentifier.TryParse(binaryForm[ownerPos..], out var owner))
             {
                 return false;
             }
@@ -119,7 +119,7 @@ public class RawSecurityDescriptor : GenericSecurityDescriptor
 
         if (groupPos != 0)
         {
-            if (!SecurityIdentifier.TryParse(binaryForm.Slice(groupPos), out var group))
+            if (!SecurityIdentifier.TryParse(binaryForm[groupPos..], out var group))
             {
                 return false;
             }
@@ -129,7 +129,7 @@ public class RawSecurityDescriptor : GenericSecurityDescriptor
 
         if (saclPos != 0)
         {
-            if (!RawAcl.TryParse(binaryForm.Slice(saclPos), out var systemAcl))
+            if (!RawAcl.TryParse(binaryForm[saclPos..], out var systemAcl))
             {
                 return false;
             }
@@ -139,7 +139,7 @@ public class RawSecurityDescriptor : GenericSecurityDescriptor
 
         if (daclPos != 0)
         {
-            if (!RawAcl.TryParse(binaryForm.Slice(daclPos), out var discretionaryAcl))
+            if (!RawAcl.TryParse(binaryForm[daclPos..], out var discretionaryAcl))
             {
                 return false;
             }

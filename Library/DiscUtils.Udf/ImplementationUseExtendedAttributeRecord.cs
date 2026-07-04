@@ -34,10 +34,10 @@ internal sealed class ImplementationUseExtendedAttributeRecord : ExtendedAttribu
     {
         var read = base.ReadFrom(buffer);
 
-        var iuSize = EndianUtilities.ToInt32LittleEndian(buffer.Slice(12));
+        var iuSize = EndianUtilities.ToInt32LittleEndian(buffer[12..]);
 
         ImplementationIdentifier = new ImplementationEntityIdentifier();
-        ImplementationIdentifier.ReadFrom(buffer.Slice(16));
+        ImplementationIdentifier.ReadFrom(buffer[16..]);
 
         ImplementationUseData = buffer.Slice(48, iuSize).ToArray();
 

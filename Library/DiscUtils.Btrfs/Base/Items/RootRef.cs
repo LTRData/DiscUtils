@@ -58,8 +58,8 @@ internal class RootRef : BaseItem
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         DirectoryId = EndianUtilities.ToUInt64LittleEndian(buffer);
-        Sequence = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x8));
-        NameLength = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(0x10));
+        Sequence = EndianUtilities.ToUInt64LittleEndian(buffer[0x8..]);
+        NameLength = EndianUtilities.ToUInt16LittleEndian(buffer[0x10..]);
         Name = Encoding.UTF8.GetString(buffer.Slice(0x12, NameLength));
         return Size;
     }

@@ -260,7 +260,7 @@ internal class NonResidentAttributeBuffer : NonResidentDataBuffer
                 // Aligned, full cluster writes...
                 var fullClusters = (int)(remaining / _bytesPerCluster);
                 allocatedClusters += _activeStream.WriteClusters(vcn, fullClusters,
-                    buffer.Slice((int)(focusPos - pos)));
+                    buffer[(int)(focusPos - pos)..]);
 
                 focusPos += fullClusters * _bytesPerCluster;
             }
@@ -336,7 +336,7 @@ internal class NonResidentAttributeBuffer : NonResidentDataBuffer
                 // Aligned, full cluster writes...
                 var fullClusters = (int)(remaining / _bytesPerCluster);
                 allocatedClusters += await _activeStream.WriteClustersAsync(vcn, fullClusters,
-                    buffer.Slice((int)(focusPos - pos)), cancellationToken).ConfigureAwait(false);
+                    buffer[(int)(focusPos - pos)..], cancellationToken).ConfigureAwait(false);
 
                 focusPos += fullClusters * _bytesPerCluster;
             }

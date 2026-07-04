@@ -64,7 +64,7 @@ internal class LeafDirectory : IByteArraySerializable
         for (var i = 0; i < BestFree.Length; i++)
         {
             var free = new BlockDirectoryDataFree();
-            offset += free.ReadFrom(buffer.Slice(offset));
+            offset += free.ReadFrom(buffer[offset..]);
             BestFree[i] = free;
         }
 
@@ -85,7 +85,7 @@ internal class LeafDirectory : IByteArraySerializable
                 entry = new BlockDirectoryDataEntry(_context);
             }
 
-            offset += entry.ReadFrom(buffer.Slice(offset));
+            offset += entry.ReadFrom(buffer[offset..]);
             entries.Add(entry);
         }
 

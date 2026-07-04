@@ -34,7 +34,7 @@ internal sealed class SuspRecords
     {
         _records = [];
 
-        var contEntry = Parse(context, data.Slice(context.SuspSkipBytes));
+        var contEntry = Parse(context, data[context.SuspSkipBytes..]);
         while (contEntry != null)
         {
             context.RawStream.Position = contEntry.Block * (long)context.VolumeDescriptor.LogicalBlockSize +
@@ -117,7 +117,7 @@ internal sealed class SuspRecords
         var pos = 0;
         while (data.Length - pos > 4)
         {
-            var entry = SystemUseEntry.Parse(data.Slice(pos), context.VolumeDescriptor.CharacterEncoding,
+            var entry = SystemUseEntry.Parse(data[pos..], context.VolumeDescriptor.CharacterEncoding,
                 extension, out var len);
 
             pos += len;

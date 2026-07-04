@@ -57,11 +57,11 @@ internal class DirectoryInode : Inode, IDirectoryInode
     {
         base.ReadFrom(buffer);
 
-        StartBlock = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(16));
-        NumLinks = EndianUtilities.ToInt32LittleEndian(buffer.Slice(20));
-        _fileSize = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(24));
-        Offset = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(26));
-        ParentInode = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(28));
+        StartBlock = EndianUtilities.ToUInt32LittleEndian(buffer[16..]);
+        NumLinks = EndianUtilities.ToInt32LittleEndian(buffer[20..]);
+        _fileSize = EndianUtilities.ToUInt16LittleEndian(buffer[24..]);
+        Offset = EndianUtilities.ToUInt16LittleEndian(buffer[26..]);
+        ParentInode = EndianUtilities.ToUInt32LittleEndian(buffer[28..]);
 
         return 32;
     }
@@ -70,10 +70,10 @@ internal class DirectoryInode : Inode, IDirectoryInode
     {
         base.WriteTo(buffer);
 
-        EndianUtilities.WriteBytesLittleEndian(StartBlock, buffer.Slice(16));
-        EndianUtilities.WriteBytesLittleEndian(NumLinks, buffer.Slice(20));
-        EndianUtilities.WriteBytesLittleEndian(_fileSize, buffer.Slice(24));
-        EndianUtilities.WriteBytesLittleEndian(Offset, buffer.Slice(26));
-        EndianUtilities.WriteBytesLittleEndian(ParentInode, buffer.Slice(28));
+        EndianUtilities.WriteBytesLittleEndian(StartBlock, buffer[16..]);
+        EndianUtilities.WriteBytesLittleEndian(NumLinks, buffer[20..]);
+        EndianUtilities.WriteBytesLittleEndian(_fileSize, buffer[24..]);
+        EndianUtilities.WriteBytesLittleEndian(Offset, buffer[26..]);
+        EndianUtilities.WriteBytesLittleEndian(ParentInode, buffer[28..]);
     }
 }

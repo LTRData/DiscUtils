@@ -125,7 +125,7 @@ internal sealed class MetablockWriter : IDisposable
         Span<byte> header = stackalloc byte[2];
         EndianUtilities.WriteBytesLittleEndian(writeLen, header);
         _buffer.Write(header);
-        _buffer.Write(writeData.Slice(0, writeLen & Metablock.SQUASHFS_COMPRESSED_BIT_SIZE_MASK));
+        _buffer.Write(writeData[..(writeLen & Metablock.SQUASHFS_COMPRESSED_BIT_SIZE_MASK)]);
 
         ++_currentBlockNum;
     }

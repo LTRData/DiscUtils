@@ -47,7 +47,7 @@ internal readonly struct UpperCase : IComparer<string>
         {
             for (var i = 0; i < _table.Length; ++i)
             {
-                _table[i] = (char)EndianUtilities.ToUInt16LittleEndian(bytes.Slice(i * 2));
+                _table[i] = (char)EndianUtilities.ToUInt16LittleEndian(bytes[(i * 2)..]);
             }
         }
     }
@@ -135,7 +135,7 @@ internal readonly struct UpperCase : IComparer<string>
                 c = char.ToUpperInvariant(c);
             }
 
-            EndianUtilities.WriteBytesLittleEndian(c, bytes.Slice(i * 2));
+            EndianUtilities.WriteBytesLittleEndian(c, bytes[(i * 2)..]);
         }
 
         return table;

@@ -20,7 +20,9 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
+using System;
 using System.IO;
+using DiscUtils;
 using DiscUtils.Partitions;
 using DiscUtils.Streams;
 using DiscUtils.Vdi;
@@ -179,6 +181,56 @@ public class GuidPartitionTableTest
 
         Assert.Equal(2, table.Count);
         Assert.Equal(sectorCount[2], table[1].SectorCount);
+    }
+
+    [Fact]
+    public void ProtectiveMbrIsSpecCompliant()
+    {
+        var ms = new MemoryStream();
+        ms.SetLength(3 * 1024 * 1024);
+        GuidPartitionTable.Initialize(ms, Geometry.FromCapacity(ms.Length));
+
+        ms.Position = 0;
+        var sector = new byte[512];
+        ms.ReadExactly(sector, 0, sector.Length);
+
+        // Boot signature.
+        Assert.Equal(0x55, sector[510]);
+        Assert.Equal(0xAA, sector[511]);
+
+        // Exactly one of the four partition records must be the 0xEE protective
+        // record; the other three must be empty (type 0x00).
+        var protectiveIndex = -1;
+        var protectiveCount = 0;
+        var emptyCount = 0;
+        for (var i = 0; i < 4; ++i)
+        {
+            var type = sector[0x1BE + 16 * i + 4];
+            if (type == 0xEE)
+            {
+                protectiveIndex = i;
+                ++protectiveCount;
+            }
+            else if (type == 0x00)
+            {
+                ++emptyCount;
+            }
+        }
+
+        Assert.Equal(1, protectiveCount);
+        Assert.Equal(3, emptyCount);
+
+        var record = sector.AsSpan(0x1BE + 16 * protectiveIndex, 16);
+
+        // Status byte must be non-bootable.
+        Assert.Equal(0, record[0]);
+
+        // UEFI spec: StartingLBA == 1 and SizeInLBA == disk size in sectors - 1.
+        var startingLba = EndianUtilities.ToUInt32LittleEndian(record.Slice(8));
+        var sizeInLba = EndianUtilities.ToUInt32LittleEndian(record.Slice(12));
+
+        Assert.Equal(1U, startingLba);
+        Assert.Equal((uint)(ms.Length / 512 - 1), sizeInLba);
     }
 
 }

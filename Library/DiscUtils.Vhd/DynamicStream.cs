@@ -640,7 +640,7 @@ public class DynamicStream : MappedStream
                 }
 
                 // Overlay as much data as we have for this sector
-                buffer.AsSpan(offset + numWritten, toWrite).CopyTo(sectorBuffer.Slice(offsetInSector));
+                buffer.AsSpan(offset + numWritten, toWrite).CopyTo(sectorBuffer[offsetInSector..]);
 
                 // Write the sector back
                 _fileStream.Position = sectorStart;
@@ -860,7 +860,7 @@ public class DynamicStream : MappedStream
                 }
 
                 // Overlay as much data as we have for this sector
-                buffer.Slice(numWritten, toWrite).CopyTo(sectorBuffer.Slice(offsetInSector));
+                buffer.Slice(numWritten, toWrite).CopyTo(sectorBuffer[offsetInSector..]);
 
                 // Write the sector back
                 _fileStream.Position = sectorStart;

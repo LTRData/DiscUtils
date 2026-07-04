@@ -78,19 +78,19 @@ internal class GptHeader
     {
         var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
 
-        Signature = latin1Encoding.GetString(buffer.Slice(0, 8));
-        Version = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(8));
-        HeaderSize = EndianUtilities.ToInt32LittleEndian(buffer.Slice(12));
-        Crc = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(16));
-        HeaderLba = EndianUtilities.ToInt64LittleEndian(buffer.Slice(24));
-        AlternateHeaderLba = EndianUtilities.ToInt64LittleEndian(buffer.Slice(32));
-        FirstUsable = EndianUtilities.ToInt64LittleEndian(buffer.Slice(40));
-        LastUsable = EndianUtilities.ToInt64LittleEndian(buffer.Slice(48));
-        DiskGuid = EndianUtilities.ToGuidLittleEndian(buffer.Slice(56));
-        PartitionEntriesLba = EndianUtilities.ToInt64LittleEndian(buffer.Slice(72));
-        PartitionEntryCount = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(80));
-        PartitionEntrySize = EndianUtilities.ToInt32LittleEndian(buffer.Slice(84));
-        EntriesCrc = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(88));
+        Signature = latin1Encoding.GetString(buffer[..8]);
+        Version = EndianUtilities.ToUInt32LittleEndian(buffer[8..]);
+        HeaderSize = EndianUtilities.ToInt32LittleEndian(buffer[12..]);
+        Crc = EndianUtilities.ToUInt32LittleEndian(buffer[16..]);
+        HeaderLba = EndianUtilities.ToInt64LittleEndian(buffer[24..]);
+        AlternateHeaderLba = EndianUtilities.ToInt64LittleEndian(buffer[32..]);
+        FirstUsable = EndianUtilities.ToInt64LittleEndian(buffer[40..]);
+        LastUsable = EndianUtilities.ToInt64LittleEndian(buffer[48..]);
+        DiskGuid = EndianUtilities.ToGuidLittleEndian(buffer[56..]);
+        PartitionEntriesLba = EndianUtilities.ToInt64LittleEndian(buffer[72..]);
+        PartitionEntryCount = EndianUtilities.ToUInt32LittleEndian(buffer[80..]);
+        PartitionEntrySize = EndianUtilities.ToInt32LittleEndian(buffer[84..]);
+        EntriesCrc = EndianUtilities.ToUInt32LittleEndian(buffer[88..]);
 
         // Reject obviously invalid data
         if (Signature != GptSignature || HeaderSize <= 0)
@@ -100,7 +100,7 @@ internal class GptHeader
 
         // In case the header has new fields unknown to us, store the entire header
         // as a byte array
-        Buffer = buffer.Slice(0, HeaderSize).ToArray();
+        Buffer = buffer[..HeaderSize].ToArray();
 
         return Crc == CalcCrc(Buffer, 0, HeaderSize);
     }
@@ -113,26 +113,26 @@ internal class GptHeader
         // Next, write the fields
         EncodingUtilities
             .GetLatin1Encoding()
-            .GetBytes(Signature, buffer.Slice(0, 8));
+            .GetBytes(Signature, buffer[..8]);
 
-        EndianUtilities.WriteBytesLittleEndian(Version, buffer.Slice(8));
-        EndianUtilities.WriteBytesLittleEndian(HeaderSize, buffer.Slice(12));
-        EndianUtilities.WriteBytesLittleEndian((uint)0, buffer.Slice(16));
-        EndianUtilities.WriteBytesLittleEndian(HeaderLba, buffer.Slice(24));
-        EndianUtilities.WriteBytesLittleEndian(AlternateHeaderLba, buffer.Slice(32));
-        EndianUtilities.WriteBytesLittleEndian(FirstUsable, buffer.Slice(40));
-        EndianUtilities.WriteBytesLittleEndian(LastUsable, buffer.Slice(48));
-        EndianUtilities.WriteBytesLittleEndian(DiskGuid, buffer.Slice(56));
-        EndianUtilities.WriteBytesLittleEndian(PartitionEntriesLba, buffer.Slice(72));
-        EndianUtilities.WriteBytesLittleEndian(PartitionEntryCount, buffer.Slice(80));
-        EndianUtilities.WriteBytesLittleEndian(PartitionEntrySize, buffer.Slice(84));
-        EndianUtilities.WriteBytesLittleEndian(EntriesCrc, buffer.Slice(88));
+        EndianUtilities.WriteBytesLittleEndian(Version, buffer[8..]);
+        EndianUtilities.WriteBytesLittleEndian(HeaderSize, buffer[12..]);
+        EndianUtilities.WriteBytesLittleEndian((uint)0, buffer[16..]);
+        EndianUtilities.WriteBytesLittleEndian(HeaderLba, buffer[24..]);
+        EndianUtilities.WriteBytesLittleEndian(AlternateHeaderLba, buffer[32..]);
+        EndianUtilities.WriteBytesLittleEndian(FirstUsable, buffer[40..]);
+        EndianUtilities.WriteBytesLittleEndian(LastUsable, buffer[48..]);
+        EndianUtilities.WriteBytesLittleEndian(DiskGuid, buffer[56..]);
+        EndianUtilities.WriteBytesLittleEndian(PartitionEntriesLba, buffer[72..]);
+        EndianUtilities.WriteBytesLittleEndian(PartitionEntryCount, buffer[80..]);
+        EndianUtilities.WriteBytesLittleEndian(PartitionEntrySize, buffer[84..]);
+        EndianUtilities.WriteBytesLittleEndian(EntriesCrc, buffer[88..]);
 
         // Calculate & write the CRC
-        EndianUtilities.WriteBytesLittleEndian(CalcCrc(buffer.Slice(0, HeaderSize)), buffer.Slice(16));
+        EndianUtilities.WriteBytesLittleEndian(CalcCrc(buffer[..HeaderSize]), buffer[16..]);
 
         // Update the cached copy - re-allocate the buffer to allow for HeaderSize potentially having changed
-        Buffer = buffer.Slice(0, HeaderSize).ToArray();
+        Buffer = buffer[..HeaderSize].ToArray();
     }
 
     internal static uint CalcCrc(byte[] buffer, int offset, int count)

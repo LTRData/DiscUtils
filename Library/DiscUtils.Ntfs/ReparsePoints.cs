@@ -85,14 +85,14 @@ internal class ReparsePoints
         public int ReadFrom(ReadOnlySpan<byte> buffer)
         {
             Tag = EndianUtilities.ToUInt32LittleEndian(buffer);
-            File = new FileRecordReference(EndianUtilities.ToUInt64LittleEndian(buffer.Slice(4)));
+            File = new FileRecordReference(EndianUtilities.ToUInt64LittleEndian(buffer[4..]));
             return 12;
         }
 
         public void WriteTo(Span<byte> buffer)
         {
             EndianUtilities.WriteBytesLittleEndian(Tag, buffer);
-            EndianUtilities.WriteBytesLittleEndian(File.Value, buffer.Slice(4));
+            EndianUtilities.WriteBytesLittleEndian(File.Value, buffer[4..]);
             ////Utilities.WriteBytesLittleEndian((uint)0, buffer, offset + 12);
         }
 

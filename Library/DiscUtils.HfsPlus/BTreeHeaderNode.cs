@@ -38,19 +38,19 @@ internal class BTreeHeaderNode : BTreeNode
         int totalRecords = Descriptor.NumRecords;
         var nodeSize = Tree.NodeSize;
 
-        int headerRecordOffset = EndianUtilities.ToUInt16BigEndian(buffer.Slice(nodeSize - 2));
-        int userDataRecordOffset = EndianUtilities.ToUInt16BigEndian(buffer.Slice(nodeSize - 4));
-        int mapRecordOffset = EndianUtilities.ToUInt16BigEndian(buffer.Slice(nodeSize - 6));
+        int headerRecordOffset = EndianUtilities.ToUInt16BigEndian(buffer[(nodeSize - 2)..]);
+        int userDataRecordOffset = EndianUtilities.ToUInt16BigEndian(buffer[(nodeSize - 4)..]);
+        int mapRecordOffset = EndianUtilities.ToUInt16BigEndian(buffer[(nodeSize - 6)..]);
 
         var results = new BTreeNodeRecord[3];
         results[0] = new BTreeHeaderRecord();
-        results[0].ReadFrom(buffer.Slice(headerRecordOffset));
+        results[0].ReadFrom(buffer[headerRecordOffset..]);
 
         results[1] = new BTreeGenericRecord(mapRecordOffset - userDataRecordOffset);
-        results[1].ReadFrom(buffer.Slice(userDataRecordOffset));
+        results[1].ReadFrom(buffer[userDataRecordOffset..]);
 
         results[2] = new BTreeGenericRecord(nodeSize - (totalRecords * 2 + mapRecordOffset));
-        results[2].ReadFrom(buffer.Slice(mapRecordOffset));
+        results[2].ReadFrom(buffer[mapRecordOffset..]);
 
         return results;
     }

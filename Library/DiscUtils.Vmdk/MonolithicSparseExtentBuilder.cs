@@ -322,12 +322,12 @@ internal sealed class MonolithicSparseExtentBuilder : StreamBuilder
 
             if (readStart > _content.Length)
             {
-                block.Span.Slice(0, toRead).Clear();
+                block.Span[..toRead].Clear();
                 return new(toRead);
             }
 
             _content.Position = readStart;
-            return _content.ReadAsync(block.Slice(0, toRead), cancellationToken);
+            return _content.ReadAsync(block[..toRead], cancellationToken);
         }
 
         public override int Read(long diskOffset, Span<byte> block)
@@ -346,12 +346,12 @@ internal sealed class MonolithicSparseExtentBuilder : StreamBuilder
 
             if (readStart > _content.Length)
             {
-                block.Slice(0, toRead).Clear();
+                block[..toRead].Clear();
                 return toRead;
             }
 
             _content.Position = readStart;
-            return _content.Read(block.Slice(0, toRead));
+            return _content.Read(block[..toRead]);
         }
 
         public override void DisposeReadState()

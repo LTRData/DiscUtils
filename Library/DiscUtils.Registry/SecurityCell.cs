@@ -60,10 +60,10 @@ internal sealed class SecurityCell : Cell
 
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {
-        PreviousIndex = EndianUtilities.ToInt32LittleEndian(buffer.Slice(0x04));
-        NextIndex = EndianUtilities.ToInt32LittleEndian(buffer.Slice(0x08));
-        UsageCount = EndianUtilities.ToInt32LittleEndian(buffer.Slice(0x0C));
-        var secDescSize = EndianUtilities.ToInt32LittleEndian(buffer.Slice(0x10));
+        PreviousIndex = EndianUtilities.ToInt32LittleEndian(buffer[0x04..]);
+        NextIndex = EndianUtilities.ToInt32LittleEndian(buffer[0x08..]);
+        UsageCount = EndianUtilities.ToInt32LittleEndian(buffer[0x0C..]);
+        var secDescSize = EndianUtilities.ToInt32LittleEndian(buffer[0x10..]);
 
         var secDesc = buffer.Slice(0x14, secDescSize);
         SecurityDescriptor = new RegistrySecurity(secDesc);
@@ -76,12 +76,12 @@ internal sealed class SecurityCell : Cell
         var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
         var sd = SecurityDescriptor.GetSecurityDescriptorBinaryForm();
 
-        "sk"u8.CopyTo(buffer.Slice(0, 2));
-        EndianUtilities.WriteBytesLittleEndian(PreviousIndex, buffer.Slice(0x04));
-        EndianUtilities.WriteBytesLittleEndian(NextIndex, buffer.Slice(0x08));
-        EndianUtilities.WriteBytesLittleEndian(UsageCount, buffer.Slice(0x0C));
-        EndianUtilities.WriteBytesLittleEndian(sd.Length, buffer.Slice(0x10));
-        sd.CopyTo(buffer.Slice(0x14));
+        "sk"u8.CopyTo(buffer[..2]);
+        EndianUtilities.WriteBytesLittleEndian(PreviousIndex, buffer[0x04..]);
+        EndianUtilities.WriteBytesLittleEndian(NextIndex, buffer[0x08..]);
+        EndianUtilities.WriteBytesLittleEndian(UsageCount, buffer[0x0C..]);
+        EndianUtilities.WriteBytesLittleEndian(sd.Length, buffer[0x10..]);
+        sd.CopyTo(buffer[0x14..]);
     }
 
     public override string ToString()

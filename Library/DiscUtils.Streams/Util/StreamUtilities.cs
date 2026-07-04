@@ -129,7 +129,7 @@ public static class StreamUtilities
                 throw new EndOfStreamException($"Unable to complete read of {originalCount} bytes");
             }
 
-            buffer = buffer.Slice(numRead);
+            buffer = buffer[numRead..];
         }
     }
 
@@ -151,7 +151,7 @@ public static class StreamUtilities
                 throw new EndOfStreamException($"Unable to complete read of {originalCount} bytes");
             }
 
-            buffer = buffer.Slice(numRead);
+            buffer = buffer[numRead..];
         }
     }
 
@@ -236,7 +236,7 @@ public static class StreamUtilities
             }
 
             pos += numRead;
-            data = data.Slice(numRead);
+            data = data[numRead..];
         }
     }
 
@@ -260,7 +260,7 @@ public static class StreamUtilities
             }
 
             pos += numRead;
-            data = data.Slice(numRead);
+            data = data[numRead..];
         }
     }
 
@@ -355,7 +355,7 @@ public static class StreamUtilities
                 return totalRead;
             }
 
-            buffer = buffer.Slice(numRead);
+            buffer = buffer[numRead..];
             totalRead += numRead;
         }
 
@@ -386,7 +386,7 @@ public static class StreamUtilities
                 return totalRead;
             }
 
-            buffer = buffer.Slice(numRead);
+            buffer = buffer[numRead..];
             totalRead += numRead;
         }
 
@@ -447,7 +447,7 @@ public static class StreamUtilities
             }
 
             pos += numRead;
-            data = data.Slice(numRead);
+            data = data[numRead..];
             totalRead += numRead;
         }
 
@@ -475,7 +475,7 @@ public static class StreamUtilities
             }
 
             pos += numRead;
-            data = data.Slice(numRead);
+            data = data[numRead..];
             totalRead += numRead;
         }
 

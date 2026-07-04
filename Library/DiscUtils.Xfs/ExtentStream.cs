@@ -64,7 +64,7 @@ internal class ExtentStream : BuiltStream
     {
         if (Position + buffer.Length > Length)
         {
-            buffer = buffer.Slice(0, (int)(Length - Position));
+            buffer = buffer[..(int)(Length - Position)];
         }
 
         return base.ReadAsync(buffer, cancellationToken);
@@ -75,7 +75,7 @@ internal class ExtentStream : BuiltStream
     {
         if (Position + buffer.Length > Length)
         {
-            buffer = buffer.Slice(0, (int)(Length - Position));
+            buffer = buffer[..(int)(Length - Position)];
         }
 
         return base.Read(buffer);

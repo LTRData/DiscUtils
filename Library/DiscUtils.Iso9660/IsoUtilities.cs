@@ -46,13 +46,13 @@ internal static class IsoUtilities
     internal static void ToBothFromUInt32(Span<byte> buffer, uint value)
     {
         EndianUtilities.WriteBytesLittleEndian(value, buffer);
-        EndianUtilities.WriteBytesBigEndian(value, buffer.Slice(4));
+        EndianUtilities.WriteBytesBigEndian(value, buffer[4..]);
     }
 
     internal static void ToBothFromUInt16(Span<byte> buffer, ushort value)
     {
         EndianUtilities.WriteBytesLittleEndian(value, buffer);
-        EndianUtilities.WriteBytesBigEndian(value, buffer.Slice(2));
+        EndianUtilities.WriteBytesBigEndian(value, buffer[2..]);
     }
 
     internal static void ToBytesFromUInt32(Span<byte> buffer, uint value)
@@ -182,7 +182,7 @@ internal static class IsoUtilities
 
         if (pad && bytesUsed < buffer.Length)
         {
-            buffer.Slice(bytesUsed).Fill((byte)' ');
+            buffer[bytesUsed..].Fill((byte)' ');
             bytesUsed = buffer.Length;
         }
 
@@ -280,16 +280,16 @@ internal static class IsoUtilities
         if (name.Contains('.'))
         {
             var endOfFilePart = name.IndexOf('.');
-            parts.Name = name.Slice(0, endOfFilePart);
+            parts.Name = name[..endOfFilePart];
             if (name.Contains(';'))
             {
-                var verSep = name.Slice(endOfFilePart + 1).IndexOf(';');
+                var verSep = name[(endOfFilePart + 1)..].IndexOf(';');
                 parts.Extension = name.Slice(endOfFilePart + 1, verSep);
-                parts.Version = name.Slice(endOfFilePart + 1 + verSep + 1);
+                parts.Version = name[(endOfFilePart + 1 + verSep + 1)..];
             }
             else
             {
-                parts.Extension = name.Slice(endOfFilePart + 1);
+                parts.Extension = name[(endOfFilePart + 1)..];
                 parts.Version = "1";
             }
         }
@@ -298,9 +298,9 @@ internal static class IsoUtilities
             if (name.Contains(';'))
             {
                 var verSep = name.IndexOf(';');
-                parts.Name = name.Slice(0, verSep);
+                parts.Name = name[..verSep];
                 parts.Extension = "";
-                parts.Version = name.Slice(verSep + 1);
+                parts.Version = name[(verSep + 1)..];
             }
             else
             {
@@ -355,7 +355,7 @@ internal static class IsoUtilities
     {
         if (dateTime == DateTime.MinValue || dateTime.Year < 1900)
         {
-            data.Slice(0, 7).Clear();
+            data[..7].Clear();
         }
         else
         {
@@ -393,7 +393,7 @@ internal static class IsoUtilities
 
         var strForm = EncodingUtilities
             .GetLatin1Encoding()
-            .GetString(data.Slice(0, 16));
+            .GetString(data[..16]);
 
         // Work around bugs in burning software that may use zero bytes (rather than '0' characters)
         strForm = strForm.Replace('\0', '0');
@@ -434,14 +434,14 @@ internal static class IsoUtilities
 
         EncodingUtilities
             .GetLatin1Encoding()
-            .GetBytes(strForm, buffer.Slice(0, 16));
+            .GetBytes(strForm, buffer[..16]);
 
         buffer[16] = 0;
     }
 
     internal static void EncodingToBytes(Encoding enc, Span<byte> data)
     {
-        data.Slice(0, 32).Clear();
+        data[..32].Clear();
 
         if (enc == Encoding.ASCII)
         {

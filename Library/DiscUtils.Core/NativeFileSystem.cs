@@ -23,23 +23,31 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
+using DiscUtils.Internal;
+using DiscUtils.Streams;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using DiscUtils.Internal;
-using DiscUtils.Streams;
 
 namespace DiscUtils;
 
 /// <summary>
 /// Provides an implementation for OS-mounted file systems.
 /// </summary>
-public class NativeFileSystem : DiscFileSystem
+public class NativeFileSystem : DiscFileSystem, IFileSystemWithEnumerationOptions
 {
     private readonly bool _readOnly;
 
+    private readonly bool _useAsync;
+
     public override Stream? RawStream { get; }
+
+    internal LocalFileLocator FileLocator => field ??= new(BasePath, useAsync: _useAsync);
+
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP
+    public EnumerationOptions DefaultEnumerationOptions => field ??= new();
+#endif
 
     /// <summary>
     /// Initializes a new instance of the NativeFileSystem class.
@@ -47,6 +55,17 @@ public class NativeFileSystem : DiscFileSystem
     /// <param name="basePath">The 'root' directory of the new instance.</param>
     /// <param name="readOnly">Only permit 'read' activities.</param>
     public NativeFileSystem(string basePath, bool readOnly)
+        : this(basePath, readOnly, false)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the NativeFileSystem class.
+    /// </summary>
+    /// <param name="basePath">The 'root' directory of the new instance.</param>
+    /// <param name="readOnly">Only permit 'read' activities.</param>
+    /// <param name="useAsync"></param>
+    public NativeFileSystem(string basePath, bool readOnly, bool useAsync)
     {
         BasePath = basePath;
         if (BasePath[BasePath.Length - 1] != Path.DirectorySeparatorChar)
@@ -55,6 +74,7 @@ public class NativeFileSystem : DiscFileSystem
         }
 
         _readOnly = readOnly;
+        _useAsync = useAsync;
     }
 
     /// <summary>
@@ -116,12 +136,12 @@ public class NativeFileSystem : DiscFileSystem
 
         if (sourceFile.StartsWithDirectorySeparator())
         {
-            sourceFile = sourceFile.Substring(1);
+            sourceFile = sourceFile[1..];
         }
 
         if (destinationFile.StartsWithDirectorySeparator())
         {
-            destinationFile = destinationFile.Substring(1);
+            destinationFile = destinationFile[1..];
         }
 
         File.Copy(Path.Combine(BasePath, sourceFile), Path.Combine(BasePath, destinationFile), true);
@@ -140,7 +160,7 @@ public class NativeFileSystem : DiscFileSystem
 
         if (path.StartsWithDirectorySeparator())
         {
-            path = path.Substring(1);
+            path = path[1..];
         }
 
         Directory.CreateDirectory(Path.Combine(BasePath, path));
@@ -159,7 +179,7 @@ public class NativeFileSystem : DiscFileSystem
 
         if (path.StartsWithDirectorySeparator())
         {
-            path = path.Substring(1);
+            path = path[1..];
         }
 
         Directory.Delete(Path.Combine(BasePath, path));
@@ -201,7 +221,7 @@ public class NativeFileSystem : DiscFileSystem
 
         if (path.StartsWithDirectorySeparator())
         {
-            path = path.Substring(1);
+            path = path[1..];
         }
 
         File.Delete(Path.Combine(BasePath, path));
@@ -216,7 +236,7 @@ public class NativeFileSystem : DiscFileSystem
     {
         if (path.StartsWithDirectorySeparator())
         {
-            path = path.Substring(1);
+            path = path[1..];
         }
 
         return Directory.Exists(Path.Combine(BasePath, path));
@@ -231,7 +251,7 @@ public class NativeFileSystem : DiscFileSystem
     {
         if (path.StartsWithDirectorySeparator())
         {
-            path = path.Substring(1);
+            path = path[1..];
         }
 
         return File.Exists(Path.Combine(BasePath, path));
@@ -254,7 +274,7 @@ public class NativeFileSystem : DiscFileSystem
     /// <returns>Array of directories.</returns>
     public override IEnumerable<string> GetDirectories(string path)
     {
-        return GetDirectories(path, "*.*", SearchOption.TopDirectoryOnly);
+        return GetDirectories(path, "*", SearchOption.TopDirectoryOnly);
     }
 
     /// <summary>
@@ -269,6 +289,51 @@ public class NativeFileSystem : DiscFileSystem
         return GetDirectories(path, searchPattern, SearchOption.TopDirectoryOnly);
     }
 
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP
+    /// <summary>
+    /// Gets the names of subdirectories in a specified directory matching a specified
+    /// search pattern, using a value to determine whether to search subdirectories.
+    /// </summary>
+    /// <param name="path">The path to search.</param>
+    /// <param name="searchPattern">The search string to match against.</param>
+    /// <param name="searchOption">Indicates whether to search subdirectories.</param>
+    /// <returns>Array of directories matching the search pattern.</returns>
+    public override IEnumerable<string> GetDirectories(string path, string searchPattern, SearchOption searchOption)
+    {
+        DefaultEnumerationOptions.RecurseSubdirectories = searchOption == SearchOption.AllDirectories;
+
+        return GetDirectories(path, searchPattern, DefaultEnumerationOptions);
+    }
+
+    /// <summary>
+    /// Gets the names of subdirectories in a specified directory matching a specified
+    /// search pattern, using a value to determine whether to search subdirectories.
+    /// </summary>
+    /// <param name="path">The path to search.</param>
+    /// <param name="searchPattern">The search string to match against.</param>
+    /// <param name="options">An object that describes the search and enumeration configuration to use.</param>
+    /// <returns>Array of directories matching the search pattern.</returns>
+    public IEnumerable<string> GetDirectories(string path, string searchPattern, EnumerationOptions options)
+    {
+        if (path.StartsWithDirectorySeparator())
+        {
+            path = path[1..];
+        }
+
+        try
+        {
+            return Directory.EnumerateDirectories(Path.Combine(BasePath, path), searchPattern, options).Select(CleanItems);
+        }
+        catch (IOException)
+        {
+            return [];
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return [];
+        }
+    }
+#else
     /// <summary>
     /// Gets the names of subdirectories in a specified directory matching a specified
     /// search pattern, using a value to determine whether to search subdirectories.
@@ -281,7 +346,7 @@ public class NativeFileSystem : DiscFileSystem
     {
         if (path.StartsWithDirectorySeparator())
         {
-            path = path.Substring(1);
+            path = path[1..];
         }
 
         try
@@ -298,6 +363,8 @@ public class NativeFileSystem : DiscFileSystem
         }
     }
 
+#endif
+
     /// <summary>
     /// Gets the names of files in a specified directory.
     /// </summary>
@@ -305,7 +372,7 @@ public class NativeFileSystem : DiscFileSystem
     /// <returns>Array of files.</returns>
     public override IEnumerable<string> GetFiles(string path)
     {
-        return GetFiles(path, "*.*", SearchOption.TopDirectoryOnly);
+        return GetFiles(path, "*", SearchOption.TopDirectoryOnly);
     }
 
     /// <summary>
@@ -319,6 +386,51 @@ public class NativeFileSystem : DiscFileSystem
         return GetFiles(path, searchPattern, SearchOption.TopDirectoryOnly);
     }
 
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP
+    /// <summary>
+    /// Gets the names of files in a specified directory matching a specified
+    /// search pattern, using a value to determine whether to search subdirectories.
+    /// </summary>
+    /// <param name="path">The path to search.</param>
+    /// <param name="searchPattern">The search string to match against.</param>
+    /// <param name="searchOption">Indicates whether to search subdirectories.</param>
+    /// <returns>Array of files matching the search pattern.</returns>
+    public override IEnumerable<string> GetFiles(string path, string searchPattern, SearchOption searchOption)
+    {
+        DefaultEnumerationOptions.RecurseSubdirectories = searchOption == SearchOption.AllDirectories;
+
+        return GetFiles(path, searchPattern, DefaultEnumerationOptions);
+    }
+
+    /// <summary>
+    /// Gets the names of files in a specified directory matching a specified
+    /// search pattern, using a value to determine whether to search subdirectories.
+    /// </summary>
+    /// <param name="path">The path to search.</param>
+    /// <param name="searchPattern">The search string to match against.</param>
+    /// <param name="options">An object that describes the search and enumeration configuration to use.</param>
+    /// <returns>Array of files matching the search pattern.</returns>
+    public IEnumerable<string> GetFiles(string path, string searchPattern, EnumerationOptions options)
+    {
+        if (path.StartsWithDirectorySeparator())
+        {
+            path = path[1..];
+        }
+
+        try
+        {
+            return Directory.EnumerateFiles(Path.Combine(BasePath, path), searchPattern, options).Select(CleanItems);
+        }
+        catch (IOException)
+        {
+            return [];
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return [];
+        }
+    }
+#else
     /// <summary>
     /// Gets the names of files in a specified directory matching a specified
     /// search pattern, using a value to determine whether to search subdirectories.
@@ -331,7 +443,7 @@ public class NativeFileSystem : DiscFileSystem
     {
         if (path.StartsWithDirectorySeparator())
         {
-            path = path.Substring(1);
+            path = path[1..];
         }
 
         try
@@ -348,6 +460,8 @@ public class NativeFileSystem : DiscFileSystem
         }
     }
 
+#endif
+
     /// <summary>
     /// Gets the names of all files and subdirectories in a specified directory.
     /// </summary>
@@ -355,7 +469,7 @@ public class NativeFileSystem : DiscFileSystem
     /// <returns>Array of files and subdirectories matching the search pattern.</returns>
     public override IEnumerable<string> GetFileSystemEntries(string path)
     {
-        return GetFileSystemEntries(path, "*.*");
+        return GetFileSystemEntries(path, "*", SearchOption.TopDirectoryOnly);
     }
 
     /// <summary>
@@ -367,14 +481,43 @@ public class NativeFileSystem : DiscFileSystem
     /// <returns>Array of files and subdirectories matching the search pattern.</returns>
     public override IEnumerable<string> GetFileSystemEntries(string path, string searchPattern)
     {
+        return GetFileSystemEntries(path, searchPattern, SearchOption.TopDirectoryOnly);
+    }
+
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP
+    /// <summary>
+    /// Gets the names of files and subdirectories in a specified directory matching a specified
+    /// search pattern.
+    /// </summary>
+    /// <param name="path">The path to search.</param>
+    /// <param name="searchPattern">The search string to match against.</param>
+    /// <param name="searchOption"></param>
+    /// <returns>Array of files and subdirectories matching the search pattern.</returns>
+    public override IEnumerable<string> GetFileSystemEntries(string path, string searchPattern, SearchOption searchOption)
+    {
+        DefaultEnumerationOptions.RecurseSubdirectories = searchOption == SearchOption.AllDirectories;
+
+        return GetFileSystemEntries(path, searchPattern, DefaultEnumerationOptions);
+    }
+
+    /// <summary>
+    /// Gets the names of files and subdirectories in a specified directory matching a specified
+    /// search pattern.
+    /// </summary>
+    /// <param name="path">The path to search.</param>
+    /// <param name="searchPattern">The search string to match against.</param>
+    /// <param name="options">An object that describes the search and enumeration configuration to use.</param>
+    /// <returns>Array of directories matching the search pattern.</returns>
+    public IEnumerable<string> GetFileSystemEntries(string path, string searchPattern, EnumerationOptions options)
+    {
         if (path.StartsWithDirectorySeparator())
         {
-            path = path.Substring(1);
+            path = path[1..];
         }
 
         try
         {
-            return Directory.GetFileSystemEntries(Path.Combine(BasePath, path), searchPattern).Select(CleanItems);
+            return Directory.EnumerateFileSystemEntries(Path.Combine(BasePath, path), searchPattern, options).Select(CleanItems);
         }
         catch (IOException)
         {
@@ -385,6 +528,36 @@ public class NativeFileSystem : DiscFileSystem
             return [];
         }
     }
+#else
+    /// <summary>
+    /// Gets the names of files and subdirectories in a specified directory matching a specified
+    /// search pattern.
+    /// </summary>
+    /// <param name="path">The path to search.</param>
+    /// <param name="searchPattern">The search string to match against.</param>
+    /// <param name="searchOption"></param>
+    /// <returns>Array of files and subdirectories matching the search pattern.</returns>
+    public override IEnumerable<string> GetFileSystemEntries(string path, string searchPattern, SearchOption searchOption)
+    {
+        if (path.StartsWithDirectorySeparator())
+        {
+            path = path[1..];
+        }
+
+        try
+        {
+            return Directory.EnumerateFileSystemEntries(Path.Combine(BasePath, path), searchPattern, searchOption).Select(CleanItems);
+        }
+        catch (IOException)
+        {
+            return [];
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return [];
+        }
+    }
+#endif
 
     /// <summary>
     /// Moves a directory.
@@ -400,12 +573,12 @@ public class NativeFileSystem : DiscFileSystem
 
         if (sourceDirectoryName.StartsWithDirectorySeparator())
         {
-            sourceDirectoryName = sourceDirectoryName.Substring(1);
+            sourceDirectoryName = sourceDirectoryName[1..];
         }
 
         if (destinationDirectoryName.StartsWithDirectorySeparator())
         {
-            destinationDirectoryName = destinationDirectoryName.Substring(1);
+            destinationDirectoryName = destinationDirectoryName[1..];
         }
 
         Directory.Move(Path.Combine(BasePath, sourceDirectoryName),
@@ -437,7 +610,7 @@ public class NativeFileSystem : DiscFileSystem
 
         if (destinationName.StartsWithDirectorySeparator())
         {
-            destinationName = destinationName.Substring(1);
+            destinationName = destinationName[1..];
         }
 
         if (FileExists(Path.Combine(BasePath, destinationName)))
@@ -454,7 +627,7 @@ public class NativeFileSystem : DiscFileSystem
 
         if (sourceName.StartsWithDirectorySeparator())
         {
-            sourceName = sourceName.Substring(1);
+            sourceName = sourceName[1..];
         }
 
         File.Move(Path.Combine(BasePath, sourceName), Path.Combine(BasePath, destinationName));
@@ -480,14 +653,14 @@ public class NativeFileSystem : DiscFileSystem
     /// <returns>The new stream.</returns>
     public override SparseStream OpenFile(string path, FileMode mode, FileAccess access)
     {
-        if (_readOnly && access != FileAccess.Read)
+        if (_readOnly && access.HasFlag(FileAccess.Write))
         {
             throw new UnauthorizedAccessException();
         }
 
         if (path.StartsWithDirectorySeparator())
         {
-            path = path.Substring(1);
+            path = path[1..];
         }
 
         var fileShare = FileShare.None;
@@ -496,8 +669,7 @@ public class NativeFileSystem : DiscFileSystem
             fileShare = FileShare.Read;
         }
 
-        var locator = new LocalFileLocator(BasePath, useAsync: false);
-        return SparseStream.FromStream(locator.Open(path, mode, access, fileShare),
+        return SparseStream.FromStream(FileLocator.Open(path, mode, access, fileShare),
             Ownership.Dispose);
     }
 
@@ -510,7 +682,7 @@ public class NativeFileSystem : DiscFileSystem
     {
         if (path.StartsWithDirectorySeparator())
         {
-            path = path.Substring(1);
+            path = path[1..];
         }
 
         return File.GetAttributes(Path.Combine(BasePath, path));
@@ -530,7 +702,7 @@ public class NativeFileSystem : DiscFileSystem
 
         if (path.StartsWithDirectorySeparator())
         {
-            path = path.Substring(1);
+            path = path[1..];
         }
 
         File.SetAttributes(Path.Combine(BasePath, path), newValue);
@@ -565,7 +737,7 @@ public class NativeFileSystem : DiscFileSystem
     {
         if (path.StartsWithDirectorySeparator())
         {
-            path = path.Substring(1);
+            path = path[1..];
         }
 
         return Directory.GetCreationTimeUtc(Path.Combine(BasePath, path));
@@ -585,7 +757,7 @@ public class NativeFileSystem : DiscFileSystem
 
         if (path.StartsWithDirectorySeparator())
         {
-            path = path.Substring(1);
+            path = path[1..];
         }
 
         Directory.SetCreationTimeUtc(Path.Combine(BasePath, path), newTime);
@@ -620,7 +792,7 @@ public class NativeFileSystem : DiscFileSystem
     {
         if (path.StartsWithDirectorySeparator())
         {
-            path = path.Substring(1);
+            path = path[1..];
         }
 
         return Directory.GetLastAccessTimeUtc(Path.Combine(BasePath, path));
@@ -640,7 +812,7 @@ public class NativeFileSystem : DiscFileSystem
 
         if (path.StartsWithDirectorySeparator())
         {
-            path = path.Substring(1);
+            path = path[1..];
         }
 
         Directory.SetLastAccessTimeUtc(Path.Combine(BasePath, path), newTime);
@@ -675,7 +847,7 @@ public class NativeFileSystem : DiscFileSystem
     {
         if (path.StartsWithDirectorySeparator())
         {
-            path = path.Substring(1);
+            path = path[1..];
         }
 
         return Directory.GetLastWriteTimeUtc(Path.Combine(BasePath, path));
@@ -695,7 +867,7 @@ public class NativeFileSystem : DiscFileSystem
 
         if (path.StartsWithDirectorySeparator())
         {
-            path = path.Substring(1);
+            path = path[1..];
         }
 
         Directory.SetLastWriteTimeUtc(Path.Combine(BasePath, path), newTime);
@@ -710,9 +882,9 @@ public class NativeFileSystem : DiscFileSystem
     {
         if (path.StartsWithDirectorySeparator())
         {
-            path = path.Substring(1);
+            path = path[1..];
         }
-
+        
         return new FileInfo(Path.Combine(BasePath, path)).Length;
     }
 
@@ -780,6 +952,6 @@ public class NativeFileSystem : DiscFileSystem
 
     private string CleanItems(string dirtyItems)
     {
-        return dirtyItems.Substring(BasePath.Length - 1);
+        return dirtyItems[(BasePath.Length - 1)..];
     }
 }

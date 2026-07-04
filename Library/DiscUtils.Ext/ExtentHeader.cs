@@ -40,10 +40,10 @@ internal struct ExtentHeader : IByteArraySerializable
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         Magic = EndianUtilities.ToUInt16LittleEndian(buffer);
-        Entries = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(2));
-        MaxEntries = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(4));
-        Depth = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(6));
-        Generation = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(8));
+        Entries = EndianUtilities.ToUInt16LittleEndian(buffer[2..]);
+        MaxEntries = EndianUtilities.ToUInt16LittleEndian(buffer[4..]);
+        Depth = EndianUtilities.ToUInt16LittleEndian(buffer[6..]);
+        Generation = EndianUtilities.ToUInt32LittleEndian(buffer[8..]);
         return 12;
     }
 

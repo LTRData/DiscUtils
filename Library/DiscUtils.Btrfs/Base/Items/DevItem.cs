@@ -109,19 +109,19 @@ internal class DevItem : BaseItem
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         DeviceId = EndianUtilities.ToUInt64LittleEndian(buffer);
-        DeviceSize = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x8));
-        DeviceSizeUsed = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x8));
-        OptimalIoAlignment = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x18));
-        OptimalIoWidth = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x1c));
-        MinimalIoSize = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x20));
-        Type = (BlockGroupFlag)EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x24));
-        Generation = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x2c));
-        StartOffset = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x34));
-        DevGroup = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x3c));
+        DeviceSize = EndianUtilities.ToUInt64LittleEndian(buffer[0x8..]);
+        DeviceSizeUsed = EndianUtilities.ToUInt64LittleEndian(buffer[0x8..]);
+        OptimalIoAlignment = EndianUtilities.ToUInt32LittleEndian(buffer[0x18..]);
+        OptimalIoWidth = EndianUtilities.ToUInt32LittleEndian(buffer[0x1c..]);
+        MinimalIoSize = EndianUtilities.ToUInt32LittleEndian(buffer[0x20..]);
+        Type = (BlockGroupFlag)EndianUtilities.ToUInt64LittleEndian(buffer[0x24..]);
+        Generation = EndianUtilities.ToUInt64LittleEndian(buffer[0x2c..]);
+        StartOffset = EndianUtilities.ToUInt64LittleEndian(buffer[0x34..]);
+        DevGroup = EndianUtilities.ToUInt32LittleEndian(buffer[0x3c..]);
         SeekSpeed = buffer[0x40];
         Bandwidth = buffer[0x41];
-        DeviceUuid = EndianUtilities.ToGuidLittleEndian(buffer.Slice(0x42));
-        FsUuid = EndianUtilities.ToGuidLittleEndian(buffer.Slice(0x52));
+        DeviceUuid = EndianUtilities.ToGuidLittleEndian(buffer[0x42..]);
+        FsUuid = EndianUtilities.ToGuidLittleEndian(buffer[0x52..]);
         return Size;
     }
 }

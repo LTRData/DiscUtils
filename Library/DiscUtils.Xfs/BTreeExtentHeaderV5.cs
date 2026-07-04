@@ -45,12 +45,12 @@ internal abstract class BTreeExtentHeaderV5 : BTreeExtentHeader
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         var offset = base.ReadFrom(buffer);
-        buffer = buffer.Slice(offset);
+        buffer = buffer[offset..];
         BlockNumber = EndianUtilities.ToUInt64BigEndian(buffer);
-        LogSequenceNumber = EndianUtilities.ToUInt64BigEndian(buffer.Slice(0x8));
-        Uuid = EndianUtilities.ToGuidBigEndian(buffer.Slice(0x10));
-        Owner = EndianUtilities.ToUInt64BigEndian(buffer.Slice(0x20));
-        Crc = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x28));
+        LogSequenceNumber = EndianUtilities.ToUInt64BigEndian(buffer[0x8..]);
+        Uuid = EndianUtilities.ToGuidBigEndian(buffer[0x10..]);
+        Owner = EndianUtilities.ToUInt64BigEndian(buffer[0x20..]);
+        Crc = EndianUtilities.ToUInt32LittleEndian(buffer[0x28..]);
         return base.Size + 48;
     }
 }

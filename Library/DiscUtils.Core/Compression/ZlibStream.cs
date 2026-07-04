@@ -188,7 +188,7 @@ public class ZlibStream : CompatibilityStream
     public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
     {
         var numRead = await _deflateStream.ReadAsync(buffer, cancellationToken).ConfigureAwait(false);
-        _adler32.Process(buffer.Span.Slice(0, numRead));
+        _adler32.Process(buffer.Span[..numRead]);
         return numRead;
     }
 
@@ -200,7 +200,7 @@ public class ZlibStream : CompatibilityStream
     public override int Read(Span<byte> buffer)
     {
         var numRead = _deflateStream.Read(buffer);
-        _adler32.Process(buffer.Slice(0, numRead));
+        _adler32.Process(buffer[..numRead]);
         return numRead;
     }
 

@@ -408,14 +408,14 @@ internal static class HfsPlusUtilities
         var result = new UnixFileSystemInfo
         {
             UserId = EndianUtilities.ToInt32BigEndian(buffer),
-            GroupId = EndianUtilities.ToInt32BigEndian(buffer.Slice(4))
+            GroupId = EndianUtilities.ToInt32BigEndian(buffer[4..])
         };
 
-        var fileMode = EndianUtilities.ToUInt16BigEndian(buffer.Slice(8));
+        var fileMode = EndianUtilities.ToUInt16BigEndian(buffer[8..]);
         result.FileType = (UnixFileType)((fileMode >> 12) & 0xF);
         result.Permissions = (UnixFilePermissions)(fileMode & 0xFFF);
 
-        special = EndianUtilities.ToUInt32BigEndian(buffer.Slice(10));
+        special = EndianUtilities.ToUInt32BigEndian(buffer[10..]);
         if (result.FileType is UnixFileType.Block or UnixFileType.Character)
         {
             result.DeviceId = special;

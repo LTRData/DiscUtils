@@ -383,6 +383,29 @@ public class NfsFileSystem : DiscFileSystem
     }
 
     /// <summary>
+    /// Gets the names of files and subdirectories in a specified directory matching a specified
+    /// search pattern.
+    /// </summary>
+    /// <param name="path">The path to search.</param>
+    /// <param name="searchPattern">The search string to match against.</param>
+    /// <param name="searchOption">Indicates whether to search subdirectories.</param>
+    /// <returns>Array of files and subdirectories matching the search pattern.</returns>
+    public override IEnumerable<string> GetFileSystemEntries(string path, string searchPattern, SearchOption searchOption)
+    {
+        try
+        {
+            var filter = Utilities.ConvertWildcardsToRegEx(searchPattern, ignoreCase: false);
+
+            var results = DoSearch(path, filter, searchOption == SearchOption.AllDirectories, true, true);
+            return results;
+        }
+        catch (Nfs3Exception ne)
+        {
+            throw ConvertNfsException(ne);
+        }
+    }
+
+    /// <summary>
     /// Moves a directory.
     /// </summary>
     /// <param name="sourceDirectoryName">The directory to move.</param>

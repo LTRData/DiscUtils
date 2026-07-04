@@ -170,7 +170,7 @@ public class ConcatStream : SparseStream
 
             _streams[activeStream].Position = _position - activeStreamStartPos;
 
-            numRead = await _streams[activeStream].ReadAsync(buffer.Slice(totalRead), cancellationToken).ConfigureAwait(false);
+            numRead = await _streams[activeStream].ReadAsync(buffer[totalRead..], cancellationToken).ConfigureAwait(false);
 
             totalRead += numRead;
             _position += numRead;
@@ -193,7 +193,7 @@ public class ConcatStream : SparseStream
 
             _streams[activeStream].Position = _position - activeStreamStartPos;
 
-            numRead = _streams[activeStream].Read(buffer.Slice(totalRead));
+            numRead = _streams[activeStream].Read(buffer[totalRead..]);
 
             totalRead += numRead;
             _position += numRead;

@@ -36,7 +36,7 @@ internal class CompressionResourceBlock
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         Offset = EndianUtilities.ToUInt32LittleEndian(buffer);
-        DataSize = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(4));
+        DataSize = EndianUtilities.ToUInt32LittleEndian(buffer[4..]);
 
         return Size;
     }

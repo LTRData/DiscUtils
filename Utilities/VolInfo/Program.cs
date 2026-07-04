@@ -32,7 +32,7 @@ class Program : ProgramBase
 {
     private CommandLineMultiParameter _inFiles;
 
-    static void Main(string[] args)
+    static void Main(params string[] args)
     {
         DiscUtils.Transports.SetupHelper.SetupTransports();
         DiscUtils.Containers.SetupHelper.SetupContainers();

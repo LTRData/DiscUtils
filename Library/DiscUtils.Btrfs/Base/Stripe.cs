@@ -54,8 +54,8 @@ internal class Stripe : IByteArraySerializable
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         DeviceId = EndianUtilities.ToUInt64LittleEndian(buffer);
-        Offset = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x8));
-        DeviceUuid = EndianUtilities.ToGuidLittleEndian(buffer.Slice(0x10));
+        Offset = EndianUtilities.ToUInt64LittleEndian(buffer[0x8..]);
+        DeviceUuid = EndianUtilities.ToGuidLittleEndian(buffer[0x10..]);
         return Size;
     }
 

@@ -41,8 +41,8 @@ internal class DirectoryHeader : IByteArraySerializable
     public void WriteTo(Span<byte> buffer)
     {
         EndianUtilities.WriteBytesLittleEndian(Count, buffer);
-        EndianUtilities.WriteBytesLittleEndian(StartBlock, buffer.Slice(4));
-        EndianUtilities.WriteBytesLittleEndian(InodeNumber, buffer.Slice(8));
+        EndianUtilities.WriteBytesLittleEndian(StartBlock, buffer[4..]);
+        EndianUtilities.WriteBytesLittleEndian(InodeNumber, buffer[8..]);
     }
 
     public static DirectoryHeader ReadFrom(MetablockReader reader)

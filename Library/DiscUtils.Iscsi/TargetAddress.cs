@@ -76,7 +76,7 @@ public class TargetAddress
             return new TargetAddress(address, DefaultPort, string.Empty);
         }
 
-        var addr = address.Substring(0, addrEnd);
+        var addr = address[..addrEnd];
         var port = DefaultPort;
         var targetGroupTag = string.Empty;
 
@@ -91,7 +91,7 @@ public class TargetAddress
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP
                 port = int.Parse(address.AsSpan(portStart), provider: CultureInfo.InvariantCulture);
 #else
-                port = int.Parse(address.Substring(portStart), CultureInfo.InvariantCulture);
+                port = int.Parse(address[portStart..], CultureInfo.InvariantCulture);
 #endif
                 focus = address.Length;
             }
@@ -100,7 +100,7 @@ public class TargetAddress
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP
                 port = int.Parse(address.AsSpan(portStart, portEnd - portStart), provider: CultureInfo.InvariantCulture);
 #else
-                port = int.Parse(address.Substring(portStart, portEnd - portStart), CultureInfo.InvariantCulture);
+                port = int.Parse(address[portStart..portEnd], CultureInfo.InvariantCulture);
 #endif
                 focus = portEnd;
             }
@@ -108,7 +108,7 @@ public class TargetAddress
 
         if (focus < address.Length)
         {
-            targetGroupTag = address.Substring(focus + 1);
+            targetGroupTag = address[(focus + 1)..];
         }
 
         return new TargetAddress(addr, port, targetGroupTag);

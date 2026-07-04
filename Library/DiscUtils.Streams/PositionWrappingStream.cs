@@ -81,7 +81,7 @@ public class PositionWrappingStream : WrappingStream
 
         while (offset > 0)
         {
-            var read = base.Read(buffer.Slice(0, (int)Math.Min(buffer.Length, offset)));
+            var read = base.Read(buffer[..(int)Math.Min(buffer.Length, offset)]);
             offset -= read;
         }
 

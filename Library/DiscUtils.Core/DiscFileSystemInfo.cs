@@ -46,7 +46,7 @@ public class DiscFileSystemInfo
         var wrongPathSep = System.IO.Path.DirectorySeparatorChar == '\\' ? '/' : '\\';
 
         FileSystem = fileSystem;
-        Path = path.Replace(wrongPathSep, System.IO.Path.DirectorySeparatorChar).Trim(System.IO.Path.DirectorySeparatorChar);
+        FullPath = path.Replace(wrongPathSep, System.IO.Path.DirectorySeparatorChar).Trim(System.IO.Path.DirectorySeparatorChar);
     }
 
     /// <summary>
@@ -54,8 +54,8 @@ public class DiscFileSystemInfo
     /// </summary>
     public virtual FileAttributes Attributes
     {
-        get => FileSystem.GetAttributes(Path);
-        set => FileSystem.SetAttributes(Path, value);
+        get => FileSystem.GetAttributes(FullPath);
+        set => FileSystem.SetAttributes(FullPath, value);
     }
 
     /// <summary>
@@ -72,14 +72,14 @@ public class DiscFileSystemInfo
     /// </summary>
     public virtual DateTime CreationTimeUtc
     {
-        get => FileSystem.GetCreationTimeUtc(Path);
-        set => FileSystem.SetCreationTimeUtc(Path, value);
+        get => FileSystem.GetCreationTimeUtc(FullPath);
+        set => FileSystem.SetCreationTimeUtc(FullPath, value);
     }
 
     /// <summary>
     /// Gets a value indicating whether the file system object exists.
     /// </summary>
-    public virtual bool Exists => FileSystem.Exists(Path);
+    public virtual bool Exists => FileSystem.Exists(FullPath);
 
     /// <summary>
     /// Gets the extension part of the file or directory name.
@@ -92,7 +92,7 @@ public class DiscFileSystemInfo
             var sepIdx = name.LastIndexOf('.');
             if (sepIdx >= 0)
             {
-                return name.Substring(sepIdx + 1);
+                return name[(sepIdx + 1)..];
             }
 
             return string.Empty;
@@ -107,7 +107,7 @@ public class DiscFileSystemInfo
     /// <summary>
     /// Gets the full path of the file or directory.
     /// </summary>
-    public virtual string FullName => Path;
+    public virtual string FullName => FullPath;
 
     /// <summary>
     /// Gets or sets the last time (in local time) the file or directory was accessed.
@@ -125,8 +125,8 @@ public class DiscFileSystemInfo
     /// <remarks>Read-only file systems will never update this value, it will remain at a fixed value.</remarks>
     public virtual DateTime LastAccessTimeUtc
     {
-        get => FileSystem.GetLastAccessTimeUtc(Path);
-        set => FileSystem.SetLastAccessTimeUtc(Path, value);
+        get => FileSystem.GetLastAccessTimeUtc(FullPath);
+        set => FileSystem.SetLastAccessTimeUtc(FullPath, value);
     }
 
     /// <summary>
@@ -143,8 +143,8 @@ public class DiscFileSystemInfo
     /// </summary>
     public virtual DateTime LastWriteTimeUtc
     {
-        get => FileSystem.GetLastWriteTimeUtc(Path);
-        set => FileSystem.SetLastWriteTimeUtc(Path, value);
+        get => FileSystem.GetLastWriteTimeUtc(FullPath);
+        set => FileSystem.SetLastWriteTimeUtc(FullPath, value);
     }
 
     /// <summary>
@@ -155,7 +155,7 @@ public class DiscFileSystemInfo
     /// <summary>
     /// Gets the name of the file or directory.
     /// </summary>
-    public virtual string Name => Utilities.GetFileFromPath(Path);
+    public virtual string Name => Utilities.GetFileFromPath(FullPath);
 
     private DiscDirectoryInfo? _parent;
 
@@ -166,19 +166,19 @@ public class DiscFileSystemInfo
     {
         get
         {
-            if (string.IsNullOrEmpty(Path))
+            if (string.IsNullOrEmpty(FullPath))
             {
                 return null;
             }
 
-            return _parent ??= new DiscDirectoryInfo(FileSystem, Utilities.GetDirectoryFromPath(Path));
+            return _parent ??= new DiscDirectoryInfo(FileSystem, Utilities.GetDirectoryFromPath(FullPath));
         }
     }
 
     /// <summary>
     /// Gets the path to the referenced file.
     /// </summary>
-    protected string Path { get; }
+    protected string FullPath { get; }
 
     /// <summary>
     /// Deletes a file or directory.
@@ -187,11 +187,11 @@ public class DiscFileSystemInfo
     {
         if ((Attributes & FileAttributes.Directory) != 0)
         {
-            FileSystem.DeleteDirectory(Path);
+            FileSystem.DeleteDirectory(FullPath);
         }
         else
         {
-            FileSystem.DeleteFile(Path);
+            FileSystem.DeleteFile(FullPath);
         }
     }
 
@@ -207,7 +207,7 @@ public class DiscFileSystemInfo
             return false;
         }
 
-        return Path == asInfo.Path &&
+        return FullPath == asInfo.FullPath &&
             Equals(FileSystem, asInfo.FileSystem);
     }
 
@@ -216,7 +216,7 @@ public class DiscFileSystemInfo
     /// </summary>
     /// <returns>The hash code.</returns>
     public override int GetHashCode()
-        => HashCode.Combine(Path, FileSystem);
+        => HashCode.Combine(FullPath, FileSystem);
 
     public override string ToString()
         => FullName;

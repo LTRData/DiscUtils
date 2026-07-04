@@ -40,7 +40,7 @@ internal sealed class FileParameters : IByteArraySerializable
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         BlockSize = EndianUtilities.ToUInt32LittleEndian(buffer);
-        Flags = (FileParametersFlags)EndianUtilities.ToUInt32LittleEndian(buffer.Slice(4));
+        Flags = (FileParametersFlags)EndianUtilities.ToUInt32LittleEndian(buffer[4..]);
 
         return 8;
     }
@@ -48,6 +48,6 @@ internal sealed class FileParameters : IByteArraySerializable
     public void WriteTo(Span<byte> buffer)
     {
         EndianUtilities.WriteBytesLittleEndian(BlockSize, buffer);
-        EndianUtilities.WriteBytesLittleEndian((uint)Flags, buffer.Slice(4));
+        EndianUtilities.WriteBytesLittleEndian((uint)Flags, buffer[4..]);
     }
 }

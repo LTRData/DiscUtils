@@ -73,12 +73,12 @@ internal class ShortformDirectory : IByteArraySerializable
         var offset = 0x2;
         if (_useShortInode)
         {
-            Parent = EndianUtilities.ToUInt32BigEndian(buffer.Slice(offset));
+            Parent = EndianUtilities.ToUInt32BigEndian(buffer[offset..]);
             offset += 0x4;
         }
         else
         {
-            Parent = EndianUtilities.ToUInt64BigEndian(buffer.Slice(offset));
+            Parent = EndianUtilities.ToUInt64BigEndian(buffer[offset..]);
             offset += 0x8;
         }
 
@@ -86,7 +86,7 @@ internal class ShortformDirectory : IByteArraySerializable
         for (var i = 0; i < count; i++)
         {
             var entry = new ShortformDirectoryEntry(_useShortInode, _context);
-            entry.ReadFrom(buffer.Slice(offset));
+            entry.ReadFrom(buffer[offset..]);
             offset += entry.Size;
             Entries[i] = entry;
         }

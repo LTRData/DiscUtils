@@ -49,21 +49,21 @@ internal class TocBlock
     {
         var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
 
-        Signature = latin1Encoding.GetString(buffer.Slice(0x00, 8));
-        Checksum = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x08));
-        SequenceNumber = EndianUtilities.ToInt64BigEndian(buffer.Slice(0x0C));
-        Unknown1 = EndianUtilities.ToInt64BigEndian(buffer.Slice(0x14));
-        Unknown2 = EndianUtilities.ToInt64BigEndian(buffer.Slice(0x1C));
+        Signature = latin1Encoding.GetString(buffer[..8]);
+        Checksum = EndianUtilities.ToUInt32BigEndian(buffer[0x08..]);
+        SequenceNumber = EndianUtilities.ToInt64BigEndian(buffer[0x0C..]);
+        Unknown1 = EndianUtilities.ToInt64BigEndian(buffer[0x14..]);
+        Unknown2 = EndianUtilities.ToInt64BigEndian(buffer[0x1C..]);
         Item1Str = latin1Encoding.GetString(buffer.Slice(0x24, 10)).Trim('\0');
-        Item1Start = EndianUtilities.ToInt64BigEndian(buffer.Slice(0x2E));
-        Item1Size = EndianUtilities.ToInt64BigEndian(buffer.Slice(0x36));
-        Unknown3 = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x3E));
-        Unknown4 = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x42));
+        Item1Start = EndianUtilities.ToInt64BigEndian(buffer[0x2E..]);
+        Item1Size = EndianUtilities.ToInt64BigEndian(buffer[0x36..]);
+        Unknown3 = EndianUtilities.ToUInt32BigEndian(buffer[0x3E..]);
+        Unknown4 = EndianUtilities.ToUInt32BigEndian(buffer[0x42..]);
         Item2Str = latin1Encoding.GetString(buffer.Slice(0x46, 10)).Trim('\0');
-        Item2Start = EndianUtilities.ToInt64BigEndian(buffer.Slice(0x50));
-        Item2Size = EndianUtilities.ToInt64BigEndian(buffer.Slice(0x58));
-        Unknown5 = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x60));
-        Unknown6 = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x64));
+        Item2Start = EndianUtilities.ToInt64BigEndian(buffer[0x50..]);
+        Item2Size = EndianUtilities.ToInt64BigEndian(buffer[0x58..]);
+        Unknown5 = EndianUtilities.ToUInt32BigEndian(buffer[0x60..]);
+        Unknown6 = EndianUtilities.ToUInt32BigEndian(buffer[0x64..]);
     }
 
     ////}

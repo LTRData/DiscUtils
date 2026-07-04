@@ -211,7 +211,7 @@ public sealed class OpticalDiscService
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP
             return int.Parse(volFlagsStr.AsSpan(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
 #else
-            return int.Parse(volFlagsStr.Substring(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+            return int.Parse(volFlagsStr[2..], NumberStyles.HexNumber, CultureInfo.InvariantCulture);
 #endif
         }
 

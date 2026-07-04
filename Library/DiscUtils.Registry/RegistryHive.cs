@@ -143,7 +143,7 @@ public class RegistryHive : IDisposable
 
         Span<byte> buffer = stackalloc byte[HiveHeader.HeaderSize];
         var validBufferSize = FileStream.Read(buffer);
-        buffer.Slice(validBufferSize).Clear();
+        buffer[validBufferSize..].Clear();
 
         _header = new();
         var headerSize = _header.ReadFrom(buffer, throwOnInvalidData: false);
@@ -155,7 +155,7 @@ public class RegistryHive : IDisposable
                 .Where(static log => log.Length > 0x1000)
                 .ToArray();
 
-            if (logs is not null && logs.Length > 0)
+            if (logs is { Length: > 0 })
             {
                 // If we are opening a hive read-only, copy to an in-memory buffer
                 // to be able to replay logs
@@ -287,7 +287,7 @@ public class RegistryHive : IDisposable
         while (pos < _header.Length)
         {
             FileStream.Position = BinStart + pos;
-            FileStream.ReadExactly(buffer.Slice(0, BinHeader.HeaderSize));
+            FileStream.ReadExactly(buffer[..BinHeader.HeaderSize]);
             var header = new BinHeader();
             header.ReadFrom(buffer);
             _bins.Add(header);
@@ -499,13 +499,13 @@ public class RegistryHive : IDisposable
         throw new RegistryCorruptException($"No bin found containing index: {cell.Index}");
     }
 
-    internal Span<byte> RawCellData(int index, Span<byte> maxBytes)
+    internal Span<byte> RawCellData(int index, Span<byte> maxBytes, bool ignoreBigData = false)
     {
         var bin = GetBin(index);
 
         if (bin is not null)
         {
-            return bin.ReadRawCellData(index, maxBytes);
+            return bin.ReadRawCellData(index, maxBytes, ignoreBigData);
         }
 
         return default;

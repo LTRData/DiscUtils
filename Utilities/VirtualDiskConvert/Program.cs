@@ -38,7 +38,7 @@ class Program : ProgramBase
     private CommandLineEnumSwitch<GeometryTranslation> _translation;
     private CommandLineSwitch _wipe;
 
-    static void Main(string[] args)
+    static void Main(params string[] args)
     {
         DiscUtils.Containers.SetupHelper.SetupContainers();
         SetupHelper.RegisterAssembly(typeof(NtfsFileSystem).Assembly);

@@ -43,11 +43,11 @@ internal class HashStreamCore : CompatibilityStream
         _hashAlg = hashAlg;
     }
 
-    public override bool CanRead => _wrapped is not null && _wrapped.CanRead;
+    public override bool CanRead => _wrapped is { CanRead: true };
 
-    public override bool CanSeek => _wrapped is not null && _wrapped.CanSeek;
+    public override bool CanSeek => _wrapped is { CanSeek: true };
 
-    public override bool CanWrite => _wrapped is not null && _wrapped.CanWrite;
+    public override bool CanWrite => _wrapped is { CanWrite: true };
 
     public override long Length => _wrapped.Length;
 
@@ -87,7 +87,7 @@ internal class HashStreamCore : CompatibilityStream
 
         var numRead = await _wrapped.ReadAsync(buffer, cancellationToken).ConfigureAwait(false);
 
-        _hashAlg.AppendData(buffer.Span.Slice(0, numRead));
+        _hashAlg.AppendData(buffer.Span[..numRead]);
         _hashPos += numRead;
 
         return numRead;
@@ -102,7 +102,7 @@ internal class HashStreamCore : CompatibilityStream
 
         var numRead = _wrapped.Read(buffer);
 
-        _hashAlg.AppendData(buffer.Slice(0, numRead));
+        _hashAlg.AppendData(buffer[..numRead]);
         _hashPos += numRead;
 
         return numRead;

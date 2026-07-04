@@ -810,7 +810,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
             for (var i = 0; i < numGrainTables; ++i)
             {
                 EndianUtilities.WriteBytesLittleEndian(
-                    (uint)(redundantGrainTablesStart + i * MathUtilities.Ceil(GtesPerGt * 4, Sizes.Sector)), grainDir.Slice(i * 4));
+                    (uint)(redundantGrainTablesStart + i * MathUtilities.Ceil(GtesPerGt * 4, Sizes.Sector)), grainDir[(i * 4)..]);
             }
 
             extentStream.Position = redundantGrainDirStart * Sizes.Sector;
@@ -838,7 +838,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
             for (var i = 0; i < numGrainTables; ++i)
             {
                 EndianUtilities.WriteBytesLittleEndian(
-                    (uint)(grainTablesStart + i * MathUtilities.Ceil(GtesPerGt * 4, Sizes.Sector)), grainDir.Slice(i * 4));
+                    (uint)(grainTablesStart + i * MathUtilities.Ceil(GtesPerGt * 4, Sizes.Sector)), grainDir[(i * 4)..]);
             }
 
             extentStream.Position = grainDirStart * Sizes.Sector;
@@ -919,7 +919,7 @@ public sealed class DiskImageFile : VirtualDiskLayer
 #if NET6_0_OR_GREATER
         return $"{name.AsSpan(0, name.Length - 5)}-{adornment}.vmdk";
 #else
-        return $"{name.Substring(0, name.Length - 5)}-{adornment}.vmdk";
+        return $"{name[..^5]}-{adornment}.vmdk";
 #endif
     }
 

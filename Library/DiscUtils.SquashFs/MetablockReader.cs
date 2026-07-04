@@ -148,7 +148,7 @@ internal sealed class MetablockReader
             }
 
             var toRead = Math.Min(buffer.Length - totalRead, block.Available - _currentOffset);
-            block.Data.AsSpan(_currentOffset, toRead).CopyTo(buffer.Slice(totalRead));
+            block.Data.AsSpan(_currentOffset, toRead).CopyTo(buffer[totalRead..]);
             totalRead += toRead;
             _currentOffset += toRead;
         }
@@ -163,7 +163,7 @@ internal sealed class MetablockReader
         if (block.Available - _currentOffset < 4)
         {
             Span<byte> buffer = stackalloc byte[4];
-            buffer = buffer.Slice(0, Read(buffer));
+            buffer = buffer[..Read(buffer)];
             return EndianUtilities.ToUInt32LittleEndian(buffer);
         }
 
@@ -179,7 +179,7 @@ internal sealed class MetablockReader
         if (block.Available - _currentOffset < 4)
         {
             Span<byte> buffer = stackalloc byte[4];
-            buffer = buffer.Slice(0, Read(buffer));
+            buffer = buffer[..Read(buffer)];
             return EndianUtilities.ToInt32LittleEndian(buffer);
         }
 
@@ -195,7 +195,7 @@ internal sealed class MetablockReader
         if (block.Available - _currentOffset < 2)
         {
             Span<byte> buffer = stackalloc byte[2];
-            buffer = buffer.Slice(0, Read(buffer));
+            buffer = buffer[..Read(buffer)];
             return EndianUtilities.ToUInt16LittleEndian(buffer);
         }
 
@@ -211,7 +211,7 @@ internal sealed class MetablockReader
         if (block.Available - _currentOffset < 2)
         {
             Span<byte> buffer = stackalloc byte[2];
-            buffer = buffer.Slice(0, Read(buffer));
+            buffer = buffer[..Read(buffer)];
             return EndianUtilities.ToInt16LittleEndian(buffer);
         }
 
@@ -228,7 +228,7 @@ internal sealed class MetablockReader
         if (block.Available - _currentOffset < len)
         {
             Span<byte> buffer = stackalloc byte[len];
-            buffer = buffer.Slice(0, Read(buffer));
+            buffer = buffer[..Read(buffer)];
             return latin1Encoding.GetString(buffer);
         }
 

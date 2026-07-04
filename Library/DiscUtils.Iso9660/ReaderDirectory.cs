@@ -162,7 +162,7 @@ internal class ReaderDirectory : File, IVfsDirectory<ReaderDirEntry, File>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP
             if (!uint.TryParse(name.AsSpan(verDelimiter + 1), out var v))
 #else
-            if (!uint.TryParse(name.Substring(verDelimiter + 1), out var v))
+            if (!uint.TryParse(name[(verDelimiter + 1)..], out var v))
 #endif
             {
                 throw new IOException($"Invalid version number in file name '{name}'");
@@ -170,7 +170,7 @@ internal class ReaderDirectory : File, IVfsDirectory<ReaderDirEntry, File>
 
             version = v;
 
-            namePart = name.Substring(0, verDelimiter);
+            namePart = name[..verDelimiter];
         }
 
         if (_entries.TryGetValue(namePart, out var directEntry))

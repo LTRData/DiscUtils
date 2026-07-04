@@ -34,8 +34,8 @@ internal sealed class ContinuationSystemUseEntry : SystemUseEntry
     {
         CheckAndSetCommonProperties(name, length, version, 28, 1);
 
-        Block = IsoUtilities.ToUInt32FromBoth(data.Slice(4));
-        BlockOffset = IsoUtilities.ToUInt32FromBoth(data.Slice(12));
-        Length = IsoUtilities.ToUInt32FromBoth(data.Slice(20));
+        Block = IsoUtilities.ToUInt32FromBoth(data[4..]);
+        BlockOffset = IsoUtilities.ToUInt32FromBoth(data[12..]);
+        Length = IsoUtilities.ToUInt32FromBoth(data[20..]);
     }
 }

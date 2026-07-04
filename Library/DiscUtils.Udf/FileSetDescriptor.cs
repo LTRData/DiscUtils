@@ -51,23 +51,23 @@ internal class FileSetDescriptor : IByteArraySerializable
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         DescriptorTag = EndianUtilities.ToStruct<DescriptorTag>(buffer);
-        RecordingTime = UdfUtilities.ParseTimestamp(buffer.Slice(16));
-        InterchangeLevel = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(28));
-        MaximumInterchangeLevel = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(30));
-        CharacterSetList = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(32));
-        MaximumCharacterSetList = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(36));
-        FileSetNumber = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(40));
-        FileSetDescriptorNumber = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(44));
-        LogicalVolumeIdentifierCharset = EndianUtilities.ToStruct<CharacterSetSpecification>(buffer.Slice(48));
+        RecordingTime = UdfUtilities.ParseTimestamp(buffer[16..]);
+        InterchangeLevel = EndianUtilities.ToUInt16LittleEndian(buffer[28..]);
+        MaximumInterchangeLevel = EndianUtilities.ToUInt16LittleEndian(buffer[30..]);
+        CharacterSetList = EndianUtilities.ToUInt32LittleEndian(buffer[32..]);
+        MaximumCharacterSetList = EndianUtilities.ToUInt32LittleEndian(buffer[36..]);
+        FileSetNumber = EndianUtilities.ToUInt32LittleEndian(buffer[40..]);
+        FileSetDescriptorNumber = EndianUtilities.ToUInt32LittleEndian(buffer[44..]);
+        LogicalVolumeIdentifierCharset = EndianUtilities.ToStruct<CharacterSetSpecification>(buffer[48..]);
         LogicalVolumeIdentifier = UdfUtilities.ReadDString(buffer.Slice(112, 128));
-        FileSetCharset = EndianUtilities.ToStruct<CharacterSetSpecification>(buffer.Slice(240));
+        FileSetCharset = EndianUtilities.ToStruct<CharacterSetSpecification>(buffer[240..]);
         FileSetIdentifier = UdfUtilities.ReadDString(buffer.Slice(304, 32));
         CopyrightFileIdentifier = UdfUtilities.ReadDString(buffer.Slice(336, 32));
         AbstractFileIdentifier = UdfUtilities.ReadDString(buffer.Slice(368, 32));
-        RootDirectoryIcb = EndianUtilities.ToStruct<LongAllocationDescriptor>(buffer.Slice(400));
-        DomainIdentifier = EndianUtilities.ToStruct<DomainEntityIdentifier>(buffer.Slice(416));
-        NextExtent = EndianUtilities.ToStruct<LongAllocationDescriptor>(buffer.Slice(448));
-        SystemStreamDirectoryIcb = EndianUtilities.ToStruct<LongAllocationDescriptor>(buffer.Slice(464));
+        RootDirectoryIcb = EndianUtilities.ToStruct<LongAllocationDescriptor>(buffer[400..]);
+        DomainIdentifier = EndianUtilities.ToStruct<DomainEntityIdentifier>(buffer[416..]);
+        NextExtent = EndianUtilities.ToStruct<LongAllocationDescriptor>(buffer[448..]);
+        SystemStreamDirectoryIcb = EndianUtilities.ToStruct<LongAllocationDescriptor>(buffer[464..]);
 
         return 512;
     }

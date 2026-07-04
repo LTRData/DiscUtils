@@ -13,8 +13,8 @@
     <Company>LTR Data</Company>
     <Authors>Kenneth Bell;LordMike;Olof Lagerkvist</Authors>
     <OutputPath>..\$(Configuration)</OutputPath>
-    <FileVersion>1.0.106</FileVersion>
-    <Version>1.0.106</Version>
+    <FileVersion>1.0.107</FileVersion>
+    <Version>1.0.107</Version>
 
 	<GenerateDocumentationFile>true</GenerateDocumentationFile>
 
@@ -22,5 +22,13 @@
     <EmitCompilerGeneratedFiles>false</EmitCompilerGeneratedFiles>
     
   </PropertyGroup>
-  
+
+  <!-- Add PolySharp for supporting more recent language features -->
+  <ItemGroup Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net5.0'))">
+	<PackageReference Include="PolySharp" Version="*">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
 </Project>

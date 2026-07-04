@@ -40,15 +40,15 @@ internal sealed class FileHeader : IByteArraySerializable
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         Signature = EndianUtilities.ToUInt64LittleEndian(buffer);
-        Creator = EndianUtilities.LittleEndianUnicodeBytesToString(buffer.Slice(8, 256 * 2)).TrimEnd('\0');
+        Creator = EndianUtilities.LittleEndianUnicodeBytesToString(buffer.Slice(8, 256 * 2));
 
         return Size;
     }
 
     public void WriteTo(Span<byte> buffer)
     {
-        buffer.Slice(0, Size).Clear();
+        buffer[..Size].Clear();
         EndianUtilities.WriteBytesLittleEndian(Signature, buffer);
-        Encoding.Unicode.GetBytes(Creator.AsSpan(), buffer.Slice(8));
+        Encoding.Unicode.GetBytes(Creator.AsSpan(), buffer[8..]);
     }
 }

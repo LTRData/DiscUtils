@@ -47,7 +47,7 @@ internal abstract class Cell : IByteArraySerializable
 
     internal static Cell Parse(RegistryHive hive, int index, ReadOnlySpan<byte> buffer)
     {
-        var type = buffer.Slice(0, 2);
+        var type = buffer[..2];
 
         Cell result;
 

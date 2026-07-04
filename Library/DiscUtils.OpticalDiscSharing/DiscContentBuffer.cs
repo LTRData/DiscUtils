@@ -105,7 +105,7 @@ internal sealed class DiscContentBuffer : Buffer
         var read = 0;
         while (read < Math.Min(total, buffer.Length))
         {
-            read += await s.ReadAsync(buffer.Slice(read), cancellationToken).ConfigureAwait(false);
+            read += await s.ReadAsync(buffer[read..], cancellationToken).ConfigureAwait(false);
         }
 
         return read;
@@ -128,7 +128,7 @@ internal sealed class DiscContentBuffer : Buffer
         var read = 0;
         while (read < Math.Min(total, buffer.Length))
         {
-            read += s.Read(buffer.Slice(read));
+            read += s.Read(buffer[read..]);
         }
 
         return read;

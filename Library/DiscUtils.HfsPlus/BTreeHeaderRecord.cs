@@ -47,19 +47,19 @@ internal class BTreeHeaderRecord : BTreeNodeRecord
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         TreeDepth = EndianUtilities.ToUInt16BigEndian(buffer);
-        RootNode = EndianUtilities.ToUInt32BigEndian(buffer.Slice(2));
-        NumLeafRecords = EndianUtilities.ToUInt32BigEndian(buffer.Slice(6));
-        FirstLeafNode = EndianUtilities.ToUInt32BigEndian(buffer.Slice(10));
-        LastLeafNode = EndianUtilities.ToUInt32BigEndian(buffer.Slice(14));
-        NodeSize = EndianUtilities.ToUInt16BigEndian(buffer.Slice(18));
-        MaxKeyLength = EndianUtilities.ToUInt16BigEndian(buffer.Slice(20));
-        TotalNodes = EndianUtilities.ToUInt16BigEndian(buffer.Slice(22));
-        FreeNodes = EndianUtilities.ToUInt32BigEndian(buffer.Slice(24));
-        Res1 = EndianUtilities.ToUInt16BigEndian(buffer.Slice(28));
-        ClumpSize = EndianUtilities.ToUInt32BigEndian(buffer.Slice(30));
+        RootNode = EndianUtilities.ToUInt32BigEndian(buffer[2..]);
+        NumLeafRecords = EndianUtilities.ToUInt32BigEndian(buffer[6..]);
+        FirstLeafNode = EndianUtilities.ToUInt32BigEndian(buffer[10..]);
+        LastLeafNode = EndianUtilities.ToUInt32BigEndian(buffer[14..]);
+        NodeSize = EndianUtilities.ToUInt16BigEndian(buffer[18..]);
+        MaxKeyLength = EndianUtilities.ToUInt16BigEndian(buffer[20..]);
+        TotalNodes = EndianUtilities.ToUInt16BigEndian(buffer[22..]);
+        FreeNodes = EndianUtilities.ToUInt32BigEndian(buffer[24..]);
+        Res1 = EndianUtilities.ToUInt16BigEndian(buffer[28..]);
+        ClumpSize = EndianUtilities.ToUInt32BigEndian(buffer[30..]);
         TreeType = buffer[34];
         KeyCompareType = buffer[35];
-        Attributes = EndianUtilities.ToUInt32BigEndian(buffer.Slice(36));
+        Attributes = EndianUtilities.ToUInt32BigEndian(buffer[36..]);
 
         return 104;
     }

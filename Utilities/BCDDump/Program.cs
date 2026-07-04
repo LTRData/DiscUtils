@@ -32,7 +32,7 @@ class Program : ProgramBase
 {
     private CommandLineParameter _bcdFile;
 
-    static void Main(string[] args)
+    static void Main(params string[] args)
     {
         var program = new Program();
         program.Run(args);

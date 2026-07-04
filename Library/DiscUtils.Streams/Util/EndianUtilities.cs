@@ -20,6 +20,8 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
+using LTRData.Extensions.Buffers;
+using LTRData.Extensions.Split;
 using System;
 using System.Buffers;
 using System.IO;
@@ -144,7 +146,7 @@ public static class EndianUtilities
 
         if (!_isLittleEndian)
         {
-            WriteBytesLittleEndian(MemoryMarshal.Read<uint>(buffer.Slice(0, 4)), buffer.Slice(0, 4));
+            WriteBytesLittleEndian(MemoryMarshal.Read<uint>(buffer[..4]), buffer[..4]);
             WriteBytesLittleEndian(MemoryMarshal.Read<ushort>(buffer.Slice(4, 2)), buffer.Slice(4, 2));
             WriteBytesLittleEndian(MemoryMarshal.Read<ushort>(buffer.Slice(6, 2)), buffer.Slice(6, 2));
         }
@@ -264,7 +266,7 @@ public static class EndianUtilities
 
         if (_isLittleEndian)
         {
-            WriteBytesBigEndian(MemoryMarshal.Read<uint>(buffer.Slice(0, 4)), buffer.Slice(0, 4));
+            WriteBytesBigEndian(MemoryMarshal.Read<uint>(buffer[..4]), buffer[..4]);
             WriteBytesBigEndian(MemoryMarshal.Read<ushort>(buffer.Slice(4, 2)), buffer.Slice(4, 2));
             WriteBytesBigEndian(MemoryMarshal.Read<ushort>(buffer.Slice(6, 2)), buffer.Slice(6, 2));
         }
@@ -361,7 +363,7 @@ public static class EndianUtilities
         }
         else
         {
-            return ((ulong)ToUInt32LittleEndian(buffer.Slice(4, 4)) << 32) | ToUInt32LittleEndian(buffer.Slice(0, 4));
+            return ((ulong)ToUInt32LittleEndian(buffer.Slice(4, 4)) << 32) | ToUInt32LittleEndian(buffer[..4]);
         }
     }
 
@@ -487,7 +489,7 @@ public static class EndianUtilities
         }
         else
         {
-            return ((ulong)ToUInt32BigEndian(buffer.Slice(0, 4)) << 32) | ToUInt32BigEndian(buffer.Slice(4, 4));
+            return ((ulong)ToUInt32BigEndian(buffer[..4]) << 32) | ToUInt32BigEndian(buffer.Slice(4, 4));
         }
     }
 
@@ -540,7 +542,7 @@ public static class EndianUtilities
         else
         {
             return new Guid(
-                ToUInt32LittleEndian(buffer.Slice(0, 4)),
+                ToUInt32LittleEndian(buffer[..4]),
                 ToUInt16LittleEndian(buffer.Slice(4, 2)),
                 ToUInt16LittleEndian(buffer.Slice(6, 2)),
                 buffer[8],
@@ -566,7 +568,7 @@ public static class EndianUtilities
         else
         {
             return new Guid(
-                ToUInt32BigEndian(buffer.Slice(0, 4)),
+                ToUInt32BigEndian(buffer[..4]),
                 ToUInt16BigEndian(buffer.Slice(4, 2)),
                 ToUInt16BigEndian(buffer.Slice(6, 2)),
                 buffer[8],
@@ -599,25 +601,67 @@ public static class EndianUtilities
         return result;
     }
 
+    public static string[] LittleEndianUnicodeBytesToStringArray(ReadOnlySpan<byte> bytes)
+    {
+        var chars = MemoryMarshal.Cast<byte, char>(bytes);
+
+        if (chars.Length <= 2)
+        {
+            return [];
+        }
+
+        var endpos = chars.IndexOf("\0\0");
+
+        if (endpos >= 0)
+        {
+            chars = chars[..endpos];
+        }
+
+#if NET8_0_OR_GREATER
+        var count = chars.Count('\0') + 1;
+#else
+        var count = 1;
+
+        foreach (var c in chars)
+        {
+            if (c == '\0')
+            {
+                count++;
+            }
+        }
+#endif
+
+        var array = new string[count];
+
+        var i = 0;
+
+        foreach (var str in chars.TokenEnum('\0'))
+        {
+            if (!BitConverter.IsLittleEndian)
+            {
+                array[i++] = Encoding.Unicode.GetString(MemoryMarshal.Cast<char, byte>(str));
+            }
+            else
+            {
+                array[i++] = str.ToString();
+            }
+        }
+
+        return array;
+    }
+
     public static string LittleEndianUnicodeBytesToString(ReadOnlySpan<byte> bytes)
     {
         if (!BitConverter.IsLittleEndian)
         {
-            return Encoding.Unicode.GetString(bytes);
+            return Encoding.Unicode.GetString(MemoryMarshal.Cast<char, byte>(bytes.ReadNullTerminatedUnicode()));
         }
 
-        return MemoryMarshal.Cast<byte, char>(bytes).ToString();
+        return MemoryMarshal.Cast<byte, char>(bytes).ReadNullTerminatedUnicodeString();
     }
 
     public static string LittleEndianUnicodeBytesToString(byte[] bytes, int offset, int count)
-    {
-        if (!BitConverter.IsLittleEndian)
-        {
-            return Encoding.Unicode.GetString(bytes, offset, count);
-        }
-
-        return MemoryMarshal.Cast<byte, char>(bytes.AsSpan(offset, count)).ToString();
-    }
+        => LittleEndianUnicodeBytesToString(bytes.AsSpan(offset, count));
 
     public static ReadOnlySpan<byte> StringToLittleEndianUnicodeBytes(ReadOnlySpan<char> chars)
     {
@@ -688,7 +732,7 @@ public static class EndianUtilities
 
         if (z >= 0)
         {
-            data = data.Slice(0, z);
+            data = data[..z];
         }
 
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP
@@ -707,5 +751,5 @@ public static class EndianUtilities
 #endif
     }
 
-    #endregion
+#endregion
 }

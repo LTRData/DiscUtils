@@ -117,7 +117,7 @@ public sealed class BiosPartitionTable : PartitionTable
 
                 Span<byte> guid = stackalloc byte[16];
                 bootSector.Slice(0x1B8, 4).CopyTo(guid);
-                guid.Slice(4).Clear();
+                guid[4..].Clear();
                 return EndianUtilities.ToGuidLittleEndian(guid);
             }
             finally
@@ -676,7 +676,7 @@ public sealed class BiosPartitionTable : PartitionTable
         var records = new BiosPartitionRecord[4];
         for (var i = 0; i < 4; ++i)
         {
-            records[i] = new BiosPartitionRecord(bootSector.Slice(0x01BE + i * 0x10), 0, i);
+            records[i] = new BiosPartitionRecord(bootSector[(0x01BE + i * 0x10)..], 0, i);
         }
 
         return records;
@@ -787,7 +787,7 @@ public sealed class BiosPartitionTable : PartitionTable
         {
             _diskData.ReadExactly(bootSector);
 
-            newRecord.WriteTo(bootSector.Slice(0x01BE + i * 16));
+            newRecord.WriteTo(bootSector[(0x01BE + i * 16)..]);
             _diskData.Position = 0;
             _diskData.Write(bootSector);
         }

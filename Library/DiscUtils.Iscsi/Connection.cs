@@ -275,7 +275,7 @@ internal sealed class Connection : IDisposable
                     var expectedTransferLength = outBufferCount != 0 ? (uint)outBufferCount : (uint)inBufferMax;
 
                     var packet = req.GetBytes(cmd,
-                                              immediateData: outBuffer.Slice(0, toSend),
+                                              immediateData: outBuffer[..toSend],
                                               isFinalData: true,
                                               willRead: inBufferMax != 0,
                                               willWrite: outBufferCount != 0,
@@ -363,7 +363,7 @@ internal sealed class Connection : IDisposable
 
                             if (resp.ReadData != null)
                             {
-                                resp.ReadData.AsSpan().CopyTo(inBuffer.Slice((int)resp.BufferOffset));
+                                resp.ReadData.AsSpan().CopyTo(inBuffer[(int)resp.BufferOffset..]);
                                 numRead += resp.ReadData.Length;
                             }
 
@@ -427,7 +427,7 @@ internal sealed class Connection : IDisposable
                     // Simpler logic: Use buffer sizes directly
                     var expectedTransferLength = outBufferCount != 0 ? (uint)outBufferCount : (uint)inBufferMax;
 
-                    var packet = req.GetBytes(cmd, outBuffer.Span.Slice(0, toSend), true, inBufferMax != 0, outBufferCount != 0, expectedTransferLength);
+                    var packet = req.GetBytes(cmd, outBuffer.Span[..toSend], true, inBufferMax != 0, outBufferCount != 0, expectedTransferLength);
                     await _stream.WriteAsync(packet, cancellationToken).ConfigureAwait(false);
                     await _stream.FlushAsync(cancellationToken).ConfigureAwait(false);
                     var numSent = toSend;
@@ -503,7 +503,7 @@ internal sealed class Connection : IDisposable
 
                             if (resp.ReadData != null)
                             {
-                                resp.ReadData.CopyTo(inBuffer.Slice((int)resp.BufferOffset));
+                                resp.ReadData.CopyTo(inBuffer[(int)resp.BufferOffset..]);
                                 numRead += resp.ReadData.Length;
                             }
 

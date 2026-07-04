@@ -150,7 +150,7 @@ public class CommandLineParser
         {
             if (args[i].StartsWith('-') || (Path.DirectorySeparatorChar != '/' && args[i].StartsWith('/')))
             {
-                var switchName = args[i].Substring(1);
+                var switchName = args[i][1..];
                 var foundMatch = false;
 
                 foreach (var s in _switches)

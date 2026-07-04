@@ -39,18 +39,18 @@ internal struct ObjectIdRecord : IByteArraySerializable
         MftReference = new FileRecordReference();
         MftReference.ReadFrom(buffer);
 
-        BirthVolumeId = EndianUtilities.ToGuidLittleEndian(buffer.Slice(0x08));
-        BirthObjectId = EndianUtilities.ToGuidLittleEndian(buffer.Slice(0x18));
-        BirthDomainId = EndianUtilities.ToGuidLittleEndian(buffer.Slice(0x28));
+        BirthVolumeId = EndianUtilities.ToGuidLittleEndian(buffer[0x08..]);
+        BirthObjectId = EndianUtilities.ToGuidLittleEndian(buffer[0x18..]);
+        BirthDomainId = EndianUtilities.ToGuidLittleEndian(buffer[0x28..]);
         return 0x38;
     }
 
     public void WriteTo(Span<byte> buffer)
     {
         MftReference.WriteTo(buffer);
-        EndianUtilities.WriteBytesLittleEndian(BirthVolumeId, buffer.Slice(0x08));
-        EndianUtilities.WriteBytesLittleEndian(BirthObjectId, buffer.Slice(0x18));
-        EndianUtilities.WriteBytesLittleEndian(BirthDomainId, buffer.Slice(0x28));
+        EndianUtilities.WriteBytesLittleEndian(BirthVolumeId, buffer[0x08..]);
+        EndianUtilities.WriteBytesLittleEndian(BirthObjectId, buffer[0x18..]);
+        EndianUtilities.WriteBytesLittleEndian(BirthDomainId, buffer[0x28..]);
     }
 
     public override string ToString() =>

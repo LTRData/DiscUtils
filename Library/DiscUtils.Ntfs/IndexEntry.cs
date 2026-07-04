@@ -86,11 +86,11 @@ internal sealed class IndexEntry
 
     public void Read(ReadOnlySpan<byte> buffer)
     {
-        var dataOffset = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(0x00));
-        var dataLength = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(0x02));
-        var length = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(0x08));
-        var keyLength = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(0x0A));
-        Flags = (IndexEntryFlags)EndianUtilities.ToUInt16LittleEndian(buffer.Slice(0x0C));
+        var dataOffset = EndianUtilities.ToUInt16LittleEndian(buffer[..]);
+        var dataLength = EndianUtilities.ToUInt16LittleEndian(buffer[0x02..]);
+        var length = EndianUtilities.ToUInt16LittleEndian(buffer[0x08..]);
+        var keyLength = EndianUtilities.ToUInt16LittleEndian(buffer[0x0A..]);
+        Flags = (IndexEntryFlags)EndianUtilities.ToUInt16LittleEndian(buffer[0x0C..]);
 
         if ((Flags & IndexEntryFlags.End) == 0)
         {
@@ -101,7 +101,7 @@ internal sealed class IndexEntry
             {
                 // Special case, for file indexes, the MFT ref is held where the data offset & length go
                 DataBuffer = StreamUtilities.GetUninitializedArray<byte>(8);
-                buffer.Slice(0x00, 8).CopyTo(DataBuffer);
+                buffer[..8].CopyTo(DataBuffer);
             }
             else
             {
@@ -112,7 +112,7 @@ internal sealed class IndexEntry
 
         if ((Flags & IndexEntryFlags.Node) != 0)
         {
-            ChildrenVirtualCluster = EndianUtilities.ToInt64LittleEndian(buffer.Slice(length - 8));
+            ChildrenVirtualCluster = EndianUtilities.ToInt64LittleEndian(buffer[(length - 8)..]);
         }
     }
 
@@ -134,25 +134,25 @@ internal sealed class IndexEntry
                 var dataLength = (ushort)DataBuffer.Length;
 
                 EndianUtilities.WriteBytesLittleEndian(dataOffset, buffer);
-                EndianUtilities.WriteBytesLittleEndian(dataLength, buffer.Slice(0x02));
-                DataBuffer.AsSpan().CopyTo(buffer.Slice(dataOffset));
+                EndianUtilities.WriteBytesLittleEndian(dataLength, buffer[0x02..]);
+                DataBuffer.AsSpan().CopyTo(buffer[dataOffset..]);
             }
 
-            EndianUtilities.WriteBytesLittleEndian(keyLength, buffer.Slice(0x0A));
-            KeyBuffer.AsSpan().CopyTo(buffer.Slice(0x10));
+            EndianUtilities.WriteBytesLittleEndian(keyLength, buffer[0x0A..]);
+            KeyBuffer.AsSpan().CopyTo(buffer[0x10..]);
         }
         else
         {
             EndianUtilities.WriteBytesLittleEndian((ushort)0, buffer); // dataOffset
-            EndianUtilities.WriteBytesLittleEndian((ushort)0, buffer.Slice(0x02)); // dataLength
-            EndianUtilities.WriteBytesLittleEndian((ushort)0, buffer.Slice(0x0A)); // keyLength
+            EndianUtilities.WriteBytesLittleEndian((ushort)0, buffer[0x02..]); // dataLength
+            EndianUtilities.WriteBytesLittleEndian((ushort)0, buffer[0x0A..]); // keyLength
         }
 
-        EndianUtilities.WriteBytesLittleEndian(length, buffer.Slice(0x08));
-        EndianUtilities.WriteBytesLittleEndian((ushort)Flags, buffer.Slice(0x0C));
+        EndianUtilities.WriteBytesLittleEndian(length, buffer[0x08..]);
+        EndianUtilities.WriteBytesLittleEndian((ushort)Flags, buffer[0x0C..]);
         if ((Flags & IndexEntryFlags.Node) != 0)
         {
-            EndianUtilities.WriteBytesLittleEndian(ChildrenVirtualCluster, buffer.Slice(length - 8));
+            EndianUtilities.WriteBytesLittleEndian(ChildrenVirtualCluster, buffer[(length - 8)..]);
         }
     }
 }

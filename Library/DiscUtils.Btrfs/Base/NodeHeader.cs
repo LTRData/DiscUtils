@@ -94,17 +94,17 @@ internal abstract class NodeHeader : IByteArraySerializable
 
     public virtual int ReadFrom(ReadOnlySpan<byte> buffer)
     {
-        Checksum = EndianUtilities.ToByteArray(buffer.Slice(0, 0x20));
-        FsUuid = EndianUtilities.ToGuidLittleEndian(buffer.Slice(0x20));
-        LogicalAddress = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x30));
+        Checksum = EndianUtilities.ToByteArray(buffer[..0x20]);
+        FsUuid = EndianUtilities.ToGuidLittleEndian(buffer[0x20..]);
+        LogicalAddress = EndianUtilities.ToUInt64LittleEndian(buffer[0x30..]);
         //todo validate shift
-        Flags = EndianUtilities.ToInt64LittleEndian(buffer.Slice(0x38)) >> 8;
+        Flags = EndianUtilities.ToInt64LittleEndian(buffer[0x38..]) >> 8;
         BackrefRevision = buffer[0x3f];
-        ChunkTreeUuid = EndianUtilities.ToGuidLittleEndian(buffer.Slice(0x40));
-        Generation = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x50));
+        ChunkTreeUuid = EndianUtilities.ToGuidLittleEndian(buffer[0x40..]);
+        Generation = EndianUtilities.ToUInt64LittleEndian(buffer[0x50..]);
 
-        TreeId = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x58));
-        ItemCount = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x60));
+        TreeId = EndianUtilities.ToUInt64LittleEndian(buffer[0x58..]);
+        ItemCount = EndianUtilities.ToUInt32LittleEndian(buffer[0x60..]);
         Level = buffer[0x64];
         return Length;
     }

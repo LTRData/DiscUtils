@@ -81,14 +81,14 @@ internal class FileNameRecord : IByteArraySerializable, IDiagnosticTraceable, IE
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         ParentDirectory = new FileRecordReference(EndianUtilities.ToUInt64LittleEndian(buffer));
-        CreationTime = ReadDateTime(buffer.Slice(0x08));
-        ModificationTime = ReadDateTime(buffer.Slice(0x10));
-        MftChangedTime = ReadDateTime(buffer.Slice(0x18));
-        LastAccessTime = ReadDateTime(buffer.Slice(0x20));
-        AllocatedSize = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x28));
-        RealSize = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x30));
-        Flags = (NtfsFileAttributes)EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x38));
-        EASizeOrReparsePointTag = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x3C));
+        CreationTime = ReadDateTime(buffer[0x08..]);
+        ModificationTime = ReadDateTime(buffer[0x10..]);
+        MftChangedTime = ReadDateTime(buffer[0x18..]);
+        LastAccessTime = ReadDateTime(buffer[0x20..]);
+        AllocatedSize = EndianUtilities.ToUInt64LittleEndian(buffer[0x28..]);
+        RealSize = EndianUtilities.ToUInt64LittleEndian(buffer[0x30..]);
+        Flags = (NtfsFileAttributes)EndianUtilities.ToUInt32LittleEndian(buffer[0x38..]);
+        EASizeOrReparsePointTag = EndianUtilities.ToUInt32LittleEndian(buffer[0x3C..]);
         var fnLen = buffer[0x40];
         FileNameNamespace = (FileNameNamespace)buffer[0x41];
         FileName = Encoding.Unicode.GetString(buffer.Slice(0x42, fnLen * 2));
@@ -99,17 +99,17 @@ internal class FileNameRecord : IByteArraySerializable, IDiagnosticTraceable, IE
     public void WriteTo(Span<byte> buffer)
     {
         EndianUtilities.WriteBytesLittleEndian(ParentDirectory.Value, buffer);
-        EndianUtilities.WriteBytesLittleEndian((ulong)CreationTime.ToFileTimeUtc(), buffer.Slice(0x08));
-        EndianUtilities.WriteBytesLittleEndian((ulong)ModificationTime.ToFileTimeUtc(), buffer.Slice(0x10));
-        EndianUtilities.WriteBytesLittleEndian((ulong)MftChangedTime.ToFileTimeUtc(), buffer.Slice(0x18));
-        EndianUtilities.WriteBytesLittleEndian((ulong)LastAccessTime.ToFileTimeUtc(), buffer.Slice(0x20));
-        EndianUtilities.WriteBytesLittleEndian(AllocatedSize, buffer.Slice(0x28));
-        EndianUtilities.WriteBytesLittleEndian(RealSize, buffer.Slice(0x30));
-        EndianUtilities.WriteBytesLittleEndian((uint)Flags, buffer.Slice(0x38));
-        EndianUtilities.WriteBytesLittleEndian(EASizeOrReparsePointTag, buffer.Slice(0x3C));
+        EndianUtilities.WriteBytesLittleEndian((ulong)CreationTime.ToFileTimeUtc(), buffer[0x08..]);
+        EndianUtilities.WriteBytesLittleEndian((ulong)ModificationTime.ToFileTimeUtc(), buffer[0x10..]);
+        EndianUtilities.WriteBytesLittleEndian((ulong)MftChangedTime.ToFileTimeUtc(), buffer[0x18..]);
+        EndianUtilities.WriteBytesLittleEndian((ulong)LastAccessTime.ToFileTimeUtc(), buffer[0x20..]);
+        EndianUtilities.WriteBytesLittleEndian(AllocatedSize, buffer[0x28..]);
+        EndianUtilities.WriteBytesLittleEndian(RealSize, buffer[0x30..]);
+        EndianUtilities.WriteBytesLittleEndian((uint)Flags, buffer[0x38..]);
+        EndianUtilities.WriteBytesLittleEndian(EASizeOrReparsePointTag, buffer[0x3C..]);
         buffer[0x40] = (byte)FileName.Length;
         buffer[0x41] = (byte)FileNameNamespace;
-        Encoding.Unicode.GetBytes(FileName.AsSpan(), buffer.Slice(0x42));
+        Encoding.Unicode.GetBytes(FileName.AsSpan(), buffer[0x42..]);
     }
 
     public void Dump(TextWriter writer, string indent)

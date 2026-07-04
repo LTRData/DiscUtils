@@ -42,8 +42,8 @@ internal class ResourceInfo
     {
         Header = new ShortResourceHeader();
         Header.Read(buffer);
-        PartNumber = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(ShortResourceHeader.Size));
-        RefCount = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(ShortResourceHeader.Size + 2));
+        PartNumber = EndianUtilities.ToUInt16LittleEndian(buffer[ShortResourceHeader.Size..]);
+        RefCount = EndianUtilities.ToUInt32LittleEndian(buffer[(ShortResourceHeader.Size + 2)..]);
         Hash = buffer.Slice(ShortResourceHeader.Size + 6, 20).ToImmutableArray();
     }
 }

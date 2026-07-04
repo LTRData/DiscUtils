@@ -98,7 +98,7 @@ internal class LinuxRaidDiskVolume : IDiagnosticTraceable
                 var bytesRead = volumeStream.Read(buffer);
                 if (bytesRead >= 512) // Minimum superblock size
                 {
-                    superblock.ReadFrom(buffer.Slice(0, bytesRead), version);
+                    superblock.ReadFrom(buffer[..bytesRead], version);
                     if (superblock.IsValid)
                     {
                         return superblock;

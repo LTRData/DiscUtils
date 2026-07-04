@@ -338,7 +338,7 @@ internal sealed class Bitmap : IDisposable
     {
         if (index + buffer.Length >= _bitmap.Length)
         {
-            buffer = buffer.Slice(0, (int)(_bitmap.Length - index));
+            buffer = buffer[..(int)(_bitmap.Length - index)];
         }
 
         if (buffer.IsEmpty)

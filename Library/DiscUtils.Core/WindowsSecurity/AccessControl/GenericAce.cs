@@ -230,7 +230,7 @@ public abstract class GenericAce
             throw new ArgumentException("Invalid SDDL string.", nameof(sddlForm));
         }
 
-        sddlForm = sddlForm.Slice(pos + 1);
+        sddlForm = sddlForm[(pos + 1)..];
 
         var endPos = sddlForm.IndexOf(')');
         if (endPos < 0)
@@ -239,7 +239,7 @@ public abstract class GenericAce
         }
 
         var count = endPos;
-        var elementsStr = sddlForm.Slice(0, count).ToString();
+        var elementsStr = sddlForm[..count].ToString();
         elementsStr = elementsStr.ToUpperInvariant();
         var elements = elementsStr.AsMemory().TokenEnum(';').ToArray();
         if (elements.Length != 6)
@@ -427,11 +427,11 @@ public abstract class GenericAce
         if (accessMask.StartsWith("0X".AsSpan(), StringComparison.Ordinal))
         {
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP
-            return int.Parse(accessMask.Slice(2),
+            return int.Parse(accessMask[2..],
                 NumberStyles.HexNumber,
                 CultureInfo.InvariantCulture);
 #else
-            return int.Parse(accessMask.Slice(2).ToString(),
+            return int.Parse(accessMask[2..].ToString(),
                 NumberStyles.HexNumber,
                 CultureInfo.InvariantCulture);
 #endif

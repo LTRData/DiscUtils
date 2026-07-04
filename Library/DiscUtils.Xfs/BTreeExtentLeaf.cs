@@ -45,7 +45,7 @@ internal class BTreeExtentLeaf : BTreeExtentHeader
         for (var i = 0; i < NumberOfRecords; i++)
         {
             var rec = new Extent();
-            offset += rec.ReadFrom(buffer.Slice(offset));
+            offset += rec.ReadFrom(buffer[offset..]);
             Extents[i] = rec;
         }
 

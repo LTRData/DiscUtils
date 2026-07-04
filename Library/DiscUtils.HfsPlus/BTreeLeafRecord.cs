@@ -50,7 +50,7 @@ internal sealed class BTreeLeafRecord<TKey> : BTreeNodeRecord
             ++keySize;
         }
 
-        Data = buffer.Slice(keySize, _size - keySize).ToArray();
+        Data = buffer[keySize.._size].ToArray();
 
         return _size;
     }

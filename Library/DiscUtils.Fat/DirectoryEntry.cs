@@ -193,14 +193,14 @@ internal class DirectoryEntry
         int offset = buffer.Length - SizeOf;
         buffer[offset + 11] = (byte)Attributes;
         buffer[offset + 13] = _creationTimeTenth;
-        EndianUtilities.WriteBytesLittleEndian(_creationTime, buffer.Slice(offset + 14));
-        EndianUtilities.WriteBytesLittleEndian(_creationDate, buffer.Slice(offset + 16));
-        EndianUtilities.WriteBytesLittleEndian(_lastAccessDate, buffer.Slice(offset + 18));
-        EndianUtilities.WriteBytesLittleEndian(_firstClusterHi, buffer.Slice(offset + 20));
-        EndianUtilities.WriteBytesLittleEndian(_lastWriteTime, buffer.Slice(offset + 22));
-        EndianUtilities.WriteBytesLittleEndian(_lastWriteDate, buffer.Slice(offset + 24));
-        EndianUtilities.WriteBytesLittleEndian(_firstClusterLo, buffer.Slice(offset + 26));
-        EndianUtilities.WriteBytesLittleEndian(_fileSize, buffer.Slice(offset + 28));
+        EndianUtilities.WriteBytesLittleEndian(_creationTime, buffer[(offset + 14)..]);
+        EndianUtilities.WriteBytesLittleEndian(_creationDate, buffer[(offset + 16)..]);
+        EndianUtilities.WriteBytesLittleEndian(_lastAccessDate, buffer[(offset + 18)..]);
+        EndianUtilities.WriteBytesLittleEndian(_firstClusterHi, buffer[(offset + 20)..]);
+        EndianUtilities.WriteBytesLittleEndian(_lastWriteTime, buffer[(offset + 22)..]);
+        EndianUtilities.WriteBytesLittleEndian(_lastWriteDate, buffer[(offset + 24)..]);
+        EndianUtilities.WriteBytesLittleEndian(_firstClusterLo, buffer[(offset + 26)..]);
+        EndianUtilities.WriteBytesLittleEndian(_fileSize, buffer[(offset + 28)..]);
 
         stream.Write(buffer);
     }

@@ -49,7 +49,7 @@ internal class LeafNode : NodeHeader
         {
             var item = new NodeItem();
 
-            itemOffset += item.ReadFrom(buffer.Slice(itemOffset));
+            itemOffset += item.ReadFrom(buffer[itemOffset..]);
 
             Items[i] = item;
 

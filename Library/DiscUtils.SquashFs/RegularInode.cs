@@ -55,10 +55,10 @@ internal class RegularInode : Inode
         base.ReadFrom(buffer);
 
         NumLinks = 1;
-        StartBlock = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(16));
-        FragmentKey = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(20));
-        FragmentOffset = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(24));
-        _fileSize = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(28));
+        StartBlock = EndianUtilities.ToUInt32LittleEndian(buffer[16..]);
+        FragmentKey = EndianUtilities.ToUInt32LittleEndian(buffer[20..]);
+        FragmentOffset = EndianUtilities.ToUInt32LittleEndian(buffer[24..]);
+        _fileSize = EndianUtilities.ToUInt32LittleEndian(buffer[28..]);
 
         return 32;
     }
@@ -67,9 +67,9 @@ internal class RegularInode : Inode
     {
         base.WriteTo(buffer);
 
-        EndianUtilities.WriteBytesLittleEndian(StartBlock, buffer.Slice(16));
-        EndianUtilities.WriteBytesLittleEndian(FragmentKey, buffer.Slice(20));
-        EndianUtilities.WriteBytesLittleEndian(FragmentOffset, buffer.Slice(24));
-        EndianUtilities.WriteBytesLittleEndian(_fileSize, buffer.Slice(28));
+        EndianUtilities.WriteBytesLittleEndian(StartBlock, buffer[16..]);
+        EndianUtilities.WriteBytesLittleEndian(FragmentKey, buffer[20..]);
+        EndianUtilities.WriteBytesLittleEndian(FragmentOffset, buffer[24..]);
+        EndianUtilities.WriteBytesLittleEndian(_fileSize, buffer[28..]);
     }
 }

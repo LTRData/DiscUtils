@@ -54,7 +54,7 @@ internal sealed class SecurityDescriptor : IByteArraySerializable, IDiagnosticTr
         var controlFlags = Descriptor.ControlFlags;
         buffer[0x00] = 1;
         buffer[0x01] = Descriptor.ResourceManagerControl;
-        EndianUtilities.WriteBytesLittleEndian((ushort)controlFlags, buffer.Slice(0x02));
+        EndianUtilities.WriteBytesLittleEndian((ushort)controlFlags, buffer[0x02..]);
 
         // Blank out offsets, will fill later
         for (var i = 0x04; i < 0x14; ++i)
@@ -67,8 +67,8 @@ internal sealed class SecurityDescriptor : IByteArraySerializable, IDiagnosticTr
         var discAcl = Descriptor.DiscretionaryAcl;
         if ((controlFlags & ControlFlags.DiscretionaryAclPresent) != 0 && discAcl != null)
         {
-            EndianUtilities.WriteBytesLittleEndian(pos, buffer.Slice(0x10));
-            discAcl.GetBinaryForm(buffer.Slice(pos));
+            EndianUtilities.WriteBytesLittleEndian(pos, buffer[0x10..]);
+            discAcl.GetBinaryForm(buffer[pos..]);
             pos += Descriptor.DiscretionaryAcl.BinaryLength;
         }
         else
@@ -79,8 +79,8 @@ internal sealed class SecurityDescriptor : IByteArraySerializable, IDiagnosticTr
         var sysAcl = Descriptor.SystemAcl;
         if ((controlFlags & ControlFlags.SystemAclPresent) != 0 && sysAcl != null)
         {
-            EndianUtilities.WriteBytesLittleEndian(pos, buffer.Slice(0x0C));
-            sysAcl.GetBinaryForm(buffer.Slice(pos));
+            EndianUtilities.WriteBytesLittleEndian(pos, buffer[0x0C..]);
+            sysAcl.GetBinaryForm(buffer[pos..]);
             pos += Descriptor.SystemAcl.BinaryLength;
         }
         else
@@ -88,12 +88,12 @@ internal sealed class SecurityDescriptor : IByteArraySerializable, IDiagnosticTr
             buffer.Slice(0x0C, sizeof(int)).Clear();
         }
 
-        EndianUtilities.WriteBytesLittleEndian(pos, buffer.Slice(0x04));
-        Descriptor.Owner.GetBinaryForm(buffer.Slice(pos));
+        EndianUtilities.WriteBytesLittleEndian(pos, buffer[0x04..]);
+        Descriptor.Owner.GetBinaryForm(buffer[pos..]);
         pos += Descriptor.Owner.BinaryLength;
 
-        EndianUtilities.WriteBytesLittleEndian(pos, buffer.Slice(0x08));
-        Descriptor.Group.GetBinaryForm(buffer.Slice(pos));
+        EndianUtilities.WriteBytesLittleEndian(pos, buffer[0x08..]);
+        Descriptor.Group.GetBinaryForm(buffer[pos..]);
         pos += Descriptor.Group.BinaryLength;
 
         if (pos != Descriptor.BinaryLength)
@@ -114,7 +114,7 @@ internal sealed class SecurityDescriptor : IByteArraySerializable, IDiagnosticTr
         uint hash = 0;
         for (var i = 0; i < buffer.Length / 4; ++i)
         {
-            hash = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(i * 4)) + ((hash << 3) | (hash >> 29));
+            hash = EndianUtilities.ToUInt32LittleEndian(buffer[(i * 4)..]) + ((hash << 3) | (hash >> 29));
         }
 
         return hash;

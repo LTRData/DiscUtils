@@ -55,8 +55,8 @@ public class AllocationBitmapExFatDirectoryEntry : ExFatDirectoryEntry, IDataPro
     /// <param name="buffer">The buffer.</param>
     public AllocationBitmapExFatDirectoryEntry(Memory<byte> buffer) : base(buffer)
     {
-        BitmapFlags = new EnumValueProvider<AllocationBitmapFlags, byte>(new BufferUInt8(buffer.Slice(1)));
-        FirstCluster = new BufferUInt32(buffer.Slice(20));
-        DataLength = new BufferUInt64(buffer.Slice(24));
+        BitmapFlags = new EnumValueProvider<AllocationBitmapFlags, byte>(new BufferUInt8(buffer[1..]));
+        FirstCluster = new BufferUInt32(buffer[20..]);
+        DataLength = new BufferUInt64(buffer[24..]);
     }
 }

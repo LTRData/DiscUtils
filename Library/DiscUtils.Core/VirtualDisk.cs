@@ -125,13 +125,13 @@ public abstract class VirtualDisk :
         {
             Span<byte> mbr = stackalloc byte[Sizes.Sector];
             GetMasterBootRecord(mbr);
-            return EndianUtilities.ToInt32LittleEndian(mbr.Slice(0x01B8));
+            return EndianUtilities.ToInt32LittleEndian(mbr[0x01B8..]);
         }
         set
         {
             Span<byte> mbr = stackalloc byte[Sizes.Sector];
             GetMasterBootRecord(mbr);
-            EndianUtilities.WriteBytesLittleEndian(value, mbr.Slice(0x01B8));
+            EndianUtilities.WriteBytesLittleEndian(value, mbr[0x01B8..]);
             SetMasterBootRecord(mbr);
         }
     }
@@ -519,7 +519,7 @@ public abstract class VirtualDisk :
                 bool foundFactory;
                 VirtualDiskFactory? factory;
 
-                if (forceType is not null && !string.IsNullOrEmpty(forceType))
+                if (forceType is { Length: > 0 })
                 {
                     foundFactory = VirtualDiskManager.TypeMap.TryGetValue(forceType, out factory);
                 }
@@ -528,7 +528,7 @@ public abstract class VirtualDisk :
                     var extension = Path.GetExtension(uri.AbsolutePath);
                     if (extension.StartsWith('.'))
                     {
-                        extension = extension.Substring(1);
+                        extension = extension[1..];
                     }
 
                     foundFactory = VirtualDiskManager.ExtensionMap.TryGetValue(extension, out factory);
@@ -571,7 +571,7 @@ public abstract class VirtualDisk :
         var extension = Path.GetExtension(path);
         if (extension.StartsWith('.'))
         {
-            extension = extension.Substring(1);
+            extension = extension[1..];
         }
 
         if (VirtualDiskManager.ExtensionMap.TryGetValue(extension, out var factory))
@@ -612,7 +612,7 @@ public abstract class VirtualDisk :
     {
         var oldPos = Content.Position;
         Content.Position = 0;
-        Content.ReadExactly(sector.Slice(0, Sizes.Sector));
+        Content.ReadExactly(sector[..Sizes.Sector]);
         Content.Position = oldPos;
     }
 
@@ -624,7 +624,7 @@ public abstract class VirtualDisk :
     {
         var oldPos = Content.Position;
         Content.Position = 0;
-        await Content.ReadExactlyAsync(sector.Slice(0, Sizes.Sector), cancellationToken).ConfigureAwait(false);
+        await Content.ReadExactlyAsync(sector[..Sizes.Sector], cancellationToken).ConfigureAwait(false);
         Content.Position = oldPos;
     }
 
@@ -699,7 +699,7 @@ public abstract class VirtualDisk :
         var extension = Path.GetExtension(path);
         if (extension.StartsWith('.'))
         {
-            extension = extension.Substring(1);
+            extension = extension[1..];
         }
 
         if (VirtualDiskManager.ExtensionMap.TryGetValue(extension, out var factory))

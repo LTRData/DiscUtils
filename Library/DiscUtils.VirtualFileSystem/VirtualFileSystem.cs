@@ -41,7 +41,7 @@ public partial class VirtualFileSystem : DiscFileSystem, IWindowsFileSystem, IUn
 
         if (index >= 0)
         {
-            return path.Remove(index);
+            return path[..index];
         }
 
         return string.Empty;
@@ -58,7 +58,7 @@ public partial class VirtualFileSystem : DiscFileSystem, IWindowsFileSystem, IUn
 
         if (index >= 0)
         {
-            return path.Substring(index + 1);
+            return path[(index + 1)..];
         }
 
         return path;
@@ -289,6 +289,26 @@ public partial class VirtualFileSystem : DiscFileSystem, IWindowsFileSystem, IUn
 
         return directory.GetNames()
             .Where(GetFilter(searchPattern))
+            .Select(name => Path.Combine(path, name));
+    }
+
+    public override IEnumerable<string> GetFileSystemEntries(string path, string searchPattern, SearchOption searchOption)
+    {
+        var directory = _root.ResolvePathToEntry(path) as VirtualFileSystemDirectory ??
+            throw new DirectoryNotFoundException();
+
+        var filter = GetFilter(searchPattern);
+
+        if (searchOption == SearchOption.TopDirectoryOnly)
+        {
+            return directory.GetNames()
+                .Where(filter)
+                .Select(name => Path.Combine(path, name));
+        }
+
+        return directory.EnumerateTree()
+            .Select(entry => entry.Key)
+            .Where(name => filter(GetPathFileName(name)))
             .Select(name => Path.Combine(path, name));
     }
 

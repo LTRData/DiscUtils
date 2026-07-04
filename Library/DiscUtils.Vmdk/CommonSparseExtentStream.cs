@@ -107,7 +107,7 @@ internal abstract class CommonSparseExtentStream : MappedStream
 
     public override bool CanSeek => _fileStream is not null;
 
-    public override bool CanWrite => _fileStream is not null && _fileStream.CanWrite;
+    public override bool CanWrite => _fileStream is { CanWrite: true };
 
     public override IEnumerable<StreamExtent> Extents => GetExtentsInRange(0, Length);
 
@@ -435,7 +435,7 @@ internal abstract class CommonSparseExtentStream : MappedStream
                 {
                     _fileStream?.Dispose();
                 }
-                else if (_fileStream is not null && _fileStream.CanWrite)
+                else if (_fileStream is { CanWrite: true })
                 {
                     _fileStream?.Flush();
                 }

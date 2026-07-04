@@ -62,11 +62,11 @@ internal ref struct LzxDecoder
 
         _workspace = workspace;
 
-        _window = workspace.Window.Slice(0, _windowSize);
-        _mainLengths = workspace.MainLengths.Slice(0, 256 + 8 * _numPositionSlots);
-        _lengthLengths = workspace.LengthLengths.Slice(0, 249);
-        _alignedLengths = workspace.AlignedLengths.Slice(0, 8);
-        _preTreeLengths = workspace.PreTreeLengths.Slice(0, 20);
+        _window = workspace.Window[.._windowSize];
+        _mainLengths = workspace.MainLengths[..(256 + 8 * _numPositionSlots)];
+        _lengthLengths = workspace.LengthLengths[..249];
+        _alignedLengths = workspace.AlignedLengths[..8];
+        _preTreeLengths = workspace.PreTreeLengths[..20];
 
         _window.Clear();
         _mainLengths.Clear();
@@ -147,7 +147,7 @@ internal ref struct LzxDecoder
 
         if (_E8FixupMaxSize > 0)
         {
-            ApplyE8Fixup(destination.Slice(0, dstPos), _E8FixupMaxSize);
+            ApplyE8Fixup(destination[..dstPos], _E8FixupMaxSize);
         }
 
         bytesConsumed = reader.BytesConsumed;
@@ -220,7 +220,7 @@ internal ref struct LzxDecoder
             while (skipped > 0)
             {
                 int chunk = Math.Min(skipped, scratch.Length);
-                if (!reader.TryReadRawBytes(scratch.Slice(0, chunk)))
+                if (!reader.TryReadRawBytes(scratch[..chunk]))
                 {
                     return false;
                 }
@@ -411,7 +411,7 @@ internal ref struct LzxDecoder
             codeLengths[i] = (byte)value;
         }
 
-        return decoder.Build(codeLengths.Slice(0, symbolCount));
+        return decoder.Build(codeLengths[..symbolCount]);
     }
 
     private static bool ReadLengths(
@@ -630,7 +630,7 @@ internal ref struct LzxDecoder
                 int outChunk = Math.Min(chunk, output.Length - dstPos);
                 if (outChunk > 0)
                 {
-                    dstSlice.Slice(0, outChunk).CopyTo(output.Slice(dstPos, outChunk));
+                    dstSlice[..outChunk].CopyTo(output.Slice(dstPos, outChunk));
                 }
 
                 dstPos += chunk;

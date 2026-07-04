@@ -53,7 +53,7 @@ internal class InodeRef : BaseItem
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         Index = EndianUtilities.ToUInt64LittleEndian(buffer);
-        NameLength = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(0x8));
+        NameLength = EndianUtilities.ToUInt16LittleEndian(buffer[0x8..]);
         Name = Encoding.UTF8.GetString(buffer.Slice(0xa, NameLength));
         return Size;
     }

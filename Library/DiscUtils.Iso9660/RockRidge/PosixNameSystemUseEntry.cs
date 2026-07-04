@@ -37,6 +37,6 @@ internal sealed class PosixNameSystemUseEntry : SystemUseEntry
         Flags = data[4];
         NameData = EncodingUtilities
             .GetLatin1Encoding()
-            .GetString(data.Slice(5, length - 5));
+            .GetString(data[5..length]);
     }
 }

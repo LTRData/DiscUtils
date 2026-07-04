@@ -78,12 +78,12 @@ internal sealed class FileTimeSystemUseEntry : SystemUseEntry
         {
             if (longForm)
             {
-                result = IsoUtilities.ToDateTimeFromVolumeDescriptorTime(data.Slice(pos));
+                result = IsoUtilities.ToDateTimeFromVolumeDescriptorTime(data[pos..]);
                 pos += 17;
             }
             else
             {
-                result = IsoUtilities.ToUTCDateTimeFromDirectoryTime(data.Slice(pos));
+                result = IsoUtilities.ToUTCDateTimeFromDirectoryTime(data[pos..]);
                 pos += 7;
             }
         }

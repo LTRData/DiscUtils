@@ -295,8 +295,8 @@ internal class DescriptorFile
             var fieldEnd = field.IndexOfAny(' ', '-');
             if (fieldEnd > 0)
             {
-                field = chars.Slice(0, fieldEnd);
-                chars = chars.Slice(fieldEnd + 1);
+                field = chars[..fieldEnd];
+                chars = chars[(fieldEnd + 1)..];
             }
             else
             {

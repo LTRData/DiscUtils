@@ -21,7 +21,7 @@ public static class BytesExtension
     public static void Set(this Memory<byte> memory, ReadOnlySpan<byte> bytes)
     {
         bytes.CopyTo(memory.Span);
-        memory.Span.Slice(bytes.Length).Clear();
+        memory.Span[bytes.Length..].Clear();
     }
 
     /// <summary>

@@ -91,30 +91,30 @@ grub_uint32_t gstate_creserved[SB_GENERIC_CONSTANT_WORDS - 16];
     {
         var uIntSize = 4;
         DataOffset = 0;
-        MajorVersion = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(uIntSize * 1));
-        MinorVersion = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(uIntSize * 2));
+        MajorVersion = EndianUtilities.ToUInt32LittleEndian(buffer[(uIntSize * 1)..]);
+        MinorVersion = EndianUtilities.ToUInt32LittleEndian(buffer[(uIntSize * 2)..]);
         if (MajorVersion != 0 || MinorVersion != 9)
         {
             // Not actually version 0.9 despite being in the 0.9 location
             Magic = 0;
             return;
         }
-        RaidLevel = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(uIntSize * 7));
+        RaidLevel = EndianUtilities.ToUInt32LittleEndian(buffer[(uIntSize * 7)..]);
         Span<byte> uuidBytes = stackalloc byte[16];
         buffer.Slice(uIntSize * 5, 4).CopyTo(uuidBytes);
-        buffer.Slice(uIntSize * 13, 4).CopyTo(uuidBytes.Slice(4));
-        buffer.Slice(uIntSize * 14, 4).CopyTo(uuidBytes.Slice(8));
-        buffer.Slice(uIntSize * 15, 4).CopyTo(uuidBytes.Slice(12));
+        buffer.Slice(uIntSize * 13, 4).CopyTo(uuidBytes[4..]);
+        buffer.Slice(uIntSize * 14, 4).CopyTo(uuidBytes[8..]);
+        buffer.Slice(uIntSize * 15, 4).CopyTo(uuidBytes[12..]);
         ArrayUuid = MemoryMarshal.Read<Guid>(uuidBytes);
         ArrayName = "raid";
-        ArraySize = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(uIntSize * 8)) * 1024UL;
-        TotalDisks = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(uIntSize * 9));
+        ArraySize = EndianUtilities.ToUInt32LittleEndian(buffer[(uIntSize * 8)..]) * 1024UL;
+        TotalDisks = EndianUtilities.ToUInt32LittleEndian(buffer[(uIntSize * 9)..]);
     }
 
     private void ReadVersion1x(ReadOnlySpan<byte> buffer)
     {
         // Version 1.x format https://archive.kernel.org/oldwiki/raid.wiki.kernel.org/index.php/RAID_superblock_formats.html#Sub-versions_of_the_version-1_superblock
-        MajorVersion = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x04));
+        MajorVersion = EndianUtilities.ToUInt32LittleEndian(buffer[0x04..]);
         if (MajorVersion != 1)
         {
             // Not actually version 1.x despite being in the 1.x location
@@ -123,7 +123,7 @@ grub_uint32_t gstate_creserved[SB_GENERIC_CONSTANT_WORDS - 16];
         }
 
         // RAID level at offset 0x48
-        RaidLevel = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x48));
+        RaidLevel = EndianUtilities.ToUInt32LittleEndian(buffer[0x48..]);
 
         // Array UUID at offset 0x10-0x1F
         var uuidBytes = buffer.Slice(0x10, 16);
@@ -133,12 +133,12 @@ grub_uint32_t gstate_creserved[SB_GENERIC_CONSTANT_WORDS - 16];
         ArrayName = EndianUtilities.BytesToZString(buffer.Slice(0x20, 32));
 
         // Data offset at offset 0x80 (8 bytes, little endian)
-        DataOffset = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x80));
+        DataOffset = EndianUtilities.ToUInt64LittleEndian(buffer[0x80..]);
 
         // Array size at offset 0x88 (8 bytes, sectors)
-        ArraySize = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x88));
+        ArraySize = EndianUtilities.ToUInt64LittleEndian(buffer[0x88..]);
 
         // Total disks at offset 0x9C
-        TotalDisks = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x5C));
+        TotalDisks = EndianUtilities.ToUInt32LittleEndian(buffer[0x5C..]);
     }
 }

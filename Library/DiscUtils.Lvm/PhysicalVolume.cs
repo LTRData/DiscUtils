@@ -45,7 +45,7 @@ internal class PhysicalVolume
         Span<byte> buffer = stackalloc byte[SECTOR_SIZE];
         content.ReadExactly(buffer);
         PvHeader = new PvHeader();
-        PvHeader.ReadFrom(buffer.Slice((int)physicalVolumeLabel.Offset));
+        PvHeader.ReadFrom(buffer[(int)physicalVolumeLabel.Offset..]);
         if (PvHeader.MetadataDiskAreas.Count > 0)
         {
             var area = PvHeader.MetadataDiskAreas[0];
@@ -96,7 +96,7 @@ internal class PhysicalVolume
 
             var label = EncodingUtilities
                 .GetLatin1Encoding()
-                .GetString(buffer.Slice(0x0, 0x8));
+                .GetString(buffer[..0x8]);
 
             if (label == PhysicalVolumeLabel.LABEL_ID)
             {

@@ -132,7 +132,7 @@ public class UnbufferedNativeStream : SparseStream.ReadOnlySparseStream
 
             var toCopy = Math.Min(buffer.Length - totalBytesRead, usefulData);
 
-            new ReadOnlySpan<byte>((_buffer + alignmentOffset).ToPointer(), toCopy).CopyTo(buffer.Slice(totalBytesRead));
+            new ReadOnlySpan<byte>((_buffer + alignmentOffset).ToPointer(), toCopy).CopyTo(buffer[totalBytesRead..]);
 
             totalBytesRead += toCopy;
             _position += toCopy;

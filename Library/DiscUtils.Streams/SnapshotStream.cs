@@ -360,7 +360,7 @@ public sealed class SnapshotStream : SparseStream
                 var totalBaseRead = 0;
                 while (totalBaseRead < baseToRead)
                 {
-                    totalBaseRead += await _baseStream.ReadAsync(buffer.Slice(totalBaseRead, baseToRead - totalBaseRead), cancellationToken).ConfigureAwait(false);
+                    totalBaseRead += await _baseStream.ReadAsync(buffer[totalBaseRead..baseToRead], cancellationToken).ConfigureAwait(false);
                 }
             }
 
@@ -421,7 +421,7 @@ public sealed class SnapshotStream : SparseStream
                 var totalBaseRead = 0;
                 while (totalBaseRead < baseToRead)
                 {
-                    totalBaseRead += _baseStream.Read(buffer.Slice(totalBaseRead, baseToRead - totalBaseRead));
+                    totalBaseRead += _baseStream.Read(buffer[totalBaseRead..baseToRead]);
                 }
             }
 

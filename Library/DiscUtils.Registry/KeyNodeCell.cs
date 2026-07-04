@@ -79,21 +79,21 @@ internal sealed class KeyNodeCell : Cell
     {
         var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
 
-        Flags = (RegistryKeyFlags)EndianUtilities.ToUInt16LittleEndian(buffer.Slice(0x02));
-        Timestamp = DateTime.FromFileTimeUtc(EndianUtilities.ToInt64LittleEndian(buffer.Slice(0x04)));
-        ParentIndex = EndianUtilities.ToInt32LittleEndian(buffer.Slice(0x10));
-        NumSubKeys = EndianUtilities.ToInt32LittleEndian(buffer.Slice(0x14));
-        SubKeysIndex = EndianUtilities.ToInt32LittleEndian(buffer.Slice(0x1C));
-        NumValues = EndianUtilities.ToInt32LittleEndian(buffer.Slice(0x24));
-        ValueListIndex = EndianUtilities.ToInt32LittleEndian(buffer.Slice(0x28));
-        SecurityIndex = EndianUtilities.ToInt32LittleEndian(buffer.Slice(0x2C));
-        ClassNameIndex = EndianUtilities.ToInt32LittleEndian(buffer.Slice(0x30));
-        MaxSubKeyNameBytes = EndianUtilities.ToInt32LittleEndian(buffer.Slice(0x34));
-        MaxValNameBytes = EndianUtilities.ToInt32LittleEndian(buffer.Slice(0x3C));
-        MaxValDataBytes = EndianUtilities.ToInt32LittleEndian(buffer.Slice(0x40));
-        IndexInParent = EndianUtilities.ToInt32LittleEndian(buffer.Slice(0x44));
-        int nameLength = EndianUtilities.ToInt16LittleEndian(buffer.Slice(0x48));
-        ClassNameLength = EndianUtilities.ToInt16LittleEndian(buffer.Slice(0x4A));
+        Flags = (RegistryKeyFlags)EndianUtilities.ToUInt16LittleEndian(buffer[0x02..]);
+        Timestamp = DateTime.FromFileTimeUtc(EndianUtilities.ToInt64LittleEndian(buffer[0x04..]));
+        ParentIndex = EndianUtilities.ToInt32LittleEndian(buffer[0x10..]);
+        NumSubKeys = EndianUtilities.ToInt32LittleEndian(buffer[0x14..]);
+        SubKeysIndex = EndianUtilities.ToInt32LittleEndian(buffer[0x1C..]);
+        NumValues = EndianUtilities.ToInt32LittleEndian(buffer[0x24..]);
+        ValueListIndex = EndianUtilities.ToInt32LittleEndian(buffer[0x28..]);
+        SecurityIndex = EndianUtilities.ToInt32LittleEndian(buffer[0x2C..]);
+        ClassNameIndex = EndianUtilities.ToInt32LittleEndian(buffer[0x30..]);
+        MaxSubKeyNameBytes = EndianUtilities.ToInt32LittleEndian(buffer[0x34..]);
+        MaxValNameBytes = EndianUtilities.ToInt32LittleEndian(buffer[0x3C..]);
+        MaxValDataBytes = EndianUtilities.ToInt32LittleEndian(buffer[0x40..]);
+        IndexInParent = EndianUtilities.ToInt32LittleEndian(buffer[0x44..]);
+        int nameLength = EndianUtilities.ToInt16LittleEndian(buffer[0x48..]);
+        ClassNameLength = EndianUtilities.ToInt16LittleEndian(buffer[0x4A..]);
         Name = latin1Encoding.GetString(buffer.Slice(0x4C, nameLength));
 
         return 0x4C + nameLength;
@@ -103,19 +103,19 @@ internal sealed class KeyNodeCell : Cell
     {
         var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
 
-        "nk"u8.CopyTo(buffer.Slice(0, 2));
-        EndianUtilities.WriteBytesLittleEndian((ushort)Flags, buffer.Slice(0x02));
-        EndianUtilities.WriteBytesLittleEndian(Timestamp.ToFileTimeUtc(), buffer.Slice(0x04));
-        EndianUtilities.WriteBytesLittleEndian(ParentIndex, buffer.Slice(0x10));
-        EndianUtilities.WriteBytesLittleEndian(NumSubKeys, buffer.Slice(0x14));
-        EndianUtilities.WriteBytesLittleEndian(SubKeysIndex, buffer.Slice(0x1C));
-        EndianUtilities.WriteBytesLittleEndian(NumValues, buffer.Slice(0x24));
-        EndianUtilities.WriteBytesLittleEndian(ValueListIndex, buffer.Slice(0x28));
-        EndianUtilities.WriteBytesLittleEndian(SecurityIndex, buffer.Slice(0x2C));
-        EndianUtilities.WriteBytesLittleEndian(ClassNameIndex, buffer.Slice(0x30));
-        EndianUtilities.WriteBytesLittleEndian(IndexInParent, buffer.Slice(0x44));
-        EndianUtilities.WriteBytesLittleEndian((ushort)Name.Length, buffer.Slice(0x48));
-        EndianUtilities.WriteBytesLittleEndian(ClassNameLength, buffer.Slice(0x4A));
+        "nk"u8.CopyTo(buffer[..2]);
+        EndianUtilities.WriteBytesLittleEndian((ushort)Flags, buffer[0x02..]);
+        EndianUtilities.WriteBytesLittleEndian(Timestamp.ToFileTimeUtc(), buffer[0x04..]);
+        EndianUtilities.WriteBytesLittleEndian(ParentIndex, buffer[0x10..]);
+        EndianUtilities.WriteBytesLittleEndian(NumSubKeys, buffer[0x14..]);
+        EndianUtilities.WriteBytesLittleEndian(SubKeysIndex, buffer[0x1C..]);
+        EndianUtilities.WriteBytesLittleEndian(NumValues, buffer[0x24..]);
+        EndianUtilities.WriteBytesLittleEndian(ValueListIndex, buffer[0x28..]);
+        EndianUtilities.WriteBytesLittleEndian(SecurityIndex, buffer[0x2C..]);
+        EndianUtilities.WriteBytesLittleEndian(ClassNameIndex, buffer[0x30..]);
+        EndianUtilities.WriteBytesLittleEndian(IndexInParent, buffer[0x44..]);
+        EndianUtilities.WriteBytesLittleEndian((ushort)Name.Length, buffer[0x48..]);
+        EndianUtilities.WriteBytesLittleEndian(ClassNameLength, buffer[0x4A..]);
         latin1Encoding.GetBytes(Name, buffer.Slice(0x4C, Name.Length));
     }
 

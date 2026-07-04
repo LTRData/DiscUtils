@@ -144,7 +144,7 @@ public class ZeroStream : MappedStream
         }
 
         var numToClear = (int)Math.Min(buffer.Length, _length - _position);
-        buffer.Span.Slice(0, numToClear).Clear();
+        buffer.Span[..numToClear].Clear();
         _position += numToClear;
 
         return new(numToClear);
@@ -170,7 +170,7 @@ public class ZeroStream : MappedStream
         }
 
         var numToClear = (int)Math.Min(buffer.Length, _length - _position);
-        buffer.Slice(0, numToClear).Clear();
+        buffer[..numToClear].Clear();
         _position += numToClear;
 
         return numToClear;

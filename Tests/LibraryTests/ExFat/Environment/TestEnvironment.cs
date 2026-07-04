@@ -36,6 +36,7 @@ internal class TestEnvironment : IDisposable
     {
     }
 
+#if CHKDSK_VALIDATION
 #if NETCOREAPP
     [SupportedOSPlatform("windows")]
 #endif
@@ -47,6 +48,7 @@ internal class TestEnvironment : IDisposable
             return id.Groups!.Contains(new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null));
         }
     }
+#endif
 
     public virtual void Dispose()
     {

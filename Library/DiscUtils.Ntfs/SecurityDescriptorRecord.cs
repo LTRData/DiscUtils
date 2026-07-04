@@ -46,19 +46,19 @@ internal sealed class SecurityDescriptorRecord : IByteArraySerializable
         EntrySize = (uint)Size;
 
         EndianUtilities.WriteBytesLittleEndian(Hash, buffer);
-        EndianUtilities.WriteBytesLittleEndian(Id, buffer.Slice(0x04));
-        EndianUtilities.WriteBytesLittleEndian(OffsetInFile, buffer.Slice(0x08));
-        EndianUtilities.WriteBytesLittleEndian(EntrySize, buffer.Slice(0x10));
+        EndianUtilities.WriteBytesLittleEndian(Id, buffer[0x04..]);
+        EndianUtilities.WriteBytesLittleEndian(OffsetInFile, buffer[0x08..]);
+        EndianUtilities.WriteBytesLittleEndian(EntrySize, buffer[0x10..]);
 
-        SecurityDescriptor.CopyTo(buffer.Slice(0x14));
+        SecurityDescriptor.CopyTo(buffer[0x14..]);
     }
 
     public bool Read(ReadOnlySpan<byte> buffer)
     {
         Hash = EndianUtilities.ToUInt32LittleEndian(buffer);
-        Id = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x04));
-        OffsetInFile = EndianUtilities.ToInt64LittleEndian(buffer.Slice(0x08));
-        EntrySize = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x10));
+        Id = EndianUtilities.ToUInt32LittleEndian(buffer[0x04..]);
+        OffsetInFile = EndianUtilities.ToInt64LittleEndian(buffer[0x08..]);
+        EntrySize = EndianUtilities.ToUInt32LittleEndian(buffer[0x10..]);
 
         if (EntrySize > 0)
         {

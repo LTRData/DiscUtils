@@ -53,11 +53,11 @@ public class SubStream : MappedStream
         MaximumLength = length;
     }
 
-    public override bool CanRead => Parent is not null && Parent.CanRead;
+    public override bool CanRead => Parent is { CanRead: true };
 
-    public override bool CanSeek => Parent is not null && Parent.CanSeek;
+    public override bool CanSeek => Parent is { CanSeek: true };
 
-    public override bool CanWrite => Parent is not null && Parent.CanWrite;
+    public override bool CanWrite => Parent is { CanWrite: true };
 
     public override IEnumerable<StreamExtent> Extents
     {
@@ -146,7 +146,7 @@ public class SubStream : MappedStream
         }
 
         Parent.Position = _first + Position;
-        var numRead = await Parent.ReadAsync(buffer.Slice(0, (int)Math.Min(buffer.Length, Math.Min(MaximumLength - Position, int.MaxValue))), cancellationToken).ConfigureAwait(false);
+        var numRead = await Parent.ReadAsync(buffer[..(int)Math.Min(buffer.Length, Math.Min(MaximumLength - Position, int.MaxValue))], cancellationToken).ConfigureAwait(false);
         Position += numRead;
         return numRead;
     }
@@ -164,7 +164,7 @@ public class SubStream : MappedStream
         }
 
         Parent.Position = _first + Position;
-        var numRead = Parent.Read(buffer.Slice(0, (int)Math.Min(buffer.Length, Math.Min(MaximumLength - Position, int.MaxValue))));
+        var numRead = Parent.Read(buffer[..(int)Math.Min(buffer.Length, Math.Min(MaximumLength - Position, int.MaxValue))]);
         Position += numRead;
         return numRead;
     }

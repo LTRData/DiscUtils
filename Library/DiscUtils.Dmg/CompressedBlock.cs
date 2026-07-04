@@ -43,20 +43,20 @@ internal class CompressedBlock : IByteArraySerializable
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         Signature = EndianUtilities.ToUInt32BigEndian(buffer);
-        InfoVersion = EndianUtilities.ToUInt32BigEndian(buffer.Slice(4));
-        FirstSector = EndianUtilities.ToInt64BigEndian(buffer.Slice(8));
-        SectorCount = EndianUtilities.ToInt64BigEndian(buffer.Slice(16));
-        DataStart = EndianUtilities.ToUInt64BigEndian(buffer.Slice(24));
-        DecompressBufferRequested = EndianUtilities.ToUInt32BigEndian(buffer.Slice(32));
-        BlocksDescriptor = EndianUtilities.ToUInt32BigEndian(buffer.Slice(36));
+        InfoVersion = EndianUtilities.ToUInt32BigEndian(buffer[4..]);
+        FirstSector = EndianUtilities.ToInt64BigEndian(buffer[8..]);
+        SectorCount = EndianUtilities.ToInt64BigEndian(buffer[16..]);
+        DataStart = EndianUtilities.ToUInt64BigEndian(buffer[24..]);
+        DecompressBufferRequested = EndianUtilities.ToUInt32BigEndian(buffer[32..]);
+        BlocksDescriptor = EndianUtilities.ToUInt32BigEndian(buffer[36..]);
 
-        CheckSum = EndianUtilities.ToStruct<UdifChecksum>(buffer.Slice(60));
+        CheckSum = EndianUtilities.ToStruct<UdifChecksum>(buffer[60..]);
 
         Runs = [];
-        var numRuns = EndianUtilities.ToInt32BigEndian(buffer.Slice(200));
+        var numRuns = EndianUtilities.ToInt32BigEndian(buffer[200..]);
         for (var i = 0; i < numRuns; ++i)
         {
-            Runs.Add(EndianUtilities.ToStruct<CompressedRun>(buffer.Slice(204 + i * 40)));
+            Runs.Add(EndianUtilities.ToStruct<CompressedRun>(buffer[(204 + i * 40)..]));
         }
 
         return 0;

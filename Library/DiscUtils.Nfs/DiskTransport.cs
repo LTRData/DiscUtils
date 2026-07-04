@@ -70,7 +70,7 @@ internal sealed class DiskTransport : VirtualDiskTransport
         }
 
         _fileSystem = new NfsFileSystem(uri.Host, bestRoot);
-        _path = fsPath.Substring(bestRoot.Length).Replace('/', '\\');
+        _path = fsPath[bestRoot.Length..].Replace('/', '\\');
         _extraInfo = uri.Fragment.TrimStart('#');
     }
 

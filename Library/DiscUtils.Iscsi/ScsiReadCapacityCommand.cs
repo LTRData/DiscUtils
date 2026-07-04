@@ -43,7 +43,7 @@ internal class ScsiReadCapacity10Command : ScsiCommand
 
     public override void WriteTo(Span<byte> buffer)
     {
-        buffer.Slice(0, 10).Clear();
+        buffer[..10].Clear();
         buffer[0] = (byte)ScsiOpCode.ReadCapacity10; // OpCode
     }
 }
@@ -66,10 +66,10 @@ internal class ScsiReadCapacity16Command : ScsiCommand
 
     public override void WriteTo(Span<byte> buffer)
     {
-        buffer.Slice(0, 16).Clear();
+        buffer[..16].Clear();
         buffer[0] = (byte)ScsiOpCode.ServiceActionIn; // OpCode
         buffer[1] = (byte)ScsiOpServiceAction.ReadCapacity16; // OpCode
-        EndianUtilities.WriteBytesBigEndian(32, buffer.Slice(10));
+        EndianUtilities.WriteBytesBigEndian(32, buffer[10..]);
     }
 }
 

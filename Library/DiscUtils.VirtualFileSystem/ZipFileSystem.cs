@@ -61,7 +61,7 @@ public class ZipFileSystem : VirtualFileSystem
             if (path.StartsWith(@"./", StringComparison.Ordinal) ||
                 path.StartsWith(@".\", StringComparison.Ordinal))
             {
-                path = path.Substring(2);
+                path = path[2..];
             }
 
             path = path.Replace('/', '\\');

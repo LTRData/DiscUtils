@@ -80,7 +80,7 @@ internal sealed class VhdxHeader : IByteArraySerializable
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
-        buffer.Slice(0, 4096).CopyTo(_data);
+        buffer[..4096].CopyTo(_data);
 
         Signature = EndianUtilities.ToUInt32LittleEndian(_data, 0);
         Checksum = EndianUtilities.ToUInt32LittleEndian(_data, 4);

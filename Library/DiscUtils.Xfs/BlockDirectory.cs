@@ -66,14 +66,14 @@ internal class BlockDirectory : IByteArraySerializable
         for (var i = 0; i < BestFree.Length; i++)
         {
             var free = new BlockDirectoryDataFree();
-            offset += free.ReadFrom(buffer.Slice(offset));
+            offset += free.ReadFrom(buffer[offset..]);
             BestFree[i] = free;
         }
 
         offset += HeaderPadding;
 
-        LeafStale = EndianUtilities.ToUInt32BigEndian(buffer.Slice(buffer.Length - 0x4));
-        LeafCount = EndianUtilities.ToUInt32BigEndian(buffer.Slice(buffer.Length - 0x8));
+        LeafStale = EndianUtilities.ToUInt32BigEndian(buffer[^0x4..]);
+        LeafCount = EndianUtilities.ToUInt32BigEndian(buffer[^0x8..]);
         var entries = new List<BlockDirectoryData>();
         var eof = buffer.Length - 0x8 - LeafCount * 0x8;
         while (offset < eof)
@@ -89,7 +89,7 @@ internal class BlockDirectory : IByteArraySerializable
                 entry = new BlockDirectoryDataEntry(_context);
             }
 
-            offset += entry.ReadFrom(buffer.Slice(offset));
+            offset += entry.ReadFrom(buffer[offset..]);
             entries.Add(entry);
         }
 

@@ -78,7 +78,7 @@ internal class BlockDirectoryDataEntry : BlockDirectoryData, IDirectoryEntry
         }
 
         offset += padding;
-        Tag = EndianUtilities.ToUInt16BigEndian(buffer.Slice(offset));
+        Tag = EndianUtilities.ToUInt16BigEndian(buffer[offset..]);
         return Size;
     }
 

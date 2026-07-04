@@ -35,7 +35,7 @@ internal class ExtentDescriptor : IByteArraySerializable
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         Length = EndianUtilities.ToUInt32LittleEndian(buffer);
-        Location = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(4));
+        Location = EndianUtilities.ToUInt32LittleEndian(buffer[4..]);
 
         return 8;
     }

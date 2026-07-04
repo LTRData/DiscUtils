@@ -69,7 +69,7 @@ internal class Index : IDisposable
             {
                 s.ReadExactly(buffer);
 
-                _rootNode = new IndexNode(WriteRootNodeToDisk, 0, this, true, buffer.Slice(IndexRoot.HeaderOffset));
+                _rootNode = new IndexNode(WriteRootNodeToDisk, 0, this, true, buffer[IndexRoot.HeaderOffset..]);
 
             }
             finally

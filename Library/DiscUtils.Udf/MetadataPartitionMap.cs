@@ -40,13 +40,13 @@ internal sealed class MetadataPartitionMap : PartitionMap
 
     protected override int Parse(ReadOnlySpan<byte> buffer)
     {
-        VolumeSequenceNumber = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(36));
-        PartitionNumber = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(38));
-        MetadataFileLocation = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(40));
-        MetadataMirrorFileLocation = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(44));
-        MetadataBitmapFileLocation = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(48));
-        AllocationUnitSize = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(52));
-        AlignmentUnitSize = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(56));
+        VolumeSequenceNumber = EndianUtilities.ToUInt16LittleEndian(buffer[36..]);
+        PartitionNumber = EndianUtilities.ToUInt16LittleEndian(buffer[38..]);
+        MetadataFileLocation = EndianUtilities.ToUInt32LittleEndian(buffer[40..]);
+        MetadataMirrorFileLocation = EndianUtilities.ToUInt32LittleEndian(buffer[44..]);
+        MetadataBitmapFileLocation = EndianUtilities.ToUInt32LittleEndian(buffer[48..]);
+        AllocationUnitSize = EndianUtilities.ToUInt32LittleEndian(buffer[52..]);
+        AlignmentUnitSize = EndianUtilities.ToUInt16LittleEndian(buffer[56..]);
         Flags = buffer[58];
 
         return 64;

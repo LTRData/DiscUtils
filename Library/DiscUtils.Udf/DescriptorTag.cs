@@ -41,12 +41,12 @@ internal class DescriptorTag : IByteArraySerializable
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         TagIdentifier = (TagIdentifier)EndianUtilities.ToUInt16LittleEndian(buffer);
-        DescriptorVersion = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(2));
+        DescriptorVersion = EndianUtilities.ToUInt16LittleEndian(buffer[2..]);
         TagChecksum = buffer[4];
-        TagSerialNumber = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(6));
-        DescriptorCrc = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(8));
-        DescriptorCrcLength = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(10));
-        TagLocation = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(12));
+        TagSerialNumber = EndianUtilities.ToUInt16LittleEndian(buffer[6..]);
+        DescriptorCrc = EndianUtilities.ToUInt16LittleEndian(buffer[8..]);
+        DescriptorCrcLength = EndianUtilities.ToUInt16LittleEndian(buffer[10..]);
+        TagLocation = EndianUtilities.ToUInt32LittleEndian(buffer[12..]);
 
         return 16;
     }

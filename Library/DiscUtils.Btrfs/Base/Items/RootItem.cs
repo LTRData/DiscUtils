@@ -101,15 +101,15 @@ internal class RootItem : BaseItem
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         Inode = EndianUtilities.ToStruct<InodeItem>(buffer);
-        Generation = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(160));
-        RootDirId = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(168));
-        ByteNr = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(176));
-        ByteLimit = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(184));
-        BytesUsed = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(192));
-        LastSnapshot = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(200));
-        Flags = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(208));
-        Refs = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(216));
-        DropProgress = EndianUtilities.ToStruct<Key>(buffer.Slice(220));
+        Generation = EndianUtilities.ToUInt64LittleEndian(buffer[160..]);
+        RootDirId = EndianUtilities.ToUInt64LittleEndian(buffer[168..]);
+        ByteNr = EndianUtilities.ToUInt64LittleEndian(buffer[176..]);
+        ByteLimit = EndianUtilities.ToUInt64LittleEndian(buffer[184..]);
+        BytesUsed = EndianUtilities.ToUInt64LittleEndian(buffer[192..]);
+        LastSnapshot = EndianUtilities.ToUInt64LittleEndian(buffer[200..]);
+        Flags = EndianUtilities.ToUInt64LittleEndian(buffer[208..]);
+        Refs = EndianUtilities.ToUInt32LittleEndian(buffer[216..]);
+        DropProgress = EndianUtilities.ToStruct<Key>(buffer[220..]);
         DropLevel = buffer[237];
         Level = buffer[238];
 

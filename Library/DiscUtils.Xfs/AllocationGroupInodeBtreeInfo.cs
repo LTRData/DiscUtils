@@ -114,25 +114,25 @@ internal class AllocationGroupInodeBtreeInfo : IByteArraySerializable
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         Magic = EndianUtilities.ToUInt32BigEndian(buffer);
-        Version = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x4));
-        SequenceNumber = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x8));
-        Length = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0xc));
-        Count = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x10));
-        Root = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x14));
-        Level = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x18));
-        FreeCount = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x1c));
-        NewInode = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x20));
+        Version = EndianUtilities.ToUInt32BigEndian(buffer[0x4..]);
+        SequenceNumber = EndianUtilities.ToUInt32BigEndian(buffer[0x8..]);
+        Length = EndianUtilities.ToUInt32BigEndian(buffer[0xc..]);
+        Count = EndianUtilities.ToUInt32BigEndian(buffer[0x10..]);
+        Root = EndianUtilities.ToUInt32BigEndian(buffer[0x14..]);
+        Level = EndianUtilities.ToUInt32BigEndian(buffer[0x18..]);
+        FreeCount = EndianUtilities.ToUInt32BigEndian(buffer[0x1c..]);
+        NewInode = EndianUtilities.ToUInt32BigEndian(buffer[0x20..]);
         Unlinked = new int[64];
         for (var i = 0; i < Unlinked.Length; i++)
         {
-            Unlinked[i] = EndianUtilities.ToInt32BigEndian(buffer.Slice(0x28 + i * 0x4));
+            Unlinked[i] = EndianUtilities.ToInt32BigEndian(buffer[(0x28 + i * 0x4)..]);
         }
 
         if (SbVersion >= 5)
         {
-            UniqueId = EndianUtilities.ToGuidBigEndian(buffer.Slice(0x132));
-            Lsn = EndianUtilities.ToUInt64BigEndian(buffer.Slice(0x142));
-            Crc = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x14A));
+            UniqueId = EndianUtilities.ToGuidBigEndian(buffer[0x132..]);
+            Lsn = EndianUtilities.ToUInt64BigEndian(buffer[0x142..]);
+            Crc = EndianUtilities.ToUInt32BigEndian(buffer[0x14A..]);
         }
 
         return Size;

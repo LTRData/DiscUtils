@@ -103,7 +103,7 @@ internal class DynamicDisk : IDiagnosticTraceable
             {
                 disk.Content.Position = headerPos;
                 Span<byte> buffer = stackalloc byte[Sizes.Sector];
-                buffer = buffer.Slice(0, disk.Content.Read(buffer));
+                buffer = buffer[..disk.Content.Read(buffer)];
 
                 var hdr = new PrivateHeader();
                 hdr.ReadFrom(buffer);

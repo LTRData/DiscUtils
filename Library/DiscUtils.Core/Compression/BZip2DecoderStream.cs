@@ -173,7 +173,7 @@ public sealed class BZip2DecoderStream : ReadOnlyCompatibilityStream
             numRead = _rleStream.Read(buffer);
         }
 
-        _calcBlockCrc?.Process(buffer.Slice(0, numRead));
+        _calcBlockCrc?.Process(buffer[..numRead]);
 
         // Pre-read next block, so a client that knows the decompressed length will still
         // have the overall CRC calculated.
@@ -241,7 +241,7 @@ public sealed class BZip2DecoderStream : ReadOnlyCompatibilityStream
             numRead = await _rleStream.ReadAsync(buffer, cancellationToken).ConfigureAwait(false);
         }
 
-        _calcBlockCrc?.Process(buffer.Span.Slice(0, numRead));
+        _calcBlockCrc?.Process(buffer.Span[..numRead]);
 
         // Pre-read next block, so a client that knows the decompressed length will still
         // have the overall CRC calculated.

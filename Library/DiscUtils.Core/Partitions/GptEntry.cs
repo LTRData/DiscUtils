@@ -111,21 +111,21 @@ internal class GptEntry : IComparable<GptEntry>
     public void ReadFrom(ReadOnlySpan<byte> buffer)
     {
         PartitionType = EndianUtilities.ToGuidLittleEndian(buffer);
-        Identity = EndianUtilities.ToGuidLittleEndian(buffer.Slice(16));
-        FirstUsedLogicalBlock = EndianUtilities.ToInt64LittleEndian(buffer.Slice(32));
-        LastUsedLogicalBlock = EndianUtilities.ToInt64LittleEndian(buffer.Slice(40));
-        Attributes = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(48));
+        Identity = EndianUtilities.ToGuidLittleEndian(buffer[16..]);
+        FirstUsedLogicalBlock = EndianUtilities.ToInt64LittleEndian(buffer[32..]);
+        LastUsedLogicalBlock = EndianUtilities.ToInt64LittleEndian(buffer[40..]);
+        Attributes = EndianUtilities.ToUInt64LittleEndian(buffer[48..]);
         Name = Encoding.Unicode.GetString(buffer.Slice(56, 72)).TrimEnd('\0');
     }
 
     public void WriteTo(Span<byte> buffer)
     {
         EndianUtilities.WriteBytesLittleEndian(PartitionType, buffer);
-        EndianUtilities.WriteBytesLittleEndian(Identity, buffer.Slice(16));
-        EndianUtilities.WriteBytesLittleEndian(FirstUsedLogicalBlock, buffer.Slice(32));
-        EndianUtilities.WriteBytesLittleEndian(LastUsedLogicalBlock, buffer.Slice(40));
-        EndianUtilities.WriteBytesLittleEndian(Attributes, buffer.Slice(48));
-        var nameBytes = Encoding.Unicode.GetBytes(Name.AsSpan(), buffer.Slice(56));
+        EndianUtilities.WriteBytesLittleEndian(Identity, buffer[16..]);
+        EndianUtilities.WriteBytesLittleEndian(FirstUsedLogicalBlock, buffer[32..]);
+        EndianUtilities.WriteBytesLittleEndian(LastUsedLogicalBlock, buffer[40..]);
+        EndianUtilities.WriteBytesLittleEndian(Attributes, buffer[48..]);
+        var nameBytes = Encoding.Unicode.GetBytes(Name.AsSpan(), buffer[56..]);
         if (nameBytes < 36 * 2)
         {
             buffer.Slice(56 + nameBytes, 36 * 2 - nameBytes).Clear();

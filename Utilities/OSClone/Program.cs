@@ -49,7 +49,7 @@ class Program : ProgramBase
 
     private Dictionary<long, string> _uniqueFiles = [];
 
-    static void Main(string[] args)
+    static void Main(params string[] args)
     {
         DiscUtils.Containers.SetupHelper.SetupContainers();
         var program = new Program();

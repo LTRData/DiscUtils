@@ -36,7 +36,7 @@ internal sealed class ShortAllocationDescriptor : IByteArraySerializable
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         var len = EndianUtilities.ToUInt32LittleEndian(buffer);
-        ExtentLocation = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(4));
+        ExtentLocation = EndianUtilities.ToUInt32LittleEndian(buffer[4..]);
 
         ExtentLength = len & 0x3FFFFFFF;
         Flags = (ShortAllocationFlags)((len >> 30) & 0x3);

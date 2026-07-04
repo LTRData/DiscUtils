@@ -34,8 +34,8 @@ internal sealed class Type1PartitionMap : PartitionMap
 
     protected override int Parse(ReadOnlySpan<byte> buffer)
     {
-        VolumeSequenceNumber = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(2));
-        PartitionNumber = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(4));
+        VolumeSequenceNumber = EndianUtilities.ToUInt16LittleEndian(buffer[2..]);
+        PartitionNumber = EndianUtilities.ToUInt16LittleEndian(buffer[4..]);
         return 6;
     }
 }

@@ -350,7 +350,7 @@ public sealed class NtfsFileSystemChecker : DiscFileSystemChecker
         while (pos < header.TotalSizeOfEntries)
         {
             var entry = new IndexEntry(indexName == "$I30");
-            entry.Read(buffer.Slice(pos));
+            entry.Read(buffer[pos..]);
             pos += entry.Size;
 
             if ((entry.Flags & IndexEntryFlags.Node) != 0)

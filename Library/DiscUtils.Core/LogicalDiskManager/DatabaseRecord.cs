@@ -44,7 +44,7 @@ internal abstract class DatabaseRecord
     {
         DatabaseRecord? result = null;
 
-        if (EndianUtilities.ToInt32BigEndian(buffer.Slice(0xC)) != 0)
+        if (EndianUtilities.ToInt32BigEndian(buffer[0xC..]) != 0)
         {
             result = (RecordType)(buffer[0x13] & 0xF) switch
             {
@@ -137,12 +137,12 @@ internal abstract class DatabaseRecord
     {
         var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
 
-        Signature = latin1Encoding.GetString(buffer.Slice(0x00, 4));
-        Label = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x04));
-        Counter = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x08));
-        Valid = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x0C));
-        Flags = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x10));
+        Signature = latin1Encoding.GetString(buffer[..4]);
+        Label = EndianUtilities.ToUInt32BigEndian(buffer[0x04..]);
+        Counter = EndianUtilities.ToUInt32BigEndian(buffer[0x08..]);
+        Valid = EndianUtilities.ToUInt32BigEndian(buffer[0x0C..]);
+        Flags = EndianUtilities.ToUInt32BigEndian(buffer[0x10..]);
         RecordType = (RecordType)(Flags & 0xF);
-        DataLength = EndianUtilities.ToUInt32BigEndian(buffer.Slice(0x14));
+        DataLength = EndianUtilities.ToUInt32BigEndian(buffer[0x14..]);
     }
 }

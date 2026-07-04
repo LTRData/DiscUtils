@@ -48,7 +48,7 @@ internal class TimeSpec : IByteArraySerializable
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         Seconds = EndianUtilities.ToInt64LittleEndian(buffer);
-        Nanoseconds = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x8));
+        Nanoseconds = EndianUtilities.ToUInt32LittleEndian(buffer[0x8..]);
         return Size;
     }
 

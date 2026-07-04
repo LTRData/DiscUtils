@@ -32,6 +32,6 @@ internal sealed class GenericSystemUseEntry : SystemUseEntry
     {
         CheckAndSetCommonProperties(name, length, version, 4, 0xFF);
 
-        Data = data.Slice(4, length - 4).ToArray();
+        Data = data[4..length].ToArray();
     }
 }

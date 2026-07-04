@@ -40,7 +40,7 @@ class Program : ProgramBase
     private CommandLineSwitch _Recurse;
     private CommandLineSwitch _Short;
 
-    static void Main(string[] args)
+    static void Main(params string[] args)
     {
         DiscUtils.Containers.SetupHelper.SetupContainers();
         DiscUtils.FileSystems.SetupHelper.SetupFileSystems();

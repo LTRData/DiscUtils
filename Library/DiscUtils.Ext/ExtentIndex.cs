@@ -38,8 +38,8 @@ internal struct ExtentIndex : IByteArraySerializable
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         FirstLogicalBlock = EndianUtilities.ToUInt32LittleEndian(buffer);
-        LeafPhysicalBlockLo = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(4));
-        LeafPhysicalBlockHi = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(8));
+        LeafPhysicalBlockLo = EndianUtilities.ToUInt32LittleEndian(buffer[4..]);
+        LeafPhysicalBlockHi = EndianUtilities.ToUInt16LittleEndian(buffer[8..]);
         return 12;
     }
 

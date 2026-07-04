@@ -55,24 +55,24 @@ internal sealed class LogicalVolumeDescriptor : TaggedDescriptor<LogicalVolumeDe
 
     public override int Parse(ReadOnlySpan<byte> buffer)
     {
-        VolumeDescriptorSequenceNumber = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(16));
+        VolumeDescriptorSequenceNumber = EndianUtilities.ToUInt32LittleEndian(buffer[16..]);
         DescriptorCharset = EndianUtilities.ToByteArray(buffer.Slice(20, 64));
         LogicalVolumeIdentifier = UdfUtilities.ReadDString(buffer.Slice(84, 128));
-        LogicalBlockSize = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(212));
-        DomainIdentifier = EndianUtilities.ToStruct<DomainEntityIdentifier>(buffer.Slice(216));
+        LogicalBlockSize = EndianUtilities.ToUInt32LittleEndian(buffer[212..]);
+        DomainIdentifier = EndianUtilities.ToStruct<DomainEntityIdentifier>(buffer[216..]);
         LogicalVolumeContentsUse = EndianUtilities.ToByteArray(buffer.Slice(248, 16));
-        MapTableLength = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(264));
-        NumPartitionMaps = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(268));
-        ImplementationIdentifier = EndianUtilities.ToStruct<ImplementationEntityIdentifier>(buffer.Slice(272));
+        MapTableLength = EndianUtilities.ToUInt32LittleEndian(buffer[264..]);
+        NumPartitionMaps = EndianUtilities.ToUInt32LittleEndian(buffer[268..]);
+        ImplementationIdentifier = EndianUtilities.ToStruct<ImplementationEntityIdentifier>(buffer[272..]);
         ImplementationUse = EndianUtilities.ToByteArray(buffer.Slice(304, 128));
         IntegritySequenceExtent = new ExtentDescriptor();
-        IntegritySequenceExtent.ReadFrom(buffer.Slice(432));
+        IntegritySequenceExtent.ReadFrom(buffer[432..]);
 
         var pmOffset = 0;
         PartitionMaps = new PartitionMap[NumPartitionMaps];
         for (var i = 0; i < NumPartitionMaps; ++i)
         {
-            PartitionMaps[i] = PartitionMap.CreateFrom(buffer.Slice(440 + pmOffset));
+            PartitionMaps[i] = PartitionMap.CreateFrom(buffer[(440 + pmOffset)..]);
             pmOffset += PartitionMaps[i].Size;
         }
 

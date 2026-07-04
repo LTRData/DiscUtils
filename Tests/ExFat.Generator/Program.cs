@@ -73,7 +73,7 @@ public static class Program
         }
     }
 
-#if NETSTANDARD || NETCOREAPP
+#if NETCOREAPP
     [SupportedOSPlatform("windows")]
 #endif
     public static void Main111(string[] args)

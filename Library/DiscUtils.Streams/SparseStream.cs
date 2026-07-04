@@ -420,11 +420,11 @@ public abstract class SparseStream : CompatibilityStream
             return _wrapped.GetPositionInBaseStream(baseStream, virtualPosition);
         }
 
-        public override bool CanRead => _wrapped is not null && _wrapped.CanRead;
+        public override bool CanRead => _wrapped is { CanRead: true };
 
-        public override bool CanSeek => _wrapped is not null && _wrapped.CanSeek;
+        public override bool CanSeek => _wrapped is { CanSeek: true };
 
-        public override bool CanWrite => _wrapped is not null && _wrapped.CanWrite;
+        public override bool CanWrite => _wrapped is { CanWrite: true };
 
         public override IEnumerable<StreamExtent> Extents
         {
@@ -638,11 +638,7 @@ public abstract class SparseStream : CompatibilityStream
             return content.GetPositionInBaseStream(baseStream, virtualPosition);
         }
 
-#if NET9_0_OR_GREATER
-        private readonly Lock sync = new();
-#else
-        private readonly object sync = new();
-#endif
+        private readonly SemaphoreSlim _sync = new(1);
 
         public override IEnumerable<StreamExtent> Extents => content.Extents;
 
@@ -656,87 +652,121 @@ public abstract class SparseStream : CompatibilityStream
 
         public override long Length => content.Length;
 
+        private long _position;
+
         public override long Position
         {
-            get { lock (sync) { return content.Position; } }
-            set { lock (sync) { content.Position = value; } }
+            get => _position;
+
+            set
+            {
+                _sync.Wait();
+                
+                try
+                {
+                    content.Position = value;
+                    _position = value;
+                }
+                finally
+                {
+                    _sync.Release();
+                }
+            }
         }
 
         public override void Flush()
         {
-            lock (sync)
+            _sync.Wait();
+
+            try
             {
                 content.Flush();
             }
+            finally
+            {
+                _sync.Release();
+            }
         }
 
-        public override Task FlushAsync(CancellationToken cancellationToken)
+        public override async Task FlushAsync(CancellationToken cancellationToken)
         {
-            lock (sync)
+            await _sync.WaitAsync(cancellationToken).ConfigureAwait(false);
+
+            try
             {
-                return content.FlushAsync(cancellationToken);
+                await content.FlushAsync(cancellationToken).ConfigureAwait(false);
+            }
+            finally
+            {
+                _sync.Release();
             }
         }
 
         public override int Read(Span<byte> buffer)
         {
-            lock (sync)
+            _sync.Wait();
+
+            try
             {
-                content.Position = Position;
-                return content.Read(buffer);
+                content.Position = _position;
+                var r = content.Read(buffer);
+                _position += r;
+                return r;
+            }
+            finally
+            {
+                _sync.Release();
             }
         }
 
         public override int Read(byte[] buffer, int offset, int count)
         {
-            lock (sync)
+            _sync.Wait();
+
+            try
             {
-                content.Position = Position;
-                return content.Read(buffer, offset, count);
+                content.Position = _position;
+                var r = content.Read(buffer, offset, count);
+                _position += r;
+                return r;
+            }
+            finally
+            {
+                _sync.Release();
             }
         }
 
-        public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
         {
-            lock (sync)
-            {
-                content.Position = Position;
-                return content.ReadAsync(buffer, offset, count, cancellationToken);
-            }
-        }
+            await _sync.WaitAsync(cancellationToken).ConfigureAwait(false);
 
-        public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
-        {
-            lock (sync)
+            try
             {
-                content.Position = Position;
-                return content.ReadAsync(buffer, cancellationToken);
+                content.Position = _position;                
+                var r = await content.ReadAsync(buffer, cancellationToken).ConfigureAwait(false);
+                _position += r;
+                return r;
+            }
+            finally
+            {
+                _sync.Release();
             }
         }
 
         public override int ReadByte()
         {
-            lock (sync)
-            {
-                content.Position = Position;
-                return content.ReadByte();
-            }
-        }
+            _sync.Wait();
 
-        public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback? callback, object? state)
-        {
-            lock (sync)
+            try
             {
-                content.Position = Position;
-                return content.BeginRead(buffer, offset, count, callback, state);
+                content.Position = _position;
+                var c = content.ReadByte();
+                _position += c == -1 ? 0 : 1;
+                return c;
             }
-        }
-
-        public override int EndRead(IAsyncResult asyncResult)
-        {
-            lock (sync)
+            finally
             {
-                return content.EndRead(asyncResult);
+                _sync.Release();
             }
         }
 
@@ -762,95 +792,117 @@ public abstract class SparseStream : CompatibilityStream
                     throw new ArgumentOutOfRangeException(nameof(origin), origin, null);
             }
 
-            return Position;
+            return _position;
         }
 
         public override void SetLength(long value)
         {
-            lock (sync)
+            _sync.Wait();
+
+            try
             {
                 content.SetLength(value);
+            }
+            finally
+            {
+                _sync.Release();
             }
         }
 
         public override void Write(ReadOnlySpan<byte> buffer)
         {
-            lock (sync)
+            _sync.Wait();
+
+            try
             {
-                content.Position = Position;
+                content.Position = _position;
                 content.Write(buffer);
+                _position += buffer.Length;
+            }
+            finally
+            {
+                _sync.Release();
             }
         }
 
         public override void Write(byte[] buffer, int offset, int count)
         {
-            lock (sync)
+            _sync.Wait();
+
+            try
             {
-                content.Position = Position;
+                content.Position = _position;
                 content.Write(buffer, offset, count);
+                _position += count;
+            }
+            finally
+            {
+                _sync.Release();
             }
         }
 
-        public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
         {
-            lock (sync)
-            {
-                content.Position = Position;
-                return content.WriteAsync(buffer, offset, count, cancellationToken);
-            }
-        }
+            await _sync.WaitAsync(cancellationToken).ConfigureAwait(false);
 
-        public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
-        {
-            lock (sync)
+            try
             {
-                content.Position = Position;
-                return content.WriteAsync(buffer, cancellationToken);
+                content.Position = _position;
+                await content.WriteAsync(buffer, cancellationToken).ConfigureAwait(false);
+                _position += buffer.Length;
+            }
+            finally
+            {
+                _sync.Release();
             }
         }
 
         public override void WriteByte(byte value)
         {
-            lock (sync)
+            _sync.Wait();
+
+            try
             {
-                content.Position = Position;
+                content.Position = _position;
                 content.WriteByte(value);
+                _position++;
             }
-        }
-
-        public override IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback? callback, object? state)
-        {
-            lock (sync)
+            finally
             {
-                content.Position = Position;
-                return content.BeginWrite(buffer, offset, count, callback, state);
-            }
-        }
-
-        public override void EndWrite(IAsyncResult asyncResult)
-        {
-            lock (sync)
-            {
-                content.EndWrite(asyncResult);
+                _sync.Release();
             }
         }
 
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP
         public override void CopyTo(Stream destination, int bufferSize)
         {
-            lock (sync)
+            _sync.Wait();
+
+            try
             {
-                content.Position = Position;
+                content.Position = _position;
                 content.CopyTo(destination, bufferSize);
+                _position = content.Position;
+            }
+            finally
+            {
+                _sync.Release();
             }
         }
 
-        public override Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken)
+        public override async Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken)
         {
-            lock (sync)
+            await _sync.WaitAsync(cancellationToken).ConfigureAwait(false);
+
+            try
             {
-                content.Position = Position;
-                return content.CopyToAsync(destination, bufferSize, cancellationToken);
+                content.Position = _position;
+                await content.CopyToAsync(destination, bufferSize, cancellationToken).ConfigureAwait(false);
+                _position = content.Position;
+            }
+            finally
+            {
+                _sync.Release();
             }
         }
 #endif
@@ -861,19 +913,33 @@ public abstract class SparseStream : CompatibilityStream
 
         public override void Clear(int count)
         {
-            lock (sync)
+            _sync.Wait();
+
+            try
             {
-                content.Position = Position;
+                content.Position = _position;
                 content.Clear(count);
+                _position += count;
+            }
+            finally
+            {
+                _sync.Release();
             }
         }
 
-        public override ValueTask ClearAsync(int count, CancellationToken cancellationToken)
+        public override async ValueTask ClearAsync(int count, CancellationToken cancellationToken)
         {
-            lock (sync)
+            await _sync.WaitAsync(cancellationToken).ConfigureAwait(false);
+
+            try
             {
-                content.Position = Position;
-                return content.ClearAsync(count, cancellationToken);
+                content.Position = _position;
+                await content.ClearAsync(count, cancellationToken).ConfigureAwait(false);
+                _position += count;
+            }
+            finally
+            {
+                _sync.Release();
             }
         }
 
@@ -881,16 +947,28 @@ public abstract class SparseStream : CompatibilityStream
         {
             if (ownership == Ownership.Dispose)
             {
-                lock (sync)
+                _sync.Wait();
+
+                try
                 {
                     content.Close();
+                }
+                finally
+                {
+                    _sync.Release();
                 }
             }
             else if (content.CanWrite)
             {
-                lock (sync)
+                _sync.Wait();
+
+                try
                 {
                     content.Flush();
+                }
+                finally
+                {
+                    _sync.Release();
                 }
             }
         }
@@ -901,41 +979,65 @@ public abstract class SparseStream : CompatibilityStream
             {
                 if (ownership == Ownership.Dispose)
                 {
-                    lock (sync)
+                    _sync.Wait();
+
+                    try
                     {
                         content.Dispose();
+                    }
+                    finally
+                    {
+                        _sync.Release();
                     }
                 }
                 else if (content.CanWrite)
                 {
-                    lock (sync)
+                    _sync.Wait();
+
+                    try
                     {
                         content.Flush();
+                    }
+                    finally
+                    {
+                        _sync.Release();
                     }
                 }
             }
         }
 
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP
-        public override ValueTask DisposeAsync()
+        public override async ValueTask DisposeAsync()
         {
             if (ownership == Ownership.Dispose)
             {
-                lock (sync)
+                await _sync.WaitAsync().ConfigureAwait(false);
+
+                try
                 {
-                    return content.DisposeAsync();
+                    await content.DisposeAsync().ConfigureAwait(false);
+                    return;
                 }
-            }
-            
-            if (content.CanWrite)
-            {
-                lock (sync)
+                finally
                 {
-                    return new(content.FlushAsync());
+                    _sync.Release();
                 }
             }
 
-            return default;
+            if (content.CanWrite)
+            {
+                await _sync.WaitAsync().ConfigureAwait(false);
+
+                try
+                {
+                    await content.FlushAsync().ConfigureAwait(false);
+                    return;
+                }
+                finally
+                {
+                    _sync.Release();
+                }
+            }
         }
 #endif
 

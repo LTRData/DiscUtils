@@ -108,7 +108,7 @@ internal class WofStream(long uncompressedSize,
 
         if (size == chunkSize || _blockDecompressor is null)
         {
-            return compressedData.Read(uncompressedData.Slice(0, chunkSize));
+            return compressedData.Read(uncompressedData[..chunkSize]);
         }
 
         var compressed = ArrayPool<byte>.Shared.Rent(size);
@@ -117,7 +117,7 @@ internal class WofStream(long uncompressedSize,
         {
             compressedData.ReadExactly(compressed, 0, size);
 
-            _blockDecompressor.TryDecompress(compressed.AsSpan(0, size), uncompressedData.Slice(0, chunkSize), out var decompressedSize);
+            _blockDecompressor.TryDecompress(compressed.AsSpan(0, size), uncompressedData[..chunkSize], out var decompressedSize);
 
             return decompressedSize;
         }
@@ -135,7 +135,7 @@ internal class WofStream(long uncompressedSize,
 
         if (size == chunkSize || _blockDecompressor is null)
         {
-            return await compressedData.ReadAsync(uncompressedData.Slice(0, chunkSize), cancellationToken).ConfigureAwait(false);
+            return await compressedData.ReadAsync(uncompressedData[..chunkSize], cancellationToken).ConfigureAwait(false);
         }
 
         var compressed = ArrayPool<byte>.Shared.Rent(size);
@@ -144,7 +144,7 @@ internal class WofStream(long uncompressedSize,
         {
             await compressedData.ReadExactlyAsync(compressed.AsMemory(0, size), cancellationToken).ConfigureAwait(false);
 
-            _blockDecompressor.TryDecompress(compressed.AsSpan(0, size), uncompressedData.Span.Slice(0, chunkSize), out var decompressedSize);
+            _blockDecompressor.TryDecompress(compressed.AsSpan(0, size), uncompressedData.Span[..chunkSize], out var decompressedSize);
 
             return decompressedSize;
         }
@@ -207,7 +207,7 @@ internal class WofStream(long uncompressedSize,
 
         while (!buffer.IsEmpty && Position < Length)
         {
-            var block = buffer.Slice(0, Math.Min(maxChunkSize, Math.Min(buffer.Length, (int)(Length - Position))));
+            var block = buffer[..Math.Min(maxChunkSize, Math.Min(buffer.Length, (int)(Length - Position)))];
 
             var length = ReadChunk(block, (int)(Position >> chunkOrder));
 
@@ -219,7 +219,7 @@ internal class WofStream(long uncompressedSize,
                 break;
             }
 
-            buffer = buffer.Slice(length);
+            buffer = buffer[length..];
         }
 
         return total;
@@ -236,7 +236,7 @@ internal class WofStream(long uncompressedSize,
 
         while (!buffer.IsEmpty && Position < Length)
         {
-            var block = buffer.Slice(0, Math.Min(maxChunkSize, Math.Min(buffer.Length, (int)(Length - Position))));
+            var block = buffer[..Math.Min(maxChunkSize, Math.Min(buffer.Length, (int)(Length - Position)))];
 
             var length = await ReadChunkAsync(block, (int)(Position >> chunkOrder), cancellationToken).ConfigureAwait(false);
 
@@ -248,7 +248,7 @@ internal class WofStream(long uncompressedSize,
                 break;
             }
 
-            buffer = buffer.Slice(length);
+            buffer = buffer[length..];
         }
 
         return total;

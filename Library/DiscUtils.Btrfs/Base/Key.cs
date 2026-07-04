@@ -71,7 +71,7 @@ internal class Key : IByteArraySerializable
     {
         ObjectId = EndianUtilities.ToUInt64LittleEndian(buffer);
         ItemType = (ItemType)buffer[0x8];
-        Offset = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x9));
+        Offset = EndianUtilities.ToUInt64LittleEndian(buffer[0x9..]);
         return Size;
     }
 

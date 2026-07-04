@@ -74,9 +74,9 @@ internal class DirItem : BaseItem
     public override int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         ChildLocation = EndianUtilities.ToStruct<Key>(buffer);
-        TransId = EndianUtilities.ToUInt64LittleEndian(buffer.Slice(0x11));
-        DataLength = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(0x19));
-        NameLength = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(0x1b));
+        TransId = EndianUtilities.ToUInt64LittleEndian(buffer[0x11..]);
+        DataLength = EndianUtilities.ToUInt16LittleEndian(buffer[0x19..]);
+        NameLength = EndianUtilities.ToUInt16LittleEndian(buffer[0x1b..]);
         ChildType = (DirItemChildType)buffer[0x1d];
         Name = Encoding.UTF8.GetString(buffer.Slice(0x1e, NameLength));
         Data = EndianUtilities.ToByteArray(buffer.Slice(0x1e + NameLength, DataLength));

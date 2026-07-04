@@ -45,9 +45,9 @@ internal class DirectoryRecord : IByteArraySerializable
         var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
 
         EndianUtilities.WriteBytesLittleEndian(Offset, buffer);
-        EndianUtilities.WriteBytesLittleEndian(InodeNumber, buffer.Slice(2));
-        EndianUtilities.WriteBytesLittleEndian((ushort)Type, buffer.Slice(4));
-        EndianUtilities.WriteBytesLittleEndian((ushort)(Name.Length - 1), buffer.Slice(6));
+        EndianUtilities.WriteBytesLittleEndian(InodeNumber, buffer[2..]);
+        EndianUtilities.WriteBytesLittleEndian((ushort)Type, buffer[4..]);
+        EndianUtilities.WriteBytesLittleEndian((ushort)(Name.Length - 1), buffer[6..]);
         latin1Encoding.GetBytes(Name, buffer.Slice(8, Name.Length));
     }
 

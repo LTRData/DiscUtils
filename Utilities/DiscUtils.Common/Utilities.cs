@@ -48,7 +48,7 @@ public static class Utilities
             pos = breakPos;
         }
 
-        yield return text.Substring(pos);
+        yield return text[pos..];
     }
 
     public static string PromptForPassword()
@@ -105,7 +105,7 @@ public static class Utilities
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP
                 return long.TryParse(size.AsSpan(0, size.Length - 1), out value);
 #else
-                return long.TryParse(size.Substring(0, size.Length - 1), out value);
+                return long.TryParse(size[..^1], out value);
 #endif
             }
 
@@ -117,7 +117,7 @@ public static class Utilities
                 return false;
             }
 #else
-            if (!long.TryParse(size.Substring(0, size.Length - 2), out var quantity))
+            if (!long.TryParse(size[..^2], out var quantity))
             {
                 value = 0;
                 return false;

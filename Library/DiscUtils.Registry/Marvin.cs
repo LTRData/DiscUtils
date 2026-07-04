@@ -45,7 +45,7 @@ internal static class Marvin
             // is equivalent to clearing last 2 bits of length
             // Using it directly gives a perf hit for short strings making it at least 5% or more slower.
             var byteOffset = data.Length & (~3);
-            data = data.Slice(byteOffset);
+            data = data[byteOffset..];
         }
 
         switch (data.Length)

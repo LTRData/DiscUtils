@@ -48,7 +48,7 @@ public class MacOSOnlyTheoryAttribute : TheoryAttribute
     }
 }
 
-public class MacOSOnlyFactAttribute : FactAttribute
+public class AppleDeveloperDiskImageFactAttribute : FactAttribute
 {
     public static string? DeveloperImage => field ??= (Environment.GetEnvironmentVariable("DEVELOPER_DISK_IMAGE")
          ?? FindDeveloperDiskImage());
@@ -71,21 +71,12 @@ public class MacOSOnlyFactAttribute : FactAttribute
     {
         get
         {
-#if NETCOREAPP
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                return "This test runs on macOS only";
-            }
-
             if (DeveloperImage is null)
             {
                 return "DeveloperDiskImage.dmg not available";
             }
 
             return null;
-#else
-            return "This test runs on macOS only";
-#endif
         }
         set => throw new NotSupportedException();
     }

@@ -50,7 +50,7 @@ internal class BaseVolumeDescriptor
 
     internal virtual void WriteTo(Span<byte> buffer)
     {
-        buffer.Slice(0, IsoUtilities.SectorSize).Clear();
+        buffer[..IsoUtilities.SectorSize].Clear();
 
         buffer[0] = (byte)VolumeDescriptorType;
         IsoUtilities.WriteAChars(buffer.Slice(1, 5), StandardIdentifier.AsSpan());

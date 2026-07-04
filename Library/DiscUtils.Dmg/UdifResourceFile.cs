@@ -56,25 +56,25 @@ internal class UdifResourceFile : IByteArraySerializable
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         Signature = EndianUtilities.ToUInt32BigEndian(buffer);
-        Version = EndianUtilities.ToUInt32BigEndian(buffer.Slice(4));
-        HeaderSize = EndianUtilities.ToUInt32BigEndian(buffer.Slice(8));
-        Flags = EndianUtilities.ToUInt32BigEndian(buffer.Slice(12));
-        RunningDataForkOffset = EndianUtilities.ToUInt64BigEndian(buffer.Slice(16));
-        DataForkOffset = EndianUtilities.ToUInt64BigEndian(buffer.Slice(24));
-        DataForkLength = EndianUtilities.ToUInt64BigEndian(buffer.Slice(32));
-        RsrcForkOffset = EndianUtilities.ToUInt64BigEndian(buffer.Slice(40));
-        RsrcForkLength = EndianUtilities.ToUInt64BigEndian(buffer.Slice(48));
-        SegmentNumber = EndianUtilities.ToUInt32BigEndian(buffer.Slice(56));
-        SegmentCount = EndianUtilities.ToUInt32BigEndian(buffer.Slice(60));
-        SegmentGuid = EndianUtilities.ToGuidBigEndian(buffer.Slice(64));
+        Version = EndianUtilities.ToUInt32BigEndian(buffer[4..]);
+        HeaderSize = EndianUtilities.ToUInt32BigEndian(buffer[8..]);
+        Flags = EndianUtilities.ToUInt32BigEndian(buffer[12..]);
+        RunningDataForkOffset = EndianUtilities.ToUInt64BigEndian(buffer[16..]);
+        DataForkOffset = EndianUtilities.ToUInt64BigEndian(buffer[24..]);
+        DataForkLength = EndianUtilities.ToUInt64BigEndian(buffer[32..]);
+        RsrcForkOffset = EndianUtilities.ToUInt64BigEndian(buffer[40..]);
+        RsrcForkLength = EndianUtilities.ToUInt64BigEndian(buffer[48..]);
+        SegmentNumber = EndianUtilities.ToUInt32BigEndian(buffer[56..]);
+        SegmentCount = EndianUtilities.ToUInt32BigEndian(buffer[60..]);
+        SegmentGuid = EndianUtilities.ToGuidBigEndian(buffer[64..]);
 
-        DataForkChecksum = EndianUtilities.ToStruct<UdifChecksum>(buffer.Slice(80));
-        XmlOffset = EndianUtilities.ToUInt64BigEndian(buffer.Slice(216));
-        XmlLength = EndianUtilities.ToUInt64BigEndian(buffer.Slice(224));
+        DataForkChecksum = EndianUtilities.ToStruct<UdifChecksum>(buffer[80..]);
+        XmlOffset = EndianUtilities.ToUInt64BigEndian(buffer[216..]);
+        XmlLength = EndianUtilities.ToUInt64BigEndian(buffer[224..]);
 
-        MasterChecksum = EndianUtilities.ToStruct<UdifChecksum>(buffer.Slice(352));
-        ImageVariant = EndianUtilities.ToUInt32BigEndian(buffer.Slice(488));
-        SectorCount = EndianUtilities.ToInt64BigEndian(buffer.Slice(492));
+        MasterChecksum = EndianUtilities.ToStruct<UdifChecksum>(buffer[352..]);
+        ImageVariant = EndianUtilities.ToUInt32BigEndian(buffer[488..]);
+        SectorCount = EndianUtilities.ToInt64BigEndian(buffer[492..]);
 
         return Size;
     }

@@ -39,9 +39,9 @@ internal struct Extent : IByteArraySerializable
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
         FirstLogicalBlock = EndianUtilities.ToUInt32LittleEndian(buffer);
-        NumBlocks = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(4));
-        FirstPhysicalBlockHi = EndianUtilities.ToUInt16LittleEndian(buffer.Slice(6));
-        FirstPhysicalBlockLow = EndianUtilities.ToUInt32LittleEndian(buffer.Slice(8));
+        NumBlocks = EndianUtilities.ToUInt16LittleEndian(buffer[4..]);
+        FirstPhysicalBlockHi = EndianUtilities.ToUInt16LittleEndian(buffer[6..]);
+        FirstPhysicalBlockLow = EndianUtilities.ToUInt32LittleEndian(buffer[8..]);
         return 12;
     }
 

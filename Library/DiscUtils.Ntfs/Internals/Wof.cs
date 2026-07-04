@@ -50,9 +50,9 @@ internal static class Wof
         public WofExternalInfo(ReadOnlySpan<byte> buffer)
         {
             version = EndianUtilities.ToInt32LittleEndian(buffer);
-            provider = EndianUtilities.ToInt32LittleEndian(buffer.Slice(4));
-            versionV1 = EndianUtilities.ToInt32LittleEndian(buffer.Slice(8));
-            compressionFormat = (CompressionFormat)EndianUtilities.ToInt32LittleEndian(buffer.Slice(12));
+            provider = EndianUtilities.ToInt32LittleEndian(buffer[4..]);
+            versionV1 = EndianUtilities.ToInt32LittleEndian(buffer[8..]);
+            compressionFormat = (CompressionFormat)EndianUtilities.ToInt32LittleEndian(buffer[12..]);
         }
 
         public readonly int version;
@@ -115,14 +115,14 @@ internal static class Wof
             {
                 for (var i = 0; i < numChunks - 1; i++)
                 {
-                    chunkTable[i] = EndianUtilities.ToInt64LittleEndian(chunkTableBytes.Slice(i * sizeof(long)));
+                    chunkTable[i] = EndianUtilities.ToInt64LittleEndian(chunkTableBytes[(i * sizeof(long))..]);
                 }
             }
             else
             {
                 for (var i = 0; i < numChunks - 1; i++)
                 {
-                    chunkTable[i] = EndianUtilities.ToUInt32LittleEndian(chunkTableBytes.Slice(i * sizeof(uint)));
+                    chunkTable[i] = EndianUtilities.ToUInt32LittleEndian(chunkTableBytes[(i * sizeof(uint))..]);
                 }
             }
         }

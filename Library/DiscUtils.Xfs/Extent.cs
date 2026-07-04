@@ -43,8 +43,8 @@ internal struct Extent : IByteArraySerializable
 
     public int ReadFrom(ReadOnlySpan<byte> buffer)
     {
-        var lower = EndianUtilities.ToUInt64BigEndian(buffer.Slice(0x8));
-        var middle = EndianUtilities.ToUInt64BigEndian(buffer.Slice(0x6));
+        var lower = EndianUtilities.ToUInt64BigEndian(buffer[0x8..]);
+        var middle = EndianUtilities.ToUInt64BigEndian(buffer[0x6..]);
         var upper = EndianUtilities.ToUInt64BigEndian(buffer);
         BlockCount = (uint)(lower & 0x001FFFFF);
         StartBlock = (middle >> 5) & 0x000FFFFFFFFFFFFF;

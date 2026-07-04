@@ -49,7 +49,7 @@ public sealed class CircularStream : WrappingStream
     {
         WrapPosition();
 
-        var read = await base.ReadAsync(buffer.Slice(0, (int)Math.Min(Length - Position, buffer.Length)), cancellationToken).ConfigureAwait(false);
+        var read = await base.ReadAsync(buffer[..(int)Math.Min(Length - Position, buffer.Length)], cancellationToken).ConfigureAwait(false);
 
         WrapPosition();
 
@@ -60,7 +60,7 @@ public sealed class CircularStream : WrappingStream
     {
         WrapPosition();
 
-        var read = base.Read(buffer.Slice(0, (int)Math.Min(Length - Position, buffer.Length)));
+        var read = base.Read(buffer[..(int)Math.Min(Length - Position, buffer.Length)]);
 
         WrapPosition();
 

@@ -225,7 +225,7 @@ internal class ExtentDescriptor
                     idx++;
                 }
 
-                yield return source.Slice(start, idx - start);
+                yield return source[start..idx];
             }
 
             idx++;

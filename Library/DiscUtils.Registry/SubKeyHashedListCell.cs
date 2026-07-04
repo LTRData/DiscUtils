@@ -57,15 +57,15 @@ internal sealed class SubKeyHashedListCell : ListCell
     {
         var latin1Encoding = EncodingUtilities.GetLatin1Encoding();
 
-        _hashType = latin1Encoding.GetString(buffer.Slice(0, 2));
-        _numElements = EndianUtilities.ToInt16LittleEndian(buffer.Slice(2));
+        _hashType = latin1Encoding.GetString(buffer[..2]);
+        _numElements = EndianUtilities.ToInt16LittleEndian(buffer[2..]);
 
         _subKeyIndexes = new List<int>(_numElements);
         _nameHashes = new List<uint>(_numElements);
         for (var i = 0; i < _numElements; ++i)
         {
-            _subKeyIndexes.Add(EndianUtilities.ToInt32LittleEndian(buffer.Slice(0x4 + i * 0x8)));
-            _nameHashes.Add(EndianUtilities.ToUInt32LittleEndian(buffer.Slice(0x4 + i * 0x8 + 0x4)));
+            _subKeyIndexes.Add(EndianUtilities.ToInt32LittleEndian(buffer[(0x4 + i * 0x8)..]));
+            _nameHashes.Add(EndianUtilities.ToUInt32LittleEndian(buffer[(0x4 + i * 0x8 + 0x4)..]));
         }
 
         return 0x4 + _numElements * 0x8;
@@ -75,13 +75,13 @@ internal sealed class SubKeyHashedListCell : ListCell
     {
         EncodingUtilities
             .GetLatin1Encoding()
-            .GetBytes(_hashType, buffer.Slice(0, 2));
+            .GetBytes(_hashType, buffer[..2]);
 
-        EndianUtilities.WriteBytesLittleEndian(_numElements, buffer.Slice(0x2));
+        EndianUtilities.WriteBytesLittleEndian(_numElements, buffer[0x2..]);
         for (var i = 0; i < _numElements; ++i)
         {
-            EndianUtilities.WriteBytesLittleEndian(_subKeyIndexes[i], buffer.Slice(0x4 + i * 0x8));
-            EndianUtilities.WriteBytesLittleEndian(_nameHashes[i], buffer.Slice(0x4 + i * 0x8 + 0x4));
+            EndianUtilities.WriteBytesLittleEndian(_subKeyIndexes[i], buffer[(0x4 + i * 0x8)..]);
+            EndianUtilities.WriteBytesLittleEndian(_nameHashes[i], buffer[(0x4 + i * 0x8 + 0x4)..]);
         }
     }
 
@@ -264,7 +264,7 @@ internal sealed class SubKeyHashedListCell : ListCell
     private IEnumerable<int> FindByPrefix(string name, int start)
     {
         var compChars = Math.Min(name.Length, 4);
-        var compStr = $"{name.Substring(0, compChars).ToUpperInvariant()}\0\0\0\0";
+        var compStr = $"{name[..compChars].ToUpperInvariant()}\0\0\0\0";
 
         for (var i = start; i < _nameHashes.Count; ++i)
         {

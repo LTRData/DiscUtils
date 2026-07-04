@@ -36,7 +36,7 @@ namespace ExternalFileSystem;
 
 class Program
 {
-    static void Main(string[] args)
+    static void Main(params string[] args)
     {
         SetupHelper.RegisterAssembly(typeof(Program).Assembly);
 

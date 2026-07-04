@@ -179,7 +179,7 @@ internal struct FatFileName : IEquatable<FatFileName>
 
     public readonly bool IsDeleted() => ShortName is null;
 
-    public readonly bool IsEndMarker() => ShortName is not null && ShortName.Equals(Null.ShortName, StringComparison.Ordinal);
+    public readonly bool IsEndMarker() => ShortName == Null.ShortName;
 
     public readonly override bool Equals(object other)
         => other is FatFileName otherName && Equals(this, otherName);
@@ -216,9 +216,9 @@ internal struct FatFileName : IEquatable<FatFileName>
         // Make sure that the directory entry is fully initialized to 0
         var offsetToSfnEntry = lfnCount * DirectoryEntry.SizeOf;
         var sfnEntry = buffer.Slice(offsetToSfnEntry, DirectoryEntry.SizeOf);
-        sfnEntry.Slice(12).Clear();
+        sfnEntry[12..].Clear();
 
-        var finalBytes = sfnEntry.Slice(0, 11);
+        var finalBytes = sfnEntry[..11];
         finalBytes.Fill((byte)' ');
 
         // Initialize the buffer with the short name
@@ -300,21 +300,21 @@ internal struct FatFileName : IEquatable<FatFileName>
                     var nextLength = Math.Min(length13, 5);
 
                     var localOffset = offset + 1;
-                    lfnBytes.Slice(26 * (i - 1), nextLength * 2).CopyTo(buffer.Slice(localOffset));
+                    lfnBytes.Slice(26 * (i - 1), nextLength * 2).CopyTo(buffer[localOffset..]);
                     localOffset += nextLength * 2;
                     remainingLength -= nextLength;
                     if (remainingLength > 0)
                     {
                         localOffset = offset + 14;
                         nextLength = Math.Min(length13 - 5, 6);
-                        lfnBytes.Slice(26 * (i - 1) + 10, nextLength * 2).CopyTo(buffer.Slice(localOffset));
+                        lfnBytes.Slice(26 * (i - 1) + 10, nextLength * 2).CopyTo(buffer[localOffset..]);
                         localOffset += nextLength * 2;
                         remainingLength -= nextLength;
                         if (remainingLength > 0)
                         {
                             localOffset = offset + 28;
                             nextLength = Math.Min(length13 - 11, 2);
-                            lfnBytes.Slice(26 * (i - 1) + 22, nextLength * 2).CopyTo(buffer.Slice(localOffset));
+                            lfnBytes.Slice(26 * (i - 1) + 22, nextLength * 2).CopyTo(buffer[localOffset..]);
                             localOffset += nextLength * 2;
                         }
                         else if (localOffset == offset + 26)
@@ -335,9 +335,9 @@ internal struct FatFileName : IEquatable<FatFileName>
                 else
                 {
                     // TODO: This code is not endian-safe. Long file names will be messed up when this code runs on big endian machines.
-                    lfnBytes.Slice(26 * (i - 1), 10).CopyTo(buffer.Slice(offset + 1));
-                    lfnBytes.Slice(26 * (i - 1) + 10, 12).CopyTo(buffer.Slice(offset + 14));
-                    lfnBytes.Slice(26 * (i - 1) + 22, 4).CopyTo(buffer.Slice(offset + 28));
+                    lfnBytes.Slice(26 * (i - 1), 10).CopyTo(buffer[(offset + 1)..]);
+                    lfnBytes.Slice(26 * (i - 1) + 10, 12).CopyTo(buffer[(offset + 14)..]);
+                    lfnBytes.Slice(26 * (i - 1) + 22, 4).CopyTo(buffer[(offset + 28)..]);
                 }
 
                 var seq = (byte)i;
@@ -498,8 +498,8 @@ internal struct FatFileName : IEquatable<FatFileName>
 
         while (tailNumber <= MaxTailNumber)
         {
-            var encodedShortNameChar = encoding.GetChars(tempBytes.Slice(0, tempLength), bufferChar);
-            var shortName = bufferChar.Slice(0, encodedShortNameChar).ToString();
+            var encodedShortNameChar = encoding.GetChars(tempBytes[..tempLength], bufferChar);
+            var shortName = bufferChar[..encodedShortNameChar].ToString();
 
             if (forceTrailingOnFirstLossy || shortNameExistFunction(shortName))
             {
@@ -599,9 +599,9 @@ internal struct FatFileName : IEquatable<FatFileName>
                 if ((data[offset] & 0x3f) == i && ((FatAttributes)data[offset + 11] & FatAttributes.LongFileNameMask) == FatAttributes.LongFileName)
                 {
                     // TODO: This code is not endian-safe. Long file names will be messed up when this code runs on big endian machines.
-                    data.Slice(offset + 1, 10).CopyTo(lfn_bytes.Slice(26 * (i - 1)));
-                    data.Slice(offset + 14, 12).CopyTo(lfn_bytes.Slice(26 * (i - 1) + 10));
-                    data.Slice(offset + 28, 4).CopyTo(lfn_bytes.Slice(26 * (i - 1) + 22));
+                    data.Slice(offset + 1, 10).CopyTo(lfn_bytes[(26 * (i - 1))..]);
+                    data.Slice(offset + 14, 12).CopyTo(lfn_bytes[(26 * (i - 1) + 10)..]);
+                    data.Slice(offset + 28, 4).CopyTo(lfn_bytes[(26 * (i - 1) + 22)..]);
                 }
                 else
                 {
@@ -617,7 +617,7 @@ internal struct FatFileName : IEquatable<FatFileName>
                 nullpos = lfn_chars.Length;
             }
 
-            longName = lfn_chars.Slice(0, nullpos).ToString();
+            longName = lfn_chars[..nullpos].ToString();
         }
 
         // If we still have long file name entry, this is invalid
@@ -629,7 +629,7 @@ internal struct FatFileName : IEquatable<FatFileName>
         }
 
         // Check if the shortname is entirely zeroed
-        bool isNull = MemoryMarshal.Cast<byte, long>(data.Slice(0, 8))[0] == 0
+        bool isNull = MemoryMarshal.Cast<byte, long>(data[..8])[0] == 0
                       && MemoryMarshal.Cast<byte, int>(data.Slice(11 - 4, 4))[0] == 0;
         if (isNull)
         {
@@ -725,7 +725,7 @@ internal struct FatFileName : IEquatable<FatFileName>
             var extIsLowercase = (d0C & (1 << 4)) != 0;
 
             Span<char> utf16Buffer = stackalloc char[12];
-            var utf16Length = encodingTable.Encoding.GetChars(tmpBuffer.Slice(0, tmpLength), utf16Buffer);
+            var utf16Length = encodingTable.Encoding.GetChars(tmpBuffer[..tmpLength], utf16Buffer);
             Debug.Assert(utf16Length == tmpLength);
 
             // We apply case information recovered from the directory entry
@@ -748,7 +748,7 @@ internal struct FatFileName : IEquatable<FatFileName>
                 }
             }
 
-            shortName = utf16Buffer.Slice(0, utf16Length).ToString();
+            shortName = utf16Buffer[..utf16Length].ToString();
         }
 
         offset += DirectoryEntry.SizeOf;
