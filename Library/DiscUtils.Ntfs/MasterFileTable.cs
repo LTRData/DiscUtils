@@ -410,30 +410,54 @@ internal class MasterFileTable : IDiagnosticTraceable, IDisposable
             throw new IOException("Attempting to write over-sized MFT record");
         }
 
-        _recordStream.Position = record.MasterFileTableIndex * RecordSize;
-        record.ToStream(_recordStream, RecordSize);
-        _recordStream.Flush();
-
-        // We may have modified our own meta-data by extending the data stream, so
-        // make sure our records are up-to-date.
-        if (_self.MftRecordIsDirty)
+        // Serialize the record exactly once and write the identical bytes to both
+        // $MFT and $MFTMirr. FixupRecordBase.ToBytes calls ProtectBuffer, which
+        // increments the update sequence number on every serialization, so calling
+        // ToStream twice would store different USNs (and different fixup bytes) in
+        // each copy. NTFS implementations compare $MFTMirr to $MFT verbatim at mount
+        // time, so ntfs-3g would fail with "$MFTMirr does not match $MFT" and chkdsk
+        // would report corruption.
+        byte[] allocated = null;
+        var buffer = RecordSize <= 1024
+            ? stackalloc byte[RecordSize]
+            : (allocated = ArrayPool<byte>.Shared.Rent(RecordSize)).AsSpan(0, RecordSize);
+        try
         {
-            var dirEntry = _self.DirectoryEntry;
-            dirEntry?.UpdateFrom(_self);
+            buffer.Clear();
+            record.ToBytes(buffer);
 
-            _self.UpdateRecordInMft();
-        }
+            _recordStream.Position = record.MasterFileTableIndex * RecordSize;
+            _recordStream.Write(buffer);
+            _recordStream.Flush();
 
-        // Need to update Mirror.  OpenRaw is OK because this is short duration, and we don't
-        // extend or otherwise modify any meta-data, just the content of the Data stream.
-        if (record.MasterFileTableIndex < 4 && _self.Context.GetFileByIndex != null)
-        {
-            var mftMirror = _self.Context.GetFileByIndex(MftMirrorIndex);
-            if (mftMirror != null)
+            // We may have modified our own meta-data by extending the data stream, so
+            // make sure our records are up-to-date.
+            if (_self.MftRecordIsDirty)
             {
-                using var s = mftMirror.OpenStream(AttributeType.Data, null, FileAccess.ReadWrite);
-                s.Position = record.MasterFileTableIndex * RecordSize;
-                record.ToStream(s, RecordSize);
+                var dirEntry = _self.DirectoryEntry;
+                dirEntry?.UpdateFrom(_self);
+
+                _self.UpdateRecordInMft();
+            }
+
+            // Need to update Mirror.  OpenRaw is OK because this is short duration, and we don't
+            // extend or otherwise modify any meta-data, just the content of the Data stream.
+            if (record.MasterFileTableIndex < 4 && _self.Context.GetFileByIndex != null)
+            {
+                var mftMirror = _self.Context.GetFileByIndex(MftMirrorIndex);
+                if (mftMirror != null)
+                {
+                    using var s = mftMirror.OpenStream(AttributeType.Data, null, FileAccess.ReadWrite);
+                    s.Position = record.MasterFileTableIndex * RecordSize;
+                    s.Write(buffer);
+                }
+            }
+        }
+        finally
+        {
+            if (allocated != null)
+            {
+                ArrayPool<byte>.Shared.Return(allocated);
             }
         }
     }
