@@ -83,14 +83,14 @@ public class RegistryKeyTest
         // Test big data cells (used for values >~16KB)
         // This mimics real-world scenarios like Windows registry ProductPolicy values
         var buffer = new byte[80 * 1024]; // 80KB - larger than big data threshold
-        
+
         // Set some distinctive bytes at various positions
         buffer[0] = 0x12;
         buffer[100] = 0x34;
         buffer[16384] = 0x56; // Past first 16KB boundary
         buffer[32768] = 0x78; // Past second 16KB boundary
         buffer[buffer.Length - 1] = 0x9A;
-        
+
         hive.Root.SetValue("verybigvalue", buffer);
 
         var readVal = (byte[])hive.Root.GetValue("verybigvalue");
@@ -100,7 +100,7 @@ public class RegistryKeyTest
         Assert.Equal(0x56, readVal[16384]);
         Assert.Equal(0x78, readVal[32768]);
         Assert.Equal(0x9A, readVal[buffer.Length - 1]);
-        
+
         // Verify entire buffer matches
         Assert.Equal(buffer, readVal);
     }

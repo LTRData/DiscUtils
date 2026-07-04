@@ -161,7 +161,7 @@ internal sealed class Bin
         {
             return ReadBigDataCell(data, maxBytes);
         }
-        
+
         // Regular cell data
         var result = maxBytes[..Math.Min(data.Length, maxBytes.Length)];
 
