@@ -1100,4 +1100,53 @@ public class NtfsFileSystemTest
             Assert.Equal(dummyFileSize, fs.GetFileLength("test.bin"));
         }
     }
+
+    [Fact]
+    public void MftMirrorStaysInSyncWithMft()
+    {
+        var ms = new MemoryStream();
+        ms.SetLength(64 * 1024 * 1024);
+
+        var geometry = Geometry.FromCapacity(ms.Length);
+        using (NtfsFileSystem.Format(ms, "mirror", geometry, 0, ms.Length / geometry.BytesPerSector))
+        {
+        }
+
+        using (var fs = new NtfsFileSystem(ms))
+        {
+            fs.CreateDirectory("dir");
+            var content = new byte[4096];
+            for (var i = 0; i < 400; ++i)
+            {
+                using var file = fs.OpenFile($"dir\\file{i}.bin", FileMode.CreateNew);
+                file.Write(content, 0, content.Length);
+            }
+        }
+
+        var image = ms.ToArray();
+
+        // Parse the boot sector.
+        var bytesPerSector = EndianUtilities.ToUInt16LittleEndian(image, 0x0B);
+        var sectorsPerCluster = image[0x0D];
+        var clusterBytes = bytesPerSector * sectorsPerCluster;
+        var mftCluster = EndianUtilities.ToInt64LittleEndian(image, 0x30);
+        var mirrorCluster = EndianUtilities.ToInt64LittleEndian(image, 0x38);
+
+        var rawClustersPerRecord = (sbyte)image[0x40];
+        var recordSize = rawClustersPerRecord >= 0
+            ? rawClustersPerRecord * clusterBytes
+            : 1 << (-rawClustersPerRecord);
+
+        var mftBase = mftCluster * clusterBytes;
+        var mirrorBase = mirrorCluster * clusterBytes;
+
+        for (var record = 0; record < 4; ++record)
+        {
+            var mftSlice = image.AsSpan((int)(mftBase + record * recordSize), recordSize);
+            var mirrorSlice = image.AsSpan((int)(mirrorBase + record * recordSize), recordSize);
+
+            Assert.True(mftSlice.SequenceEqual(mirrorSlice),
+                $"$MFTMirr does not match $MFT for record {record}");
+        }
+    }
 }
