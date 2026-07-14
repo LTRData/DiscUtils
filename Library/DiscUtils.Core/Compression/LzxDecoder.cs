@@ -236,7 +236,7 @@ internal ref struct LzxDecoder
 
         if ((blockSize & 1) != 0)
         {
-            if (!reader.TryReadRawByte(out _))
+            if (remainingOutput - bytesToStore > 0 && !reader.TryReadRawByte(out _))
             {
                 return false;
             }
