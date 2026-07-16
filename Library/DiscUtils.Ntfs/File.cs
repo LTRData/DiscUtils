@@ -20,17 +20,19 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
+using DiscUtils.Internal;
+using DiscUtils.Ntfs.Internals;
+using DiscUtils.Streams;
+using DiscUtils.Streams.Compatibility;
+using LTRData.Extensions.Buffers;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using DiscUtils.Internal;
-using DiscUtils.Ntfs.Internals;
-using DiscUtils.Streams;
-using DiscUtils.Streams.Compatibility;
 using Buffer = DiscUtils.Streams.Buffer;
 
 namespace DiscUtils.Ntfs;
@@ -309,6 +311,10 @@ internal class File
         MftRecordIsDirty = true;
     }
 
+#if DEBUG
+    private int maxRecordSizeSeen;
+#endif
+
     public void UpdateRecordInMft()
     {
         if (MftRecordIsDirty)
@@ -322,30 +328,39 @@ internal class File
             }
 
             var fixesApplied = true;
+
             while (fixesApplied)
             {
                 fixesApplied = false;
 
-                for (var i = 0; i < _records.Count; ++i)
+                foreach (var record in _records)
                 {
-                    var record = _records[i];
-
-                    var fixedAttribute = true;
-                    while (record.Size > _mft.RecordSize && fixedAttribute)
+                    while (record.Size > _mft.RecordSize)
                     {
-                        fixedAttribute = false;
+#if DEBUG
+                        var recordSize = record.Size;
 
-                        if (!fixedAttribute && !record.IsMftRecord)
+                        if (recordSize > maxRecordSizeSeen)
+                        {
+                            maxRecordSizeSeen = recordSize;
+
+                            Trace.WriteLine($"Largest MFT record so far: {recordSize} bytes ({record.MasterFileTableIndex})");
+                        }
+#endif
+
+                        var fixedAttribute = false;
+
+                        if (!record.IsMftRecord)
                         {
                             foreach (var attr in record.Attributes)
                             {
                                 if (!attr.IsNonResident &&
                                     !_context.AttributeDefinitions.MustBeResident(attr.AttributeType))
                                 {
-                                    MakeAttributeNonResident(
-                                        new AttributeReference(record.Reference, attr.AttributeId),
-                                        (int)attr.DataLength);
+                                    MakeAttributeNonResident(new AttributeReference(record.Reference, attr.AttributeId), (int)attr.DataLength);
+
                                     fixedAttribute = true;
+
                                     break;
                                 }
                             }
@@ -359,6 +374,7 @@ internal class File
                                     && ShrinkIndexRoot(attr.Name))
                                 {
                                     fixedAttribute = true;
+
                                     break;
                                 }
                             }
@@ -381,17 +397,50 @@ internal class File
                             }
                         }
 
-                        fixesApplied |= fixedAttribute;
+                        if (!fixedAttribute)
+                        {
+                            throw CreateMftRecordOverflowException(record);
+                        }
+
+                        fixesApplied = true;
+                    }
+
+                    if (fixesApplied)
+                    {
+                        break;
                     }
                 }
             }
 
             MftRecordIsDirty = false;
+
             foreach (var record in _records)
             {
                 _mft.WriteRecord(record);
             }
         }
+    }
+
+    private IOException CreateMftRecordOverflowException(FileRecord record)
+    {
+        var attributes = string.Join(
+            ", ",
+            record.Attributes.Select(
+                attr =>
+                    $"{attr.AttributeType}" +
+                    $" id={attr.AttributeId}" +
+                    $" size={attr.Size}" +
+                    $" resident={!attr.IsNonResident}" +
+                    (attr is NonResidentAttributeRecord nonResident
+                        ? $" runs={nonResident.DataRuns.Count}"
+                        : string.Empty)));
+
+        return new IOException(
+            $"Unable to reduce MFT record " +
+            $"{record.MasterFileTableIndex} to the configured size. " +
+            $"Actual size: {record.Size}, " +
+            $"maximum size: {_mft.RecordSize}. " +
+            $"Attributes: {attributes}");
     }
 
     public Index CreateIndex(string name, AttributeType attrType, AttributeCollationRule collRule)
@@ -958,45 +1007,44 @@ internal class File
 
     private bool ExpelAttribute(FileRecord record)
     {
+        var attrs = record.Attributes;
+
         if (record.MasterFileTableIndex == MasterFileTable.MftIndex)
         {
             // Special case for MFT - can't fully expel attributes, instead split most of the data runs off.
-            var attrs = record.Attributes;
-            for (var i = attrs.Count - 1; i >= 0; --i)
+            var mftCandidate = attrs
+                .OfType<NonResidentAttributeRecord>()
+                .Where(attr => attr.DataRuns.Count > 1
+                    && attr.AttributeType is AttributeType.Data or AttributeType.Bitmap)
+                .MaxBy(attr => attr.Size);
+
+            return mftCandidate is not null
+                && SplitAttribute(record, mftCandidate, atStart: true);
+        }
+
+        for (var i = attrs.Count - 1; i >= 0; --i)
+        {
+            var attr = attrs[i];
+            if (attr.AttributeType > AttributeType.AttributeList)
             {
-                var attr = attrs[i];
-                if (attr.AttributeType == AttributeType.Data)
+                foreach (var targetRecord in _records)
                 {
-                    if (SplitAttribute(record, (NonResidentAttributeRecord)attr, true))
+                    if (_mft.RecordSize - targetRecord.Size >= attr.Size)
                     {
+                        MoveAttribute(record, attr, targetRecord);
                         return true;
                     }
                 }
-            }
-        }
-        else
-        {
-            var attrs = record.Attributes;
-            for (var i = attrs.Count - 1; i >= 0; --i)
-            {
-                var attr = attrs[i];
-                if (attr.AttributeType > AttributeType.AttributeList)
-                {
-                    foreach (var targetRecord in _records)
-                    {
-                        if (_mft.RecordSize - targetRecord.Size >= attr.Size)
-                        {
-                            MoveAttribute(record, attr, targetRecord);
-                            return true;
-                        }
-                    }
 
-                    var newFileRecord = _mft.AllocateRecord(FileRecordFlags.None, record.IsMftRecord);
-                    newFileRecord.BaseFile = record.Reference;
-                    _records.Add(newFileRecord);
-                    MoveAttribute(record, attr, newFileRecord);
-                    return true;
-                }
+                var newFileRecord = _mft.AllocateRecord(FileRecordFlags.None, record.IsMftRecord);
+                
+                newFileRecord.BaseFile = record.Reference;
+                
+                _records.Add(newFileRecord);
+                
+                MoveAttribute(record, attr, newFileRecord);
+
+                return true;
             }
         }
 
@@ -1048,9 +1096,17 @@ internal class File
                 }
             }
 
-            StructuredNtfsAttribute<AttributeList> alAttr;
-            alAttr = (StructuredNtfsAttribute<AttributeList>)GetAttribute(AttributeType.AttributeList, null);
+            var alAttr = (StructuredNtfsAttribute<AttributeList>)GetAttribute(AttributeType.AttributeList, null);
+
+            if (alAttr is null)
+            {
+                CreateAttributeList();
+
+                alAttr = (StructuredNtfsAttribute<AttributeList>)GetAttribute(AttributeType.AttributeList, null);
+            }
+
             alAttr.Content = attrList;
+            
             alAttr.Save();
         }
     }

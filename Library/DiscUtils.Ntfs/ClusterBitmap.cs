@@ -94,9 +94,10 @@ internal class ClusterBitmap : IDisposable
     /// <param name="count">The number of clusters to allocate.</param>
     /// <param name="proposedStart">The proposed start cluster (or -1).</param>
     /// <param name="isMft"><c>true</c> if this attribute is the $MFT\$DATA attribute.</param>
-    /// <param name="total">The total number of clusters in the file, including this allocation.</param>
+    /// <param name="currentAllocation">The number of clusters currently allocated to the file,
+    /// before this allocation.</param>
     /// <returns>The list of cluster allocations.</returns>
-    public List<Range<long, long>> AllocateClusters(long count, long proposedStart, bool isMft, long total)
+    public List<Range<long, long>> AllocateClusters(long count, long proposedStart, bool isMft, long currentAllocation)
     {
         var result = new List<Range<long, long>>();
 
@@ -135,7 +136,7 @@ internal class ClusterBitmap : IDisposable
             if (numFound < count && !_fragmentedDiskMode)
             {
                 numFound += FindClusters(count - numFound, result, totalClusters / 8, totalClusters, isMft, true,
-                    total / 4);
+                    currentAllocation / 4);
             }
 
             if (numFound < count)
@@ -145,18 +146,18 @@ internal class ClusterBitmap : IDisposable
 
             if (numFound < count)
             {
-                numFound = FindClusters(count - numFound, result, totalClusters / 16, totalClusters / 8, isMft, false, 0);
+                numFound += FindClusters(count - numFound, result, totalClusters / 16, totalClusters / 8, isMft, false, 0);
             }
 
             if (numFound < count)
             {
-                numFound = FindClusters(count - numFound, result, totalClusters / 32, totalClusters / 16, isMft, false,
+                numFound += FindClusters(count - numFound, result, totalClusters / 32, totalClusters / 16, isMft, false,
                     0);
             }
 
             if (numFound < count)
             {
-                numFound = FindClusters(count - numFound, result, 0, totalClusters / 32, isMft, false, 0);
+                numFound += FindClusters(count - numFound, result, 0, totalClusters / 32, isMft, false, 0);
             }
         }
 

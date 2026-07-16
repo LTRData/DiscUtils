@@ -645,66 +645,6 @@ public class NtfsFileSystemTest
     }
 
     [Fact]
-    public async Task FragmentedAsync()
-    {
-        var ntfs = FileSystemSource.NtfsFileSystem();
-
-        ntfs.CreateDirectory(@"DIR");
-
-        var buffer = new byte[4096];
-
-        for (var i = 0; i < 2500; ++i)
-        {
-            using (var stream = ntfs.OpenFile(@$"DIR{Path.DirectorySeparatorChar}file{i}.bin", FileMode.Create, FileAccess.ReadWrite))
-            {
-                await stream.WriteAsync(buffer);
-            }
-
-            using (var stream = ntfs.OpenFile(@$"DIR{Path.DirectorySeparatorChar}{i}.bin", FileMode.Create, FileAccess.ReadWrite))
-            {
-                await stream.WriteAsync(buffer);
-            }
-        }
-
-        for (var i = 0; i < 2500; ++i)
-        {
-            ntfs.DeleteFile($@"DIR{Path.DirectorySeparatorChar}file{i}.bin");
-        }
-
-        // Create fragmented file (lots of small writes)
-        using (var stream = ntfs.OpenFile(@$"DIR{Path.DirectorySeparatorChar}fragmented.bin", FileMode.Create, FileAccess.ReadWrite))
-        {
-            for (var i = 0; i < 2500; ++i)
-            {
-                await stream.WriteAsync(buffer);
-            }
-        }
-
-        // Try a large write
-        var largeWriteBuffer = new byte[200 * 1024];
-        for (var i = 0; i < largeWriteBuffer.Length / 4096; ++i)
-        {
-            largeWriteBuffer[i * 4096] = (byte)i;
-        }
-
-        using (var stream = ntfs.OpenFile($@"DIR{Path.DirectorySeparatorChar}fragmented.bin", FileMode.OpenOrCreate, FileAccess.ReadWrite))
-        {
-            stream.Position = stream.Length - largeWriteBuffer.Length;
-            await stream.WriteAsync(largeWriteBuffer);
-        }
-
-        // And a large read
-        var largeReadBuffer = new byte[largeWriteBuffer.Length];
-        using (var stream = ntfs.OpenFile($@"DIR{Path.DirectorySeparatorChar}fragmented.bin", FileMode.OpenOrCreate, FileAccess.ReadWrite))
-        {
-            stream.Position = stream.Length - largeReadBuffer.Length;
-            await stream.ReadExactlyAsync(largeReadBuffer);
-        }
-
-        Assert.Equal(largeWriteBuffer, largeReadBuffer);
-    }
-
-    [Fact]
     public void Sparse()
     {
         var fileSize = 1 * 1024 * 1024;

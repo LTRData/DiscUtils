@@ -108,6 +108,8 @@ internal class MasterFileTable : IDiagnosticTraceable, IDisposable
 
     private Bitmap _bitmap;
     private int _bytesPerSector;
+    private int _sectorsPerCluster;
+    private long BytesPerCluster => (long)_bytesPerSector * _sectorsPerCluster;
     private readonly ObjectCache<long, FileRecord> _recordCache;
     private readonly NtfsOptions _options;
 
@@ -124,6 +126,7 @@ internal class MasterFileTable : IDiagnosticTraceable, IDisposable
         _recordCache = new ObjectCache<long, FileRecord>();
         RecordSize = bpb.MftRecordSize;
         _bytesPerSector = bpb.BytesPerSector;
+        _sectorsPerCluster = bpb.SectorsPerCluster;
 
         // Temporary record stream - until we've bootstrapped the MFT properly
         _recordStream = new SubStream(context.RawStream, bpb.MftCluster * bpb.SectorsPerCluster * bpb.BytesPerSector,
@@ -268,6 +271,32 @@ internal class MasterFileTable : IDiagnosticTraceable, IDisposable
         return _self;
     }
 
+    // Note: 64 is significant, since bitmap extends by a multiple of 8 bytes (=64 bits) at a time.
+    private const long MinimumMftGrowthRecords = 64;
+
+    private const long MaximumMftGrowthBytes = 4 * Sizes.OneMiB;
+
+    private long GetMftGrowthRecords()
+    {
+        const long minimumGrowthRecords = 64;
+
+        var currentRecords = _recordStream.Length / RecordSize;
+        var maximumByBytes = Math.Max(minimumGrowthRecords, 4 * Sizes.OneMiB / RecordSize);
+
+        var totalClusters = _recordStream.Length / BytesPerCluster;
+
+        // Never reserve more than about 1/128 of the volume in one MFT extension.
+        var maximumGrowthBytesByVolume = totalClusters * BytesPerCluster / 128;
+
+        var maximumByVolume = Math.Max(minimumGrowthRecords, maximumGrowthBytesByVolume / RecordSize);
+
+        var maximumGrowthRecords = Math.Min(maximumByBytes, maximumByVolume);
+
+        var growthRecords = Math.Max(minimumGrowthRecords, Math.Min(currentRecords / 8, maximumGrowthRecords));
+
+        return MathUtilities.RoundUp(growthRecords, minimumGrowthRecords);
+    }
+
     public FileRecord AllocateRecord(FileRecordFlags flags, bool isMft)
     {
         long index;
@@ -295,9 +324,20 @@ internal class MasterFileTable : IDiagnosticTraceable, IDisposable
 
         if (index * RecordSize >= _recordStream.Length)
         {
-            // Note: 64 is significant, since bitmap extends by 8 bytes (=64 bits) at a time.
-            var newEndIndex = MathUtilities.RoundUp(index + 1, 64);
+            var currentRecordCount = _recordStream.Length / RecordSize;
+            var requiredRecordCount = index + 1;
+            var growthRecordCount = GetMftGrowthRecords();
+
+            var newEndIndex = Math.Max(
+                requiredRecordCount,
+                currentRecordCount + growthRecordCount);
+
+            newEndIndex = MathUtilities.RoundUp(
+                newEndIndex,
+                MinimumMftGrowthRecords);
+
             _recordStream.SetLength(newEndIndex * RecordSize);
+
             for (var i = index; i < newEndIndex; ++i)
             {
                 var record = new FileRecord(_bytesPerSector, RecordSize, (uint)i);
@@ -404,8 +444,7 @@ internal class MasterFileTable : IDiagnosticTraceable, IDisposable
 
     public void WriteRecord(FileRecord record)
     {
-        var recordSize = record.Size;
-        if (recordSize > RecordSize)
+        if (record.Size > RecordSize)
         {
             throw new IOException("Attempting to write over-sized MFT record");
         }
