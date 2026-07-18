@@ -149,7 +149,7 @@ internal class NtfsFormatter
             var volNameStream = volumeFile.CreateStream(AttributeType.VolumeName, null);
             volNameStream.SetContent(new VolumeName(Label ?? "New Volume"));
             var volInfoStream = volumeFile.CreateStream(AttributeType.VolumeInformation, null);
-            volInfoStream.SetContent(new VolumeInformation(3, 1, VolumeInformationFlags.None));
+            volInfoStream.SetContent(new VolumeInformation(major: 3, minor: 1, VolumeInformationFlags.None));
             SetSecurityAttribute(volumeFile, $"O:{localAdminString}G:BAD:(A;;0x12019f;;;SY)(A;;0x12019f;;;BA)");
             volumeFile.UpdateRecordInMft();
 
