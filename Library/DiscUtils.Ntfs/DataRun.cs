@@ -21,6 +21,7 @@
 //
 
 using System;
+using System.Runtime.InteropServices.ComTypes;
 
 namespace DiscUtils.Ntfs;
 
@@ -77,25 +78,22 @@ public class DataRun
 
     private static long ReadVarLong(ReadOnlySpan<byte> buffer)
     {
-        ulong val = 0;
-        var signExtend = false;
-
-        for (var i = 0; i < buffer.Length; ++i)
+        if (buffer.IsEmpty)
         {
-            var b = buffer[i];
-            val |= ((ulong)b << (i * 8));
-            signExtend = (b & 0x80) != 0;
+            return 0;
         }
 
-        if (signExtend)
+        unchecked
         {
-            for (var i = buffer.Length; i < 8; ++i)
+            long value = (buffer[^1] & 0x80) != 0 ? -1L : 0L;
+
+            for (int i = buffer.Length - 1; i >= 0; --i)
             {
-                val |= ((ulong)0xFF << (i * 8));
+                value = (value << 8) | buffer[i];
             }
-        }
 
-        return (long)val;
+            return value;
+        }
     }
 
     private static int WriteVarLong(Span<byte> buffer, long val)

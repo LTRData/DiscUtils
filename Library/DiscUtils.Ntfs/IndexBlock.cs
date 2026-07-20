@@ -92,6 +92,8 @@ internal class IndexBlock : FixupRecordBase
         var buffer = ArrayPool<byte>.Shared.Rent(bufferSize);
         try
         {
+            Array.Clear(buffer, 0, bufferSize);
+
             ToBytes(buffer);
 
             var stream = _index.AllocationStream;

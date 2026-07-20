@@ -194,7 +194,12 @@ internal abstract class FixupRecordBase
 
     private void ProtectBuffer(Span<byte> buffer)
     {
-        UpdateSequenceNumber++;
+        unchecked
+        {
+            while (++UpdateSequenceNumber == 0)
+            {
+            }
+        }
 
         // Read in the bytes that are replaced by the USN
         for (var i = 0; i < _updateSequenceArray.Length; ++i)

@@ -1018,8 +1018,15 @@ internal class File
                     && attr.AttributeType is AttributeType.Data or AttributeType.Bitmap)
                 .MaxBy(attr => attr.Size);
 
-            return mftCandidate is not null
+            var result = mftCandidate is not null
                 && SplitAttribute(record, mftCandidate, atStart: true);
+
+            if (result)
+            {
+                _indexCache.Clear();
+            }
+
+            return result;
         }
 
         for (var i = attrs.Count - 1; i >= 0; --i)
@@ -1032,6 +1039,9 @@ internal class File
                     if (_mft.RecordSize - targetRecord.Size >= attr.Size)
                     {
                         MoveAttribute(record, attr, targetRecord);
+
+                        _indexCache.Clear();
+
                         return true;
                     }
                 }
@@ -1043,6 +1053,8 @@ internal class File
                 _records.Add(newFileRecord);
                 
                 MoveAttribute(record, attr, newFileRecord);
+
+                _indexCache.Clear();
 
                 return true;
             }

@@ -20,12 +20,15 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
+using DiscUtils.Internal;
+using DiscUtils.Streams;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
-using DiscUtils.Internal;
-using DiscUtils.Streams;
+using System.Net;
+using System.Reflection;
 
 namespace DiscUtils.Ntfs;
 
