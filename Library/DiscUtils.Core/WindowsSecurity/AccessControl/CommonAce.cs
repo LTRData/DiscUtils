@@ -1,4 +1,5 @@
 using System;
+using System.Buffers.Binary;
 
 namespace DiscUtils.Core.WindowsSecurity.AccessControl;
 
@@ -34,7 +35,7 @@ public sealed class CommonAce : QualifiedAce
     internal CommonAce(ReadOnlySpan<byte> binaryForm)
         : base(binaryForm)
     {
-        int len = ReadUShort(binaryForm[2..]);
+        int len = BinaryPrimitives.ReadUInt16LittleEndian(binaryForm[2..]);
         if (len > binaryForm.Length)
         {
             throw new ArgumentException("Invalid ACE - truncated", nameof(binaryForm));
@@ -45,7 +46,7 @@ public sealed class CommonAce : QualifiedAce
             throw new ArgumentException("Invalid ACE", nameof(binaryForm));
         }
 
-        AccessMask = ReadInt(binaryForm[4..]);
+        AccessMask = BinaryPrimitives.ReadInt32LittleEndian(binaryForm[4..]);
         SecurityIdentifier = new SecurityIdentifier(binaryForm[8..]);
 
         var opaqueLen = len - (8 + SecurityIdentifier.BinaryLength);
@@ -61,8 +62,8 @@ public sealed class CommonAce : QualifiedAce
         var len = BinaryLength;
         binaryForm[0] = (byte)AceType;
         binaryForm[1] = (byte)AceFlags;
-        WriteUShort((ushort)len, binaryForm[2..]);
-        WriteInt(AccessMask, binaryForm[4..]);
+        BinaryPrimitives.WriteUInt16LittleEndian(binaryForm[2..], (ushort)len);
+        BinaryPrimitives.WriteInt32LittleEndian(binaryForm[4..], AccessMask);
 
         SecurityIdentifier!.GetBinaryForm(binaryForm[8..]);
 

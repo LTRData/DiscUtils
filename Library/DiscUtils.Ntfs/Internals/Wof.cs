@@ -103,7 +103,7 @@ internal static class Wof
 
         byte[] allocated = null;
 
-        var chunkTableBytes = chunkTableSize >= 512
+        var chunkTableBytes = chunkTableSize > 512
             ? (allocated = ArrayPool<byte>.Shared.Rent(chunkTableSize)).AsSpan(0, chunkTableSize)
             : stackalloc byte[chunkTableSize];
 

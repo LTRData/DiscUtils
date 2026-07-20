@@ -84,11 +84,11 @@ internal class BiosPartitionRecord : IComparable<BiosPartitionRecord>
         buffer[0] = Status;
         buffer[1] = StartHead;
         buffer[2] = (byte)((StartSector & 0x3F) | ((StartCylinder >> 2) & 0xC0));
-        buffer[3] = (byte)StartCylinder;
+        buffer[3] = (byte)(StartCylinder & 0xff);
         buffer[4] = PartitionType;
         buffer[5] = EndHead;
         buffer[6] = (byte)((EndSector & 0x3F) | ((EndCylinder >> 2) & 0xC0));
-        buffer[7] = (byte)EndCylinder;
+        buffer[7] = (byte)(EndCylinder & 0xff);
         EndianUtilities.WriteBytesLittleEndian(LBAStart, buffer[8..]);
         EndianUtilities.WriteBytesLittleEndian(LBALength, buffer[12..]);
     }

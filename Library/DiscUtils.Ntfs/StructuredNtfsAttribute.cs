@@ -70,7 +70,7 @@ internal class StructuredNtfsAttribute<T> : NtfsAttribute
     {
         byte[] allocated = null;
 
-        var buffer = _structure.Size <= 1024
+        var buffer = _structure.Size < 1024
             ? stackalloc byte[_structure.Size]
             : (allocated = ArrayPool<byte>.Shared.Rent(_structure.Size)).AsSpan(0, _structure.Size);
 

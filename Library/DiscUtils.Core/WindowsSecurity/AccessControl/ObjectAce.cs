@@ -1,5 +1,6 @@
 using DiscUtils.Streams;
 using System;
+using System.Buffers.Binary;
 
 namespace DiscUtils.Core.WindowsSecurity.AccessControl;
 
@@ -41,7 +42,7 @@ public sealed class ObjectAce : QualifiedAce
     internal ObjectAce(ReadOnlySpan<byte> binaryForm)
         : base(binaryForm)
     {
-        int len = ReadUShort(binaryForm[2..]);
+        int len = BinaryPrimitives.ReadUInt16LittleEndian(binaryForm[2..]);
         var lenMinimum = 12 + SecurityIdentifier.MinBinaryLength;
 
         if (len > binaryForm.Length)
@@ -54,8 +55,8 @@ public sealed class ObjectAce : QualifiedAce
             throw new ArgumentException("Invalid ACE", nameof(binaryForm));
         }
 
-        AccessMask = ReadInt(binaryForm[4..]);
-        ObjectAceFlags = (ObjectAceFlags)ReadInt(binaryForm[8..]);
+        AccessMask = BinaryPrimitives.ReadInt32LittleEndian(binaryForm[4..]);
+        ObjectAceFlags = (ObjectAceFlags)BinaryPrimitives.ReadInt32LittleEndian(binaryForm[8..]);
 
         if (ObjectAceTypePresent)
         {
@@ -129,11 +130,11 @@ public sealed class ObjectAce : QualifiedAce
         var len = BinaryLength;
         binaryForm[offset++] = (byte)AceType;
         binaryForm[offset++] = (byte)AceFlags;
-        WriteUShort((ushort)len, binaryForm[offset..]);
+        BinaryPrimitives.WriteUInt16LittleEndian(binaryForm[offset..], (ushort)len);
         offset += 2;
-        WriteInt(AccessMask, binaryForm[offset..]);
+        BinaryPrimitives.WriteInt32LittleEndian(binaryForm[offset..], AccessMask);
         offset += 4;
-        WriteInt((int)ObjectAceFlags, binaryForm[offset..]);
+        BinaryPrimitives.WriteInt32LittleEndian(binaryForm[offset..], (int)ObjectAceFlags);
         offset += 4;
 
         if (0 != (ObjectAceFlags & ObjectAceFlags.ObjectAceTypePresent))

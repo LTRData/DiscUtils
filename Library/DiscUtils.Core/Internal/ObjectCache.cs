@@ -154,4 +154,10 @@ internal class ObjectCache<K, V> where V : class where K : notnull
 
         _recent.Insert(0, new KeyValuePair<K, V>(key, val));
     }
+
+    internal void Clear()
+    {
+        _entries.Clear();
+        _recent.Clear();
+    }
 }

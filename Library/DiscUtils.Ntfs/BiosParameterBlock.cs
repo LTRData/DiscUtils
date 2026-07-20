@@ -219,7 +219,7 @@ internal class BiosParameterBlock
     {
         if (rawSize > 0x80)
         {
-            return 1 << -(sbyte)rawSize;
+            return 1 << unchecked(-(sbyte)rawSize);
         }
 
         return rawSize * SectorsPerCluster * BytesPerSector;
@@ -290,6 +290,6 @@ internal class BiosParameterBlock
             val++;
         }
 
-        return (byte)-val;
+        return unchecked((byte)-val);
     }
 }

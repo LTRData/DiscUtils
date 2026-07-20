@@ -210,7 +210,7 @@ internal sealed class Bitmap : IDisposable
                 var byteIdx = i / 8 - firstByte;
                 var mask = (byte)(1 << (byte)(i & 0x7));
 
-                buffer[byteIdx] &= (byte)~mask;
+                buffer[byteIdx] &= unchecked((byte)~mask);
             }
 
             SetBytes(firstByte, buffer, 0, bufferLength);

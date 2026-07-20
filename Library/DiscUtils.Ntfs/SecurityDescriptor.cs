@@ -114,7 +114,7 @@ internal sealed class SecurityDescriptor : IByteArraySerializable, IDiagnosticTr
         uint hash = 0;
         for (var i = 0; i < buffer.Length / 4; ++i)
         {
-            hash = EndianUtilities.ToUInt32LittleEndian(buffer[(i * 4)..]) + ((hash << 3) | (hash >> 29));
+            hash = unchecked(EndianUtilities.ToUInt32LittleEndian(buffer[(i * 4)..]) + ((hash << 3) | (hash >> 29)));
         }
 
         return hash;

@@ -80,7 +80,7 @@ internal sealed class SecurityDescriptors : IDiagnosticTraceable
 
         byte[] allocated = null;
 
-        var buffer = s.Length <= 1024
+        var buffer = s.Length < 1024
             ? stackalloc byte[(int)s.Length]
             : (allocated = ArrayPool<byte>.Shared.Rent((int)s.Length)).AsSpan(0, (int)s.Length);
 
@@ -142,7 +142,7 @@ internal sealed class SecurityDescriptors : IDiagnosticTraceable
     {
         byte[] allocated = null;
 
-        var storedByteForm = securityDescriptor.Size <= 1024
+        var storedByteForm = securityDescriptor.Size < 1024
             ? stackalloc byte[securityDescriptor.Size]
             : (allocated = ArrayPool<byte>.Shared.Rent(securityDescriptor.Size)).AsSpan(0, securityDescriptor.Size);
 
@@ -174,7 +174,7 @@ internal sealed class SecurityDescriptors : IDiagnosticTraceable
 
         byte[] allocated = null;
 
-        var newByteForm = newDescObj.Size <= 1024
+        var newByteForm = newDescObj.Size < 1024
             ? stackalloc byte[newDescObj.Size]
             : (allocated = ArrayPool<byte>.Shared.Rent(newDescObj.Size)).AsSpan(0, newDescObj.Size);
 
@@ -214,7 +214,7 @@ internal sealed class SecurityDescriptors : IDiagnosticTraceable
 
             byte[] allocated2 = null;
 
-            var buffer = record.Size <= 1024
+            var buffer = record.Size < 1024
                 ? stackalloc byte[record.Size]
                 : (allocated2 = ArrayPool<byte>.Shared.Rent(record.Size)).AsSpan(0, record.Size);
 

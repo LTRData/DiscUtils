@@ -499,10 +499,10 @@ public sealed class SecurityIdentifier : IdentityReference, IComparable<Security
 
             // Note sub authorities little-endian!
             var offset = 8 + (i * 4);
-            buffer[offset + 0] = (byte)(subAuthority >> 0);
-            buffer[offset + 1] = (byte)(subAuthority >> 8);
-            buffer[offset + 2] = (byte)(subAuthority >> 16);
-            buffer[offset + 3] = (byte)(subAuthority >> 24);
+            buffer[offset + 0] = (byte)((subAuthority >> 0) & 0xff);
+            buffer[offset + 1] = (byte)((subAuthority >> 8) & 0xff);
+            buffer[offset + 2] = (byte)((subAuthority >> 16) & 0xff);
+            buffer[offset + 3] = (byte)((subAuthority >> 24) & 0xff);
         }
 
         return buffer;
