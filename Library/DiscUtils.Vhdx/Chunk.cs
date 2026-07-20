@@ -66,7 +66,7 @@ public sealed class Chunk
         var batBuffer = ArrayPool<byte>.Shared.Rent(chunkBatSize);
         try
         {
-            var length = bat.ReadMaximum(batBuffer);
+            var length = _bat.ReadMaximum(batBuffer, 0, chunkBatSize);
             _batData = batBuffer.AsSpan(0, length).ToArray();
         }
         finally
