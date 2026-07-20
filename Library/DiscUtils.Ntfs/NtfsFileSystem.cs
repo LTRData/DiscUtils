@@ -2298,7 +2298,7 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
                 }
             }
 
-            if (subFolders && isDir)
+            if (subFolders && isDir && de.Reference.MftIndex != MasterFileTable.RootDirIndex)
             {
                 foreach (var subdirentry in DoSearch(Utilities.CombinePaths(path, de.Details.FileName), filter, subFolders, dirs, files, filterEntry))
                 {
