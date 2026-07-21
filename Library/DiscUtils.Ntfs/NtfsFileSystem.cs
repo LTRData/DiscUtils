@@ -990,7 +990,7 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
                     }
 
                     return new CachedDiscFileInfo(this, path, dirEntry.Value.Details.FileAttributes,
-                                               dirEntry.Value.Details.ModificationTime, dirEntry.Value.Details.ModificationTime,
+                                               dirEntry.Value.Details.CreationTime, dirEntry.Value.Details.LastAccessTime,
                                                dirEntry.Value.Details.ModificationTime, (long)dirEntry.Value.Details.RealSize);
                 }
 
@@ -999,8 +999,8 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
                 var attr = file.GetAttribute(attributeType, attributeName);
                 if (attr != null)
                 {
-                    return new CachedDiscFileInfo(this, path, dirEntry.Value.Details.FileAttributes, dirEntry.Value.Details.ModificationTime,
-                                               dirEntry.Value.Details.ModificationTime, dirEntry.Value.Details.ModificationTime, attr.Length);
+                    return new CachedDiscFileInfo(this, path, dirEntry.Value.Details.FileAttributes, dirEntry.Value.Details.CreationTime,
+                                               dirEntry.Value.Details.LastAccessTime, dirEntry.Value.Details.ModificationTime, attr.Length);
                 }
             }
             catch
@@ -1032,12 +1032,12 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
                     if (dirEntry.Value.Details.FileAttributes.HasFlag(FileAttributes.Directory))
                     {
                         return new CachedDiscDirectoryInfo(this, path, dirEntry.Value.Details.FileAttributes,
-                                                        dirEntry.Value.Details.ModificationTime, dirEntry.Value.Details.ModificationTime,
+                                                        dirEntry.Value.Details.CreationTime, dirEntry.Value.Details.LastAccessTime,
                                                         dirEntry.Value.Details.ModificationTime);
                     }
 
                     return new CachedDiscFileInfo(this, path, dirEntry.Value.Details.FileAttributes,
-                                               dirEntry.Value.Details.ModificationTime, dirEntry.Value.Details.ModificationTime,
+                                               dirEntry.Value.Details.CreationTime, dirEntry.Value.Details.LastAccessTime,
                                                dirEntry.Value.Details.ModificationTime, (long)dirEntry.Value.Details.RealSize);
                 }
 
