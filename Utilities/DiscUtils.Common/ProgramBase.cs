@@ -262,7 +262,7 @@ public abstract class ProgramBase
     protected virtual void DisplayHeader()
     {
         Console.WriteLine($"{ExeName} v{Version}, available from https://github.com/LTRData/DiscUtils");
-        Console.WriteLine("Copyright (c) Kenneth Bell, Olof Lagerkvist and contributors, 2008-2025");
+        Console.WriteLine("Copyright (c) Kenneth Bell, Olof Lagerkvist and contributors, 2008-2026");
         Console.WriteLine("Free software issued under the MIT License, see LICENSE.TXT for details.");
         Console.WriteLine();
     }
