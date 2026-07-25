@@ -21,6 +21,8 @@
 //
 
 using System;
+using System.Numerics;
+using System.Runtime.CompilerServices;
 
 namespace DiscUtils.Streams;
 
@@ -32,9 +34,34 @@ public static class MathUtilities
     /// <param name="value">The value to round up.</param>
     /// <param name="unit">The unit (the returned value will be a multiple of this number).</param>
     /// <returns>The rounded-up value.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static long RoundUp(long value, long unit)
     {
-        return (value + (unit - 1)) / unit * unit;
+#if NET8_0_OR_GREATER
+        ArgumentOutOfRangeException.ThrowIfNegative(value);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(unit);
+#else
+        if (value < 0) throw new ArgumentOutOfRangeException(nameof(value));
+        if (unit <= 0) throw new ArgumentOutOfRangeException(nameof(unit));
+#endif
+
+        if (IsPowerOfTwo((ulong)unit))
+        {
+            var mask = unit - 1;
+
+            if ((value & mask) == 0)
+            {
+                return value;
+            }
+
+            return checked((value | mask) + 1);
+        }
+
+        var remainder = value % unit;
+
+        return remainder == 0
+            ? value
+            : checked(value + unit - remainder);
     }
 
     /// <summary>
@@ -43,9 +70,34 @@ public static class MathUtilities
     /// <param name="value">The value to round up.</param>
     /// <param name="unit">The unit (the returned value will be a multiple of this number).</param>
     /// <returns>The rounded-up value.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int RoundUp(int value, int unit)
     {
-        return (value + (unit - 1)) / unit * unit;
+#if NET8_0_OR_GREATER
+        ArgumentOutOfRangeException.ThrowIfNegative(value);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(unit);
+#else
+        if (value < 0) throw new ArgumentOutOfRangeException(nameof(value));
+        if (unit <= 0) throw new ArgumentOutOfRangeException(nameof(unit));
+#endif
+
+        if (IsPowerOfTwo((uint)unit))
+        {
+            var mask = unit - 1;
+
+            if ((value & mask) == 0)
+            {
+                return value;
+            }
+
+            return checked((value | mask) + 1);
+        }
+
+        var remainder = value % unit;
+
+        return remainder == 0
+            ? value
+            : checked(value + unit - remainder);
     }
 
     /// <summary>
@@ -54,9 +106,48 @@ public static class MathUtilities
     /// <param name="value">The value to round down.</param>
     /// <param name="unit">The unit (the returned value will be a multiple of this number).</param>
     /// <returns>The rounded-down value.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static long RoundDown(long value, long unit)
     {
-        return value / unit * unit;
+#if NET8_0_OR_GREATER
+        ArgumentOutOfRangeException.ThrowIfNegative(value);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(unit);
+#else
+        if (value < 0) throw new ArgumentOutOfRangeException(nameof(value));
+        if (unit <= 0) throw new ArgumentOutOfRangeException(nameof(unit));
+#endif
+
+        if (IsPowerOfTwo((ulong)unit))
+        {
+            return value & ~(unit - 1);
+        }
+
+        return value - value % unit;
+    }
+
+    /// <summary>
+    /// Round down a value to a multiple of a unit size.
+    /// </summary>
+    /// <param name="value">The value to round down.</param>
+    /// <param name="unit">The unit (the returned value will be a multiple of this number).</param>
+    /// <returns>The rounded-down value.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int RoundDown(int value, int unit)
+    {
+#if NET8_0_OR_GREATER
+        ArgumentOutOfRangeException.ThrowIfNegative(value);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(unit);
+#else
+        if (value < 0) throw new ArgumentOutOfRangeException(nameof(value));
+        if (unit <= 0) throw new ArgumentOutOfRangeException(nameof(unit));
+#endif
+
+        if (IsPowerOfTwo((uint)unit))
+        {
+            return value & ~(unit - 1);
+        }
+
+        return value - value % unit;
     }
 
     /// <summary>
@@ -65,9 +156,28 @@ public static class MathUtilities
     /// <param name="numerator">The value to divide.</param>
     /// <param name="denominator">The value to divide by.</param>
     /// <returns>The value of CEIL(numerator/denominator).</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int Ceil(int numerator, int denominator)
     {
-        return (numerator + (denominator - 1)) / denominator;
+#if NET8_0_OR_GREATER
+        ArgumentOutOfRangeException.ThrowIfNegative(numerator);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(denominator);
+#else
+        if (numerator < 0) throw new ArgumentOutOfRangeException(nameof(numerator));
+        if (denominator <= 0) throw new ArgumentOutOfRangeException(nameof(denominator));
+#endif
+
+        if (IsPowerOfTwo(denominator))
+        {
+            var mask = denominator - 1;
+            var shift = Log2(denominator);
+
+            return (numerator >> shift)
+                 + ((numerator & mask) != 0 ? 1 : 0);
+        }
+
+        var quotient = Math.DivRem(numerator, denominator, out var remainder);
+        return quotient + (remainder != 0 ? 1 : 0);
     }
 
     /// <summary>
@@ -76,9 +186,28 @@ public static class MathUtilities
     /// <param name="numerator">The value to divide.</param>
     /// <param name="denominator">The value to divide by.</param>
     /// <returns>The value of CEIL(numerator/denominator).</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static uint Ceil(uint numerator, uint denominator)
     {
-        return (numerator + (denominator - 1)) / denominator;
+#if NET8_0_OR_GREATER
+        ArgumentOutOfRangeException.ThrowIfNegative(numerator);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(denominator);
+#else
+        if (numerator < 0) throw new ArgumentOutOfRangeException(nameof(numerator));
+        if (denominator <= 0) throw new ArgumentOutOfRangeException(nameof(denominator));
+#endif
+
+        if (IsPowerOfTwo(denominator))
+        {
+            var mask = denominator - 1;
+            var shift = Log2(denominator);
+
+            return (numerator >> shift)
+                 + ((numerator & mask) != 0 ? 1u : 0u);
+        }
+
+        var quotient = Math.DivRem(numerator, denominator, out var remainder);
+        return (uint)(quotient + (remainder != 0 ? 1 : 0));
     }
 
     /// <summary>
@@ -87,38 +216,84 @@ public static class MathUtilities
     /// <param name="numerator">The value to divide.</param>
     /// <param name="denominator">The value to divide by.</param>
     /// <returns>The value of CEIL(numerator/denominator).</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static long Ceil(long numerator, long denominator)
     {
-        return (numerator + (denominator - 1)) / denominator;
+#if NET8_0_OR_GREATER
+        ArgumentOutOfRangeException.ThrowIfNegative(numerator);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(denominator);
+#else
+        if (numerator < 0) throw new ArgumentOutOfRangeException(nameof(numerator));
+        if (denominator <= 0) throw new ArgumentOutOfRangeException(nameof(denominator));
+#endif
+
+        if (IsPowerOfTwo((ulong)denominator))
+        {
+            var mask = denominator - 1;
+            var shift = Log2((ulong)denominator);
+
+            return (numerator >> shift)
+                 + ((numerator & mask) != 0 ? 1 : 0);
+        }
+
+        var quotient = Math.DivRem(numerator, denominator, out var remainder);
+        return quotient + (remainder != 0 ? 1 : 0);
     }
 
+#if NET7_0_OR_GREATER
     public static int Log2(uint val)
     {
-        if (val == 0)
+        ArgumentOutOfRangeException.ThrowIfZero(val);
+
+        if (val <= 0 || !BitOperations.IsPow2(val))
         {
-            throw new ArgumentException("Cannot calculate log of Zero", nameof(val));
+            throw new ArgumentOutOfRangeException(nameof(val), "Value must be a positive power of two.");
         }
 
-        var result = 0;
-        while ((val & 1) != 1)
-        {
-            val >>= 1;
-            ++result;
-        }
-
-        if (val == 1)
-        {
-            return result;
-        }
-
-        throw new ArgumentException("Input is not a power of Two", nameof(val));
+        return BitOperations.Log2(val);
     }
 
     public static int Log2(int val)
     {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(val);
+
+        if (val == 0 || !BitOperations.IsPow2(val))
+        {
+            throw new ArgumentOutOfRangeException(nameof(val), "Value must be a positive power of two.");
+        }
+
+        return BitOperations.Log2(unchecked((uint)val));
+    }
+
+    public static int Log2(ulong val)
+    {
+        ArgumentOutOfRangeException.ThrowIfZero(val);
+
+        if (val <= 0 || !BitOperations.IsPow2(val))
+        {
+            throw new ArgumentOutOfRangeException(nameof(val), "Value must be a positive power of two.");
+        }
+
+        return BitOperations.Log2(val);
+    }
+
+    public static int Log2(long val)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(val);
+
+        if (val == 0 || !BitOperations.IsPow2(val))
+        {
+            throw new ArgumentOutOfRangeException(nameof(val), "Value must be a positive power of two.");
+        }
+
+        return BitOperations.Log2(unchecked((uint)val));
+    }
+#else
+    public static int Log2(uint val)
+    {
         if (val == 0)
         {
-            throw new ArgumentException("Cannot calculate log of Zero", nameof(val));
+            throw new ArgumentOutOfRangeException(nameof(val), "Cannot calculate log of Zero");
         }
 
         var result = 0;
@@ -133,18 +308,107 @@ public static class MathUtilities
             return result;
         }
 
-        throw new ArgumentException("Input is not a power of Two", nameof(val));
+        throw new ArgumentOutOfRangeException(nameof(val), "Input is not a power of Two");
     }
 
+    public static int Log2(int val)
+    {
+        if (val <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(val), "Cannot calculate log of Zero");
+        }
+
+        var result = 0;
+        while ((val & 1) != 1)
+        {
+            val >>= 1;
+            ++result;
+        }
+
+        if (val == 1)
+        {
+            return result;
+        }
+
+        throw new ArgumentOutOfRangeException(nameof(val), "Input is not a power of Two");
+    }
+
+    public static int Log2(ulong val)
+    {
+        if (val == 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(val), "Cannot calculate log of Zero");
+        }
+
+        var result = 0;
+        while ((val & 1) != 1)
+        {
+            val >>= 1;
+            ++result;
+        }
+
+        if (val == 1)
+        {
+            return result;
+        }
+
+        throw new ArgumentOutOfRangeException(nameof(val), "Input is not a power of Two");
+    }
+
+    public static int Log2(long val)
+    {
+        if (val <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(val), "Cannot calculate log of Zero");
+        }
+
+        var result = 0;
+        while ((val & 1) != 1)
+        {
+            val >>= 1;
+            ++result;
+        }
+
+        if (val == 1)
+        {
+            return result;
+        }
+
+        throw new ArgumentOutOfRangeException(nameof(val), "Input is not a power of Two");
+    }
+#endif
+
+#if NET6_0_OR_GREATER
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool IsPowerOfTwo(int bpbBytesPerSec)
+        => BitOperations.IsPow2(bpbBytesPerSec);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool IsPowerOfTwo(uint bpbBytesPerSec)
+        => BitOperations.IsPow2(bpbBytesPerSec);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool IsPowerOfTwo(long bpbBytesPerSec)
+        => BitOperations.IsPow2(bpbBytesPerSec);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool IsPowerOfTwo(ulong bpbBytesPerSec)
+        => BitOperations.IsPow2(bpbBytesPerSec);
+#else
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsPowerOfTwo(int bpbBytesPerSec) =>
-        // A number is a power of two if it is greater than 0 and the bitwise AND of the number and its predecessor is 0.
         bpbBytesPerSec > 0 && (bpbBytesPerSec & bpbBytesPerSec - 1) == 0;
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool IsPowerOfTwo(uint bpbBytesPerSec) =>
+        bpbBytesPerSec > 0 && (bpbBytesPerSec & bpbBytesPerSec - 1) == 0;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsPowerOfTwo(long bpbBytesPerSec) =>
-        // A number is a power of two if it is greater than 0 and the bitwise AND of the number and its predecessor is 0.
         bpbBytesPerSec > 0 && (bpbBytesPerSec & bpbBytesPerSec - 1) == 0;
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsPowerOfTwo(ulong bpbBytesPerSec) =>
-        // A number is a power of two if it is greater than 0 and the bitwise AND of the number and its predecessor is 0.
         (bpbBytesPerSec & bpbBytesPerSec - 1) == 0;
+#endif
 }
