@@ -30,6 +30,9 @@ namespace DiscUtils.Ntfs;
 
 internal class AttributeListRecord : IDiagnosticTraceable, IByteArraySerializable, IComparable<AttributeListRecord>
 {
+    // The fixed fields occupy 0x1A bytes; only the overall record is aligned to 8 bytes.
+    private const byte FixedHeaderSize = 0x1A;
+
     public ushort AttributeId;
     public FileRecordReference BaseFileReference;
     public string Name;
@@ -39,7 +42,7 @@ internal class AttributeListRecord : IDiagnosticTraceable, IByteArraySerializabl
     public ulong StartVcn;
     public AttributeType Type;
 
-    public int Size => MathUtilities.RoundUp(0x20 + (string.IsNullOrEmpty(Name) ? 0 : MemoryMarshal.AsBytes(Name.AsSpan()).Length), 8);
+    public int Size => MathUtilities.RoundUp(FixedHeaderSize + (string.IsNullOrEmpty(Name) ? 0 : MemoryMarshal.AsBytes(Name.AsSpan()).Length), 8);
 
     public int ReadFrom(ReadOnlySpan<byte> data)
     {
@@ -71,7 +74,7 @@ internal class AttributeListRecord : IDiagnosticTraceable, IByteArraySerializabl
 
     public void WriteTo(Span<byte> buffer)
     {
-        NameOffset = 0x20;
+        NameOffset = FixedHeaderSize;
         if (string.IsNullOrEmpty(Name))
         {
             NameLength = 0;
