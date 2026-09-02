@@ -21,7 +21,7 @@ Implementations of the ISO, UDF, FAT and NTFS file systems are fairly stable. Lo
 
 ### Wiki
 
-See more up to date documentation at the [Wiki](https://github.com/DiscUtils/DiscUtils/wiki)
+See more up to date documentation at the [LTRData DiscUtils Wiki](https://github.com/LTRData/DiscUtils/wiki). Developers moving from the original DiscUtils packages should start with the [migration guide](https://github.com/LTRData/DiscUtils/wiki/Migration-from-DiscUtils-to-LTRData.DiscUtils).
 
 ### Implementation in this repository
 
@@ -29,10 +29,10 @@ The DiscUtils library has been split into 25 independent projects, which can fun
 
 To work with this, four Meta packages have been created:
 
-* DiscUtils.Complete: Everything, like before
-* DiscUtils.Containers: such as VMDK, VHD, VHDX
-* DiscUtils.FileSystems: such as NTFS, FAT, EXT
-* DiscUtils.Transports: such as NFS
+* [LTRData.DiscUtils](https://www.nuget.org/packages/LTRData.DiscUtils): Everything, like before
+* [LTRData.DiscUtils.Containers](https://www.nuget.org/packages/LTRData.DiscUtils.Containers): such as VMDK, VHD and VHDX
+* [LTRData.DiscUtils.FileSystems](https://www.nuget.org/packages/LTRData.DiscUtils.FileSystems): such as NTFS, FAT and EXT
+* [LTRData.DiscUtils.Transports](https://www.nuget.org/packages/LTRData.DiscUtils.Transports): such as NFS
 
 #### Note on detections
 
@@ -43,10 +43,10 @@ DiscUtils has a number of detection helpers. These provide services like "which 
 Where `assembly` is the assembly you wish to register. Note that the metapackages have helpers:
 
 ```csharp
-SetupHelper.SetupComplete(); // From DiscUtils.Complete
-SetupHelper.SetupContainers(); // From DiscUtils.Containers
-SetupHelper.SetupFileSystems(); // From DiscUtils.FileSystems
-SetupHelper.SetupTransports(); // From DiscUtils.Transports
+SetupHelper.SetupComplete(); // From LTRData.DiscUtils
+SetupHelper.SetupContainers(); // From LTRData.DiscUtils.Containers
+SetupHelper.SetupFileSystems(); // From LTRData.DiscUtils.FileSystems
+SetupHelper.SetupTransports(); // From LTRData.DiscUtils.Transports
 ```
 
 ## How to use the Library
