@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <!-- An external-style library opts in during its own build, without friend access. -->
+    <DiscUtilsGenerateRegistration>true</DiscUtilsGenerateRegistration>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../Library/DiscUtils.Core/DiscUtils.Core.csproj" />
+  </ItemGroup>
+</Project>

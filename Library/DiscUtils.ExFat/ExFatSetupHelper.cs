@@ -6,5 +6,10 @@ namespace DiscUtils.ExFat;
 
 public static class ExFatSetupHelper
 {
-    public static void SetupFileSystems() => Formats.Register();
+    /// <summary>Registers exFAT and the Core defaults without reflection.</summary>
+    public static void SetupFileSystems()
+    {
+        Core.Formats.Register();
+        Formats.Register();
+    }
 }

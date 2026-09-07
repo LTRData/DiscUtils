@@ -24,9 +24,17 @@ using System.Collections.Generic;
 
 namespace DiscUtils.Internal;
 
+/// <summary>Extension point for mapping disks and physical volumes to logical volumes.</summary>
+/// <remarks>
+/// Implementations can return custom mappings using the public <see cref="LogicalVolumeInfo"/> constructor.
+/// Register an instance with <see cref="VolumeManager.RegisterLogicalVolumeFactory(LogicalVolumeFactory)"/>
+/// or apply <see cref="LogicalVolumeFactoryAttribute"/> for generated or reflection-based discovery.
+/// </remarks>
 public abstract class LogicalVolumeFactory
 {
+    /// <summary>Indicates whether this factory maps the supplied physical volume.</summary>
     public abstract bool HandlesPhysicalVolume(PhysicalVolumeInfo volume);
 
+    /// <summary>Adds logical volumes to the shared result, keyed by their stable identities.</summary>
     public abstract void MapDisks(IEnumerable<VirtualDisk> disks, Dictionary<string, LogicalVolumeInfo> result);
 }

@@ -2,5 +2,12 @@
 
 public static class SetupHelper
 {
-    public static void SetupTransports() => Formats.Register();
+    /// <summary>Registers the transport package's providers without reflection.</summary>
+    public static void SetupTransports()
+    {
+        Core.Formats.Register();
+        Iscsi.Formats.Register();
+        Nfs.Formats.Register();
+        OpticalDisk.Formats.Register();
+    }
 }

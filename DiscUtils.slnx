@@ -62,6 +62,7 @@
   <Folder Name="/Tests/">
     <File Path="Tests/Directory.Build.props" />
     <Project Path="Tests/ExFat.Generator/ExFat.Generator.csproj" />
+    <Project Path="Tests/GeneratedRegistrationPlugin/GeneratedRegistrationPlugin.csproj" />
     <Project Path="Tests/LibraryTests/LibraryTests.csproj" />
     <Project Path="Tests/RegistrationPlugin/RegistrationPlugin.csproj" />
     <Project Path="Tests/RegistrationTests/RegistrationTests.csproj" />

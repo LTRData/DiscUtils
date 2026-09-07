@@ -5,6 +5,7 @@
   <ItemGroup>
     <ProjectReference Include="../../Library/DiscUtils/DiscUtils.csproj" />
     <ProjectReference Include="../RegistrationPlugin/RegistrationPlugin.csproj" />
+    <ProjectReference Include="../GeneratedRegistrationPlugin/GeneratedRegistrationPlugin.csproj" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.*" />
     <PackageReference Include="xunit" Version="2.9.*" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3" PrivateAssets="all" Condition="'$(TargetFramework)' == 'net46'" />

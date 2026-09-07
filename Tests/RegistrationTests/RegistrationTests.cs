@@ -151,6 +151,9 @@ public sealed class RegistrationTests
         var assembly = typeof(ReflectionDiskFactory).Assembly;
         DiscUtils.Setup.SetupHelper.RegisterAssembly(assembly);
         DiscUtils.Setup.SetupHelper.RegisterAssembly(assembly);
+        // Reflection-first registration must also suppress a later handwritten entry point.
+        DiscUtils.Setup.SetupHelper.RegisterAssembly(assembly,
+            () => throw new InvalidOperationException("Explicit registration ran after reflection registration."));
         Assert.Equal(1, ReflectionDiskFactory.Constructions);
         Assert.Equal(new[] { "test" }, VirtualDisk.GetSupportedDiskVariants("REFLECTION"));
         Assert.Contains("reflectiondisk", VirtualDiskManager.SupportedDiskFormats);
@@ -158,6 +161,18 @@ public sealed class RegistrationTests
         Assert.Single(FileSystemManager.DetectFileSystems(stream), f => f.Name == "ReflectionFS");
         using var disk = VirtualDisk.OpenDisk("reflectiontransport://localhost/disk", FileAccess.Read);
         Assert.NotNull(disk);
+    }
+
+    [Fact]
+    public void PrivateLibraryGeneratedRegistrationFollowedByReflectionRunsOnce()
+    {
+        Assert.Equal(0, GeneratedRegistrationPlugin.PrivateFileSystemFactory.Constructions);
+        GeneratedRegistrationPlugin.Formats.Register();
+        GeneratedRegistrationPlugin.Formats.Register();
+        DiscUtils.Setup.SetupHelper.RegisterAssembly(typeof(GeneratedRegistrationPlugin.PrivateFileSystemFactory).Assembly);
+        Assert.Equal(1, GeneratedRegistrationPlugin.PrivateFileSystemFactory.Constructions);
+        using var stream = MarkerStream();
+        Assert.Single(FileSystemManager.DetectFileSystems(stream), f => f.Name == "GeneratedPrivateFS");
     }
 
     private static MemoryStream MarkerStream()

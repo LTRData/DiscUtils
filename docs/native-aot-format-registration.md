@@ -14,13 +14,18 @@ scanned Core alone and therefore missed builders in format assemblies.
 Call the registration entry point for the formats your application uses:
 
 ```csharp
+DiscUtils.Core.Formats.Register(); // RAW disks, file transport, partition and dynamic-volume providers
 DiscUtils.Vhd.Formats.Register();
 DiscUtils.Fat.Formats.Register();
 ```
 
-Each entry point registers its DiscUtils dependencies first, then its own factories.
-For example, VHD registration includes Core's raw disk and file transport providers.
-The existing setup helpers also use generated direct calls:
+Each entry point registers **only providers implemented by that assembly**. VHD
+registration does not register Core, FAT or any other referenced library. Register
+Core explicitly when using its RAW disk or file transport through the generic disk
+APIs. No dependency registrations are inferred from assembly references.
+
+The existing setup helpers compose the relevant generated entry points explicitly,
+with Core first, preserving their original provider selection and assembly order:
 
 ```csharp
 DiscUtils.Complete.SetupHelper.SetupComplete();
@@ -40,6 +45,12 @@ registration target, or runtime generator dependency. Applications do not run th
 DiscUtils generator and have no registration-related Roslyn or C# 9 requirement.
 The same explicit calls work with package, project and direct DLL references.
 
+Meta-packages and libraries with no discovery attributes produce no `Formats` class.
+Their existing setup helpers are the public composition API. References used for an
+implementation do not expand a helper's registration scope: for example,
+`SetupContainers()` does not activate the optical-disc-sharing transport merely
+because the container package references that library.
+
 Core's existing lazy defaults are retained: partition/volume discovery ensures Core's
 generated registrations are present, and reflection-based assembly setup registers
 Core first. This preserves direct Core API behavior without scanning Core or activating
@@ -57,18 +68,20 @@ VirtualDiskManager.RegisterVirtualDiskTransport("mytransport", () => new MyTrans
 VolumeManager.RegisterLogicalVolumeFactory(new MyLogicalVolumeFactory());
 ```
 
-Transport and logical-volume factories participate in the existing extensible
-assembly registries, so their base classes and discovery attributes are public.
-`LogicalVolumeInfo`'s constructor is public so external volume factories can return
-mapped volumes. Partition-table factories and their registration methods remain
-internal: their existing discovery is confined to Core.
+`VirtualDiskTransport`, `VirtualDiskTransportAttribute`, `LogicalVolumeFactory` and
+`LogicalVolumeFactoryAttribute` are supported public extension points, including for
+custom transports and experimental logical-volume mappings. Their existing
+`DiscUtils.Internal` namespace does not restrict third-party use. Explicit transport
+and logical-volume registration is supported alongside the built-in providers.
+`LogicalVolumeInfo`'s public constructor lets external factories return mapped
+volumes with their own content-opening delegate. Partition-table factories and their
+registration methods remain internal; their existing discovery is confined to Core.
 
 A handwritten library entry point can use the assembly identity guard:
 
 ```csharp
 public static void Register()
 {
-    DiscUtils.Core.Formats.Register();
     DiscUtils.Setup.SetupHelper.RegisterAssembly(typeof(MyDiskFactory).Assembly, () =>
     {
         VirtualDiskManager.RegisterVirtualDiskFactory(
@@ -76,6 +89,9 @@ public static void Register()
     });
 }
 ```
+
+The application composes this entry point with Core or other providers it needs,
+just as it does with generated library registration.
 
 For JIT applications, `DiscUtils.Setup.SetupHelper.RegisterAssembly(assembly)` and the
 existing manager overloads accepting an `Assembly` still discover attributed plugins
@@ -112,8 +128,12 @@ There is no separately published generator package in this change.
 
 The generated method calls the common assembly registration guard directly. It adds
 no static initialization cache, runtime attribute inspection or `Activator` calls.
-The repository opts in its libraries through `Library/Directory.Build.props`; tests
-and utilities are ordinary consumers.
+It does not inspect the consuming application or referenced libraries for providers
+or registration entry points. The repository keeps a single library-wide opt-in in
+`Library/Directory.Build.props` to avoid a project list to maintain. Libraries with no
+discovery attributes emit nothing, even if they reference format libraries. Tests and
+utilities are ordinary consumers except the explicitly opted-in private-library test
+fixture.
 
 ## Duplicates and ordering
 
@@ -127,12 +147,17 @@ and utilities are ordinary consumers.
 * Assembly-level registration runs once, including a mix of generated and reflection
   setup. Low-level reflection registration of an unguarded external assembly retains
   its duplicate behavior. Call the assembly-level helper to share the once-only guard.
-* Callbacks are not transactions: a failed callback can leave earlier registrations
-  in place and remains marked, as in legacy assembly setup. Reentrant assembly setup
-  from a factory constructor is ignored.
-* Generated factories are sorted by fully qualified type name; dependency entry points
-  are also sorted. The former reflection order was unspecified. Applications control
-  when their packages/plugins register by ordering their explicit startup calls.
+* The assembly guard is keyed by full assembly name and marks it before invoking the
+  callback. Recursive registration from within the callback is ignored. Callbacks are
+  not transactions: if one throws, the exception propagates, earlier registrations
+  remain and the assembly stays marked. Subsequent generated, handwritten or
+  assembly-level reflection registration does **not** retry it. This preserves the
+  legacy reflection helper's failure semantics; register additional providers through
+  the ordinary registry APIs if needed.
+* Generated factories within an assembly are sorted by fully qualified type name;
+  the former reflection order was unspecified. Setup helpers explicitly retain their
+  original assembly order. Applications control when packages/plugins register by
+  ordering their startup calls.
 * Disk dictionaries permit concurrent registration/lookups. Enumeration of supported
   names/extensions is a snapshot with no ordering contract.
 
@@ -146,12 +171,27 @@ dotnet test Tests/LibraryTests/LibraryTests.csproj -c Debug -f net10.0
 dotnet publish Tests/NativeAotSmoke/NativeAotSmoke.csproj -c Release -r linux-x64
 ```
 
-Run the published `NativeAotSmoke` executable. It first checks that VHD is not
-registered before explicit setup, then calls VHD/FAT/LVM registration. It exercises
-VHD type/extension lookup and create/open, image-builder lookup, FAT detection/open,
-partition/volume discovery, and a handwritten third-party transport registration.
+Run the published executable twice, in separate processes:
 
-To test package delivery, pack Streams, Core, Vhd, Fat and Lvm into a local feed,
+```sh
+./NativeAotSmoke
+./NativeAotSmoke --containers
+```
+
+Both paths check that VHD is absent before setup. The direct path registers VHD
+twice and verifies that **only VHD** was registered, then explicitly registers Core,
+FAT and LVM. The helper path calls `SetupContainers()` twice and uses its VHD/Core
+registrations, with a separate FAT registration for the file-system check. Both
+exercise VHD type/extension lookup and create/open, image-builder lookup, FAT
+detection/open, partition/volume discovery and a handwritten third-party transport.
+
+Registration tests cover successful repeated/concurrent registration, reentrance,
+both explicit/reflection orders and persistent partial failure. A separate private
+library builds its own generated entry point and proves it runs once when followed
+by reflection discovery. The reflection-only plugin fixture has no generator or
+friend access and exercises disk, file-system, transport and logical-volume APIs.
+
+To test package delivery, pack Containers, Fat and their project dependencies into a local feed,
 copy the two smoke-project source files outside the repository, and publish with
 `-p:UsePackageReferences=true -p:DiscUtilsPackageVersion=<packed-version>` using that
 feed. Inspect the packages to confirm that Core contains no registration analyzer or

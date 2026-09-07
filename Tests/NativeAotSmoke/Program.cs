@@ -10,10 +10,28 @@ using DiscUtils.Streams;
 GC.KeepAlive(typeof(DiscUtils.Vhd.Disk));
 if (VirtualDiskManager.SupportedDiskTypes.Contains("VHD")) throw new Exception("VHD registered before explicit setup.");
 
-// These direct calls are the only setup required, including under trimming/Native AOT.
-DiscUtils.Vhd.Formats.Register();
+// Run each path in a fresh process so one cannot hide missing registration in the other.
+var useContainers = args.Length == 1 && args[0] == "--containers";
+if (args.Length != 0 && !useContainers) throw new ArgumentException("Usage: NativeAotSmoke [--containers]");
+if (useContainers)
+{
+    DiscUtils.Containers.SetupHelper.SetupContainers();
+    DiscUtils.Containers.SetupHelper.SetupContainers();
+    foreach (var type in new[] { "RAW", "DMG", "VHD", "VHDX", "VMDK", "VDI", "XVA" })
+        if (!VirtualDiskManager.SupportedDiskTypes.Contains(type)) throw new Exception("Missing container: " + type);
+    if (VirtualDiskManager.SupportedDiskTypes.Contains("Optical")) throw new Exception("An implementation reference registered extra providers.");
+}
+else
+{
+    DiscUtils.Vhd.Formats.Register();
+    DiscUtils.Vhd.Formats.Register();
+    if (!VirtualDiskManager.SupportedDiskTypes.SequenceEqual(new[] { "VHD" }))
+        throw new Exception("VHD registration included providers from another assembly.");
+    // File-based generic disk APIs need Core's file transport; VHD does not register it implicitly.
+    DiscUtils.Core.Formats.Register();
+    DiscUtils.Lvm.Formats.Register();
+}
 DiscUtils.Fat.Formats.Register();
-DiscUtils.Lvm.Formats.Register();
 if (!VirtualDiskManager.SupportedDiskTypes.Contains("VHD") ||
     !VirtualDiskManager.SupportedDiskFormats.Contains("avhd")) throw new Exception("Missing VHD registration.");
 
@@ -50,10 +68,13 @@ try
     using var fs = detected.Open(fat);
     if (fs.GetFiles(@"\").Any()) throw new Exception("FAT open failed.");
 
-    VirtualDiskManager.RegisterVirtualDiskTransport("smoke", static () => new SmokeTransport());
-    using var external = VirtualDisk.OpenDisk("smoke://localhost/disk", FileAccess.Read);
+    // Containers references OpticalDiscSharing for packaging, but setup must leave its scheme available.
+    var scheme = useContainers ? "ods" : "smoke";
+    VirtualDiskManager.RegisterVirtualDiskTransport(scheme, static () => new SmokeTransport());
+    using var external = VirtualDisk.OpenDisk(scheme + "://localhost/disk", FileAccess.Read);
     if (external == null || external.Capacity != 4096) throw new Exception("Explicit transport registration failed.");
-    Console.WriteLine("PASS: explicit VHD, FAT, partition/volume and builder registration; no automatic package initialization.");
+    Console.WriteLine("PASS: " + (useContainers ? "SetupContainers" : "direct Formats.Register") +
+        "; VHD, FAT, partition/volume, builder and third-party transport registration.");
 }
 finally { File.Delete(path); }
 

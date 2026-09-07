@@ -33,7 +33,7 @@ public sealed class LogicalVolumeInfo : VolumeInfo
     private Guid _guid;
     private readonly SparseStreamOpenDelegate _opener;
 
-    /// <summary>Describes a logical volume mapped by a logical-volume factory.</summary>
+    /// <summary>Describes a logical volume mapped by a built-in or third-party logical-volume factory.</summary>
     /// <param name="guid">Stable volume identifier, or empty to use the physical volume identity.</param>
     /// <param name="physicalVolume">The backing physical volume, if there is a single one.</param>
     /// <param name="opener">Opens the volume content as a new stream.</param>

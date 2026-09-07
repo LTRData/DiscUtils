@@ -42,7 +42,13 @@ public static class SetupHelper
     /// <summary>Runs an assembly's explicit registrations once, without scanning its types.</summary>
     /// <param name="assembly">The assembly providing the implementations.</param>
     /// <param name="register">Calls to the ordinary factory registration APIs.</param>
-    /// <remarks>Shares the registration guard with reflection-based assembly registration.</remarks>
+    /// <remarks>
+    /// Shares the guard with reflection-based registration, keyed by assembly full name.
+    /// Repeated or recursive registration of the same assembly is ignored.
+    /// As with legacy reflection discovery, the assembly is marked before the callback runs.
+    /// If the callback throws, the exception propagates and any partial registrations remain;
+    /// subsequent explicit or reflection registration attempts do not retry the assembly.
+    /// </remarks>
     public static void RegisterAssembly(Assembly assembly, Action register)
     {
         if (assembly == null) throw new ArgumentNullException(nameof(assembly));

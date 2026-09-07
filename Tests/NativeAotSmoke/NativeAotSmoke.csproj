@@ -13,11 +13,13 @@
     <ProjectReference Include="../../Library/DiscUtils.Vhd/DiscUtils.Vhd.csproj" />
     <ProjectReference Include="../../Library/DiscUtils.Fat/DiscUtils.Fat.csproj" />
     <ProjectReference Include="../../Library/DiscUtils.Lvm/DiscUtils.Lvm.csproj" />
+    <ProjectReference Include="../../Library/DiscUtils.Containers/DiscUtils.Containers.csproj" />
   </ItemGroup>
   <!-- Allows the exact same app to verify packed libraries without a consumer analyzer outside this repository. -->
   <ItemGroup Condition="'$(UsePackageReferences)' == 'true'">
     <PackageReference Include="LTRData.DiscUtils.Vhd" Version="$(DiscUtilsPackageVersion)" />
     <PackageReference Include="LTRData.DiscUtils.Fat" Version="$(DiscUtilsPackageVersion)" />
     <PackageReference Include="LTRData.DiscUtils.Lvm" Version="$(DiscUtilsPackageVersion)" />
+    <PackageReference Include="LTRData.DiscUtils.Containers" Version="$(DiscUtilsPackageVersion)" />
   </ItemGroup>
 </Project>

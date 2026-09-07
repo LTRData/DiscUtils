@@ -77,7 +77,8 @@ public static class VirtualDiskManager
     /// <summary>Registers a factory that creates a fresh transport for each disk operation.</summary>
     /// <param name="scheme">The URI scheme (case insensitive).</param>
     /// <param name="factory">The transport constructor delegate.</param>
-    /// <remarks>Duplicate schemes throw <see cref="ArgumentException"/>.</remarks>
+    /// <remarks>Supports third-party URI schemes without assembly scanning.
+    /// Duplicate schemes throw <see cref="ArgumentException"/>.</remarks>
     public static void RegisterVirtualDiskTransport(string scheme, Func<VirtualDiskTransport> factory)
     {
         if (scheme == null) throw new ArgumentNullException(nameof(scheme));

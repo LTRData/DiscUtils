@@ -84,6 +84,7 @@ public sealed class VolumeManager
 
     /// <summary>Registers a logical-volume factory without assembly scanning.</summary>
     /// <param name="factory">The factory to append. Enumeration order is unspecified.</param>
+    /// <remarks>Supports third-party volume mappings alongside the built-in factories.</remarks>
     public static void RegisterLogicalVolumeFactory(LogicalVolumeFactory factory)
     {
         if (factory == null) throw new ArgumentNullException(nameof(factory));

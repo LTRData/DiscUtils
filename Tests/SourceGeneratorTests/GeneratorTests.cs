@@ -91,19 +91,29 @@ public sealed class GeneratorTests
         Assert.Empty(result.Diagnostics);
     }
 
-    [Fact]
-    public void ConsumerDoesNotGenerateAnythingWithoutLibraryOptIn()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void ReferencesAloneDoNotGenerateRegistrationEvenWithLibraryOptIn(bool isLibrary)
     {
-        var library = CSharpCompilation.Create("DiscUtils.Example", new[] { CSharpSyntaxTree.ParseText(
-            "namespace DiscUtils.Example { public static class Formats { public static void Register() { } } }") },
-            References, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
-        using var image = new MemoryStream();
-        Assert.True(library.Emit(image).Success);
-        var reference = MetadataReference.CreateFromImage(image.ToArray());
-        var (result, compilation) = Run(new[] { "class App { }" }, false, reference);
+        var (result, compilation) = Run(new[] { "class App { }" }, isLibrary, FormatLibraryReference());
         Assert.Empty(compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error));
         Assert.Empty(result.GeneratedTrees);
         Assert.Empty(result.Diagnostics);
+    }
+
+    [Fact]
+    public void GeneratedRegistrationIncludesOnlyTheCurrentAssemblysProviders()
+    {
+        var (result, compilation) = Run(new[] {
+            Api, "[DiscUtils.Internal.VirtualDiskFactory(\"LOCAL\", \".local\")] class Factory : DiscUtils.Internal.VirtualDiskFactory { }"
+        }, extraReference: FormatLibraryReference());
+        Assert.Empty(result.Diagnostics);
+        Assert.Empty(compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error));
+        var source = Assert.Single(result.GeneratedTrees).ToString();
+        Assert.Contains("new global::Factory()", source);
+        Assert.Contains("typeof(global::DiscUtils.Test.Formats).Assembly", source);
+        Assert.DoesNotContain("DiscUtils.Example", source);
     }
 
     [Fact]
@@ -125,6 +135,16 @@ public sealed class GeneratorTests
 
     private static readonly MetadataReference[] References = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!)
         .Split(Path.PathSeparator).Select(p => MetadataReference.CreateFromFile(p)).ToArray();
+
+    private static MetadataReference FormatLibraryReference()
+    {
+        var library = CSharpCompilation.Create("DiscUtils.Example", new[] { CSharpSyntaxTree.ParseText(
+            "namespace DiscUtils.Example { public static class Formats { public static void Register() { } } }") },
+            References, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+        using var image = new MemoryStream();
+        Assert.True(library.Emit(image).Success);
+        return MetadataReference.CreateFromImage(image.ToArray());
+    }
 
     private static (GeneratorDriverRunResult Result, Compilation Compilation) Run(string[] sources, bool isLibrary = true,
         MetadataReference? extraReference = null, LanguageVersion languageVersion = LanguageVersion.Preview,
