@@ -25,4 +25,4 @@ using System;
 namespace DiscUtils.Partitions;
 
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-public sealed class PartitionTableFactoryAttribute : Attribute { }
+internal sealed class PartitionTableFactoryAttribute : Attribute { }

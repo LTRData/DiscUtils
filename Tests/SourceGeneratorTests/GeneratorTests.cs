@@ -92,7 +92,7 @@ public sealed class GeneratorTests
     }
 
     [Fact]
-    public void ConsumerRootsReferencedFormatsWithoutInspectingTheirFactories()
+    public void ConsumerDoesNotGenerateAnythingWithoutLibraryOptIn()
     {
         var library = CSharpCompilation.Create("DiscUtils.Example", new[] { CSharpSyntaxTree.ParseText(
             "namespace DiscUtils.Example { public static class Formats { public static void Register() { } } }") },
@@ -102,38 +102,37 @@ public sealed class GeneratorTests
         var reference = MetadataReference.CreateFromImage(image.ToArray());
         var (result, compilation) = Run(new[] { "class App { }" }, false, reference);
         Assert.Empty(compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error));
-        var source = Assert.Single(result.GeneratedTrees).ToString();
-        Assert.Contains("global::DiscUtils.Example.Formats.Register();", source);
-        Assert.Contains("ModuleInitializer", source);
-        Assert.DoesNotContain("public static class", source);
+        Assert.Empty(result.GeneratedTrees);
+        Assert.Empty(result.Diagnostics);
     }
 
     [Fact]
-    public void OlderConsumerLanguageKeepsBuildingWithExistingSetupCalls()
+    public void PrivateLibraryGetsExplicitRegistrationWithoutModuleInitializationOrCSharp9()
     {
-        var library = CSharpCompilation.Create("DiscUtils.Example", new[] { CSharpSyntaxTree.ParseText(
-            "namespace DiscUtils.Example { public static class Formats { public static void Register() { } } }") },
-            References, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
-        using var image = new MemoryStream();
-        Assert.True(library.Emit(image).Success);
-        var reference = MetadataReference.CreateFromImage(image.ToArray());
         var (result, compilation) = Run(new[] {
-            "class App { static void Main() { DiscUtils.Example.Formats.Register(); } }"
-        }, false, reference, LanguageVersion.CSharp7_3);
-        Assert.Contains(result.Diagnostics, d => d.Id == "DUAOT002" && d.Severity == DiagnosticSeverity.Warning);
-        Assert.Empty(result.GeneratedTrees);
+            Api, "[DiscUtils.Internal.VirtualDiskFactory(\"PRIVATE\", \".private\")] class Factory : DiscUtils.Internal.VirtualDiskFactory { }"
+        }, languageVersion: LanguageVersion.CSharp7_3, assemblyName: "MyLibrary");
+        Assert.Empty(result.Diagnostics);
         Assert.Empty(compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error));
+        var source = Assert.Single(result.GeneratedTrees).ToString();
+        Assert.Contains("new global::Factory()", source);
+        Assert.DoesNotContain("ModuleInitializer", source);
+        var entryPoint = compilation.GetTypeByMetadataName("MyLibrary.Formats")!;
+        Assert.Equal(Accessibility.Public, entryPoint.DeclaredAccessibility);
+        Assert.Single(entryPoint.GetMembers("Register").OfType<IMethodSymbol>());
+        Assert.Empty(entryPoint.StaticConstructors);
     }
 
     private static readonly MetadataReference[] References = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!)
         .Split(Path.PathSeparator).Select(p => MetadataReference.CreateFromFile(p)).ToArray();
 
     private static (GeneratorDriverRunResult Result, Compilation Compilation) Run(string[] sources, bool isLibrary = true,
-        MetadataReference? extraReference = null, LanguageVersion languageVersion = LanguageVersion.Preview)
+        MetadataReference? extraReference = null, LanguageVersion languageVersion = LanguageVersion.Preview,
+        string assemblyName = "DiscUtils.Test")
     {
         var options = new CSharpParseOptions(languageVersion);
         var references = extraReference == null ? References : References.Append(extraReference);
-        var compilation = CSharpCompilation.Create("DiscUtils.Test", sources.Select(s => CSharpSyntaxTree.ParseText(s, options)),
+        var compilation = CSharpCompilation.Create(assemblyName, sources.Select(s => CSharpSyntaxTree.ParseText(s, options)),
             references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         GeneratorDriver driver = CSharpGeneratorDriver.Create(new[] { new FormatRegistrationGenerator().AsSourceGenerator() },
             parseOptions: options, optionsProvider: new OptionsProvider(isLibrary));

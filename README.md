@@ -36,7 +36,7 @@ To work with this, four Meta packages have been created:
 
 #### Note on detections
 
-DiscUtils has a number of detection helpers. These provide services like "which filesystem is this stream?". Built-in providers register automatically in C# 9+ package consumers, including trimmed and Native AOT applications. See [format registration and Native AOT](docs/native-aot-format-registration.md) for compiler requirements, explicit third-party registration, and initialization when using DLL or external project references.
+DiscUtils has a number of detection helpers. These provide services like "which filesystem is this stream?". Register the providers you need explicitly, for example with `DiscUtils.Vhd.Formats.Register()` or the existing meta-package setup helpers below. These calls use generated registrations and support trimming and Native AOT. Referencing a format package alone does not register it. See [format registration and Native AOT](docs/native-aot-format-registration.md) for details and third-party registration.
 
 For reflection-based plugin discovery on normal runtimes, call:
 

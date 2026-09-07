@@ -115,7 +115,6 @@ public sealed class VolumeManager
     public static void RegisterLogicalVolumeFactory(Assembly assembly)
     {
         if (assembly == null) throw new ArgumentNullException(nameof(assembly));
-        System.Runtime.CompilerServices.RuntimeHelpers.RunModuleConstructor(assembly.ManifestModule.ModuleHandle);
         if (Setup.SetupHelper.IsAssemblyRegistered(assembly)) return;
 
         foreach (var factory in GetLogicalVolumeFactories(assembly))
@@ -257,6 +256,7 @@ public sealed class VolumeManager
 
     private Dictionary<string, LogicalVolumeInfo> ScanForLogicalVolumes(IEnumerable<PhysicalVolumeInfo> physicalVols)
     {
+        Core.Formats.Register();
         var result = new Dictionary<string, LogicalVolumeInfo>();
 
         foreach (var pvi in physicalVols)

@@ -24,7 +24,7 @@ using System.IO;
 
 namespace DiscUtils.Partitions;
 
-public abstract class PartitionTableFactory
+internal abstract class PartitionTableFactory
 {
     public abstract bool DetectIsPartitioned(Stream s);
 

@@ -61,13 +61,14 @@ public abstract class PartitionTable
     {
         get
         {
+            Core.Formats.Register();
             lock (_factories) return _factories.ToArray();
         }
     }
 
     /// <summary>Appends a partition-table factory without assembly scanning.</summary>
     /// <param name="factory">The factory to append. Detection follows registration order.</param>
-    public static void RegisterPartitionTableFactory(PartitionTableFactory factory)
+    internal static void RegisterPartitionTableFactory(PartitionTableFactory factory)
     {
         if (factory == null) throw new ArgumentNullException(nameof(factory));
         lock (_factories) _factories.Add(factory);
@@ -78,10 +79,9 @@ public abstract class PartitionTable
 #if NET5_0_OR_GREATER
     [RequiresUnreferencedCode("Assembly discovery requires untrimmed factory types and constructors. Register a factory instance instead.")]
 #endif
-    public static void RegisterPartitionTableFactories(Assembly assembly)
+    internal static void RegisterPartitionTableFactories(Assembly assembly)
     {
         if (assembly == null) throw new ArgumentNullException(nameof(assembly));
-        System.Runtime.CompilerServices.RuntimeHelpers.RunModuleConstructor(assembly.ManifestModule.ModuleHandle);
         if (Setup.SetupHelper.IsAssemblyRegistered(assembly)) return;
         foreach (var type in assembly.GetTypes())
         {

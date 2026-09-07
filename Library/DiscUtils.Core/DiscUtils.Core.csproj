@@ -16,9 +16,4 @@
     <PackageReference Include="System.Text.Encoding.CodePages" Version="9.0.*" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Include="../../SourceGenerators/DiscUtils.SourceGenerator/bin/$(Configuration)/netstandard2.0/DiscUtils.SourceGenerator.dll"
-          Pack="true" PackagePath="tools/" Visible="false" />
-    <None Include="buildTransitive/LTRData.DiscUtils.Core.targets" Pack="true" PackagePath="buildTransitive/" />
-  </ItemGroup>
 </Project>

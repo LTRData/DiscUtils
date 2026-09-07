@@ -29,7 +29,7 @@ public static class SetupHelper
     public static void RegisterAssembly(Assembly assembly)
     {
         if (assembly == null) throw new ArgumentNullException(nameof(assembly));
-        System.Runtime.CompilerServices.RuntimeHelpers.RunModuleConstructor(assembly.ManifestModule.ModuleHandle);
+        Core.Formats.Register();
         RegisterAssembly(assembly, () =>
         {
             FileSystemManager.RegisterFileSystems(assembly);

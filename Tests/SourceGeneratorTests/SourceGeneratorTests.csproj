@@ -3,7 +3,6 @@
     <TargetFrameworks />
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
-    <DiscUtilsDisableGenerator>true</DiscUtilsDisableGenerator>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../SourceGenerators/DiscUtils.SourceGenerator/DiscUtils.SourceGenerator.csproj" />

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using DiscUtils;
 using DiscUtils.Internal;
-using DiscUtils.Partitions;
 using DiscUtils.Streams;
 using DiscUtils.Vfs;
 
@@ -92,13 +91,3 @@ public class TestLogicalVolumeFactory : LogicalVolumeFactory
 
 [LogicalVolumeFactory]
 public sealed class ReflectionLogicalVolumeFactory : TestLogicalVolumeFactory { }
-
-public class TestPartitionTableFactory : PartitionTableFactory
-{
-    public int Calls;
-    public override bool DetectIsPartitioned(Stream stream) { Calls++; return false; }
-    public override PartitionTable? DetectPartitionTable(VirtualDisk disk) { Calls++; return null; }
-}
-
-[PartitionTableFactory]
-public sealed class ReflectionPartitionTableFactory : TestPartitionTableFactory { }

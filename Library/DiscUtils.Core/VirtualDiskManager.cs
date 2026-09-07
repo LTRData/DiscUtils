@@ -98,7 +98,6 @@ public static class VirtualDiskManager
     public static void RegisterVirtualDiskTypes(Assembly assembly)
     {
         if (assembly == null) throw new ArgumentNullException(nameof(assembly));
-        System.Runtime.CompilerServices.RuntimeHelpers.RunModuleConstructor(assembly.ManifestModule.ModuleHandle);
         if (Setup.SetupHelper.IsAssemblyRegistered(assembly)) return;
 
         foreach (var type in assembly.GetTypes())

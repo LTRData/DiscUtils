@@ -14,7 +14,7 @@
     <ProjectReference Include="../../Library/DiscUtils.Fat/DiscUtils.Fat.csproj" />
     <ProjectReference Include="../../Library/DiscUtils.Lvm/DiscUtils.Lvm.csproj" />
   </ItemGroup>
-  <!-- Allows the exact same app to verify packed buildTransitive assets outside this repository. -->
+  <!-- Allows the exact same app to verify packed libraries without a consumer analyzer outside this repository. -->
   <ItemGroup Condition="'$(UsePackageReferences)' == 'true'">
     <PackageReference Include="LTRData.DiscUtils.Vhd" Version="$(DiscUtilsPackageVersion)" />
     <PackageReference Include="LTRData.DiscUtils.Fat" Version="$(DiscUtilsPackageVersion)" />

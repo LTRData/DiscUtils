@@ -76,7 +76,6 @@ public static class FileSystemManager
     public static void RegisterFileSystems(Assembly assembly)
     {
         if (assembly == null) throw new ArgumentNullException(nameof(assembly));
-        System.Runtime.CompilerServices.RuntimeHelpers.RunModuleConstructor(assembly.ManifestModule.ModuleHandle);
         if (Setup.SetupHelper.IsAssemblyRegistered(assembly)) return;
         foreach (var factory in DetectFactories(assembly))
         {

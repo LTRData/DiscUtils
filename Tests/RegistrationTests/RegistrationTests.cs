@@ -14,8 +14,10 @@ namespace RegistrationTests;
 
 public sealed class RegistrationTests
 {
+    public RegistrationTests() => DiscUtils.Complete.SetupHelper.SetupComplete();
+
     [Fact]
-    public void BuiltInTypesAndExtensionsAreAvailableWithoutSetup()
+    public void BuiltInTypesAndExtensionsAreAvailableAfterExplicitSetup()
     {
         foreach (var type in new[] { "RAW", "VHD", "VHDX", "VMDK", "VDI", "DMG", "XVA", "Optical" })
             Assert.Contains(type, VirtualDiskManager.SupportedDiskTypes);
@@ -52,7 +54,7 @@ public sealed class RegistrationTests
     }
 
     [Fact]
-    public void FileSystemsAreDetectedAndOpenedWithoutSetup()
+    public void FileSystemsAreDetectedAndOpenedAfterExplicitSetup()
     {
         using var stream = new MemoryStream();
         using (var fs = DiscUtils.Fat.FatFileSystem.FormatFloppy(stream, FloppyDiskType.HighDensity, "TEST"))
@@ -65,7 +67,7 @@ public sealed class RegistrationTests
     }
 
     [Fact]
-    public void OpticalFileSystemIsDetectedAndOpenedWithoutSetup()
+    public void OpticalFileSystemIsDetectedAndOpenedAfterExplicitSetup()
     {
         var builder = new DiscUtils.Iso9660.CDBuilder { UseJoliet = true };
         builder.AddFile("hello.txt", new byte[] { 0x42 });
@@ -131,15 +133,12 @@ public sealed class RegistrationTests
     }
 
     [Fact]
-    public void ExternalPartitionAndVolumeFactoriesUseOrdinaryPublicApis()
+    public void ExternalVolumeFactoriesUseOrdinaryPublicApis()
     {
-        var partition = new TestPartitionTableFactory();
         var volume = new TestLogicalVolumeFactory(includeVolume: true);
-        PartitionTable.RegisterPartitionTableFactory(partition);
         VolumeManager.RegisterLogicalVolumeFactory(volume);
         using var stream = new MemoryStream(new byte[4096]);
         Assert.False(PartitionTable.IsPartitioned(stream));
-        Assert.True(partition.Calls > 0);
         var mapped = Assert.Single(new VolumeManager(stream).GetLogicalVolumes(), v => v.TypeAsString == "ThirdPartyVolume");
         using var opened = mapped.Open();
         Assert.Equal(4096, opened.Length);

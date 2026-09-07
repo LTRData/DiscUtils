@@ -6,8 +6,14 @@ using DiscUtils.Internal;
 using DiscUtils.Partitions;
 using DiscUtils.Streams;
 
-// Deliberately uses only Core/Streams APIs: no setup calls, Assembly.GetTypes,
-// format-specific type references, or linker roots can make discovery pass accidentally.
+// Merely referencing/loading format libraries must not register their formats.
+GC.KeepAlive(typeof(DiscUtils.Vhd.Disk));
+if (VirtualDiskManager.SupportedDiskTypes.Contains("VHD")) throw new Exception("VHD registered before explicit setup.");
+
+// These direct calls are the only setup required, including under trimming/Native AOT.
+DiscUtils.Vhd.Formats.Register();
+DiscUtils.Fat.Formats.Register();
+DiscUtils.Lvm.Formats.Register();
 if (!VirtualDiskManager.SupportedDiskTypes.Contains("VHD") ||
     !VirtualDiskManager.SupportedDiskFormats.Contains("avhd")) throw new Exception("Missing VHD registration.");
 
@@ -29,8 +35,7 @@ try
     builder.Content = content;
     if (!builder.Build("image").Any()) throw new Exception("Builder lookup failed.");
 
-    // Minimal, empty FAT12 floppy. Keeping the fixture here avoids calling Fat's formatter,
-    // which would itself root that assembly and hide broken automatic registration.
+    // Minimal, empty FAT12 floppy; detection and opening go through the shared registry.
     var bytes = new byte[1440 * 1024];
     bytes[0] = 0xEB; bytes[1] = 0x3C; bytes[2] = 0x90;
     bytes[11] = 0; bytes[12] = 2; bytes[13] = 1; bytes[14] = 1; bytes[16] = 2;
@@ -48,7 +53,7 @@ try
     VirtualDiskManager.RegisterVirtualDiskTransport("smoke", static () => new SmokeTransport());
     using var external = VirtualDisk.OpenDisk("smoke://localhost/disk", FileAccess.Read);
     if (external == null || external.Capacity != 4096) throw new Exception("Explicit transport registration failed.");
-    Console.WriteLine("PASS: automatic VHD, FAT, partition/volume and builder discovery; explicit transport registration.");
+    Console.WriteLine("PASS: explicit VHD, FAT, partition/volume and builder registration; no automatic package initialization.");
 }
 finally { File.Delete(path); }
 
