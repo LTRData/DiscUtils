@@ -120,8 +120,19 @@ checkout, add this to the private library's project (adjust the analyzer path):
 
 Reference Core as usual and attribute the library's implementations with the existing
 discovery attributes. For an assembly named `MyLibrary`, the generator emits public
-`MyLibrary.Formats.Register()`. Assembly names used for generated namespaces must be
-valid C# namespace names. The application explicitly calls that method during startup.
+`MyLibrary.Formats.Register()`. The generated namespace is derived from the assembly
+name by sanitizing each dot-separated segment: valid C# identifier characters are
+preserved, other characters become `_`, and `_` is prefixed when the result cannot
+start an identifier or is a reserved C# keyword. Empty segments become `_`.
+For example, `Acme.DiscUtils-Plugin` becomes `Acme.DiscUtils_Plugin`, `123.Tools`
+becomes `_123.Tools`, and `Acme.class` becomes `Acme._class`. Contextual keywords
+that are valid namespace identifiers remain unchanged. No assembly rename is needed.
+
+Only the generated namespace/type name is sanitized. Registration still uses
+`typeof(Formats).Assembly`, preserving the actual runtime assembly identity; package
+IDs, format names and registry keys are unaffected. Sanitization collisions are
+accepted without hashing or collision detection; each generated type belongs to its
+own assembly. The application explicitly calls the generated method during startup.
 Generation requires a Roslyn 4.8+ compiler in the format library build only; its output
 also compiles in C# 7.3. The consuming application needs only the compiled library.
 There is no separately published generator package in this change.

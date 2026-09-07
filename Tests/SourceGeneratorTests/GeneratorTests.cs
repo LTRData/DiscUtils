@@ -28,7 +28,11 @@ public sealed class GeneratorTests
         }
         namespace DiscUtils.Setup {
             public static class SetupHelper {
-                public static void RegisterAssembly(System.Reflection.Assembly assembly, System.Action register) { }
+                public static System.Reflection.Assembly RegisteredAssembly;
+                public static void RegisterAssembly(System.Reflection.Assembly assembly, System.Action register) {
+                    RegisteredAssembly = assembly;
+                    register();
+                }
             }
         }
         """;
@@ -131,6 +135,44 @@ public sealed class GeneratorTests
         Assert.Equal(Accessibility.Public, entryPoint.DeclaredAccessibility);
         Assert.Single(entryPoint.GetMembers("Register").OfType<IMethodSymbol>());
         Assert.Empty(entryPoint.StaticConstructors);
+    }
+
+    [Theory]
+    [InlineData("MyLibrary", "MyLibrary")]
+    [InlineData("Acme.DiscUtils-Plugin", "Acme.DiscUtils_Plugin")]
+    [InlineData("123.Tools", "_123.Tools")]
+    [InlineData("Acme.Tools+Cache @v2", "Acme.Tools_Cache__v2")]
+    [InlineData("Acme.-Plugin", "Acme._Plugin")]
+    [InlineData("class.namespace", "_class._namespace")]
+    [InlineData("Acme..Tools.", "Acme._.Tools._")]
+    [InlineData("Ångström.Δisk2", "Ångström.Δisk2")]
+    [InlineData("Acme.\u0301Tools", "Acme._\u0301Tools")]
+    [InlineData("global.record", "global.record")]
+    public void AssemblyNamesProduceCompilableDeterministicNamespacesWithoutChangingIdentity(
+        string assemblyName, string expectedNamespace)
+    {
+        const string factory = "[DiscUtils.Internal.VirtualDiskFactory(\"MY-FORMAT\", \".my-format\")] class Factory : DiscUtils.Internal.VirtualDiskFactory { }";
+        var (result, compilation) = Run(new[] { Api, factory },
+            languageVersion: LanguageVersion.CSharp7_3, assemblyName: assemblyName);
+        Assert.Empty(result.Diagnostics);
+        var source = Assert.Single(result.GeneratedTrees).ToString();
+        Assert.Contains("namespace " + expectedNamespace + " {", source);
+        Assert.Contains("typeof(global::" + expectedNamespace + ".Formats).Assembly", source);
+        Assert.Contains("\"MY-FORMAT\", new string[] { \"my-format\" }", source);
+        using var image = new MemoryStream();
+        var emitted = compilation.Emit(image);
+        Assert.True(emitted.Success, string.Join(Environment.NewLine, emitted.Diagnostics));
+
+        var assembly = System.Reflection.Assembly.Load(image.ToArray());
+        Assert.Equal(assemblyName, assembly.GetName().Name);
+        assembly.GetType(expectedNamespace + ".Formats")!.GetMethod("Register")!.Invoke(null, null);
+        Assert.Same(assembly, assembly.GetType("DiscUtils.Setup.SetupHelper")!
+            .GetField("RegisteredAssembly")!.GetValue(null));
+
+        var repeated = Run(new[] { factory, Api },
+            languageVersion: LanguageVersion.CSharp7_3, assemblyName: assemblyName);
+        Assert.Equal(source, Assert.Single(repeated.Result.GeneratedTrees).ToString());
+        Assert.Empty(repeated.Compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error));
     }
 
     private static readonly MetadataReference[] References = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!)
