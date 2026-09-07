@@ -24,8 +24,10 @@ using System;
 
 namespace DiscUtils.Internal;
 
+/// <summary>Associates a custom <see cref="VirtualDiskTransport"/> with a URI scheme for discovery.</summary>
+/// <remarks>Used by both generated library registration and reflection-based plugin discovery.</remarks>
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-internal sealed class VirtualDiskTransportAttribute : Attribute
+public sealed class VirtualDiskTransportAttribute : Attribute
 {
     public VirtualDiskTransportAttribute(string scheme)
     {

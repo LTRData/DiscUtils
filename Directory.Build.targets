@@ -1,0 +1,9 @@
+<Project>
+  <!-- Only format libraries opt in. Applications and package consumers need no analyzer. -->
+  <ItemGroup Condition="'$(DiscUtilsGenerateRegistration)' == 'true'">
+    <ProjectReference Include="$(MSBuildThisFileDirectory)SourceGenerators/DiscUtils.SourceGenerator/DiscUtils.SourceGenerator.csproj"
+                      OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all"
+                      GlobalPropertiesToRemove="TargetFramework;TargetFrameworks" SkipGetTargetFrameworkProperties="true" />
+    <CompilerVisibleProperty Include="DiscUtilsGenerateRegistration" />
+  </ItemGroup>
+</Project>

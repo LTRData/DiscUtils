@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace DiscUtils.Setup;
@@ -10,31 +11,77 @@ namespace DiscUtils.Setup;
 public static class SetupHelper
 {
     private static readonly HashSet<string> _alreadyLoaded;
+    private static readonly HashSet<string> _registering;
 
     static SetupHelper()
     {
         _alreadyLoaded = [];
-
-        // Register the core DiscUtils lib
-        RegisterAssembly(typeof(SetupHelper).Assembly);
+        _registering = [];
     }
 
     /// <summary>
     /// Registers the types provided by an assembly to all relevant DiscUtils managers
     /// </summary>
     /// <param name="assembly"></param>
+#if NET5_0_OR_GREATER
+    [RequiresUnreferencedCode("Assembly discovery requires untrimmed factory types and constructors. Use explicit registration instead.")]
+#endif
     public static void RegisterAssembly(Assembly assembly)
     {
+        if (assembly == null) throw new ArgumentNullException(nameof(assembly));
+        Core.Formats.Register();
+        RegisterAssembly(assembly, () =>
+        {
+            FileSystemManager.RegisterFileSystems(assembly);
+            VirtualDiskManager.RegisterVirtualDiskTypes(assembly);
+            VolumeManager.RegisterLogicalVolumeFactory(assembly);
+            Partitions.PartitionTable.RegisterPartitionTableFactories(assembly);
+        });
+    }
+
+    /// <summary>Runs an assembly's explicit registrations once, without scanning its types.</summary>
+    /// <param name="assembly">The assembly providing the implementations.</param>
+    /// <param name="register">Calls to the ordinary factory registration APIs.</param>
+    /// <remarks>
+    /// Shares the guard with reflection-based registration, keyed by assembly full name.
+    /// Repeated or recursive registration of the same assembly is ignored.
+    /// As with legacy reflection discovery, the assembly is marked before the callback runs.
+    /// If the callback throws, the exception propagates and any partial registrations remain;
+    /// subsequent explicit or reflection registration attempts do not retry the assembly.
+    /// </remarks>
+    public static void RegisterAssembly(Assembly assembly, Action register)
+    {
+        if (assembly == null) throw new ArgumentNullException(nameof(assembly));
+        if (register == null) throw new ArgumentNullException(nameof(register));
         lock (_alreadyLoaded)
         {
-            if (!_alreadyLoaded.Add(assembly.FullName ?? assembly.GetName().FullName))
+            var name = assembly.FullName ?? assembly.GetName().FullName;
+            if (!_alreadyLoaded.Add(name))
             {
                 return;
             }
 
-            FileSystemManager.RegisterFileSystems(assembly);
-            VirtualDiskManager.RegisterVirtualDiskTypes(assembly);
-            VolumeManager.RegisterLogicalVolumeFactory(assembly);
+            // Preserve the legacy guard against a factory constructor registering
+            // its own assembly again, while allowing the scanners in this callback.
+            _registering.Add(name);
+            try
+            {
+                register();
+            }
+            finally
+            {
+                _registering.Remove(name);
+            }
+        }
+    }
+
+    internal static bool IsAssemblyRegistered(Assembly assembly)
+    {
+        if (assembly == null) throw new ArgumentNullException(nameof(assembly));
+        lock (_alreadyLoaded)
+        {
+            var name = assembly.FullName ?? assembly.GetName().FullName;
+            return _alreadyLoaded.Contains(name) && !_registering.Contains(name);
         }
     }
 

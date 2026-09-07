@@ -1,30 +1,21 @@
-﻿using DiscUtils.Btrfs;
-using DiscUtils.ExFat;
-using DiscUtils.Ext;
-using DiscUtils.Fat;
-using DiscUtils.HfsPlus;
-using DiscUtils.Ntfs;
-using DiscUtils.OpticalDisk;
-using DiscUtils.SquashFs;
-using DiscUtils.Swap;
-using DiscUtils.Xfs;
-
-namespace DiscUtils.FileSystems;
+﻿namespace DiscUtils.FileSystems;
 
 public static class SetupHelper
 {
+    /// <summary>Registers the file-system package's providers without reflection.</summary>
     public static void SetupFileSystems()
     {
-        Setup.SetupHelper.RegisterAssembly(typeof(BtrfsFileSystem).Assembly);
-        Setup.SetupHelper.RegisterAssembly(typeof(ExtFileSystem).Assembly);
-        Setup.SetupHelper.RegisterAssembly(typeof(FatFileSystem).Assembly);
-        Setup.SetupHelper.RegisterAssembly(typeof(ExFatFileSystem).Assembly);
-        Setup.SetupHelper.RegisterAssembly(typeof(HfsPlusFileSystem).Assembly);
-        Setup.SetupHelper.RegisterAssembly(typeof(NtfsFileSystem).Assembly);
-        Setup.SetupHelper.RegisterAssembly(typeof(Disc).Assembly);
-        Setup.SetupHelper.RegisterAssembly(typeof(SquashFileSystemBuilder).Assembly);
-        Setup.SetupHelper.RegisterAssembly(typeof(SwapFileSystem).Assembly);
-        Setup.SetupHelper.RegisterAssembly(typeof(XfsFileSystem).Assembly);
-        Setup.SetupHelper.RegisterAssembly(typeof(VirtualFileSystem.VirtualFileSystem).Assembly);
+        Core.Formats.Register();
+        Btrfs.Formats.Register();
+        Ext.Formats.Register();
+        Fat.Formats.Register();
+        ExFat.Formats.Register();
+        HfsPlus.Formats.Register();
+        Ntfs.Formats.Register();
+        OpticalDisk.Formats.Register();
+        SquashFs.Formats.Register();
+        Swap.Formats.Register();
+        Xfs.Formats.Register();
+        VirtualFileSystem.Formats.Register();
     }
 }

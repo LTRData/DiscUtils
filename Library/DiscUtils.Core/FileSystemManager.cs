@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Reflection;
 using DiscUtils.Vfs;
@@ -34,7 +35,7 @@ namespace DiscUtils;
 /// </summary>
 /// <remarks>
 /// The static detection methods detect default file systems.  To plug in additional
-/// file systems, create an instance of this class and call RegisterFileSystems.
+/// file systems, call RegisterFileSystems with a factory instance.
 /// </remarks>
 public static class FileSystemManager
 {
@@ -54,6 +55,7 @@ public static class FileSystemManager
     /// <param name="factory">The detector for the new file systems.</param>
     public static void RegisterFileSystems(VfsFileSystemFactory factory)
     {
+        if (factory == null) throw new ArgumentNullException(nameof(factory));
         lock (_factories)
         {
             _factories.Add(factory);
@@ -68,11 +70,16 @@ public static class FileSystemManager
     /// To be detected, the <c>VfsFileSystemFactory</c> instances must be marked with the
     /// <c>VfsFileSystemFactoryAttribute</c>> attribute.
     /// </remarks>
+#if NET5_0_OR_GREATER
+    [RequiresUnreferencedCode("Assembly discovery requires untrimmed factory types and constructors. Register a factory instance instead.")]
+#endif
     public static void RegisterFileSystems(Assembly assembly)
     {
-        lock (_factories)
+        if (assembly == null) throw new ArgumentNullException(nameof(assembly));
+        if (Setup.SetupHelper.IsAssemblyRegistered(assembly)) return;
+        foreach (var factory in DetectFactories(assembly))
         {
-            _factories.AddRange(DetectFactories(assembly));
+            RegisterFileSystems(factory);
         }
     }
 
@@ -97,6 +104,9 @@ public static class FileSystemManager
         return DoDetect(stream, volume: null);
     }
 
+#if NET5_0_OR_GREATER
+    [RequiresUnreferencedCode("Assembly discovery requires untrimmed factory types and constructors.")]
+#endif
     private static IEnumerable<VfsFileSystemFactory> DetectFactories(Assembly assembly)
     {
         foreach (var type in assembly.GetTypes())
@@ -107,7 +117,8 @@ public static class FileSystemManager
                 continue;
             }
 
-            yield return (VfsFileSystemFactory)Activator.CreateInstance(type)!;
+            var factory = (VfsFileSystemFactory)Activator.CreateInstance(type)!;
+            yield return factory;
         }
     }
 

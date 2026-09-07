@@ -49,6 +49,9 @@
     <Project Path="Library/DiscUtils.Xva/DiscUtils.Xva.csproj" />
     <Project Path="Library/DiscUtils/DiscUtils.csproj" />
   </Folder>
+  <Folder Name="/SourceGenerators/">
+    <Project Path="SourceGenerators/DiscUtils.SourceGenerator/DiscUtils.SourceGenerator.csproj" />
+  </Folder>
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
     <File Path=".github/workflows/build-test.yml" />
@@ -59,7 +62,12 @@
   <Folder Name="/Tests/">
     <File Path="Tests/Directory.Build.props" />
     <Project Path="Tests/ExFat.Generator/ExFat.Generator.csproj" />
+    <Project Path="Tests/GeneratedRegistrationPlugin/GeneratedRegistrationPlugin.csproj" />
     <Project Path="Tests/LibraryTests/LibraryTests.csproj" />
+    <Project Path="Tests/RegistrationPlugin/RegistrationPlugin.csproj" />
+    <Project Path="Tests/RegistrationTests/RegistrationTests.csproj" />
+    <Project Path="Tests/NativeAotSmoke/NativeAotSmoke.csproj" />
+    <Project Path="Tests/SourceGeneratorTests/SourceGeneratorTests.csproj" />
   </Folder>
   <Folder Name="/Utilities/">
     <File Path="Utilities/Directory.Build.props" />

@@ -3,6 +3,9 @@
   
   <!-- Package related stuff -->
   <PropertyGroup>
+    <!-- Shared opt-in keeps new providers automatic at build time; projects without
+         discovery attributes (including meta-packages) generate no registration code. -->
+    <DiscUtilsGenerateRegistration>true</DiscUtilsGenerateRegistration>
     <TargetFrameworks>netstandard2.0;netstandard2.1;net46;net48;net8.0;net9.0;net10.0</TargetFrameworks>
 	<GeneratePackageOnBuild Condition="'$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
 	<PackageId>LTRData.$(MSBuildProjectName)</PackageId>

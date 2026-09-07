@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Reflection;
 using DiscUtils.Raw;
@@ -54,29 +55,42 @@ public abstract class PartitionTable
     /// </summary>
     public abstract Geometry? DiskGeometry { get; }
 
-    private static List<PartitionTableFactory> Factories
+    private static readonly List<PartitionTableFactory> _factories = new();
+
+    private static PartitionTableFactory[] Factories
     {
         get
         {
-            if (field == null)
-            {
-                var factories = new List<PartitionTableFactory>();
-
-                foreach (var type in typeof(VolumeManager).Assembly.GetTypes())
-                {
-                    foreach (var attr in type.GetCustomAttributes<PartitionTableFactoryAttribute>(false))
-                    {
-                        factories.Add((PartitionTableFactory)Activator.CreateInstance(type)!);
-                    }
-                }
-
-                field = factories;
-            }
-
-            return field;
+            Core.Formats.Register();
+            lock (_factories) return _factories.ToArray();
         }
+    }
 
-        set;
+    /// <summary>Appends a partition-table factory without assembly scanning.</summary>
+    /// <param name="factory">The factory to append. Detection follows registration order.</param>
+    internal static void RegisterPartitionTableFactory(PartitionTableFactory factory)
+    {
+        if (factory == null) throw new ArgumentNullException(nameof(factory));
+        lock (_factories) _factories.Add(factory);
+    }
+
+    /// <summary>Registers attributed partition-table factories from an assembly.</summary>
+    /// <param name="assembly">The assembly to inspect.</param>
+#if NET5_0_OR_GREATER
+    [RequiresUnreferencedCode("Assembly discovery requires untrimmed factory types and constructors. Register a factory instance instead.")]
+#endif
+    internal static void RegisterPartitionTableFactories(Assembly assembly)
+    {
+        if (assembly == null) throw new ArgumentNullException(nameof(assembly));
+        if (Setup.SetupHelper.IsAssemblyRegistered(assembly)) return;
+        foreach (var type in assembly.GetTypes())
+        {
+            foreach (var attr in type.GetCustomAttributes<PartitionTableFactoryAttribute>(false))
+            {
+                var factory = (PartitionTableFactory)Activator.CreateInstance(type)!;
+                RegisterPartitionTableFactory(factory);
+            }
+        }
     }
 
     /// <summary>

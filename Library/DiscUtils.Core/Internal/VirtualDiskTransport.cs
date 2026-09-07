@@ -25,7 +25,14 @@ using System.IO;
 
 namespace DiscUtils.Internal;
 
-internal abstract class VirtualDiskTransport : IDisposable
+/// <summary>Extension point for accessing virtual disks through a custom URI scheme.</summary>
+/// <remarks>
+/// Register a constructor delegate with <see cref="VirtualDiskManager.RegisterVirtualDiskTransport"/>
+/// or apply <see cref="VirtualDiskTransportAttribute"/> for generated or reflection-based discovery.
+/// A fresh transport is created for each open/create operation. A returned disk owns the transport
+/// and disposes it when the disk is disposed; unsuccessful operations dispose it immediately.
+/// </remarks>
+public abstract class VirtualDiskTransport : IDisposable
 {
     public abstract bool IsRawDisk { get; }
 

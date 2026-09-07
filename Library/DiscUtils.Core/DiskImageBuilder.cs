@@ -22,9 +22,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
-using DiscUtils.Internal;
 using DiscUtils.Streams;
 
 namespace DiscUtils;
@@ -34,8 +31,6 @@ namespace DiscUtils;
 /// </summary>
 public abstract class DiskImageBuilder
 {
-    private static Dictionary<string, VirtualDiskFactory>? _typeMap;
-
     /// <summary>
     /// Gets or sets the geometry of this disk, as reported by the BIOS, will be implied from the content stream if not set.
     /// </summary>
@@ -61,19 +56,6 @@ public abstract class DiskImageBuilder
     /// </summary>
     public virtual bool PreservesBiosGeometry => false;
 
-    private static Dictionary<string, VirtualDiskFactory> TypeMap
-    {
-        get
-        {
-            if (_typeMap == null)
-            {
-                InitializeMaps();
-            }
-
-            return _typeMap;
-        }
-    }
-
     /// <summary>
     /// Gets an instance that constructs the specified type (and variant) of virtual disk image.
     /// </summary>
@@ -82,7 +64,7 @@ public abstract class DiskImageBuilder
     /// <returns>The builder instance.</returns>
     public static DiskImageBuilder GetBuilder(string type, string variant)
     {
-        if (!TypeMap.TryGetValue(type, out var factory))
+        if (!VirtualDiskManager.TypeMap.TryGetValue(type, out var factory))
         {
             throw new ArgumentException($"Unknown disk type '{type}'", nameof(type));
         }
@@ -101,22 +83,4 @@ public abstract class DiskImageBuilder
     /// to each logical file that comprises the disk image.  For example, given a base name
     /// 'foo', the files 'foo.vmdk' and 'foo-flat.vmdk' could be returned.</remarks>
     public abstract IEnumerable<DiskImageFileSpecification> Build(string baseName);
-
-    [MemberNotNull(nameof(_typeMap))]
-    private static void InitializeMaps()
-    {
-        var typeMap = new Dictionary<string, VirtualDiskFactory>();
-
-        foreach (var type in typeof(VirtualDisk).Assembly.GetTypes())
-        {
-            var attr = type.GetCustomAttribute<VirtualDiskFactoryAttribute>(false);
-            if (attr != null)
-            {
-                var factory = (VirtualDiskFactory)Activator.CreateInstance(type)!;
-                typeMap.Add(attr.Type, factory);
-            }
-        }
-
-        _typeMap = typeMap;
-    }
 }

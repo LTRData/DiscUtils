@@ -24,5 +24,7 @@ using System;
 
 namespace DiscUtils.Internal;
 
+/// <summary>Marks a custom <see cref="LogicalVolumeFactory"/> for discovery.</summary>
+/// <remarks>Used by both generated library registration and reflection-based plugin discovery.</remarks>
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-internal sealed class LogicalVolumeFactoryAttribute : Attribute { }
+public sealed class LogicalVolumeFactoryAttribute : Attribute { }
