@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks />
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <PublishAot>true</PublishAot>
+    <PublishTrimmed>true</PublishTrimmed>
+    <TrimmerSingleWarn>false</TrimmerSingleWarn>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(UsePackageReferences)' != 'true'">
+    <ProjectReference Include="../../Library/DiscUtils.Vhd/DiscUtils.Vhd.csproj" />
+    <ProjectReference Include="../../Library/DiscUtils.Fat/DiscUtils.Fat.csproj" />
+    <ProjectReference Include="../../Library/DiscUtils.Lvm/DiscUtils.Lvm.csproj" />
+  </ItemGroup>
+  <!-- Allows the exact same app to verify packed buildTransitive assets outside this repository. -->
+  <ItemGroup Condition="'$(UsePackageReferences)' == 'true'">
+    <PackageReference Include="LTRData.DiscUtils.Vhd" Version="$(DiscUtilsPackageVersion)" />
+    <PackageReference Include="LTRData.DiscUtils.Fat" Version="$(DiscUtilsPackageVersion)" />
+    <PackageReference Include="LTRData.DiscUtils.Lvm" Version="$(DiscUtilsPackageVersion)" />
+  </ItemGroup>
+</Project>

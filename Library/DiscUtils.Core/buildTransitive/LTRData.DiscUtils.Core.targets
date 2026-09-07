@@ -1,0 +1,5 @@
+<Project>
+  <ItemGroup Condition="'$(Language)' == 'C#'">
+    <Analyzer Include="$(MSBuildThisFileDirectory)../tools/DiscUtils.SourceGenerator.dll" />
+  </ItemGroup>
+</Project>

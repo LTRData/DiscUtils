@@ -1,0 +1,9 @@
+<Project>
+  <!-- The same generator is shipped in Core for package consumers. It has no runtime dependency. -->
+  <ItemGroup Condition="'$(MSBuildProjectName)' != 'DiscUtils.SourceGenerator' And '$(DiscUtilsDisableGenerator)' != 'true'">
+    <ProjectReference Include="$(MSBuildThisFileDirectory)SourceGenerators/DiscUtils.SourceGenerator/DiscUtils.SourceGenerator.csproj"
+                      OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all"
+                      GlobalPropertiesToRemove="TargetFramework;TargetFrameworks" SkipGetTargetFrameworkProperties="true" />
+    <CompilerVisibleProperty Include="DiscUtilsGenerateRegistration" />
+  </ItemGroup>
+</Project>

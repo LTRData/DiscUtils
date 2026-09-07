@@ -25,7 +25,7 @@ using System;
 namespace DiscUtils.Internal;
 
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-internal sealed class VirtualDiskTransportAttribute : Attribute
+public sealed class VirtualDiskTransportAttribute : Attribute
 {
     public VirtualDiskTransportAttribute(string scheme)
     {

@@ -375,12 +375,12 @@ public abstract class VirtualDisk :
         var uri = PathToUri(path);
         VirtualDisk result;
 
-        if (!VirtualDiskManager.DiskTransports.TryGetValue(uri.Scheme, out var transportType))
+        if (!VirtualDiskManager.DiskTransports.TryGetValue(uri.Scheme, out var transportFactory))
         {
             throw new FileNotFoundException($"Unable to parse path '{path}'", path);
         }
 
-        var transport = (VirtualDiskTransport)Activator.CreateInstance(transportType)!;
+        var transport = transportFactory();
 
         try
         {
@@ -499,12 +499,12 @@ public abstract class VirtualDisk :
         var uri = PathToUri(path);
         VirtualDisk? result = null;
 
-        if (!VirtualDiskManager.DiskTransports.TryGetValue(uri.Scheme, out var transportType))
+        if (!VirtualDiskManager.DiskTransports.TryGetValue(uri.Scheme, out var transportFactory))
         {
             throw new FileNotFoundException($"Unable to parse path '{uri}'", path);
         }
 
-        var transport = (VirtualDiskTransport)Activator.CreateInstance(transportType)!;
+        var transport = transportFactory();
 
         try
         {

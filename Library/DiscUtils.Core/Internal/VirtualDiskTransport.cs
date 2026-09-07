@@ -25,7 +25,7 @@ using System.IO;
 
 namespace DiscUtils.Internal;
 
-internal abstract class VirtualDiskTransport : IDisposable
+public abstract class VirtualDiskTransport : IDisposable
 {
     public abstract bool IsRawDisk { get; }
 

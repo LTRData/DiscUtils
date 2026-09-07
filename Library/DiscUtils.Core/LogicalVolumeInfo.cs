@@ -33,7 +33,15 @@ public sealed class LogicalVolumeInfo : VolumeInfo
     private Guid _guid;
     private readonly SparseStreamOpenDelegate _opener;
 
-    internal LogicalVolumeInfo(Guid guid, PhysicalVolumeInfo? physicalVolume, SparseStreamOpenDelegate opener,
+    /// <summary>Describes a logical volume mapped by a logical-volume factory.</summary>
+    /// <param name="guid">Stable volume identifier, or empty to use the physical volume identity.</param>
+    /// <param name="physicalVolume">The backing physical volume, if there is a single one.</param>
+    /// <param name="opener">Opens the volume content as a new stream.</param>
+    /// <param name="length">Volume length in bytes.</param>
+    /// <param name="biosType">The BIOS partition type.</param>
+    /// <param name="status">The health of the volume.</param>
+    /// <param name="typeAsString">A description of the volume type.</param>
+    public LogicalVolumeInfo(Guid guid, PhysicalVolumeInfo? physicalVolume, SparseStreamOpenDelegate opener,
                                long length, byte biosType, LogicalVolumeStatus status, string? typeAsString)
     {
         _guid = guid;

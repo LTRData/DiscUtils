@@ -36,9 +36,11 @@ To work with this, four Meta packages have been created:
 
 #### Note on detections
 
-DiscUtils has a number of detection helpers. These provide services like "which filesystem is this stream?". For this to work, you must register your filesystem providers with the DiscUtils core. To do this, call:
+DiscUtils has a number of detection helpers. These provide services like "which filesystem is this stream?". Built-in providers register automatically in C# 9+ package consumers, including trimmed and Native AOT applications. See [format registration and Native AOT](docs/native-aot-format-registration.md) for compiler requirements, explicit third-party registration, and initialization when using DLL or external project references.
 
-    DiscUtils.Setup.RegisterAssembly(assembly);
+For reflection-based plugin discovery on normal runtimes, call:
+
+    DiscUtils.Setup.SetupHelper.RegisterAssembly(assembly);
 
 Where `assembly` is the assembly you wish to register. Note that the metapackages have helpers:
 

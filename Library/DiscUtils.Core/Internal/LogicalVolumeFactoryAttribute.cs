@@ -25,4 +25,4 @@ using System;
 namespace DiscUtils.Internal;
 
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-internal sealed class LogicalVolumeFactoryAttribute : Attribute { }
+public sealed class LogicalVolumeFactoryAttribute : Attribute { }

@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -48,7 +49,6 @@ public sealed class VolumeManager
 
     private Dictionary<string, PhysicalVolumeInfo> _physicalVolumes;
     private Dictionary<string, LogicalVolumeInfo> _logicalVolumes;
-    private static readonly Assembly _coreAssembly = typeof(VolumeManager).Assembly;
 
     /// <summary>
     /// Initializes a new instance of the VolumeManager class.
@@ -80,37 +80,27 @@ public sealed class VolumeManager
         AddDisk(initialDiskContent);
     }
 
-    private static readonly object _syncObj = new();
+    private static readonly ConcurrentBag<LogicalVolumeFactory> LogicalVolumeFactories = new();
 
-    private static ConcurrentBag<LogicalVolumeFactory> LogicalVolumeFactories
+    /// <summary>Registers a logical-volume factory without assembly scanning.</summary>
+    /// <param name="factory">The factory to append. Enumeration order is unspecified.</param>
+    public static void RegisterLogicalVolumeFactory(LogicalVolumeFactory factory)
     {
-        get
-        {
-            if (field == null)
-            {
-                lock (_syncObj)
-                {
-                    if (field == null)
-                    {
-                        var factories = new ConcurrentBag<LogicalVolumeFactory>(GetLogicalVolumeFactories(_coreAssembly));
-                        field = factories;
-                    }
-                }
-            }
-
-            return field;
-        }
-
-        set;
+        if (factory == null) throw new ArgumentNullException(nameof(factory));
+        LogicalVolumeFactories.Add(factory);
     }
 
+#if NET5_0_OR_GREATER
+    [RequiresUnreferencedCode("Assembly discovery requires untrimmed factory types and constructors.")]
+#endif
     private static IEnumerable<LogicalVolumeFactory> GetLogicalVolumeFactories(Assembly assembly)
     {
         foreach (var type in assembly.GetTypes())
         {
             foreach (var attr in type.GetCustomAttributes<LogicalVolumeFactoryAttribute>(false))
             {
-                yield return (LogicalVolumeFactory)Activator.CreateInstance(type)!;
+                var factory = (LogicalVolumeFactory)Activator.CreateInstance(type)!;
+                yield return factory;
             }
         }
     }
@@ -119,16 +109,18 @@ public sealed class VolumeManager
     /// Register new LogicalVolumeFactories detected in an assembly
     /// </summary>
     /// <param name="assembly">The assembly to inspect</param>
+#if NET5_0_OR_GREATER
+    [RequiresUnreferencedCode("Assembly discovery requires untrimmed factory types and constructors. Register a factory instance instead.")]
+#endif
     public static void RegisterLogicalVolumeFactory(Assembly assembly)
     {
-        if (assembly == _coreAssembly)
-        {
-            return;
-        }
+        if (assembly == null) throw new ArgumentNullException(nameof(assembly));
+        System.Runtime.CompilerServices.RuntimeHelpers.RunModuleConstructor(assembly.ManifestModule.ModuleHandle);
+        if (Setup.SetupHelper.IsAssemblyRegistered(assembly)) return;
 
         foreach (var factory in GetLogicalVolumeFactories(assembly))
         {
-            LogicalVolumeFactories.Add(factory);
+            RegisterLogicalVolumeFactory(factory);
         }
     }
 
