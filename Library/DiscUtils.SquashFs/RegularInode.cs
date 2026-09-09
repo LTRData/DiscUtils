@@ -30,7 +30,7 @@ internal class RegularInode : Inode
     private uint _fileSize;
     public uint FragmentKey;
     public uint FragmentOffset;
-    public uint StartBlock;
+    public long StartBlock;
 
     public override long FileSize
     {
@@ -67,7 +67,7 @@ internal class RegularInode : Inode
     {
         base.WriteTo(buffer);
 
-        EndianUtilities.WriteBytesLittleEndian(StartBlock, buffer[16..]);
+        EndianUtilities.WriteBytesLittleEndian(checked((uint)StartBlock), buffer[16..]);
         EndianUtilities.WriteBytesLittleEndian(FragmentKey, buffer[20..]);
         EndianUtilities.WriteBytesLittleEndian(FragmentOffset, buffer[24..]);
         EndianUtilities.WriteBytesLittleEndian(_fileSize, buffer[28..]);

@@ -45,7 +45,14 @@ internal abstract class Inode : IByteArraySerializable
 
     public abstract int Size { get; }
 
-    public virtual int ReadFrom(ReadOnlySpan<byte> buffer)
+    public virtual int ReadFrom(ReadOnlySpan<byte> buffer) => ReadHeader(buffer);
+
+    public virtual void WriteTo(Span<byte> buffer) => WriteHeader(buffer);
+
+    /// <summary>
+    /// Reads the 16-byte header every inode type starts with.
+    /// </summary>
+    protected int ReadHeader(ReadOnlySpan<byte> buffer)
     {
         Type = (InodeType)EndianUtilities.ToUInt16LittleEndian(buffer);
         Mode = EndianUtilities.ToUInt16LittleEndian(buffer[2..]);
@@ -56,7 +63,10 @@ internal abstract class Inode : IByteArraySerializable
         return 16;
     }
 
-    public virtual void WriteTo(Span<byte> buffer)
+    /// <summary>
+    /// Writes the 16-byte header every inode type starts with.
+    /// </summary>
+    protected void WriteHeader(Span<byte> buffer)
     {
         EndianUtilities.WriteBytesLittleEndian((ushort)Type, buffer);
         EndianUtilities.WriteBytesLittleEndian(Mode, buffer[2..]);
@@ -105,6 +115,7 @@ internal abstract class Inode : IByteArraySerializable
             InodeType.Directory => new DirectoryInode(),
             InodeType.ExtendedDirectory => new ExtendedDirectoryInode(),
             InodeType.File => new RegularInode(),
+            InodeType.ExtendedFile => new ExtendedFileInode(),
             InodeType.Symlink => new SymlinkInode(),
             InodeType.CharacterDevice or InodeType.BlockDevice => new DeviceInode(),
             _ => throw new NotImplementedException($"Inode type not implemented: {type}"),
