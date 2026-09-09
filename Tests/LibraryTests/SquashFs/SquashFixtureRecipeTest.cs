@@ -26,18 +26,22 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using DiscUtils.SquashFs;
 
 namespace LibraryTests.SquashFs;
 
 /// <summary>
 /// The recipe of the SquashFS test images, as code: what the source trees hold and how mksquashfs turns them into
 /// extended-inodes.sqsh and huge-sparse.sqsh. When squashfs-tools (4.5 or later) is on the machine, the images are
-/// rebuilt and must match the embedded ones byte for byte, so the binaries in the repository are verifiable rather
-/// than trusted. Without the tool the test passes without checking anything.
+/// rebuilt and compared with the embedded ones, so the binaries in the repository are verifiable rather than
+/// trusted: byte for byte when the installed mksquashfs is the release that made them, since other releases lay an
+/// image out differently, and otherwise through the reader, file by file. Without the tool the test passes without
+/// checking anything.
 /// </summary>
 public sealed class SquashFixtureRecipeTest
 {
     private const string TextLine = "a line of text that compresses well, over and over\n";
+    private const string FixtureToolVersion = "4.7.5";
 
     [Fact]
     public void EmbeddedImagesAreWhatMksquashfsMakesOfTheRecipe()
@@ -80,8 +84,15 @@ public sealed class SquashFixtureRecipeTest
             Run("mksquashfs", new[] { ext, extImage, "-comp", "gzip", "-Xcompression-level", "6", "-b", "128K" }.Concat(flags).ToArray());
             Run("mksquashfs", new[] { huge, hugeImage, "-comp", "gzip", "-Xcompression-level", "6", "-b", "1M" }.Concat(flags).ToArray());
 
-            Assert.Equal(Embedded("extended-inodes.sqsh"), File.ReadAllBytes(extImage));
-            Assert.Equal(Embedded("huge-sparse.sqsh"), File.ReadAllBytes(hugeImage));
+            var version = ToolVersion();
+            if (version == FixtureToolVersion)
+            {
+                Assert.Equal(Embedded("extended-inodes.sqsh"), File.ReadAllBytes(extImage));
+                Assert.Equal(Embedded("huge-sparse.sqsh"), File.ReadAllBytes(hugeImage));
+            }
+
+            AssertSameContent("extended-inodes.sqsh", extImage, version);
+            AssertSameContent("huge-sparse.sqsh", hugeImage, version);
         }
         finally
         {
@@ -93,6 +104,60 @@ public sealed class SquashFixtureRecipeTest
     {
         var bytes = Encoding.ASCII.GetBytes(ascii);
         stream.Write(bytes, 0, bytes.Length);
+    }
+
+    /// <summary>
+    /// The rebuilt image holds the same files with the same content as the embedded one: names, sizes, and bytes
+    /// (a few ranges of a file too large to read whole).
+    /// </summary>
+    private void AssertSameContent(string embeddedName, string rebuiltPath, string toolVersion)
+    {
+        using var embedded = new SquashFileSystemReader(new MemoryStream(Embedded(embeddedName)));
+        using var rebuiltStream = File.OpenRead(rebuiltPath);
+        using var rebuilt = new SquashFileSystemReader(rebuiltStream);
+        var expectedFiles = embedded.GetFiles("", "*", SearchOption.AllDirectories).OrderBy(f => f).ToArray();
+        var actualFiles = rebuilt.GetFiles("", "*", SearchOption.AllDirectories).OrderBy(f => f).ToArray();
+        Assert.True(expectedFiles.SequenceEqual(actualFiles), $"{embeddedName} rebuilt by mksquashfs {toolVersion} lists different files");
+        foreach (var file in expectedFiles)
+        {
+            var length = embedded.GetFileLength(file);
+            Assert.True(length == rebuilt.GetFileLength(file), $"{embeddedName}: {file} rebuilt by mksquashfs {toolVersion} has another size");
+            using var expected = embedded.OpenFile(file, FileMode.Open, FileAccess.Read);
+            using var actual = rebuilt.OpenFile(file, FileMode.Open, FileAccess.Read);
+            var ranges = length <= 8 * 1024 * 1024
+                ? new (long Offset, int Count)[] { (0L, (int)length) }
+                : new (long Offset, int Count)[] { (0L, 65536), (length / 2 - 32768, 65536), (length - 65536, 65536) };
+            foreach (var (offset, count) in ranges)
+            {
+                Assert.Equal(ReadRange(expected, offset, count), ReadRange(actual, offset, count));
+            }
+        }
+    }
+
+    private static byte[] ReadRange(Stream stream, long offset, int count)
+    {
+        var buffer = new byte[count];
+        stream.Position = offset;
+        var total = 0;
+        int read;
+        while (total < count && (read = stream.Read(buffer, total, count - total)) > 0)
+        {
+            total += read;
+        }
+        Assert.Equal(count, total);
+        return buffer;
+    }
+
+    private static string ToolVersion()
+    {
+        using var process = Process.Start(new ProcessStartInfo("mksquashfs", "-version") { RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false })
+            ?? throw new InvalidOperationException("Could not start mksquashfs");
+        var output = process.StandardOutput.ReadToEnd();
+        process.WaitForExit();
+        // "mksquashfs version 4.7.5 (2026/03/01)"
+        var words = output.Split(new[] { ' ', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+        var index = Array.IndexOf(words, "version");
+        return index >= 0 && index + 1 < words.Length ? words[index + 1] : "unknown";
     }
 
     private static string Text(int length)
