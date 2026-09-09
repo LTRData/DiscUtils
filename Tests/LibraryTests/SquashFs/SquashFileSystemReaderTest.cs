@@ -48,7 +48,7 @@ public sealed class SquashFileSystemReaderTest
     /// An image made by mksquashfs 4.7 with a gzip compression level (so the superblock carries compressor
     /// options), a 128 KB block size, and files mksquashfs stores in extended file inodes: a sparse one (2 MB of
     /// zeros stored as nothing, then "end" in a fragment) and a hard-linked one. text.bin spans two full blocks
-    /// and a fragment. make-fixtures.sh rebuilds the image byte for byte.
+    /// and a fragment. SquashFixtureRecipeTest holds the recipe and rebuilds the image byte for byte.
     /// </summary>
     [Fact]
     public void ExtendedFileInodesSparseBlocksAndCompressorOptions()
