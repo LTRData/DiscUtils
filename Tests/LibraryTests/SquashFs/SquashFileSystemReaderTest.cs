@@ -45,10 +45,10 @@ public sealed class SquashFileSystemReaderTest
     }
 
     /// <summary>
-    /// An image made by mksquashfs 4.7 with a gzip compression level (so the superblock carries compressor
-    /// options), a 128 KB block size, and files mksquashfs stores in extended file inodes: a sparse one (2 MB of
-    /// zeros stored as nothing, then "end" in a fragment) and a hard-linked one. text.bin spans two full blocks
-    /// and a fragment. SquashFixtureRecipeTest holds the recipe and rebuilds the image byte for byte.
+    /// An image made by mksquashfs with a gzip compression level (so the superblock carries compressor options), a
+    /// 128 KB block size, and files mksquashfs stores in extended file inodes: a sparse one (2 MB of zeros stored as
+    /// nothing, then "end" in a fragment) and a hard-linked one. text.bin spans two full blocks and a fragment.
+    /// <see cref="SquashFixtures"/> holds the recipe and builds the image fresh when mksquashfs is on the machine.
     /// </summary>
     [Fact]
     public void ExtendedFileInodesSparseBlocksAndCompressorOptions()
@@ -59,7 +59,7 @@ public sealed class SquashFileSystemReaderTest
         Assert.Equal("twice", ReadText(fs, "hard.txt"));
         Assert.Equal("twice", ReadText(fs, @"dir\hard2.txt"));
 
-        Assert.Equal(TextFixture(), ReadText(fs, "text.bin"));
+        Assert.Equal(SquashFixtures.Text, ReadText(fs, "text.bin"));
 
         Assert.Equal(2 * 1024 * 1024 + 3, fs.GetFileLength("sparse.bin"));
         using var sparse = fs.OpenFile("sparse.bin", FileMode.Open, FileAccess.Read);
@@ -87,7 +87,7 @@ public sealed class SquashFileSystemReaderTest
     public void SingleReadAcrossStoredBlockBoundary(int offset, int count)
     {
         using var fs = OpenImage("extended-inodes.sqsh");
-        var expected = Encoding.ASCII.GetBytes(TextFixture()).AsSpan(offset, count).ToArray();
+        var expected = Encoding.ASCII.GetBytes(SquashFixtures.Text).AsSpan(offset, count).ToArray();
         using var stream = fs.OpenFile("text.bin", FileMode.Open, FileAccess.Read);
         var buffer = new byte[count];
         stream.Position = offset;
@@ -132,26 +132,7 @@ public sealed class SquashFileSystemReaderTest
         Assert.Equal(0, stream.Read(tail, 0, tail.Length));
     }
 
-    private SquashFileSystemReader OpenImage(string resource)
-    {
-        using var stream = GetType().Assembly.GetManifestResourceStream(GetType(), resource)
-            ?? throw new InvalidOperationException($"Missing test resource {resource}");
-        var image = new MemoryStream();
-        stream.CopyTo(image);
-        image.Position = 0;
-        return new SquashFileSystemReader(image);
-    }
-
-    private static string TextFixture()
-    {
-        var line = "a line of text that compresses well, over and over\n";
-        var text = new StringBuilder();
-        while (text.Length < 300000)
-        {
-            text.Append(line);
-        }
-        return text.ToString(0, 300000);
-    }
+    private static SquashFileSystemReader OpenImage(string name) => new(SquashFixtures.Open(name));
 
     private static string ReadText(SquashFileSystemReader fs, string path)
     {
