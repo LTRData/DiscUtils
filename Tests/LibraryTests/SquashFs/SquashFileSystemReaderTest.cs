@@ -20,7 +20,9 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
+using System;
 using System.IO;
+using System.Text;
 using DiscUtils.SquashFs;
 
 namespace LibraryTests.SquashFs;
@@ -40,5 +42,52 @@ public sealed class SquashFileSystemReaderTest
         var builder = new SquashFileSystemBuilder();
         builder.Build(emptyFs);
         Assert.True(SquashFileSystemReader.Detect(emptyFs));
+    }
+
+    /// <summary>
+    /// An image made by mksquashfs 4.7 with a gzip compression level (so the superblock carries compressor
+    /// options), a 128 KB block size, and files mksquashfs stores in extended file inodes: a sparse one (2 MB of
+    /// zeros stored as nothing, then "end" in a fragment) and a hard-linked one. text.bin spans three blocks.
+    /// </summary>
+    [Fact]
+    public void ExtendedFileInodesSparseBlocksAndCompressorOptions()
+    {
+        using var resource = GetType().Assembly.GetManifestResourceStream(GetType(), "extended-inodes.sqsh")
+            ?? throw new InvalidOperationException("Missing test resource extended-inodes.sqsh");
+        var image = new MemoryStream();
+        resource.CopyTo(image);
+        image.Position = 0;
+
+        using var fs = new SquashFileSystemReader(image);
+
+        Assert.Equal("hello", ReadText(fs, "small.txt"));
+        Assert.Equal("twice", ReadText(fs, "hard.txt"));
+        Assert.Equal("twice", ReadText(fs, @"dir\hard2.txt"));
+
+        var line = "a line of text that compresses well, over and over\n";
+        var text = new StringBuilder();
+        while (text.Length < 300000)
+        {
+            text.Append(line);
+        }
+        Assert.Equal(text.ToString(0, 300000), ReadText(fs, "text.bin"));
+
+        Assert.Equal(2 * 1024 * 1024 + 3, fs.GetFileLength("sparse.bin"));
+        using var sparse = fs.OpenFile("sparse.bin", FileMode.Open, FileAccess.Read);
+        var buffer = new byte[300000];
+        sparse.Position = 1024 * 1024 - 100000;
+        Assert.Equal(buffer.Length, sparse.Read(buffer, 0, buffer.Length));
+        Assert.All(buffer, b => Assert.Equal(0, b));
+        sparse.Position = 2 * 1024 * 1024 - 2;
+        var tail = new byte[5];
+        Assert.Equal(5, sparse.Read(tail, 0, tail.Length));
+        Assert.Equal(new byte[] { 0, 0, (byte)'e', (byte)'n', (byte)'d' }, tail);
+    }
+
+    private static string ReadText(SquashFileSystemReader fs, string path)
+    {
+        using var stream = fs.OpenFile(path, FileMode.Open, FileAccess.Read);
+        using var reader = new StreamReader(stream, Encoding.ASCII);
+        return reader.ReadToEnd();
     }
 }

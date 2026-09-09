@@ -116,13 +116,21 @@ public abstract class CompressionOptions : IByteArraySerializable
 
             case SquashFileSystemCompressionKind.ZLib:
                 {
-                    ThrowIfHasOptions();
-                    return new ZLibCompressionOptions();
+                    ZLibCompressionOptions opts = new();
+                    if (hasOptions)
+                    {
+                        ReadOptions(stream, opts);
+                    }
+                    return opts;
                 }
             case SquashFileSystemCompressionKind.Lzo:
                 {
-                    ThrowIfHasOptions();
-                    return new LzoCompressionOptions();
+                    LzoCompressionOptions opts = new();
+                    if (hasOptions)
+                    {
+                        ReadOptions(stream, opts);
+                    }
+                    return opts;
                 }
             case SquashFileSystemCompressionKind.Lzma:
                 {
@@ -131,8 +139,12 @@ public abstract class CompressionOptions : IByteArraySerializable
                 }
             case SquashFileSystemCompressionKind.ZStd:
                 {
-                    ThrowIfHasOptions();
-                    return new ZStdCompressionOptions();
+                    ZStdCompressionOptions opts = new();
+                    if (hasOptions)
+                    {
+                        ReadOptions(stream, opts);
+                    }
+                    return opts;
                 }
             default:
                 {
@@ -146,6 +158,16 @@ public abstract class CompressionOptions : IByteArraySerializable
             {
                 throw new NotSupportedException($"Unsupported compression options for {block.Compression}");
             }
+        }
+
+        static void ReadOptions(Stream stream, CompressionOptions opts)
+        {
+            var size = ReadCompressionSize(stream);
+            if (size < opts.Size)
+            {
+                throw new InvalidDataException($"Invalid {opts.Kind} options size {size}. Expecting at least {opts.Size}");
+            }
+            opts.ReadFrom(stream, size);
         }
     }
 
@@ -307,12 +329,84 @@ public class XzCompressionOptions : CompressionOptions
 /// <summary>
 /// Compression options for ZLib. (No options are supported).
 /// </summary>
-public class ZLibCompressionOptions() : CompressionOptions(SquashFileSystemCompressionKind.ZLib);
+/// <summary>
+/// Compression options for gzip, present when the image was made with a compression level, window size or
+/// strategy other than the defaults. Decompression does not depend on them.
+/// </summary>
+public class ZLibCompressionOptions() : CompressionOptions(SquashFileSystemCompressionKind.ZLib)
+{
+    /// <summary>
+    /// The zlib compression level (1-9).
+    /// </summary>
+    public int CompressionLevel { get; private set; } = 9;
+
+    /// <summary>
+    /// The zlib window size (log2, 9-15).
+    /// </summary>
+    public int WindowSize { get; private set; } = 15;
+
+    /// <summary>
+    /// The strategies used, as a bit mask.
+    /// </summary>
+    public int Strategies { get; private set; }
+
+    /// <inheritdoc />
+    public override int Size => 8;
+
+    /// <inheritdoc />
+    public override int ReadFrom(ReadOnlySpan<byte> buffer)
+    {
+        CompressionLevel = EndianUtilities.ToInt32LittleEndian(buffer);
+        WindowSize = EndianUtilities.ToUInt16LittleEndian(buffer[4..]);
+        Strategies = EndianUtilities.ToUInt16LittleEndian(buffer[6..]);
+        return Size;
+    }
+
+    /// <inheritdoc />
+    public override void WriteTo(Span<byte> buffer)
+    {
+        EndianUtilities.WriteBytesLittleEndian(CompressionLevel, buffer);
+        EndianUtilities.WriteBytesLittleEndian((ushort)WindowSize, buffer[4..]);
+        EndianUtilities.WriteBytesLittleEndian((ushort)Strategies, buffer[6..]);
+    }
+}
 
 /// <summary>
 /// Compression options for LZO. (No options are supported).
 /// </summary>
-public class LzoCompressionOptions() : CompressionOptions(SquashFileSystemCompressionKind.Lzo);
+/// <summary>
+/// Compression options for LZO: the algorithm and, for lzo1x_999, the compression level.
+/// </summary>
+public class LzoCompressionOptions() : CompressionOptions(SquashFileSystemCompressionKind.Lzo)
+{
+    /// <summary>
+    /// The LZO algorithm (0 lzo1x_1, 1 lzo1x_1_11, 2 lzo1x_1_12, 3 lzo1x_1_15, 4 lzo1x_999).
+    /// </summary>
+    public int Algorithm { get; private set; } = 4;
+
+    /// <summary>
+    /// The compression level for lzo1x_999 (0-9).
+    /// </summary>
+    public int CompressionLevel { get; private set; } = 8;
+
+    /// <inheritdoc />
+    public override int Size => 8;
+
+    /// <inheritdoc />
+    public override int ReadFrom(ReadOnlySpan<byte> buffer)
+    {
+        Algorithm = EndianUtilities.ToInt32LittleEndian(buffer);
+        CompressionLevel = EndianUtilities.ToInt32LittleEndian(buffer[4..]);
+        return Size;
+    }
+
+    /// <inheritdoc />
+    public override void WriteTo(Span<byte> buffer)
+    {
+        EndianUtilities.WriteBytesLittleEndian(Algorithm, buffer);
+        EndianUtilities.WriteBytesLittleEndian(CompressionLevel, buffer[4..]);
+    }
+}
 
 /// <summary>
 /// Compression options for LZMA. (No options are supported).
@@ -322,4 +416,29 @@ public class LzmaCompressionOptions() : CompressionOptions(SquashFileSystemCompr
 /// <summary>
 /// ZStandard compression options. (No options are supported).
 /// </summary>
-public class ZStdCompressionOptions() : CompressionOptions(SquashFileSystemCompressionKind.ZStd);
+/// <summary>
+/// Compression options for zstd: the compression level.
+/// </summary>
+public class ZStdCompressionOptions() : CompressionOptions(SquashFileSystemCompressionKind.ZStd)
+{
+    /// <summary>
+    /// The zstd compression level (1-22).
+    /// </summary>
+    public int CompressionLevel { get; private set; } = 15;
+
+    /// <inheritdoc />
+    public override int Size => 4;
+
+    /// <inheritdoc />
+    public override int ReadFrom(ReadOnlySpan<byte> buffer)
+    {
+        CompressionLevel = EndianUtilities.ToInt32LittleEndian(buffer);
+        return Size;
+    }
+
+    /// <inheritdoc />
+    public override void WriteTo(Span<byte> buffer)
+    {
+        EndianUtilities.WriteBytesLittleEndian(CompressionLevel, buffer);
+    }
+}

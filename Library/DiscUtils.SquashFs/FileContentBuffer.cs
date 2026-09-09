@@ -104,7 +104,16 @@ internal class FileContentBuffer : Streams.Buffer
                 ++currentBlock;
             }
 
-            var blockOffset = (int)(pos % _context.SuperBlock.BlockSize);
+            var blockOffset = (int)(currentPos % _context.SuperBlock.BlockSize);
+            if ((_blockLengths[currentBlock] & 0x00FFFFFF) == 0)
+            {
+                // A sparse block: nothing stored, all zeros
+                var zeros = Math.Min(BlockLength(currentBlock) - blockOffset, totalToRead - totalRead);
+                Array.Clear(buffer, offset + totalRead, zeros);
+                totalRead += zeros;
+                currentPos += zeros;
+                continue;
+            }
 
             var block = _context.ReadBlock(currentBlockDiskStart, _blockLengths[currentBlock]);
 
@@ -116,6 +125,12 @@ internal class FileContentBuffer : Streams.Buffer
 
         return totalRead;
     }
+
+    /// <summary>
+    /// The length of one block of the file: the block size, except for a last block that is not in a fragment.
+    /// </summary>
+    private int BlockLength(int block)
+        => (int)Math.Min(_context.SuperBlock.BlockSize, _inode.FileSize - (long)block * _context.SuperBlock.BlockSize);
 
     public override void Write(long pos, byte[] buffer, int offset, int count)
     {
@@ -150,7 +165,16 @@ internal class FileContentBuffer : Streams.Buffer
                 ++currentBlock;
             }
 
-            var blockOffset = (int)(pos % _context.SuperBlock.BlockSize);
+            var blockOffset = (int)(currentPos % _context.SuperBlock.BlockSize);
+            if ((_blockLengths[currentBlock] & 0x00FFFFFF) == 0)
+            {
+                // A sparse block: nothing stored, all zeros
+                var zeros = Math.Min(BlockLength(currentBlock) - blockOffset, totalToRead - totalRead);
+                buffer.Slice(totalRead, zeros).Clear();
+                totalRead += zeros;
+                currentPos += zeros;
+                continue;
+            }
 
             var block = _context.ReadBlock(currentBlockDiskStart, _blockLengths[currentBlock]);
 
