@@ -24,6 +24,7 @@
   <ItemGroup>
 	<EmbeddedResource Include="ExFat\Environment\exFAT.vhdx.gz" />
 	<EmbeddedResource Include="SquashFs\extended-inodes.sqsh" />
+	<EmbeddedResource Include="SquashFs\huge-sparse.sqsh" />
   </ItemGroup>
 
   <ItemGroup>
