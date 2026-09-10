@@ -56,6 +56,23 @@ internal static class SquashFixtures
         }
     }
 
+    /// <summary>A seekable copy of an image that exists only freshly built: null where mksquashfs is absent.</summary>
+    public static Stream? OpenIfBuilt(string name)
+    {
+        var built = Built();
+        if (built is null)
+        {
+            return null;
+        }
+        var image = new MemoryStream();
+        using (var file = File.OpenRead(Path.Combine(built, name)))
+        {
+            file.CopyTo(image);
+        }
+        image.Position = 0;
+        return image;
+    }
+
     /// <summary>A seekable copy of an image: freshly built when mksquashfs is available, else the embedded one.</summary>
     public static Stream Open(string name)
     {
@@ -102,7 +119,10 @@ internal static class SquashFixtures
     /// two stored blocks and a fragment), sparse.bin (2 MiB of zeros then "end": sparse blocks, an extended inode),
     /// hard.txt and dir/hard2.txt (one file, two names: an extended inode). huge-sparse.sqsh: 1 MiB blocks;
     /// huge.bin, 4 GiB + 4 bytes, "mid" at 2 GiB + 5 and "end!" past the 4 GiB mark, nearly all of it sparse.
-    /// Both gzip at level 6, so the superblock carries compressor options.
+    /// Both gzip at level 6, so the superblock carries compressor options. big-root.sqsh (not embedded): 1,000 files
+    /// entry-0000 ("first") to entry-0999 (empty) in the root, whose directory table then exceeds one metadata block,
+    /// so mksquashfs stores the root as an extended directory inode with an index; and link, a symbolic link to
+    /// entry-0000.
     /// </summary>
     private static void Build(string work)
     {
@@ -130,11 +150,21 @@ internal static class SquashFixtures
             Write(file, "end!");
         }
 
+        var bigRoot = Path.Combine(work, "big-root");
+        Directory.CreateDirectory(bigRoot);
+        for (var i = 0; i < 1000; i++)
+        {
+            File.WriteAllText(Path.Combine(bigRoot, $"entry-{i:D4}"), i == 0 ? "first" : "", Encoding.ASCII);
+        }
+        Run("ln", "-s", "entry-0000", Path.Combine(bigRoot, "link"));
+
         var flags = new[] { "-noappend", "-no-xattrs", "-no-progress", "-quiet", "-mkfs-time", "0", "-all-time", "0", "-force-uid", "0", "-force-gid", "0" };
         Run("mksquashfs", new[] { ext, Path.Combine(work, "extended-inodes.sqsh"), "-comp", "gzip", "-Xcompression-level", "6", "-b", "128K" }.Concat(flags).ToArray());
         Run("mksquashfs", new[] { huge, Path.Combine(work, "huge-sparse.sqsh"), "-comp", "gzip", "-Xcompression-level", "6", "-b", "1M" }.Concat(flags).ToArray());
+        Run("mksquashfs", new[] { bigRoot, Path.Combine(work, "big-root.sqsh"), "-comp", "gzip", "-b", "128K" }.Concat(flags).ToArray());
         Directory.Delete(ext, recursive: true);
         Directory.Delete(huge, recursive: true);
+        Directory.Delete(bigRoot, recursive: true);
     }
 
     private static void Write(Stream stream, string ascii)

@@ -22,6 +22,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using DiscUtils.SquashFs;
 
@@ -130,6 +131,45 @@ public sealed class SquashFileSystemReaderTest
         Assert.Equal(tail.Length, stream.Read(tail, 0, tail.Length));
         Assert.Equal(new byte[] { 0, 0, 0, 0, 0, 0, (byte)'e', (byte)'n', (byte)'d', (byte)'!' }, tail);
         Assert.Equal(0, stream.Read(tail, 0, tail.Length));
+    }
+
+    /// <summary>
+    /// mksquashfs stores a directory whose table exceeds one metadata block as an extended directory inode (with an
+    /// index), the root included; the reader used to cast the root to the basic inode type. The image is built by
+    /// mksquashfs at test time and has no embedded fallback, so the test is a no-op where the tool is absent.
+    /// </summary>
+    [Fact]
+    public void RootStoredAsExtendedDirectoryInode()
+    {
+        using var image = SquashFixtures.OpenIfBuilt("big-root.sqsh");
+        if (image is null)
+        {
+            return;
+        }
+
+        using var fs = new SquashFileSystemReader(image);
+        Assert.Equal(1001, fs.GetFileSystemEntries("").Count());
+        Assert.True(fs.FileExists("entry-0999"));
+        Assert.Equal(0, fs.GetFileLength("entry-0999"));
+    }
+
+    /// <summary>
+    /// A symbolic link's target is the path stored after its inode; a lookup through the link reaches the target
+    /// (the reader used to throw NotImplementedException from any path that landed on a symlink).
+    /// </summary>
+    [Fact]
+    public void SymlinkTargetIsRead()
+    {
+        using var image = SquashFixtures.OpenIfBuilt("big-root.sqsh");
+        if (image is null)
+        {
+            return;
+        }
+
+        using var fs = new SquashFileSystemReader(image);
+        Assert.True(fs.FileExists("link"));
+        Assert.Equal("first", ReadText(fs, "link"));
+        Assert.Equal(5, fs.GetFileLength("link"));
     }
 
     private static SquashFileSystemReader OpenImage(string name) => new(SquashFixtures.Open(name));

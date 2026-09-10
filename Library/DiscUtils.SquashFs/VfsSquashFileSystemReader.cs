@@ -122,7 +122,7 @@ internal class VfsSquashFileSystemReader : VfsReadOnlyFileSystem<DirectoryEntry,
 
         // Bootstrap the root directory
         _context.InodeReader.SetPosition(_context.SuperBlock.RootInode);
-        var dirInode = (DirectoryInode)Inode.Read(_context.InodeReader);
+        var dirInode = Inode.Read(_context.InodeReader);
         RootDirectory = new Directory(_context, dirInode, _context.SuperBlock.RootInode);
     }
 

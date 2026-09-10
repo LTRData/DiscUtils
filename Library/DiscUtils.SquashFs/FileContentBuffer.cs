@@ -35,6 +35,7 @@ internal class FileContentBuffer : Streams.Buffer
     private const uint InvalidFragmentKey = 0xFFFFFFFF;
 
     private readonly int[] _blockLengths;
+    private readonly long[] _blockStarts;
     private readonly Context _context;
     private readonly RegularInode _inode;
 
@@ -64,6 +65,17 @@ internal class FileContentBuffer : Streams.Buffer
                 _blockLengths[i] = EndianUtilities.ToInt32LittleEndian(lengthData.Slice(i * 4, 4));
             }
         }
+
+        // Where each block starts on disk: the blocks lie one after another from the inode's start, each as long
+        // as the low 24 bits of its size field say (a sparse block takes no room). Computed once, so a read at any
+        // position finds its block without walking the sizes from the first block.
+        _blockStarts = new long[numBlocks];
+        var start = _inode.StartBlock;
+        for (var i = 0; i < numBlocks; ++i)
+        {
+            _blockStarts[i] = start;
+            start += _blockLengths[i] & 0x00FFFFFF;
+        }
     }
 
     public override bool CanRead => true;
@@ -86,8 +98,6 @@ internal class FileContentBuffer : Streams.Buffer
         var currentPos = pos;
         var totalRead = 0;
         var totalToRead = (int)Math.Min(_inode.FileSize - pos, count);
-        var currentBlock = 0;
-        long currentBlockDiskStart = _inode.StartBlock;
         while (totalRead < totalToRead)
         {
             if (currentPos >= startOfFragment)
@@ -97,13 +107,7 @@ internal class FileContentBuffer : Streams.Buffer
                 return totalRead + read;
             }
 
-            var targetBlock = (int)(currentPos / _context.SuperBlock.BlockSize);
-            while (currentBlock < targetBlock)
-            {
-                currentBlockDiskStart += _blockLengths[currentBlock] & 0x7FFFFF;
-                ++currentBlock;
-            }
-
+            var currentBlock = (int)(currentPos / _context.SuperBlock.BlockSize);
             var blockOffset = (int)(currentPos % _context.SuperBlock.BlockSize);
             if ((_blockLengths[currentBlock] & 0x00FFFFFF) == 0)
             {
@@ -115,7 +119,7 @@ internal class FileContentBuffer : Streams.Buffer
                 continue;
             }
 
-            var block = _context.ReadBlock(currentBlockDiskStart, _blockLengths[currentBlock]);
+            var block = _context.ReadBlock(_blockStarts[currentBlock], _blockLengths[currentBlock]);
 
             var toCopy = Math.Min(block.Available - blockOffset, totalToRead - totalRead);
             System.Buffer.BlockCopy(block.Data, blockOffset, buffer, offset + totalRead, toCopy);
@@ -148,8 +152,6 @@ internal class FileContentBuffer : Streams.Buffer
         var currentPos = pos;
         var totalRead = 0;
         var totalToRead = (int)Math.Min(_inode.FileSize - pos, buffer.Length);
-        var currentBlock = 0;
-        long currentBlockDiskStart = _inode.StartBlock;
         while (totalRead < totalToRead)
         {
             if (currentPos >= startOfFragment)
@@ -158,13 +160,7 @@ internal class FileContentBuffer : Streams.Buffer
                 return totalRead + read;
             }
 
-            var targetBlock = (int)(currentPos / _context.SuperBlock.BlockSize);
-            while (currentBlock < targetBlock)
-            {
-                currentBlockDiskStart += _blockLengths[currentBlock] & 0x7FFFFF;
-                ++currentBlock;
-            }
-
+            var currentBlock = (int)(currentPos / _context.SuperBlock.BlockSize);
             var blockOffset = (int)(currentPos % _context.SuperBlock.BlockSize);
             if ((_blockLengths[currentBlock] & 0x00FFFFFF) == 0)
             {
@@ -176,7 +172,7 @@ internal class FileContentBuffer : Streams.Buffer
                 continue;
             }
 
-            var block = _context.ReadBlock(currentBlockDiskStart, _blockLengths[currentBlock]);
+            var block = _context.ReadBlock(_blockStarts[currentBlock], _blockLengths[currentBlock]);
 
             var toCopy = Math.Min(block.Available - blockOffset, totalToRead - totalRead);
             block.Data.AsSpan(blockOffset, toCopy).CopyTo(buffer[totalRead..]);

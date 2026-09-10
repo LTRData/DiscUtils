@@ -20,15 +20,37 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-using System;
+using System.Text;
 using DiscUtils.Vfs;
 
 namespace DiscUtils.SquashFs;
 
 internal class Symlink : File, IVfsSymlink<DirectoryEntry, File>
 {
+    private string _targetPath;
+
     public Symlink(Context context, Inode inode, MetadataRef inodeRef)
         : base(context, inode, inodeRef) { }
 
-    public string TargetPath => throw new NotImplementedException();
+    /// <summary>
+    /// The link's target as stored: the UTF-8 path that follows the inode in the inode table, relative to the
+    /// link's directory unless it starts with a slash.
+    /// </summary>
+    public string TargetPath
+    {
+        get
+        {
+            if (_targetPath is null)
+            {
+                var inode = (SymlinkInode)Inode;
+                Context.InodeReader.SetPosition(InodeRef);
+                Context.InodeReader.Skip(inode.Size);
+                var target = new byte[inode.SymlinkSize];
+                Context.InodeReader.Read(target);
+                _targetPath = Encoding.UTF8.GetString(target);
+            }
+
+            return _targetPath;
+        }
+    }
 }
