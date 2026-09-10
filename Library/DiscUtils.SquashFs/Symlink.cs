@@ -30,10 +30,11 @@ namespace DiscUtils.SquashFs;
 internal class Symlink : File, IVfsSymlink<DirectoryEntry, File>
 {
     /// <summary>
-    /// The longest target a well-formed image can hold: mksquashfs reads a link into a 65536-byte buffer and
-    /// refuses a longer one, and the Linux driver rejects a target longer than a page (at most 64 KiB).
+    /// The format's maximum target length: SQUASHFS_SYMLINK_MAX in squashfs_fs.h (squashfs-tools and the Linux
+    /// driver), 65535 bytes. mksquashfs enforces it when it reads a link (a 65536-byte readlink buffer, and a
+    /// result that fills it is refused), so no well-formed image stores a longer target.
     /// </summary>
-    public const int MaxTargetLength = 65536;
+    public const int MaxTargetLength = 65535;
 
     private string _targetPath;
 
