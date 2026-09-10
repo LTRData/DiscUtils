@@ -20,6 +20,8 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
+
+using System.IO;
 using System.Text;
 using DiscUtils.Vfs;
 
@@ -27,6 +29,12 @@ namespace DiscUtils.SquashFs;
 
 internal class Symlink : File, IVfsSymlink<DirectoryEntry, File>
 {
+    /// <summary>
+    /// The longest target a well-formed image can hold: mksquashfs reads a link into a 65536-byte buffer and
+    /// refuses a longer one, and the Linux driver rejects a target longer than a page (at most 64 KiB).
+    /// </summary>
+    public const int MaxTargetLength = 65536;
+
     private string _targetPath;
 
     public Symlink(Context context, Inode inode, MetadataRef inodeRef)
@@ -34,7 +42,9 @@ internal class Symlink : File, IVfsSymlink<DirectoryEntry, File>
 
     /// <summary>
     /// The link's target as stored: the UTF-8 path that follows the inode in the inode table, relative to the
-    /// link's directory unless it starts with a slash.
+    /// link's directory unless it starts with a slash. The length comes from the image, so it is checked against
+    /// <see cref="MaxTargetLength"/> before anything is allocated, and the bytes must lie within the inode table,
+    /// which the directory table follows directly. An extended inode keeps its xattr index after the target.
     /// </summary>
     public string TargetPath
     {
@@ -43,10 +53,26 @@ internal class Symlink : File, IVfsSymlink<DirectoryEntry, File>
             if (_targetPath is null)
             {
                 var inode = (SymlinkInode)Inode;
-                Context.InodeReader.SetPosition(InodeRef);
-                Context.InodeReader.Skip(inode.Size);
+                if (inode.SymlinkSize > MaxTargetLength)
+                {
+                    throw new IOException($"Corrupt symlink inode: target length {inode.SymlinkSize} exceeds {MaxTargetLength}");
+                }
+
+                var reader = Context.InodeReader;
+                reader.SetPosition(InodeRef);
+                reader.Skip(inode.Size);
                 var target = new byte[inode.SymlinkSize];
-                Context.InodeReader.Read(target);
+                var read = reader.Read(target);
+                if (inode is ExtendedSymlinkInode extended)
+                {
+                    extended.XattrIndex = reader.ReadUInt();
+                }
+
+                if (read != target.Length || reader.CurrentBlockStart >= Context.SuperBlock.DirectoryTableStart)
+                {
+                    throw new IOException("Corrupt symlink inode: target runs past the inode table");
+                }
+
                 _targetPath = Encoding.UTF8.GetString(target);
             }
 

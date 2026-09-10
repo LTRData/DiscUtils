@@ -56,21 +56,36 @@ internal static class SquashFixtures
         }
     }
 
-    /// <summary>A seekable copy of an image that exists only freshly built: null where mksquashfs is absent.</summary>
-    public static Stream? OpenIfBuilt(string name)
+    /// <summary>
+    /// The 524,388 bytes of mixed.bin: with 128 KB blocks, a block of text (compressed), a block of pseudo-random
+    /// bytes (incompressible, so mksquashfs stores it as is), a block of zeros (sparse), another block of text and
+    /// a 100-byte tail (a fragment).
+    /// </summary>
+    public static byte[] Mixed
     {
-        var built = Built();
-        if (built is null)
+        get
         {
-            return null;
+            const int block = 128 * 1024;
+            var bytes = new byte[4 * block + 100];
+            var text = Encoding.ASCII.GetBytes(Text);
+            Array.Copy(text, 0, bytes, 0, block);
+            var x = 0x9E3779B9u; // xorshift32: the same bytes on every machine
+            for (var i = block; i < 2 * block; i++)
+            {
+                x ^= x << 13;
+                x ^= x >> 17;
+                x ^= x << 5;
+                bytes[i] = (byte)x;
+            }
+
+            Array.Copy(text, 0, bytes, 3 * block, block);
+            for (var i = 4 * block; i < bytes.Length; i++)
+            {
+                bytes[i] = (byte)('a' + i % 26);
+            }
+
+            return bytes;
         }
-        var image = new MemoryStream();
-        using (var file = File.OpenRead(Path.Combine(built, name)))
-        {
-            file.CopyTo(image);
-        }
-        image.Position = 0;
-        return image;
     }
 
     /// <summary>A seekable copy of an image: freshly built when mksquashfs is available, else the embedded one.</summary>
@@ -117,12 +132,15 @@ internal static class SquashFixtures
     /// <summary>
     /// The recipe. extended-inodes.sqsh: 128 KB blocks; small.txt ("hello", a fragment), text.bin (300,000 bytes,
     /// two stored blocks and a fragment), sparse.bin (2 MiB of zeros then "end": sparse blocks, an extended inode),
-    /// hard.txt and dir/hard2.txt (one file, two names: an extended inode). huge-sparse.sqsh: 1 MiB blocks;
+    /// hard.txt and dir/hard2.txt (one file, two names: an extended inode), mixed.bin (<see cref="Mixed"/>: a
+    /// compressed, a stored, a sparse and a compressed block, then a fragment). huge-sparse.sqsh: 1 MiB blocks;
     /// huge.bin, 4 GiB + 4 bytes, "mid" at 2 GiB + 5 and "end!" past the 4 GiB mark, nearly all of it sparse.
-    /// Both gzip at level 6, so the superblock carries compressor options. big-root.sqsh (not embedded): 1,000 files
-    /// entry-0000 ("first") to entry-0999 (empty) in the root, whose directory table then exceeds one metadata block,
-    /// so mksquashfs stores the root as an extended directory inode with an index; and link, a symbolic link to
-    /// entry-0000.
+    /// Both gzip at level 6, so the superblock carries compressor options. big-root.sqsh: 1,000 files entry-0000
+    /// ("first") to entry-0999 (empty) in the root, whose directory table then exceeds one metadata block, so
+    /// mksquashfs stores the root as an extended directory inode with an index; and link, a symbolic link to
+    /// entry-0000. xattr-symlink.sqsh: target.txt ("hello") and link, a symbolic link to it, built with
+    /// -xattrs-add, which puts an attribute on every inode: the link is an extended symlink inode and the image
+    /// has an xattr table. The other three are built with -no-xattrs.
     /// </summary>
     private static void Build(string work)
     {
@@ -138,6 +156,7 @@ internal static class SquashFixtures
         }
         File.WriteAllText(Path.Combine(ext, "hard.txt"), "twice", Encoding.ASCII);
         Run("ln", Path.Combine(ext, "hard.txt"), Path.Combine(ext, "dir", "hard2.txt"));
+        File.WriteAllBytes(Path.Combine(ext, "mixed.bin"), Mixed);
 
         var huge = Path.Combine(work, "huge");
         Directory.CreateDirectory(huge);
@@ -158,13 +177,21 @@ internal static class SquashFixtures
         }
         Run("ln", "-s", "entry-0000", Path.Combine(bigRoot, "link"));
 
-        var flags = new[] { "-noappend", "-no-xattrs", "-no-progress", "-quiet", "-mkfs-time", "0", "-all-time", "0", "-force-uid", "0", "-force-gid", "0" };
-        Run("mksquashfs", new[] { ext, Path.Combine(work, "extended-inodes.sqsh"), "-comp", "gzip", "-Xcompression-level", "6", "-b", "128K" }.Concat(flags).ToArray());
-        Run("mksquashfs", new[] { huge, Path.Combine(work, "huge-sparse.sqsh"), "-comp", "gzip", "-Xcompression-level", "6", "-b", "1M" }.Concat(flags).ToArray());
-        Run("mksquashfs", new[] { bigRoot, Path.Combine(work, "big-root.sqsh"), "-comp", "gzip", "-b", "128K" }.Concat(flags).ToArray());
+        var xattrSymlink = Path.Combine(work, "xattr-symlink");
+        Directory.CreateDirectory(xattrSymlink);
+        File.WriteAllText(Path.Combine(xattrSymlink, "target.txt"), "hello", Encoding.ASCII);
+        Run("ln", "-s", "target.txt", Path.Combine(xattrSymlink, "link"));
+
+        var flags = new[] { "-noappend", "-no-progress", "-quiet", "-mkfs-time", "0", "-all-time", "0", "-force-uid", "0", "-force-gid", "0" };
+        var noXattrs = new[] { "-no-xattrs" }.Concat(flags).ToArray();
+        Run("mksquashfs", new[] { ext, Path.Combine(work, "extended-inodes.sqsh"), "-comp", "gzip", "-Xcompression-level", "6", "-b", "128K" }.Concat(noXattrs).ToArray());
+        Run("mksquashfs", new[] { huge, Path.Combine(work, "huge-sparse.sqsh"), "-comp", "gzip", "-Xcompression-level", "6", "-b", "1M" }.Concat(noXattrs).ToArray());
+        Run("mksquashfs", new[] { bigRoot, Path.Combine(work, "big-root.sqsh"), "-comp", "gzip", "-b", "128K" }.Concat(noXattrs).ToArray());
+        Run("mksquashfs", new[] { xattrSymlink, Path.Combine(work, "xattr-symlink.sqsh"), "-comp", "gzip", "-b", "128K", "-xattrs-add", "trusted.test=1" }.Concat(flags).ToArray());
         Directory.Delete(ext, recursive: true);
         Directory.Delete(huge, recursive: true);
         Directory.Delete(bigRoot, recursive: true);
+        Directory.Delete(xattrSymlink, recursive: true);
     }
 
     private static void Write(Stream stream, string ascii)

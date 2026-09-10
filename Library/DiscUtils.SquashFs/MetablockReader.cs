@@ -39,6 +39,9 @@ internal sealed class MetablockReader
         _start = start;
     }
 
+    /// <summary>Where the metadata block the reader is in starts in the image, in bytes.</summary>
+    public long CurrentBlockStart => _start + _currentBlockStart;
+
     public void SetPosition(MetadataRef position)
     {
         SetPosition(position.Block, position.Offset);
