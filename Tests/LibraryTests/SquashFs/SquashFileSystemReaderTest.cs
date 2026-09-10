@@ -22,6 +22,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using DiscUtils.SquashFs;
 
@@ -130,6 +131,92 @@ public sealed class SquashFileSystemReaderTest
         Assert.Equal(tail.Length, stream.Read(tail, 0, tail.Length));
         Assert.Equal(new byte[] { 0, 0, 0, 0, 0, 0, (byte)'e', (byte)'n', (byte)'d', (byte)'!' }, tail);
         Assert.Equal(0, stream.Read(tail, 0, tail.Length));
+    }
+
+    /// <summary>
+    /// mksquashfs stores a directory whose table exceeds one metadata block as an extended directory inode (with an
+    /// index), the root included; the reader used to cast the root to the basic inode type. big-root.sqsh holds
+    /// 1,000 files and a symlink in its root.
+    /// </summary>
+    [Fact]
+    public void RootStoredAsExtendedDirectoryInode()
+    {
+        using var fs = OpenImage("big-root.sqsh");
+        Assert.Equal(1001, fs.GetFileSystemEntries("").Count());
+        Assert.True(fs.FileExists("entry-0999"));
+        Assert.Equal(0, fs.GetFileLength("entry-0999"));
+    }
+
+    /// <summary>
+    /// A symbolic link's target is the path stored after its inode; a lookup through the link reaches the target
+    /// (the reader used to throw NotImplementedException from any path that landed on a symlink).
+    /// </summary>
+    [Fact]
+    public void SymlinkTargetIsRead()
+    {
+        using var fs = OpenImage("big-root.sqsh");
+        Assert.True(fs.FileExists("link"));
+        Assert.Equal("first", ReadText(fs, "link"));
+        Assert.Equal(5, fs.GetFileLength("link"));
+    }
+
+    /// <summary>
+    /// A symlink that carries an extended attribute is stored as an extended symlink inode: the fixed part and the
+    /// target path of the basic form, then a 32-bit xattr index after the path. xattr-symlink.sqsh was made with
+    /// -xattrs-add, which puts an attribute on every inode, so its link is of that kind, and the image has an xattr
+    /// table (checked here from the superblock), which the reader used to refuse outright.
+    /// </summary>
+    [Fact]
+    public void ExtendedSymlinkInodeOfALinkWithAttributes()
+    {
+        using var image = SquashFixtures.Open("xattr-symlink.sqsh");
+        var superblock = new byte[96];
+        Assert.Equal(superblock.Length, image.Read(superblock, 0, superblock.Length));
+        Assert.NotEqual(-1L, BitConverter.ToInt64(superblock, 56));
+        image.Position = 0;
+
+        using var fs = new SquashFileSystemReader(image);
+        Assert.Equal("hello", ReadText(fs, "target.txt"));
+        Assert.True(fs.FileExists("link"));
+        Assert.Equal("hello", ReadText(fs, "link"));
+    }
+
+    /// <summary>
+    /// mixed.bin has, in order, a compressed block, a block stored as is (incompressible), a sparse block (all
+    /// zeros, taking no room on disk), another compressed block and a 100-byte tail in a fragment. Each block's
+    /// start on disk is the sum of the stored sizes before it, a sparse block counting nothing, so a read across
+    /// every boundary and a read of the whole file must come back exact.
+    /// </summary>
+    [Fact]
+    public void BlocksCompressedStoredSparseAndFragmentInOneFile()
+    {
+        var expected = SquashFixtures.Mixed;
+        using var fs = OpenImage("extended-inodes.sqsh");
+        Assert.Equal(expected.Length, fs.GetFileLength("mixed.bin"));
+        using var stream = fs.OpenFile("mixed.bin", FileMode.Open, FileAccess.Read);
+
+        const int block = 128 * 1024;
+        foreach (var offset in new[] { block - 50, 2 * block - 50, 3 * block - 50, 4 * block - 50 })
+        {
+            var piece = new byte[100];
+            stream.Position = offset;
+            Assert.Equal(piece.Length, stream.Read(piece, 0, piece.Length));
+            var want = new byte[piece.Length];
+            Array.Copy(expected, offset, want, 0, want.Length);
+            Assert.Equal(want, piece);
+        }
+
+        stream.Position = 0;
+        var all = new byte[expected.Length];
+        var total = 0;
+        while (total < all.Length)
+        {
+            var read = stream.Read(all, total, all.Length - total);
+            Assert.NotEqual(0, read);
+            total += read;
+        }
+
+        Assert.Equal(expected, all);
     }
 
     private static SquashFileSystemReader OpenImage(string name) => new(SquashFixtures.Open(name));

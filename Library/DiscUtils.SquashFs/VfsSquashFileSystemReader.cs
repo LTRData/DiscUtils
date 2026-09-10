@@ -85,10 +85,8 @@ internal class VfsSquashFileSystemReader : VfsReadOnlyFileSystem<DirectoryEntry,
             throw new IOException($"Unsupported compression {_context.SuperBlock.Compression} used");
         }
 
-        if (_context.SuperBlock.ExtendedAttrsTableStart != -1)
-        {
-            throw new IOException("Unsupported extended attributes present");
-        }
+        // An extended attribute table is left alone: the reader exposes no attributes, and the inodes of the files
+        // that carry them (the extended forms) are read like the others, their attribute index unused.
 
         if (_context.SuperBlock.MajorVersion != 4)
         {
@@ -122,7 +120,7 @@ internal class VfsSquashFileSystemReader : VfsReadOnlyFileSystem<DirectoryEntry,
 
         // Bootstrap the root directory
         _context.InodeReader.SetPosition(_context.SuperBlock.RootInode);
-        var dirInode = (DirectoryInode)Inode.Read(_context.InodeReader);
+        var dirInode = Inode.Read(_context.InodeReader);
         RootDirectory = new Directory(_context, dirInode, _context.SuperBlock.RootInode);
     }
 

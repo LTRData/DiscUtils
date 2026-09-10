@@ -43,6 +43,9 @@ internal class File : IVfsFile
 
     protected Context Context { get; }
 
+    /// <summary>Where the inode sits in the inode table; what follows the inode (a symlink's target, a file's block sizes) is read from here.</summary>
+    protected MetadataRef InodeRef => _inodeRef;
+
     internal Inode Inode { get; }
 
     public DateTime LastAccessTimeUtc
