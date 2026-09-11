@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>DiscUtils VHD</Description>
-    <PackageTags>DiscUtils;VHD</PackageTags>
+    <Description>Managed .NET support for reading, creating and modifying fixed, dynamic and differencing Microsoft VHD virtual disk images.</Description>
+    <PackageTags>DiscUtils;VirtualDisk;VHD;Differencing</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

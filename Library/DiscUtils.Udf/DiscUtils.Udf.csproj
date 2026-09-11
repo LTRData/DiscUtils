@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>DiscUtils UDF filesystem parser.</Description>
+    <Description>Managed .NET reader for UDF optical-disc filesystems and their files, directories and extended attributes.</Description>
     
-    <PackageTags>DiscUtils;Filesystem;UDF</PackageTags>
+    <PackageTags>DiscUtils;Filesystem;Optical;UDF</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

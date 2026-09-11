@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>DiscUtils NTFS filesystem parser</Description>
+    <Description>Managed .NET implementation for reading, formatting and modifying NTFS filesystems, including NTFS-specific file metadata.</Description>
     <Authors>Kenneth Bell;LordMike;Olof Lagerkvist</Authors>
-    <PackageTags>DiscUtils;Filesystem;NTFS</PackageTags>
+    <PackageTags>DiscUtils;Filesystem;NTFS;AlternateDataStreams</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

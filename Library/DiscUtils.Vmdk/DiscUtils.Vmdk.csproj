@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>DiscUtils VMDK</Description>
-    <PackageTags>DiscUtils;VMDK</PackageTags>
+    <Description>Managed .NET support for reading, creating and modifying supported VMware VMDK layouts, including differencing disk chains.</Description>
+    <PackageTags>DiscUtils;VirtualDisk;VMDK;VMware;Differencing</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

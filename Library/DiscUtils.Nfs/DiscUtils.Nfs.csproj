@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>DiscUtils Nfs</Description>
-    <PackageTags>DiscUtils;Nfs</PackageTags>
+    <Description>Managed .NET NFS v3 client for remote file and directory operations and NFS-backed DiscUtils disk access.</Description>
+    <PackageTags>DiscUtils;Network;Filesystem;NFS;NFSv3</PackageTags>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\DiscUtils.Core\DiscUtils.Core.csproj" />

@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>DiscUtils BootConfig parser</Description>
+    <Description>Managed .NET support for reading, creating and modifying Windows Boot Configuration Data (BCD) stores in Registry hives.</Description>
     
-    <PackageTags>DiscUtils;BootConfig</PackageTags>
+    <PackageTags>DiscUtils;BCD;BootConfig;Registry</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

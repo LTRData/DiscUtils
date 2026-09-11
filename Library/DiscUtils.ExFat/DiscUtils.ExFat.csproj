@@ -6,12 +6,13 @@
 
     <RootNamespace>DiscUtils.ExFat</RootNamespace>
     
+    <PackageTags>DiscUtils;Filesystem;exFAT</PackageTags>
   </PropertyGroup>
   
   <PropertyGroup>
 
     <Title>ExFat DiscUtils</Title>
-    <Description>DiscUtils wrapper for ExFAT</Description>
+    <Description>Managed .NET implementation for reading, formatting and modifying exFAT filesystems.</Description>
 
   </PropertyGroup>
   

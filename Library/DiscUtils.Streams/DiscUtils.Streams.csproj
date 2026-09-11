@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>DiscUtils Streams</Description>
+    <Description>.NET sparse-stream, buffer, extent, caching and stream-building primitives used by DiscUtils storage implementations.</Description>
     <Authors>Kenneth Bell;LordMike;Bianco Veigel;Olof Lagerkvist</Authors>
-    <PackageTags>DiscUtils;Streams</PackageTags>
+    <PackageTags>DiscUtils;Streams;SparseStream;Buffers;Extents</PackageTags>
     <Nullable>enable</Nullable>
   </PropertyGroup>
   

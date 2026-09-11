@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>DiscUtils, meta-package with transports, such as iSCSI and NFS</Description>
+    <Description>DiscUtils meta-package for iSCSI and NFS access, local-file transport and optical-disc detection.</Description>
     
-    <PackageTags>DiscUtils;iSCSI;NFS</PackageTags>
+    <PackageTags>DiscUtils;Network;Storage;iSCSI;NFS;Optical</PackageTags>
 
     <Nullable>enable</Nullable>
   </PropertyGroup>

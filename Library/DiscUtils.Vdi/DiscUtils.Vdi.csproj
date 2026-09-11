@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>DiscUtils Vdi</Description>
+    <Description>Managed .NET support for reading, creating and modifying fixed and dynamically allocated VirtualBox VDI disk images.</Description>
     
-    <PackageTags>DiscUtils;Vdi</PackageTags>
+    <PackageTags>DiscUtils;VirtualDisk;VDI;VirtualBox</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

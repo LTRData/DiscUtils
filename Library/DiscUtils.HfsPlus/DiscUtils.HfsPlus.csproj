@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>DiscUtils Hfs+ filesystem parser</Description>
+    <Description>Managed .NET support for reading HFS+ filesystems, including file contents and filesystem metadata.</Description>
     
-    <PackageTags>DiscUtils;Filesystem;Hfs+;HfsPlus</PackageTags>
+    <PackageTags>DiscUtils;Filesystem;HFSPlus;HFS</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

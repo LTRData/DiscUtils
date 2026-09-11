@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>DiscUtils Iso9660</Description>
-    <PackageTags>DiscUtils;Optical;Iso9660</PackageTags>
+    <Description>Managed .NET support for reading ISO 9660 optical-disc filesystems and building ISO images with Joliet and boot-image support.</Description>
+    <PackageTags>DiscUtils;Filesystem;Optical;ISO9660;Joliet;RockRidge</PackageTags>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\DiscUtils.Core\DiscUtils.Core.csproj" />

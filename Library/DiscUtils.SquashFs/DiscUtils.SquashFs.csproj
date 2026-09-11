@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>DiscUtils SquashFs filesystem parser</Description>
+    <Description>Managed .NET support for reading SquashFS filesystems and building new compressed SquashFS images.</Description>
     
-    <PackageTags>DiscUtils;Filesystem;SquashFs</PackageTags>
+    <PackageTags>DiscUtils;Filesystem;SquashFS;Compression</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

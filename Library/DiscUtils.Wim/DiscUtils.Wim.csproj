@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>DiscUtils WIM</Description>    
-    <PackageTags>DiscUtils;WIM</PackageTags>
+    <Description>Managed .NET support for reading Windows Imaging Format (WIM) containers and accessing their image filesystems and metadata.</Description>
+    <PackageTags>DiscUtils;DiskImage;Filesystem;WIM;Windows</PackageTags>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 

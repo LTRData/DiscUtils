@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>DiscUtils, meta-package with filesystems</Description>
+    <Description>DiscUtils meta-package for filesystem readers, supported filesystem writers and virtual filesystem abstractions.</Description>
     
-    <PackageTags>DiscUtils;Filesystem;NTFS;ext;Hfs+;HfsPlus;FAT</PackageTags>
+    <PackageTags>DiscUtils;Filesystem;NTFS;FAT;exFAT;Ext;Btrfs;SquashFS;XFS</PackageTags>
 
     <Nullable>enable</Nullable>
   </PropertyGroup>

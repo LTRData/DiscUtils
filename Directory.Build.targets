@@ -1,4 +1,10 @@
 <Project>
+  <!-- Default SDK None items exist by this point; updates in Directory.Build.props
+       can run before those items are added. Pack each project's local README. -->
+  <ItemGroup Condition="'$(PackageReadmeFile)' == 'README.md'">
+    <None Update="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
   <!-- Only format libraries opt in. Applications and package consumers need no analyzer. -->
   <ItemGroup Condition="'$(DiscUtilsGenerateRegistration)' == 'true'">
     <ProjectReference Include="$(MSBuildThisFileDirectory)SourceGenerators/DiscUtils.SourceGenerator/DiscUtils.SourceGenerator.csproj"

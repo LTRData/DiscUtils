@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>DiscUtils LVM</Description>
+    <Description>Managed .NET discovery and stream mapping for supported Linux LVM logical volumes and Linux MD RAID 1 members.</Description>
     <Authors>Bianco Veigel;Olof Lagerkvist</Authors>
-    <PackageTags>DiscUtils;Lvm</PackageTags>
+    <PackageTags>DiscUtils;Volume;LVM;Linux;RAID1</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>DiscUtils Sdi</Description>
+    <Description>Managed .NET reader for Microsoft Simple Deployment Image (SDI) headers, section metadata and section content streams.</Description>
     
-    <PackageTags>DiscUtils;Sdi</PackageTags>
+    <PackageTags>DiscUtils;DiskImage;SDI;Deployment</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

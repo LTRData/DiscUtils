@@ -2,9 +2,9 @@
   
 
   <PropertyGroup>
-    <Description>DiscUtils OpticalDiscSharing</Description>
+    <Description>.NET client for discovering and reading optical media shared through Apple Optical Disc Sharing.</Description>
     
-    <PackageTags>DiscUtils;OpticalDiscSharing</PackageTags>
+    <PackageTags>DiscUtils;Network;Optical;Apple;OpticalDiscSharing</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

@@ -2,9 +2,9 @@
   
   
   <PropertyGroup>
-    <Description>DiscUtils, complete meta-package</Description>
+    <Description>Broad DiscUtils meta-package for managed .NET disk images, filesystems, storage protocols and related storage formats.</Description>
     
-    <PackageTags>DiscUtils</PackageTags>
+    <PackageTags>DiscUtils;VirtualDisk;Filesystem;Storage</PackageTags>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <Nullable>enable</Nullable>
   </PropertyGroup>
