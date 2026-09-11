@@ -10,6 +10,11 @@
     <File Path="SigningKey.snk" />
     <File Path="version.json" />
   </Folder>
+  <Folder Name="/Integrations/">
+    <File Path="Integrations/Directory.Build.props" />
+    <Project Path="Integrations/DiscUtils.MountDokan/DiscUtils.MountDokan.csproj" />
+    <Project Path="Integrations/DiscUtils.MountFuse/DiscUtils.MountFuse.csproj" />
+  </Folder>
   <Folder Name="/Library/">
     <File Path="Library/Directory.Build.props" />
     <Project Path="Library/DiscUtils.BootConfig/DiscUtils.BootConfig.csproj" />
@@ -25,8 +30,6 @@
     <Project Path="Library/DiscUtils.Iscsi/DiscUtils.Iscsi.csproj" />
     <Project Path="Library/DiscUtils.Iso9660/DiscUtils.Iso9660.csproj" />
     <Project Path="Library/DiscUtils.Lvm/DiscUtils.Lvm.csproj" />
-    <Project Path="Library/DiscUtils.MountDokan/DiscUtils.MountDokan.csproj" />
-    <Project Path="Library/DiscUtils.MountFuse/DiscUtils.MountFuse.csproj" />
     <Project Path="Library/DiscUtils.Net/DiscUtils.Net.csproj" />
     <Project Path="Library/DiscUtils.Nfs/DiscUtils.Nfs.csproj" />
     <Project Path="Library/DiscUtils.Ntfs/DiscUtils.Ntfs.csproj" />
@@ -64,9 +67,9 @@
     <Project Path="Tests/ExFat.Generator/ExFat.Generator.csproj" />
     <Project Path="Tests/GeneratedRegistrationPlugin/GeneratedRegistrationPlugin.csproj" />
     <Project Path="Tests/LibraryTests/LibraryTests.csproj" />
+    <Project Path="Tests/NativeAotSmoke/NativeAotSmoke.csproj" />
     <Project Path="Tests/RegistrationPlugin/RegistrationPlugin.csproj" />
     <Project Path="Tests/RegistrationTests/RegistrationTests.csproj" />
-    <Project Path="Tests/NativeAotSmoke/NativeAotSmoke.csproj" />
     <Project Path="Tests/SourceGeneratorTests/SourceGeneratorTests.csproj" />
   </Folder>
   <Folder Name="/Utilities/">

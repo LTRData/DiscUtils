@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;net48;net8.0;net9.0;net10.0</TargetFrameworks>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="LTRData.FuseDotNet" Version="*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Library\DiscUtils.Core\DiscUtils.Core.csproj" />
+    <ProjectReference Include="..\..\Library\DiscUtils.Iso9660\DiscUtils.Iso9660.csproj" />
+    <ProjectReference Include="..\..\Library\DiscUtils.Streams\DiscUtils.Streams.csproj" />
+    <ProjectReference Include="..\..\Library\DiscUtils.VirtualFileSystem\DiscUtils.VirtualFileSystem.csproj" />
+  </ItemGroup>
+
+</Project>

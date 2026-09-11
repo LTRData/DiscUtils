@@ -12,9 +12,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DiscUtils.Core\DiscUtils.Core.csproj" />
-    <ProjectReference Include="..\DiscUtils.Streams\DiscUtils.Streams.csproj" />
-    <ProjectReference Include="..\DiscUtils.VirtualFileSystem\DiscUtils.VirtualFileSystem.csproj" />
+    <ProjectReference Include="..\..\Library\DiscUtils.Core\DiscUtils.Core.csproj" />
+    <ProjectReference Include="..\..\Library\DiscUtils.Streams\DiscUtils.Streams.csproj" />
+    <ProjectReference Include="..\..\Library\DiscUtils.VirtualFileSystem\DiscUtils.VirtualFileSystem.csproj" />
   </ItemGroup>
 
 </Project>
