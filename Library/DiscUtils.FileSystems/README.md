@@ -37,7 +37,7 @@ DiscUtils.FileSystems.SetupHelper.SetupFileSystems();
 
 This helper explicitly registers providers from: `Core`, `Btrfs`, `Ext`, `Fat`, `ExFat`, `HfsPlus`, `Ntfs`, `OpticalDisk`, `SquashFs`, `Swap`, `Xfs`, `VirtualFileSystem`. It is safe to repeat and supports trimming and Native AOT registration. Referencing the package alone does not register providers.
 
-Package dependencies and registration scope are distinct. Libraries without discovery providers, such as WIM and Registry, are used through their direct APIs. ISO/UDF detection is supplied by OpticalDisk.
+Package dependencies and registration scope are distinct. ISO 9660 and UDF have no separate discovery providers; their detection is supplied by OpticalDisk, which this helper registers.
 
 ISO 9660 and UDF arrive transitively through OpticalDisk. This package also includes the limited Linux swap metadata reader. It does not include virtual disk container packages such as VHD or VHDX.
 
@@ -51,4 +51,4 @@ Dokan/FUSE integrations and command-line utilities are not included. Registratio
 
 ## Documentation
 
-[Repository and capability matrix](https://github.com/LTRData/DiscUtils) · [Wiki](https://github.com/LTRData/DiscUtils/wiki) · [Migration guide](https://github.com/LTRData/DiscUtils/wiki/Migration-from-DiscUtils-to-LTRData.DiscUtils) · [Format registration and Native AOT](https://github.com/LTRData/DiscUtils/blob/LTRData.DiscUtils-initial/docs/native-aot-format-registration.md)
+[Repository and capability matrix](https://github.com/LTRData/DiscUtils) · [Wiki](https://github.com/LTRData/DiscUtils/wiki) · [Migration guide](https://github.com/LTRData/DiscUtils/wiki/Migration-from-DiscUtils-to-LTRData.DiscUtils) · [Format registration and Native AOT](https://github.com/LTRData/DiscUtils/blob/HEAD/docs/native-aot-format-registration.md)

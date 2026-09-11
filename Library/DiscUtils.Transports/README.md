@@ -29,7 +29,7 @@ DiscUtils.Transports.SetupHelper.SetupTransports();
 
 This helper explicitly registers providers from: `Core`, `Iscsi`, `Nfs`, `OpticalDisk`. It is safe to repeat and supports trimming and Native AOT registration. Referencing the package alone does not register providers.
 
-Package dependencies and registration scope are distinct. Libraries without discovery providers, such as WIM and Registry, are used through their direct APIs. ISO/UDF detection is supplied by OpticalDisk.
+Package dependencies and registration scope are distinct. Core supplies the local-file transport, Iscsi and Nfs supply their network transports, and OpticalDisk supplies optical-disc image access and ISO/UDF detection.
 
 OpticalDisk brings ISO 9660 and UDF readers transitively. Apple Optical Disc Sharing is a separate package and is not included. Register the corresponding format providers separately when opening disk-image files over a transport.
 
@@ -43,4 +43,4 @@ Dokan/FUSE integrations and command-line utilities are not included. Registratio
 
 ## Documentation
 
-[Repository and capability matrix](https://github.com/LTRData/DiscUtils) · [Wiki](https://github.com/LTRData/DiscUtils/wiki) · [Migration guide](https://github.com/LTRData/DiscUtils/wiki/Migration-from-DiscUtils-to-LTRData.DiscUtils) · [Format registration and Native AOT](https://github.com/LTRData/DiscUtils/blob/LTRData.DiscUtils-initial/docs/native-aot-format-registration.md)
+[Repository and capability matrix](https://github.com/LTRData/DiscUtils) · [Wiki](https://github.com/LTRData/DiscUtils/wiki) · [Migration guide](https://github.com/LTRData/DiscUtils/wiki/Migration-from-DiscUtils-to-LTRData.DiscUtils) · [Format registration and Native AOT](https://github.com/LTRData/DiscUtils/blob/HEAD/docs/native-aot-format-registration.md)

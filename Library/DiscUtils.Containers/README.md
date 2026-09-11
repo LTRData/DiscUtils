@@ -36,7 +36,7 @@ DiscUtils.Containers.SetupHelper.SetupContainers();
 
 This helper explicitly registers providers from: `Core`, `Dmg`, `Lvm`, `Vhd`, `Vhdx`, `Vmdk`, `Vdi`, `Xva`. It is safe to repeat and supports trimming and Native AOT registration. Referencing the package alone does not register providers.
 
-Package dependencies and registration scope are distinct. Libraries without discovery providers, such as WIM and Registry, are used through their direct APIs. ISO/UDF detection is supplied by OpticalDisk.
+Package dependencies and registration scope are distinct. WIM has no discovery provider and is used through its direct APIs.
 
 OpticalDiscSharing is a dependency, but SetupContainers does not register its transport. ISO 9660 and WIM readers are included for direct use; automatic ISO/UDF detection requires adding and registering OpticalDisk. SDI is not included.
 
@@ -50,4 +50,4 @@ Dokan/FUSE integrations and command-line utilities are not included. Registratio
 
 ## Documentation
 
-[Repository and capability matrix](https://github.com/LTRData/DiscUtils) · [Wiki](https://github.com/LTRData/DiscUtils/wiki) · [Migration guide](https://github.com/LTRData/DiscUtils/wiki/Migration-from-DiscUtils-to-LTRData.DiscUtils) · [Format registration and Native AOT](https://github.com/LTRData/DiscUtils/blob/LTRData.DiscUtils-initial/docs/native-aot-format-registration.md)
+[Repository and capability matrix](https://github.com/LTRData/DiscUtils) · [Wiki](https://github.com/LTRData/DiscUtils/wiki) · [Migration guide](https://github.com/LTRData/DiscUtils/wiki/Migration-from-DiscUtils-to-LTRData.DiscUtils) · [Format registration and Native AOT](https://github.com/LTRData/DiscUtils/blob/HEAD/docs/native-aot-format-registration.md)
