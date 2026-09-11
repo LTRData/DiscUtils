@@ -18,13 +18,13 @@ $expected = @{}
 foreach ($tree in @('Library', 'Integrations')) {
     $projects = Get-ChildItem -Path (Join-Path $RepositoryRoot "$tree/*/*.csproj") -File
     foreach ($project in $projects) {
-        [xml] $metadata = Get-Content -LiteralPath $project.FullName -Raw
+        [xml] $projectXml = Get-Content -LiteralPath $project.FullName -Raw
         $id = 'LTRData.' + $project.BaseName
         $readmePath = Join-Path $project.DirectoryName 'README.md'
         if (-not (Test-Path -LiteralPath $readmePath -PathType Leaf)) {
             throw "Missing local README: $readmePath"
         }
-        $description = $metadata.SelectSingleNode('/Project/PropertyGroup/Description')
+        $description = $projectXml.SelectSingleNode('/Project/PropertyGroup/Description')
         if (-not $description -or -not $description.InnerText.Trim()) {
             throw "Missing package description: $($project.FullName)"
         }
