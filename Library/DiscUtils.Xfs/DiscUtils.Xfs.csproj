@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>DiscUtils XFS</Description>
+    <Description>Managed .NET support for reading XFS filesystems, including file contents and filesystem metadata.</Description>
     <Authors>Bianco Veigel;Olof Lagerkvist</Authors>
-    <PackageTags>DiscUtils;Xfs</PackageTags>
+    <PackageTags>DiscUtils;Filesystem;XFS</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

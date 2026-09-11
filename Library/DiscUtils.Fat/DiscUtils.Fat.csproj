@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>DiscUtils FAT filesystem parser</Description>
+    <Description>Managed .NET implementation for reading, formatting and modifying FAT12, FAT16 and FAT32 filesystems.</Description>
     <Authors>Kenneth Bell;LordMike;Olof Lagerkvist</Authors>
-    <PackageTags>DiscUtils;Filesystem;FAT</PackageTags>
+    <PackageTags>DiscUtils;Filesystem;FAT;FAT12;FAT16;FAT32</PackageTags>
   </PropertyGroup>
   
   <ItemGroup>

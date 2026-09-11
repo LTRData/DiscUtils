@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>DiscUtils dmg parser. Works with apple disk (.dmg) files</Description>
+    <Description>.NET support for reading Apple DMG/UDIF disk images and decompressing supported image data.</Description>
     <Authors>Kenneth Bell;LordMike;quamotion;Olof Lagerkvist</Authors>
-    <PackageTags>DiscUtils;dmg</PackageTags>
+    <PackageTags>DiscUtils;DiskImage;DMG;UDIF;Apple</PackageTags>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 

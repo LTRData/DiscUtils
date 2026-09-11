@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>DiscUtils ext filesystem parser</Description>
-    <PackageTags>DiscUtils;Filesystem;ext</PackageTags>
+    <Description>Managed .NET support for reading Ext2, Ext3 and Ext4 filesystems, including file contents and filesystem metadata.</Description>
+    <PackageTags>DiscUtils;Filesystem;Ext2;Ext3;Ext4</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

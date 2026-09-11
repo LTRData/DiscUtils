@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>DiscUtils Swap</Description>
+    <Description>Managed .NET detection and header inspection for Linux swap areas through DiscUtils filesystem discovery.</Description>
     <Authors>Bianco Veigel;Olof Lagerkvist</Authors>
-    <PackageTags>DiscUtils;Swap</PackageTags>
+    <PackageTags>DiscUtils;Linux;Swap;Volume</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

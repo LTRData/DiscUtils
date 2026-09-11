@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>DiscUtils iSCSI</Description>
+    <Description>Managed .NET iSCSI initiator for target discovery, sessions and read/write access to remote block devices through DiscUtils.</Description>
     
-    <PackageTags>DiscUtils;iSCSI</PackageTags>
+    <PackageTags>DiscUtils;Network;Storage;iSCSI;SCSI</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

@@ -75,7 +75,7 @@ class Program : ProgramBase
     protected override string[] HelpRemarks =>
             [
                 "DiskClone clones a live disk into a virtual disk file.  The volumes cloned must be formatted with NTFS, and partitioned using a conventional partition table.",
-                "Only Windows 7 is supported.",
+                "DiskClone requires Windows with Volume Shadow Copy Service (VSS).",
                 "The tool must be run with administrator privilege."
             ];
 

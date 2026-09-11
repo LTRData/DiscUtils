@@ -2,9 +2,9 @@
   
 
   <PropertyGroup>
-    <Description>DiscUtils NET</Description>
+    <Description>.NET DNS, multicast DNS and DNS service-discovery helpers used by DiscUtils network integrations.</Description>
     
-    <PackageTags>DiscUtils;NET;DNS</PackageTags>
+    <PackageTags>DiscUtils;Network;DNS;mDNS;ServiceDiscovery</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

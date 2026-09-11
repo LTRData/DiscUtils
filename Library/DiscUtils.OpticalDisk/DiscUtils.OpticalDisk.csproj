@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>DiscUtils OpticalDisk</Description>
+    <Description>Managed .NET optical-disc image access and automatic detection of ISO 9660 and UDF filesystems.</Description>
     
-    <PackageTags>DiscUtils;Optical;OpticalDisk</PackageTags>
+    <PackageTags>DiscUtils;Optical;ISO9660;UDF;DiskImage</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

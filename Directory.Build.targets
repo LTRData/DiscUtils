@@ -1,4 +1,12 @@
 <Project>
+  <!-- Multi-targeting pack runs in the outer build, where SDK default None items
+       are absent. Explicitly include the local README in both outer and inner
+       builds, removing any default item first to avoid duplicate entries. -->
+  <ItemGroup Condition="'$(PackageReadmeFile)' == 'README.md'">
+    <None Remove="README.md" />
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
   <!-- Only format libraries opt in. Applications and package consumers need no analyzer. -->
   <ItemGroup Condition="'$(DiscUtilsGenerateRegistration)' == 'true'">
     <ProjectReference Include="$(MSBuildThisFileDirectory)SourceGenerators/DiscUtils.SourceGenerator/DiscUtils.SourceGenerator.csproj"

@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>DiscUtils Btrfs</Description>
+    <Description>Managed .NET support for reading Btrfs filesystems, including file contents and filesystem metadata.</Description>
     <Authors>Bianco Veigel;Olof Lagerkvist</Authors>
-    <PackageTags>DiscUtils;Btrfs</PackageTags>
+    <PackageTags>DiscUtils;Filesystem;Btrfs;Subvolumes</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

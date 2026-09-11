@@ -2,9 +2,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Description>Mounts DiscUtils IFileSystem implementations using Dokan file system driver</Description>
+    <Description>Windows integration for exposing DiscUtils filesystem implementations through the Dokan filesystem driver.</Description>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Nullable>enable</Nullable>
+    <PackageTags>DiscUtils;Windows;Dokan;Mount;Filesystem</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

@@ -2,9 +2,9 @@
   
 
   <PropertyGroup>
-    <Description>DiscUtils Virtual File System</Description>
+    <Description>Composable .NET virtual filesystem trees, TAR and ZIP filesystem readers, and a TAR image builder through DiscUtils abstractions.</Description>
     <Authors>Olof Lagerkvist</Authors>
-    <PackageTags>DiscUtils;tar;zip</PackageTags>
+    <PackageTags>DiscUtils;Filesystem;VirtualFileSystem;VFS;Streams;TAR;ZIP</PackageTags>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 

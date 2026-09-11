@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>DiscUtils XVA</Description>
-    <PackageTags>DiscUtils;XVA</PackageTags>
+    <Description>Managed .NET support for reading Xen Virtual Appliance (XVA) disks and creating new XVA appliances from disk streams.</Description>
+    <PackageTags>DiscUtils;DiskImage;XVA;Xen</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
