@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>Managed .NET reader for UDF optical-disc filesystems and their files, directories and extended attributes.</Description>
+    <Description>Managed .NET reader and virtual UDF 2.01 image builder for optical-disc filesystems.</Description>
     
     <PackageTags>DiscUtils;Filesystem;Optical;UDF</PackageTags>
   </PropertyGroup>
