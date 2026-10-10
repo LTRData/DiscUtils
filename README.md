@@ -41,7 +41,7 @@ These tables describe implemented API capabilities, not maturity ratings or supp
 - **Create**: build a new image, filesystem or structured file.
 - **Modify**: change an existing instance through format-aware APIs. For virtual disks this includes writing virtual sector content; it does not imply arbitrary metadata editing, resizing or chain merging.
 
-Creation and modification are distinct: ISO, SquashFS and XVA can be built as new images while existing images remain read-only. Writable operations also require appropriate backing-stream access. Raw byte writes forwarded by a wrapper do not establish structured format-editing support.
+Creation and modification are distinct: ISO, UDF, SquashFS and XVA can be built as new images while existing images remain read-only. Writable operations also require appropriate backing-stream access. Raw byte writes forwarded by a wrapper do not establish structured format-editing support.
 
 ### Filesystems
 
@@ -57,7 +57,7 @@ Filesystem constructors normally expect a stream beginning at the filesystem, su
 | [ISO 9660 / Joliet](Library/DiscUtils.Iso9660/README.md) | Yes | Yes | No | CDReader also supports Rock Ridge; CDBuilder builds new images, including bootable-image scenarios |
 | [NTFS](Library/DiscUtils.Ntfs/README.md) | Yes | Yes | Yes | Includes alternate data streams, security descriptors, reparse points and allocation metadata |
 | [SquashFS](Library/DiscUtils.SquashFs/README.md) | Yes | Yes | No | Separate reader and builder; zlib included, other codecs require callbacks |
-| [UDF](Library/DiscUtils.Udf/README.md) | Yes | No | No | Size/used/free-space properties are not implemented |
+| [UDF](Library/DiscUtils.Udf/README.md) | Yes | UDF 2.01 | No | Virtual image builder; size/used/free-space reader properties are not implemented |
 | [XFS](Library/DiscUtils.Xfs/README.md) | Yes | No | No | Unix metadata and allocation extents |
 
 ### Archive filesystem views
