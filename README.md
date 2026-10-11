@@ -139,7 +139,7 @@ The mounted view is constrained by the underlying filesystem, backing-stream acc
 | [VirtualDiskConvert](Utilities/VirtualDiskConvert) | Convert virtual disks between supported input/output formats | Output is limited to formats/layouts with builders |
 | [DiskDump](Utilities/DiskDump) | Inspect disks, partitioning and detected filesystems | Depends on the selected format and transport |
 | [FileExtract](Utilities/FileExtract) | Extract files from supported disk/filesystem images | Depends on the selected format and transport |
-| [ISOCreate](Utilities/ISOCreate) | Build an ISO image from source files | Uses the ISO 9660 builder |
+| [ISOCreate](Utilities/ISOCreate) | Build an ISO or UDF image from source files | ISO 9660 by default; `-udf` selects UDF 2.01 |
 
 The source tree contains further tools, including BCD, NTFS, VHD and VHDX diagnostics. Consult each utility's help for arguments and restrictions.
 
