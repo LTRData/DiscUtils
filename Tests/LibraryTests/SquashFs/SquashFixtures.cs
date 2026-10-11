@@ -33,14 +33,15 @@ namespace LibraryTests.SquashFs;
 /// <summary>
 /// The SquashFS test images. When squashfs-tools (4.5 or later) is on the machine, they are built fresh from the
 /// recipe below by that mksquashfs, once per test run, and the reader tests run on those; the images embedded in the
-/// assembly, made the same way with squashfs-tools 4.7.5, are only the fallback where the tool is absent. So on a
-/// machine with the tool, nothing in the repository's binaries is trusted or even opened.
+/// assembly, made the same way with squashfs-tools 4.7.5, are the fallback where the tool is absent. If the tool
+/// was built without xattr support, only the xattr image uses its embedded fallback; the other images are built
+/// fresh and all reader tests still run.
 /// </summary>
 internal static class SquashFixtures
 {
     private const string TextLine = "a line of text that compresses well, over and over\n";
     private static readonly object Gate = new();
-    private static string? _built;
+    private static IReadOnlyDictionary<string, string>? _built;
 
     /// <summary>The 300,000-byte text of text.bin.</summary>
     public static string Text
@@ -88,14 +89,13 @@ internal static class SquashFixtures
         }
     }
 
-    /// <summary>A seekable copy of an image: freshly built when mksquashfs is available, else the embedded one.</summary>
+    /// <summary>A seekable copy of an image: freshly built when supported by mksquashfs, else the embedded one.</summary>
     public static Stream Open(string name)
     {
-        var built = Built();
         var image = new MemoryStream();
-        if (built is not null)
+        if (Built().TryGetValue(name, out var path))
         {
-            using var file = File.OpenRead(Path.Combine(built, name));
+            using var file = File.OpenRead(path);
             file.CopyTo(image);
         }
         else
@@ -108,23 +108,22 @@ internal static class SquashFixtures
         return image;
     }
 
-    /// <summary>The folder holding the freshly built images, or null when they cannot be built here.</summary>
-    private static string? Built()
+    /// <summary>The freshly built images; missing entries use their embedded fallback.</summary>
+    private static IReadOnlyDictionary<string, string> Built()
     {
         lock (Gate)
         {
             if (_built is not null)
             {
-                return _built.Length == 0 ? null : _built;
+                return _built;
             }
             if (Environment.OSVersion.Platform != PlatformID.Unix || !ToolExists("mksquashfs") || !ToolExists("ln"))
             {
-                _built = "";
-                return null;
+                _built = new Dictionary<string, string>();
+                return _built;
             }
             var work = Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), "squashfs-fixtures-" + Path.GetRandomFileName()));
-            Build(work.FullName);
-            _built = work.FullName;
+            _built = Build(work.FullName);
             return _built;
         }
     }
@@ -142,7 +141,7 @@ internal static class SquashFixtures
     /// -xattrs-add, which puts an attribute on every inode: the link is an extended symlink inode and the image
     /// has an xattr table. The other three are built with -no-xattrs.
     /// </summary>
-    private static void Build(string work)
+    private static IReadOnlyDictionary<string, string> Build(string work)
     {
         var ext = Path.Combine(work, "ext");
         Directory.CreateDirectory(Path.Combine(ext, "dir"));
@@ -187,11 +186,28 @@ internal static class SquashFixtures
         Run("mksquashfs", new[] { ext, Path.Combine(work, "extended-inodes.sqsh"), "-comp", "gzip", "-Xcompression-level", "6", "-b", "128K" }.Concat(noXattrs).ToArray());
         Run("mksquashfs", new[] { huge, Path.Combine(work, "huge-sparse.sqsh"), "-comp", "gzip", "-Xcompression-level", "6", "-b", "1M" }.Concat(noXattrs).ToArray());
         Run("mksquashfs", new[] { bigRoot, Path.Combine(work, "big-root.sqsh"), "-comp", "gzip", "-b", "128K" }.Concat(noXattrs).ToArray());
-        Run("mksquashfs", new[] { xattrSymlink, Path.Combine(work, "xattr-symlink.sqsh"), "-comp", "gzip", "-b", "128K", "-xattrs-add", "trusted.test=1" }.Concat(flags).ToArray());
+        var xattrImage = Path.Combine(work, "xattr-symlink.sqsh");
+        var builtXattrs = Run("mksquashfs", new[] { xattrSymlink, xattrImage, "-comp", "gzip", "-b", "128K", "-xattrs-add", "trusted.test=1" }.Concat(flags).ToArray(), allowUnsupportedXattrs: true);
+        if (!builtXattrs)
+        {
+            File.Delete(xattrImage);
+        }
         Directory.Delete(ext, recursive: true);
         Directory.Delete(huge, recursive: true);
         Directory.Delete(bigRoot, recursive: true);
         Directory.Delete(xattrSymlink, recursive: true);
+
+        var images = new Dictionary<string, string>
+        {
+            ["extended-inodes.sqsh"] = Path.Combine(work, "extended-inodes.sqsh"),
+            ["huge-sparse.sqsh"] = Path.Combine(work, "huge-sparse.sqsh"),
+            ["big-root.sqsh"] = Path.Combine(work, "big-root.sqsh")
+        };
+        if (builtXattrs)
+        {
+            images.Add("xattr-symlink.sqsh", xattrImage);
+        }
+        return images;
     }
 
     private static void Write(Stream stream, string ascii)
@@ -216,6 +232,11 @@ internal static class SquashFixtures
 
     private static void Run(string tool, params string[] args)
     {
+        Run(tool, args, allowUnsupportedXattrs: false);
+    }
+
+    private static bool Run(string tool, string[] args, bool allowUnsupportedXattrs)
+    {
         // quoted by hand: ProcessStartInfo.ArgumentList is not in .NET Framework
         var arguments = string.Join(" ", args.Select(a => "\"" + a.Replace("\"", "\\\"") + "\""));
         var info = new ProcessStartInfo(tool, arguments) { RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false };
@@ -224,7 +245,12 @@ internal static class SquashFixtures
         process.WaitForExit();
         if (process.ExitCode != 0)
         {
+            if (allowUnsupportedXattrs && process.ExitCode == 1 && error.Trim() == "mksquashfs: xattrs are unsupported in this build")
+            {
+                return false;
+            }
             throw new InvalidOperationException($"{tool} failed ({process.ExitCode}): {error}");
         }
+        return true;
     }
 }
