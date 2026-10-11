@@ -24,15 +24,17 @@ using System;
 using System.IO;
 using DiscUtils.Common;
 using DiscUtils.Iso9660;
+using DiscUtils.Udf;
 
 namespace ISOCreate;
 
 class Program : ProgramBase
 {
-    private CommandLineParameter _isoFileParam;
+    private CommandLineParameter _imageFileParam;
     private CommandLineParameter _srcDir;
     private CommandLineParameter _bootImage;
     private CommandLineSwitch _volLabelSwitch;
+    private CommandLineSwitch _udfSwitch;
 
     static void Main(params string[] args)
     {
@@ -42,15 +44,17 @@ class Program : ProgramBase
 
     protected override StandardSwitches DefineCommandLine(CommandLineParser parser)
     {
-        _isoFileParam = new CommandLineParameter("iso_file", "The ISO file to create.", false);
-        _srcDir = new CommandLineParameter("sourcedir", "The directory to be added to the ISO", false);
-        _bootImage = new CommandLineParameter("bootimage", "The bootable disk image, to create a bootable ISO", true);
-        _volLabelSwitch = new CommandLineSwitch("vl", "vollabel", "label", "Volume Label for the ISO file.");
+        _imageFileParam = new CommandLineParameter("image_file", "The ISO or UDF image file to create.", false);
+        _srcDir = new CommandLineParameter("sourcedir", "The directory to be added to the image.", false);
+        _bootImage = new CommandLineParameter("bootimage", "The bootable disk image, to create a bootable ISO (unavailable with -udf).", true);
+        _volLabelSwitch = new CommandLineSwitch("vl", "vollabel", "label", "Volume label for the image file.");
+        _udfSwitch = new CommandLineSwitch("udf", null, "Create a UDF 2.01 image instead of the default ISO 9660 image.");
 
-        parser.AddParameter(_isoFileParam);
+        parser.AddParameter(_imageFileParam);
         parser.AddParameter(_srcDir);
         parser.AddParameter(_bootImage);
         parser.AddSwitch(_volLabelSwitch);
+        parser.AddSwitch(_udfSwitch);
 
         return StandardSwitches.Default;
     }
@@ -62,6 +66,26 @@ class Program : ProgramBase
         {
             Console.WriteLine("The source directory doesn't exist!");
             Environment.Exit(1);
+        }
+
+        if (_udfSwitch.IsPresent)
+        {
+            if (_bootImage.IsPresent)
+            {
+                Console.Error.WriteLine("The bootimage parameter cannot be used with -udf. Boot images are supported only for ISO 9660 images.");
+                Environment.ExitCode = 1;
+                return;
+            }
+
+            var udfBuilder = new UdfBuilder();
+            if (_volLabelSwitch.IsPresent)
+            {
+                udfBuilder.VolumeIdentifier = _volLabelSwitch.Value;
+            }
+
+            PopulateFromFolder(di, di.FullName, udfBuilder.AddFile, udfBuilder.AddDirectory);
+            udfBuilder.Build(_imageFileParam.Value);
+            return;
         }
 
         var builder = new CDBuilder();
@@ -76,21 +100,24 @@ class Program : ProgramBase
             builder.SetBootImage(new FileStream(_bootImage.Value, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 2 << 20, useAsync: false), BootDeviceEmulation.NoEmulation, 0);
         }
 
-        PopulateFromFolder(builder, di, di.FullName);
+        PopulateFromFolder(di, di.FullName, (name, sourcePath) => builder.AddFile(name, sourcePath));
 
-        builder.Build(_isoFileParam.Value);
+        builder.Build(_imageFileParam.Value);
     }
 
-    private static void PopulateFromFolder(CDBuilder builder, DirectoryInfo di, string basePath)
+    private static void PopulateFromFolder(DirectoryInfo di, string basePath, Action<string, string> addFile, Action<string> addDirectory = null)
     {
         foreach (var file in di.GetFiles())
         {
-            builder.AddFile(file.FullName[basePath.Length..], file.FullName);
+            var name = file.FullName[basePath.Length..].TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            addFile(name, file.FullName);
         }
 
         foreach (var dir in di.GetDirectories())
         {
-            PopulateFromFolder(builder, dir, basePath);
+            var name = dir.FullName[basePath.Length..].TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            addDirectory?.Invoke(name);
+            PopulateFromFolder(dir, basePath, addFile, addDirectory);
         }
     }
 }

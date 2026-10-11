@@ -11,6 +11,8 @@
     <ProjectReference Include="..\DiscUtils.Common\DiscUtils.Common.csproj" />
     <ProjectReference Include="..\..\Library\DiscUtils.Core\DiscUtils.Core.csproj" />
     <ProjectReference Include="..\..\Library\DiscUtils.Iso9660\DiscUtils.Iso9660.csproj" />
+    <ProjectReference Include="..\..\Library\DiscUtils.Udf\DiscUtils.Udf.csproj" />
+    <InternalsVisibleTo Include="LibraryTests" />
   </ItemGroup>
 
 </Project>
