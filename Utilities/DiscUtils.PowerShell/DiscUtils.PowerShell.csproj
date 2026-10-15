@@ -15,7 +15,7 @@
     <ProjectReference Include="..\..\Library\DiscUtils\DiscUtils.csproj" />
     <ProjectReference Include="..\..\Library\DiscUtils.FileSystems\DiscUtils.FileSystems.csproj" />
   </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFramework.CompareTo(`net5`))' &lt; 0">
+  <ItemGroup Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net5.0'))">
     <PackageReference Include="Microsoft.PowerShell.5.ReferenceAssemblies" Version="1.*" />
     <Reference Include="System.Configuration.Install" />
     <Reference Include="System" />
