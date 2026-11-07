@@ -53,8 +53,8 @@ public enum NtfsJournalStatus
     NeedsReplay,
 
     /// <summary>
-    /// The journal cannot be replayed by DiscUtils (unsupported version or operation, or damage); see
-    /// <see cref="NtfsJournalInfo.Detail"/>.
+    /// The journal cannot be replayed by DiscUtils (unsupported version or operation, damage, or a volume of a
+    /// hibernated Windows that holds hiberfil.sys); see <see cref="NtfsJournalInfo.Detail"/>.
     /// </summary>
     Unsupported,
 }
@@ -154,10 +154,20 @@ public sealed class NtfsJournalInfo
 /// Reads and replays supported journal ($LogFile) records on an NTFS volume after an unclean shutdown.
 /// </summary>
 /// <remarks>
+/// <para>
 /// The volume of a hibernated Windows (also after a shutdown with Fast Startup) is not shut down cleanly either,
 /// but Windows does not replay its journal: it resumes with the metadata it kept in memory. Replaying the journal
-/// of such a volume, like any other write to it, changes the volume behind Windows' back.
-/// Use an offline volume and exclusive access to its stream for analysis and replay.
+/// of such a volume, like any other write to it, changes the volume behind Windows' back: the change is invisible
+/// to the resumed Windows and the volume ends up with errors that chkdsk must repair.
+/// </para>
+/// <para>
+/// The volume that holds hiberfil.sys with an image to resume is reported as
+/// <see cref="NtfsJournalStatus.Unsupported"/>, so it is never replayed or opened for writing unless the caller
+/// passes <see cref="NtfsJournalMode.Ignore"/>. The other volumes of that Windows carry no mark and look like
+/// volumes after a crash; a caller that handles several volumes of one Windows installation should check its
+/// Windows volume first.
+/// </para>
+/// <para>Use an offline volume and exclusive access to its stream for analysis and replay.</para>
 /// </remarks>
 public static class NtfsJournal
 {
@@ -269,6 +279,15 @@ public static class NtfsJournal
             return info;
         }
 
+        // A hibernated Windows (also after a shutdown with Fast Startup) leaves its journals open, like a crash,
+        // but resumes with the metadata it kept in memory instead of replaying them.
+        if (HibernationImage(volume) is { } hibernated)
+        {
+            info.Status = NtfsJournalStatus.Unsupported;
+            info.Detail = hibernated;
+            return info;
+        }
+
         Dictionary<long, byte[]> clusters;
         byte[] alternateRestart = null;
         byte[] sourceRestart = null;
@@ -374,6 +393,73 @@ public static class NtfsJournal
         }
 
         return info;
+    }
+
+    /// <summary>
+    /// Returns why the volume must be left alone if it holds hiberfil.sys with an image Windows will resume (header
+    /// "HIBR"; Windows changes it to "WAKE" once it has resumed), otherwise <c>null</c>. Only the volume that holds
+    /// hiberfil.sys can tell: the other volumes of a hibernated Windows carry no mark.
+    /// </summary>
+    private static string HibernationImage(Stream volume)
+    {
+        try
+        {
+            using var ntfs = new NtfsFileSystem(new ReadOnlyView(volume), NtfsJournalMode.Ignore);
+            if (!ntfs.FileExists("hiberfil.sys"))
+            {
+                return null;
+            }
+
+            using var file = ntfs.OpenFile("hiberfil.sys", FileMode.Open, FileAccess.Read);
+            var header = new byte[4];
+            if (file.Read(header, 0, header.Length) == header.Length &&
+                System.Text.Encoding.ASCII.GetString(header).Equals("HIBR", StringComparison.OrdinalIgnoreCase))
+            {
+                return "Windows is hibernated: hiberfil.sys holds a session it will resume with the metadata it kept in " +
+                       "memory, so replaying the journal or writing to any of its volumes would corrupt them";
+            }
+
+            return null;
+        }
+        catch (Exception e) when (e is IOException or InvalidOperationException or ArgumentException or NotSupportedException)
+        {
+            // Metadata this check cannot read: it cannot tell, and the replay itself decides.
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Reads <paramref name="volume"/> without ever writing, flushing or disposing it (the read-only wrapper of
+    /// <see cref="SparseStream"/> flushes a writable stream when it is disposed, which would add a flush the replay's
+    /// write ordering does not expect).
+    /// </summary>
+    private sealed class ReadOnlyView(Stream volume) : Stream
+    {
+        public override bool CanRead => true;
+
+        public override bool CanSeek => true;
+
+        public override bool CanWrite => false;
+
+        public override long Length => volume.Length;
+
+        public override long Position
+        {
+            get => volume.Position;
+            set => volume.Position = value;
+        }
+
+        public override int Read(byte[] buffer, int offset, int count) => volume.Read(buffer, offset, count);
+
+        public override long Seek(long offset, SeekOrigin origin) => volume.Seek(offset, origin);
+
+        public override void Flush()
+        {
+        }
+
+        public override void SetLength(long value) => throw new NotSupportedException();
+
+        public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
     }
 
     private static void FlushReplayWrites(Stream volume)
