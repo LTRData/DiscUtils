@@ -470,11 +470,29 @@ public partial class NtfsJournalEdgeCaseTest
         }
     }
 
+    [Fact]
+    public void FileStreamReplay_RequestsDiskFlushesAtEveryBoundary()
+    {
+        using var dirty = WithRecords(Forget());
+        var path = Path.GetTempFileName();
+        try
+        {
+            File.WriteAllBytes(path, dirty.ToArray());
+            using var file = new ReplayTrackingFile(path);
+            Assert.True(NtfsJournal.Replay(file).Replayed);
+            Assert.Equal(new[] { true, true, true }, file.DiskFlushes);
+        }
+        finally
+        {
+            File.Delete(path);
+        }
+    }
+
     [Theory]
-    [InlineData(0)]
-    [InlineData(1)]
-    [InlineData(2)]
-    public void FileStreamReplay_RequestsDiskFlushesAtEveryBoundary(int subStreams)
+    [InlineData(1, false)]
+    [InlineData(2, false)]
+    [InlineData(1, true)]
+    public void PartitionReplayUsesTheBackingFileStreamWithoutBypassingCustomFlush(int ranges, bool derivedFile)
     {
         using var dirty = WithRecords(Forget());
         var path = Path.GetTempFileName();
@@ -483,16 +501,27 @@ public partial class NtfsJournalEdgeCaseTest
             const int padding = 512;
             using (var destination = File.OpenWrite(path))
             {
-                destination.Write(new byte[padding * subStreams], 0, padding * subStreams);
+                destination.Write(new byte[padding * ranges], 0, padding * ranges);
                 dirty.WriteTo(destination);
             }
 
-            using var file = new ReplayTrackingFile(path);
+            using var file = derivedFile ? new ReplayTrackingFile(path) : new FileStream(path, FileMode.Open, FileAccess.ReadWrite);
             using var partition = new SubStream(file, padding, file.Length - padding);
-            using var nested = new SubStream(partition, padding, dirty.Length);
-            Stream volume = subStreams switch { 0 => file, 1 => partition, _ => nested };
+            using var nested = ranges == 2 ? new SubStream(partition, padding, dirty.Length) : null;
+            Stream volume = nested ?? partition;
             Assert.True(NtfsJournal.Replay(volume).Replayed);
-            Assert.Equal(new[] { true, true, true }, file.DiskFlushes);
+            if (file is ReplayTrackingFile tracking)
+            {
+                Assert.Null(NtfsJournal.GetReplayFileStream(volume));
+                Assert.Equal(3, tracking.StreamFlushes);
+                Assert.DoesNotContain(true, tracking.DiskFlushes);
+            }
+            else
+            {
+                Assert.Same(file, NtfsJournal.GetReplayFileStream(volume));
+            }
+
+            Assert.Equal(NtfsJournalStatus.Clean, NtfsJournal.Analyze(volume).Status);
         }
         finally
         {
@@ -627,6 +656,14 @@ public partial class NtfsJournalEdgeCaseTest
     private sealed class ReplayTrackingFile(string path) : FileStream(path, FileMode.Open, FileAccess.ReadWrite, FileShare.None)
     {
         public List<bool> DiskFlushes { get; } = [];
+
+        public int StreamFlushes { get; private set; }
+
+        public override void Flush()
+        {
+            StreamFlushes++;
+            base.Flush();
+        }
 
         public override void Flush(bool flushToDisk)
         {

@@ -177,9 +177,9 @@ public static class NtfsJournal
     /// Replay prepares the changes before writing. If the MFT mirror changes, it is written and flushed before
     /// the primary records. Replay flushes metadata before resetting the restart pages. It writes and flushes
     /// the alternate restart page before replacing and flushing the source page.
-    /// A <see cref="FileStream"/>, including through unmodified <see cref="SubStream"/> ranges, uses <c>Flush(true)</c>
-    /// to request an operating-system barrier. Other streams use <see cref="Stream.Flush()"/>. Crash ordering
-    /// depends on whether every storage layer honors the barrier. The caller must establish this for the stream used.
+    /// Replay uses <c>FileStream.Flush(true)</c> to request an operating-system barrier for a direct file stream or
+    /// a built-in <see cref="FileStream"/> behind built-in <see cref="SubStream"/> ranges. Other paths use
+    /// <see cref="Stream.Flush()"/>. The caller must establish whether every storage layer honors the barrier.
     /// Replay is not atomic. An I/O error during the writes or flushes can leave a partially updated volume.
     /// Journals that require metadata undo or fail the local hibernation check cannot be written by this API.
     /// </remarks>
@@ -410,13 +410,7 @@ public static class NtfsJournal
 
     private static void FlushReplayWrites(Stream volume)
     {
-        // Exact SubStreams only translate offsets. A derived stream may need its own flush implementation.
-        while (volume.GetType() == typeof(SubStream))
-        {
-            volume = ((SubStream)volume).Parent;
-        }
-
-        if (volume is FileStream file)
+        if (GetReplayFileStream(volume) is { } file)
         {
             file.Flush(flushToDisk: true);
         }
@@ -424,6 +418,22 @@ public static class NtfsJournal
         {
             volume.Flush();
         }
+    }
+
+    internal static FileStream GetReplayFileStream(Stream volume)
+    {
+        if (volume is FileStream file)
+        {
+            return file;
+        }
+
+        // Built-in SubStreams only translate offsets. Preserve the Flush() dispatch of any derived stream.
+        while (volume.GetType() == typeof(SubStream))
+        {
+            volume = ((SubStream)volume).Parent;
+        }
+
+        return volume.GetType() == typeof(FileStream) ? (FileStream)volume : null;
     }
 
     private static void WriteClusters(Stream stream, IEnumerable<KeyValuePair<long, byte[]>> clusters, int clusterSize)
