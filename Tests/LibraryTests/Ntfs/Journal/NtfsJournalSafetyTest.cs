@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using DiscUtils.Ntfs;
 using DiscUtils.Ntfs.Journal;
+using DiscUtils.Streams;
 using File = System.IO.File;
 using static DiscUtils.Ntfs.Journal.JournalUtilities;
 
@@ -469,22 +470,72 @@ public partial class NtfsJournalEdgeCaseTest
         }
     }
 
-    [Fact]
-    public void FileStreamReplay_RequestsDiskFlushesAtEveryBoundary()
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(2)]
+    public void FileStreamReplay_RequestsDiskFlushesAtEveryBoundary(int subStreams)
     {
         using var dirty = WithRecords(Forget());
         var path = Path.GetTempFileName();
         try
         {
-            File.WriteAllBytes(path, dirty.ToArray());
+            const int padding = 512;
+            using (var destination = File.OpenWrite(path))
+            {
+                destination.Write(new byte[padding * subStreams], 0, padding * subStreams);
+                dirty.WriteTo(destination);
+            }
+
             using var file = new ReplayTrackingFile(path);
-            Assert.True(NtfsJournal.Replay(file).Replayed);
+            using var partition = new SubStream(file, padding, file.Length - padding);
+            using var nested = new SubStream(partition, padding, dirty.Length);
+            Stream volume = subStreams switch { 0 => file, 1 => partition, _ => nested };
+            Assert.True(NtfsJournal.Replay(volume).Replayed);
             Assert.Equal(new[] { true, true, true }, file.DiskFlushes);
         }
         finally
         {
             File.Delete(path);
         }
+    }
+
+    [Fact]
+    public void ReplayHonorsAnOverriddenSubStreamFlush()
+    {
+        using var dirty = WithRecords(Forget());
+        using var partition = new TrackingSubStream(dirty);
+        using var volume = new SubStream(partition, 0, partition.Length);
+        Assert.True(NtfsJournal.Replay(volume).Replayed);
+        Assert.Equal(3, partition.Flushes);
+    }
+
+    [Fact]
+    public void DynamicVhdReplayPropagatesFlushAndStopsBeforePublishingAResetOnFailure()
+    {
+        using var dirty = Volume();
+        var (writer, _, _, _) = WriteRedoInterruptionFixture(dirty);
+        using var backing = new MemoryStream();
+        using (var disk = DiscUtils.Vhd.Disk.InitializeDynamic(backing, Ownership.None, dirty.Length))
+        {
+            dirty.WriteTo(disk.Content);
+        }
+
+        using var tracked = new ReplayTrackingStream(backing.ToArray(), failFlush: 2);
+        using var reopened = new DiscUtils.Vhd.Disk(tracked, Ownership.None);
+        using var volume = new SubStream(reopened.Content, 0, dirty.Length);
+        var originalRestart = new byte[2 * TestJournalWriter.PageSize];
+        writer.Storage.Read(0, originalRestart, 0, originalRestart.Length);
+
+        Assert.Same(tracked.Failure, Assert.Throws<IOException>(() => NtfsJournal.Replay(volume)));
+        Assert.Equal(2, tracked.Events.Count(e => e == "flush"));
+        var actualRestart = new byte[originalRestart.Length];
+        LogFileStorage.Open(volume, writer.Layout).Read(0, actualRestart, 0, actualRestart.Length);
+        Assert.Equal(originalRestart, actualRestart);
+
+        Assert.True(NtfsJournal.Replay(volume).Replayed);
+        Assert.Equal(5, tracked.Events.Count(e => e == "flush"));
+        Assert.Equal(NtfsJournalStatus.Clean, NtfsJournal.Analyze(volume).Status);
     }
 
     [Theory]
@@ -508,6 +559,40 @@ public partial class NtfsJournalEdgeCaseTest
         Assert.Equal(NtfsJournalStatus.NeedsReplay, NtfsJournal.Replay(retry).Status);
         Assert.Equal(Read(retry, mft, layout.MftRecordSize), Read(retry, mirror, layout.MftRecordSize));
         Assert.Equal(NtfsJournalStatus.Clean, NtfsJournal.Analyze(retry).Status);
+    }
+
+    [Fact]
+    public void LargeClusterReplayFlushesTheMirrorOfMftRecordFourBeforeWritingThePrimary()
+    {
+        // Use the Windows fixture's geometry and mirror layout, with a synthetic journal update to $AttrDef.
+        using var dirty = NtfsJournalWindowsSampleTest.LoadVolume("s64k");
+        var writer = new TestJournalWriter(dirty, sequence: 1000);
+        var layout = writer.Layout;
+        var recordOffset = 4 * layout.MftRecordSize;
+        var mft = layout.MftCluster * layout.BytesPerCluster;
+        var mirror = layout.MftMirrorCluster * layout.BytesPerCluster;
+        var original = Read(dirty, mft + recordOffset, layout.MftRecordSize);
+        var reservedBytes = 16 * layout.MftRecordSize;
+        var mirrorTail = Read(dirty, mirror + reservedBytes, layout.BytesPerCluster - reservedBytes);
+        Assert.False(mirrorTail.AsSpan().SequenceEqual(Read(dirty, mft + reservedBytes, mirrorTail.Length)));
+        var change = FirstMftValueUpdate(writer, original, Pattern.AsSpan(0, 8).ToArray(), new byte[8]);
+        change.ClusterBlockOffset = recordOffset / 512;
+        var restart = writer.Checkpoint(Attributes);
+        var lsn = writer.Append(change);
+        writer.Append(Forget());
+        writer.Finish(restart);
+
+        using var volume = new ReplayTrackingStream(dirty.ToArray(), failFlush: 1);
+        Assert.Same(volume.Failure, Assert.Throws<IOException>(() => NtfsJournal.Replay(volume)));
+        Assert.Equal(new[] { $"write {mirror}", "flush" }, volume.Events);
+        Assert.Equal(original, Read(volume, mft + recordOffset, layout.MftRecordSize));
+        Assert.Equal(lsn, U64(Read(volume, mirror + recordOffset, layout.MftRecordSize), 8));
+
+        Assert.True(NtfsJournal.Replay(volume).Replayed);
+        Assert.Equal(Read(volume, mft + recordOffset, layout.MftRecordSize),
+            Read(volume, mirror + recordOffset, layout.MftRecordSize));
+        Assert.Equal(mirrorTail, Read(volume, mirror + reservedBytes, mirrorTail.Length));
+        Assert.Equal(NtfsJournalStatus.Clean, NtfsJournal.Analyze(volume).Status);
     }
 
     private sealed class ReplayTrackingStream(byte[] image, int failFlush, long? failWrite = null) : MemoryStream(image, writable: true)
@@ -547,6 +632,17 @@ public partial class NtfsJournalEdgeCaseTest
         {
             DiskFlushes.Add(flushToDisk);
             base.Flush(flushToDisk);
+        }
+    }
+
+    private sealed class TrackingSubStream(Stream parent) : SubStream(parent, 0, parent.Length)
+    {
+        public int Flushes { get; private set; }
+
+        public override void Flush()
+        {
+            Flushes++;
+            base.Flush();
         }
     }
 }
