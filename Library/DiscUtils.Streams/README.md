@@ -14,6 +14,12 @@ dotnet add package LTRData.DiscUtils.Streams
 
 Use this package directly when you need sparse memory streams, stream composition, allocation extents, buffers or stream builders without depending on Core or a filesystem implementation. Ownership controls whether wrappers dispose the streams they wrap. No format registration is needed.
 
+### Storage flush requests
+
+`SparseStream.Flush(bool flushToDisk)` is a virtual overload for requesting a stronger storage flush. By default it calls `Flush()`. Built-in forwarding wrappers pass this request through nested sparse streams; `SparseStream.FromStream` uses `FileStream.Flush(bool)` when wrapping a `FileStream` and ordinary `Stream.Flush()` for unknown streams. Custom image or remote-storage streams can override this overload to implement an appropriate durability barrier.
+
+A successful call only establishes what the underlying runtime and storage actually guarantee; it cannot by itself promise power-loss durability or atomic writes. NTFS journal recovery uses `Flush(true)` for its write-ordering barriers. See [NTFS replay durability](../../docs/ntfs-journal-replay-durability.md).
+
 ## Example
 
 ```csharp
