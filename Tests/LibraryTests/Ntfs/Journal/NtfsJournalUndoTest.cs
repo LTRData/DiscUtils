@@ -110,21 +110,26 @@ public partial class NtfsJournalEdgeCaseTest
     }
 
     [Theory]
-    [InlineData(4, 4, null)]
-    [InlineData(30000, 9, null)]
-    [InlineData(2, 4, "overlaps bits 2-3 of cluster")]
-    [InlineData(-1, 0, "overlaps cluster")]
-    public void ActiveTransactionsCanRollBackDifferentBitsOfOneBitmapCluster(int first, int count, string? refused)
+    [InlineData(4, 4, false, null)]
+    [InlineData(4, 4, true, null)]
+    [InlineData(30000, 9, true, null)]
+    [InlineData(2, 4, true, "overlaps bits 2-3 of cluster")]
+    [InlineData(-1, 0, true, "overlaps cluster")]
+    public void ActiveTransactionsCanRollBackDifferentBitsOfOneBitmapCluster(int first, int count, bool onDisk, string? refused)
     {
-        // Two unfinished allocations in the same bitmap cluster whose bits already reached the disk, as in a real
-        // crash where Windows cleared bits of two transactions in one $Bitmap cluster. The second transaction sets
-        // other bits, some of the same bits, or rewrites the whole cluster.
+        // Two unfinished allocations in the same bitmap cluster, as in a real crash with two active transactions
+        // that each allocated a cluster in the same 128 MB of a volume. Their bits either never reached the disk (as
+        // in that crash: redo sets them and undo clears them again) or did. The second transaction sets other bits,
+        // some of the same bits, or rewrites the whole cluster.
         using var volume = Volume();
         var lcn = FreeCluster(volume);
-        SetBitsOnDisk(volume, lcn, 0, 4);
-        if (first >= 0)
+        if (onDisk)
         {
-            SetBitsOnDisk(volume, lcn, first, count);
+            SetBitsOnDisk(volume, lcn, 0, 4);
+            if (first >= 0)
+            {
+                SetBitsOnDisk(volume, lcn, first, count);
+            }
         }
 
         var other = first >= 0 ? AllocationBits(lcn, first, count, 0x68) : Raw(lcn, Pattern, tx: 0x68);
@@ -140,12 +145,12 @@ public partial class NtfsJournalEdgeCaseTest
         {
             var info = NtfsJournal.ReplayInMemory(dirty, out var overlay);
             using var recovered = overlay;
-            Assert.Equal(NtfsJournalStatus.NeedsReplay, info.Status);
+            Assert.Equal(onDisk ? NtfsJournalStatus.NeedsReplay : NtfsJournalStatus.NothingToReplay, info.Status);
             Assert.Equal(2, info.TransactionsToUndo);
             Assert.Equal(2, info.RecordsToUndo);
             Assert.False(info.CanReplayPersistently);
-            Assert.True(info.ReplayedInMemory);
-            Assert.Equal(new byte[4096], Read(recovered, lcn * 4096, 4096));
+            Assert.Equal(onDisk, info.ReplayedInMemory);
+            Assert.Equal(new byte[4096], Read(recovered ?? (Stream)dirty, lcn * 4096, 4096));
         }
 
         Assert.Contains("metadata undo", Assert.Throws<IOException>(() => NtfsJournal.Replay(dirty)).Message);
