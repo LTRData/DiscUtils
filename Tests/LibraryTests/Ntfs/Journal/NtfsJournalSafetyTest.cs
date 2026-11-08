@@ -492,7 +492,7 @@ public partial class NtfsJournalEdgeCaseTest
     [InlineData(1, false)]
     [InlineData(2, false)]
     [InlineData(1, true)]
-    public void PartitionReplayUsesTheBackingFileStreamWithoutBypassingCustomFlush(int ranges, bool derivedFile)
+    public void PartitionReplayForwardsDiskFlushThroughSparseWrappers(int ranges, bool derivedFile)
     {
         using var dirty = WithRecords(Forget());
         var path = Path.GetTempFileName();
@@ -512,13 +512,8 @@ public partial class NtfsJournalEdgeCaseTest
             Assert.True(NtfsJournal.Replay(volume).Replayed);
             if (file is ReplayTrackingFile tracking)
             {
-                Assert.Null(NtfsJournal.GetReplayFileStream(volume));
-                Assert.Equal(3, tracking.StreamFlushes);
-                Assert.DoesNotContain(true, tracking.DiskFlushes);
-            }
-            else
-            {
-                Assert.Same(file, NtfsJournal.GetReplayFileStream(volume));
+                Assert.Equal(new[] { true, true, true }, tracking.DiskFlushes);
+                Assert.Equal(0, tracking.StreamFlushes);
             }
 
             Assert.Equal(NtfsJournalStatus.Clean, NtfsJournal.Analyze(volume).Status);
@@ -530,13 +525,37 @@ public partial class NtfsJournalEdgeCaseTest
     }
 
     [Fact]
-    public void ReplayHonorsAnOverriddenSubStreamFlush()
+    public void ReplayUsesAnOverriddenSparseStreamDiskFlush()
     {
         using var dirty = WithRecords(Forget());
         using var partition = new TrackingSubStream(dirty);
         using var volume = new SubStream(partition, 0, partition.Length);
         Assert.True(NtfsJournal.Replay(volume).Replayed);
         Assert.Equal(3, partition.Flushes);
+        Assert.Equal(new[] { true, true, true }, partition.DiskFlushes);
+    }
+
+    [Fact]
+    public void SparseStreamDiskFlushFallsBackForAnUnknownBackingStream()
+    {
+        using var backing = new ReplayTrackingStream(new byte[512], failFlush: int.MaxValue);
+        using var wrapped = SparseStream.FromStream(backing, Ownership.None);
+        wrapped.Flush(flushToDisk: true);
+        Assert.Equal(new[] { "flush" }, backing.Events);
+    }
+
+    [Fact]
+    public void SparseStreamDiskFlushPropagatesThroughSynchronizationAndCacheWrappers()
+    {
+        using var backing = new MemoryStream(new byte[512], writable: true);
+        using var tracked = new TrackingSubStream(backing);
+        using var wrapped = new WrappingStream(tracked, Ownership.None);
+        using var synchronized = SparseStream.Synchronized(wrapped, Ownership.None);
+        using var threadSafe = new ThreadSafeStream(synchronized, Ownership.None);
+        using var cache = new BlockCacheStream(threadSafe, Ownership.None);
+
+        cache.Flush(flushToDisk: true);
+        Assert.Equal(new[] { true }, tracked.DiskFlushes);
     }
 
     [Fact]
@@ -565,6 +584,31 @@ public partial class NtfsJournalEdgeCaseTest
         Assert.True(NtfsJournal.Replay(volume).Replayed);
         Assert.Equal(5, tracked.Events.Count(e => e == "flush"));
         Assert.Equal(NtfsJournalStatus.Clean, NtfsJournal.Analyze(volume).Status);
+    }
+
+    [Fact]
+    public void DynamicVhdReplayRequestsDiskFlushFromFileBacking()
+    {
+        using var dirty = WithRecords(Forget());
+        var path = Path.GetTempFileName();
+        try
+        {
+            using (var destination = new FileStream(path, FileMode.Create, FileAccess.ReadWrite))
+            using (var disk = DiscUtils.Vhd.Disk.InitializeDynamic(destination, Ownership.None, dirty.Length))
+            {
+                dirty.WriteTo(disk.Content);
+            }
+
+            using var file = new ReplayTrackingFile(path);
+            using var reopened = new DiscUtils.Vhd.Disk(file, Ownership.None);
+            Assert.True(NtfsJournal.Replay(reopened.Content).Replayed);
+            Assert.Equal(new[] { true, true, true }, file.DiskFlushes);
+            Assert.Equal(NtfsJournalStatus.Clean, NtfsJournal.Analyze(reopened.Content).Status);
+        }
+        finally
+        {
+            File.Delete(path);
+        }
     }
 
     [Theory]
@@ -676,10 +720,18 @@ public partial class NtfsJournalEdgeCaseTest
     {
         public int Flushes { get; private set; }
 
+        public List<bool> DiskFlushes { get; } = [];
+
         public override void Flush()
         {
             Flushes++;
             base.Flush();
+        }
+
+        public override void Flush(bool flushToDisk)
+        {
+            DiskFlushes.Add(flushToDisk);
+            Flush();
         }
     }
 }

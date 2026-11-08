@@ -177,9 +177,10 @@ public static class NtfsJournal
     /// Replay prepares the changes before writing. If the MFT mirror changes, it is written and flushed before
     /// the primary records. Replay flushes metadata before resetting the restart pages. It writes and flushes
     /// the alternate restart page before replacing and flushing the source page.
-    /// Replay uses <c>FileStream.Flush(true)</c> to request an operating-system barrier for a direct file stream or
-    /// a built-in <see cref="FileStream"/> behind built-in <see cref="SubStream"/> ranges. Other paths use
-    /// <see cref="Stream.Flush()"/>. The caller must establish whether every storage layer honors the barrier.
+    /// Replay requests <see cref="SparseStream.Flush(bool)"/> with <c>true</c> through a non-owning sparse
+    /// stream adapter. Built-in wrappers forward the request to backing streams that support disk flushing;
+    /// other streams retain their parameterless <see cref="Stream.Flush()"/> behavior. The caller must establish
+    /// whether every storage layer honors the barrier.
     /// Replay is not atomic. An I/O error during the writes or flushes can leave a partially updated volume.
     /// Journals that require metadata undo or fail the local hibernation check cannot be written by this API.
     /// </remarks>
@@ -356,6 +357,7 @@ public static class NtfsJournal
         changedClusters = clusters;
         if (write)
         {
+            using var flushStream = SparseStream.FromStream(volume, Ownership.None);
             bool IsMirrorCluster(KeyValuePair<long, byte[]> cluster) => mirrorClusterCount > 0 &&
                 cluster.Key >= layout.MftMirrorCluster && cluster.Key - layout.MftMirrorCluster < mirrorClusterCount;
 
@@ -363,20 +365,20 @@ public static class NtfsJournal
             {
                 // A retry can skip primary records whose LSN already advanced. Their copies must be written first.
                 WriteClusters(volume, clusters.Where(IsMirrorCluster), clusterSize);
-                FlushReplayWrites(volume);
+                flushStream.Flush(flushToDisk: true);
             }
 
             WriteClusters(volume, clusters.Where(cluster => !IsMirrorCluster(cluster)), clusterSize);
             // Flush even without page changes. Metadata or a recognized alternate reset may still be buffered.
-            FlushReplayWrites(volume);
+            flushStream.Flush(flushToDisk: true);
             if (alternateRestart != null)
             {
                 storage.Write(alternateOffset, alternateRestart, 0, alternateRestart.Length);
-                FlushReplayWrites(volume);
+                flushStream.Flush(flushToDisk: true);
             }
 
             storage.Write(sourceOffset, sourceRestart, 0, sourceRestart.Length);
-            FlushReplayWrites(volume);
+            flushStream.Flush(flushToDisk: true);
             info.Replayed = true;
         }
 
@@ -406,34 +408,6 @@ public static class NtfsJournal
         WriteClusters(snapshot, clusters, clusterSize);
         snapshot.Freeze();
         return snapshot;
-    }
-
-    private static void FlushReplayWrites(Stream volume)
-    {
-        if (GetReplayFileStream(volume) is { } file)
-        {
-            file.Flush(flushToDisk: true);
-        }
-        else
-        {
-            volume.Flush();
-        }
-    }
-
-    internal static FileStream GetReplayFileStream(Stream volume)
-    {
-        if (volume is FileStream file)
-        {
-            return file;
-        }
-
-        // Built-in SubStreams only translate offsets. Preserve the Flush() dispatch of any derived stream.
-        while (volume.GetType() == typeof(SubStream))
-        {
-            volume = ((SubStream)volume).Parent;
-        }
-
-        return volume.GetType() == typeof(FileStream) ? (FileStream)volume : null;
     }
 
     private static void WriteClusters(Stream stream, IEnumerable<KeyValuePair<long, byte[]>> clusters, int clusterSize)
