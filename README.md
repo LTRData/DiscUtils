@@ -55,10 +55,12 @@ Filesystem constructors normally expect a stream beginning at the filesystem, su
 | [FAT12 / FAT16 / FAT32](Library/DiscUtils.Fat/README.md) | Yes | Yes | Yes | Includes floppy and partition formatting |
 | [HFS+](Library/DiscUtils.HfsPlus/README.md) | Yes | No | No | Unix metadata and allocation extents; not APFS |
 | [ISO 9660 / Joliet](Library/DiscUtils.Iso9660/README.md) | Yes | Yes | No | CDReader also supports Rock Ridge; CDBuilder builds new images, including bootable-image scenarios |
-| [NTFS](Library/DiscUtils.Ntfs/README.md) | Yes | Yes | Yes | Includes alternate data streams, security descriptors, reparse points and allocation metadata |
+| [NTFS](Library/DiscUtils.Ntfs/README.md) | Yes | Yes | Yes | Alternate data streams, security metadata and guarded `$LogFile` journal recovery |
 | [SquashFS](Library/DiscUtils.SquashFs/README.md) | Yes | Yes | No | Separate reader and builder; zlib included, other codecs require callbacks |
 | [UDF](Library/DiscUtils.Udf/README.md) | Yes | UDF 2.01 | No | Virtual image builder; size/used/free-space reader properties are not implemented |
 | [XFS](Library/DiscUtils.Xfs/README.md) | Yes | No | No | Unix metadata and allocation extents |
+
+NTFS also supports journal analysis and selective recovery after an unclean shutdown. Writable filesystem opens refuse pending recovery by default; read-only opens can replay supported changes in memory. Persistent replay requires explicit opt-in, an offline and exclusively owned volume, and a backing stream with suitable durability guarantees; metadata undo cannot yet be persisted. See the [NTFS package README](Library/DiscUtils.Ntfs/README.md) and [journal durability notes](docs/ntfs-journal-replay-durability.md).
 
 ### Archive filesystem views
 
