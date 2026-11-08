@@ -357,7 +357,10 @@ public static class NtfsJournal
         changedClusters = clusters;
         if (write)
         {
-            using var flushStream = SparseStream.FromStream(volume, Ownership.None);
+            // This adapter owns no resources. Do not dispose it: a non-owning SparseWrapperStream
+            // performs an extra parameterless flush on disposal, which would change replay ordering
+            // and could hide the original exception from a failed durability barrier.
+            var flushStream = SparseStream.FromStream(volume, Ownership.None);
             bool IsMirrorCluster(KeyValuePair<long, byte[]> cluster) => mirrorClusterCount > 0 &&
                 cluster.Key >= layout.MftMirrorCluster && cluster.Key - layout.MftMirrorCluster < mirrorClusterCount;
 
