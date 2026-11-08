@@ -109,6 +109,70 @@ public partial class NtfsJournalEdgeCaseTest
         }
     }
 
+    [Theory]
+    [InlineData(4, 4, null)]
+    [InlineData(30000, 9, null)]
+    [InlineData(2, 4, "overlaps bits 2-3 of cluster")]
+    [InlineData(-1, 0, "overlaps cluster")]
+    public void ActiveTransactionsCanRollBackDifferentBitsOfOneBitmapCluster(int first, int count, string? refused)
+    {
+        // Two unfinished allocations in the same bitmap cluster whose bits already reached the disk, as in a real
+        // crash where Windows cleared bits of two transactions in one $Bitmap cluster. The second transaction sets
+        // other bits, some of the same bits, or rewrites the whole cluster.
+        using var volume = Volume();
+        var lcn = FreeCluster(volume);
+        SetBitsOnDisk(volume, lcn, 0, 4);
+        if (first >= 0)
+        {
+            SetBitsOnDisk(volume, lcn, first, count);
+        }
+
+        var other = first >= 0 ? AllocationBits(lcn, first, count, 0x68) : Raw(lcn, Pattern, tx: 0x68);
+        using var dirty = WithRecordsOn(volume, AllocationBits(lcn, 0, 4, Tx), other);
+        if (refused != null)
+        {
+            AssertReplayRefused(dirty, refused);
+            return;
+        }
+
+        var before = dirty.ToArray();
+        for (var attempt = 0; attempt < 2; attempt++)
+        {
+            var info = NtfsJournal.ReplayInMemory(dirty, out var overlay);
+            using var recovered = overlay;
+            Assert.Equal(NtfsJournalStatus.NeedsReplay, info.Status);
+            Assert.Equal(2, info.TransactionsToUndo);
+            Assert.Equal(2, info.RecordsToUndo);
+            Assert.False(info.CanReplayPersistently);
+            Assert.True(info.ReplayedInMemory);
+            Assert.Equal(new byte[4096], Read(recovered, lcn * 4096, 4096));
+        }
+
+        Assert.Contains("metadata undo", Assert.Throws<IOException>(() => NtfsJournal.Replay(dirty)).Message);
+        Assert.Equal(before, dirty.ToArray());
+    }
+
+    private static void SetBitsOnDisk(Stream volume, long lcn, int first, int count)
+    {
+        for (var bit = first; bit < first + count; bit++)
+        {
+            var position = (lcn * 4096) + (bit / 8);
+            volume.Position = position;
+            var value = volume.ReadByte();
+            volume.Position = position;
+            volume.WriteByte((byte)(value | (1 << (bit % 8))));
+        }
+    }
+
+    private static TestLogRecord AllocationBits(long lcn, int first, int count, uint tx)
+    {
+        var run = BitConverter.GetBytes((uint)first | ((long)count << 32));
+        var record = Op(NtfsLogOperation.SetBitsInNonresidentBitMap, run, Data, lcn, [lcn],
+            undo: NtfsLogOperation.ClearBitsInNonresidentBitMap, undoData: run);
+        record.TransactionId = tx;
+        return record;
+    }
+
     [Fact]
     public void ARecordedCompensationCanBeRedoneWithoutInventingUndoProgress()
     {
