@@ -71,7 +71,24 @@ internal class DiskStream : SparseStream
         set => _position = value;
     }
 
-    public override void Flush() { }
+    /// <summary>
+    /// Requests that the target synchronize its write cache with stable storage (SCSI SYNCHRONIZE CACHE).
+    /// This covers the entire LUN, including writes made through other streams or before this stream was opened.
+    /// A failed or unsupported synchronization is reported to the caller.
+    /// </summary>
+    public override void Flush() => Flush(flushToDisk: true);
+
+    /// <summary>
+    /// Requests a target-wide cache synchronization. iSCSI has no separate buffered data in this stream to flush,
+    /// so both overloads preserve the established <see cref="Flush()"/> behavior and issue SYNCHRONIZE CACHE.
+    /// In particular, <paramref name="flushToDisk"/> set to <c>true</c> is an unconditional durability barrier,
+    /// even if this stream has not written any data itself.
+    /// </summary>
+    public override void Flush(bool flushToDisk) => _session.SynchronizeCache(_lun);
+
+    /// <summary>Asynchronously synchronizes the whole LUN, even if this stream has not written anything.</summary>
+    public override async Task FlushAsync(CancellationToken cancellationToken)
+        => await _session.SynchronizeCacheAsync(_lun, cancellationToken).ConfigureAwait(false);
 
     public override int Read(byte[] buffer, int offset, int count)
         => Read(buffer.AsSpan(offset, count));
