@@ -80,9 +80,11 @@ jobs:
       shell: pwsh
       run: ./tools/Verify-PackageReadmes.ps1
 
-    - name: Test
+    - name: Test (.NET 10)
       timeout-minutes: 30
-      run: dotnet test -c Release --no-restore -f net10.0 --logger "console;verbosity=detailed" --blame-hang --blame-hang-timeout 2m --blame-hang-dump-type full
+      run: |
+        dotnet test Tests/LibraryTests/LibraryTests.csproj -c Release --no-restore -f net10.0 --logger "console;verbosity=detailed" --blame-hang --blame-hang-timeout 2m --blame-hang-dump-type full
+        dotnet test Tests/RegistrationTests/RegistrationTests.csproj -c Release --no-restore -f net10.0 --logger "console;verbosity=detailed" --blame-hang --blame-hang-timeout 2m --blame-hang-dump-type full
 
     - name: Test (.NET 11)
       timeout-minutes: 30
