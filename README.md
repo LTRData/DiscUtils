@@ -12,7 +12,7 @@ The core storage implementations are written in C#. Particular codec dependencie
 
 This fork focuses on modernizing and optimizing the codebase, improving cross-platform compatibility and making use of current .NET APIs. This includes `Span<T>` and memory-oriented APIs, asynchronous operations in many I/O paths, allocation reductions and lazy enumeration APIs. Some APIs intentionally differ from older DiscUtils releases; see the [migration guide](https://github.com/LTRData/DiscUtils/wiki/Migration-from-DiscUtils-to-LTRData.DiscUtils).
 
-Most library projects currently target .NET Framework 4.6 and 4.8, .NET Standard 2.0 and 2.1, and .NET 8, 9 and 10. Targets are maintained in [Library/Directory.Build.props](Library/Directory.Build.props); integrations and utilities can use a subset. A compatible target framework does not remove platform requirements of native dependencies or utilities.
+Most library projects currently target .NET Framework 4.6 and 4.8, .NET Standard 2.0 and 2.1, and .NET 8, 9, 10 and 11. Targets are maintained in [Library/Directory.Build.props](Library/Directory.Build.props); integrations and utilities can use a subset. A compatible target framework does not remove platform requirements of native dependencies or utilities.
 
 ## Packages
 
@@ -249,6 +249,57 @@ using var file = floppy.OpenFile("hello.txt", FileMode.Create, FileAccess.Write)
 using var writer = new StreamWriter(file);
 writer.WriteLine("Hello World!");
 ```
+
+## Building NuGet release artifacts
+
+NuGet package production is initiated by pushing a `publish/*` tag on a commit
+that belongs to the default branch, `LTRData.DiscUtils-initial`. For example,
+after reviewing and merging a change to that branch:
+
+```sh
+git switch LTRData.DiscUtils-initial
+git pull --ff-only
+git tag -a publish/1.0.89 -m "Prepare DiscUtils 1.0.89 packages"
+git push origin publish/1.0.89
+```
+
+The [release packaging workflow](.github/workflows/publish-nuget.yml)
+builds all projects using .NET 11 SDK tooling on Windows Server 2025,
+tests the `net11.0` target, verifies local package READMEs and creates a
+complete inventory of `.nupkg` and `.snupkg` files with SHA-256 hashes.
+The generated GitHub Actions artifact is named `nuget-unsigned` and is
+retained for 30 days. Pull requests that modify the packaging workflow
+or package settings also validate the build and inventory.
+
+The tag determines **when** to prepare packages, not their NuGet version.
+The version remains defined by `FileVersion` in
+[Directory.Build.props](Directory.Build.props) and inherited by all
+packable library and integration projects. The release inventory checks
+that each package and symbol package has that version and that no
+expected package is missing. The `nuget-release-manifest.json` file records
+the source commit, tag/ref, package IDs, versions, sizes and unsigned SHA-256
+hashes for subsequent local verification.
+
+**This workflow intentionally does not upload packages to NuGet.org.**
+NuGet.org requires an author signature using the company's registered
+hardware-protected EV certificate. The GitHub artifacts are therefore
+unsigned inputs for review and offline signing on the trusted Windows
+machine. After signing, separately verify the signed packages and stage
+them for an explicitly authorized publication operation. The author
+signing key must never be uploaded to GitHub. No `NUGET_KEY` secret or
+NuGet.org API key is used by the build workflow.
+
+Download the artifact for the selected release run with GitHub CLI:
+
+```sh
+gh run download RUN_ID --repo LTRData/DiscUtils --name nuget-unsigned --dir unsigned
+```
+
+Do not publish the unsigned packages: their hashes will change during
+author signing, so the build manifest is for identifying the reviewed
+**inputs**; a future signing/publishing workflow must independently
+validate and record the signed outputs. The complete signed-asset
+staging and OIDC upload workflow is intentionally outside this change.
 
 ## Repository layout and documentation
 
