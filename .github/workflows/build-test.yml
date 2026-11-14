@@ -17,8 +17,6 @@ jobs:
      matrix:
       os:
         - windows-2025
-      dotnet:
-        - 10.0.x
     steps:
     - uses: actions/checkout@v4
       with:
@@ -29,7 +27,9 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v5
       with:
-        dotnet-version: ${{ matrix.dotnet }}
+        dotnet-version: |
+          10.0.x
+          11.0.x
 
     - name: Restore dependencies
       run: dotnet restore
@@ -56,8 +56,6 @@ jobs:
       os:
         - ubuntu-24.04
         - macos-15
-      dotnet:
-        - 10.0.x
     steps:
     - uses: actions/checkout@v4
       with:
@@ -68,7 +66,9 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v5
       with:
-        dotnet-version: ${{ matrix.dotnet }}
+        dotnet-version: |
+          10.0.x
+          11.0.x
 
     - name: Restore dependencies
       run: dotnet restore
@@ -83,3 +83,7 @@ jobs:
     - name: Test
       timeout-minutes: 30
       run: dotnet test -c Release --no-restore -f net10.0 --logger "console;verbosity=detailed" --blame-hang --blame-hang-timeout 2m --blame-hang-dump-type full
+
+    - name: Test (.NET 11)
+      timeout-minutes: 30
+      run: dotnet test -c Release --no-restore -f net11.0 --logger "console;verbosity=detailed" --blame-hang --blame-hang-timeout 2m --blame-hang-dump-type full
