@@ -1,33 +1,100 @@
-name: NuGet push (tag)
+name: Prepare NuGet release packages
 
-on: 
+on:
   push:
     tags:
-    - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'publish/*'
+  pull_request:
+    paths:
+      - '.github/workflows/publish-nuget.yml'
+      - 'tools/New-NuGetReleaseManifest.ps1'
+      - 'tools/Verify-PackageReadmes.ps1'
+      - 'Directory.Build.props'
+      - 'Directory.Build.targets'
+      - 'Library/Directory.Build.props'
+      - 'Integrations/Directory.Build.props'
+
+permissions:
+  contents: read
 
 env:
   DOTNET_CLI_TELEMETRY_OPTOUT: true
   DOTNET_NOLOGO: true
 
 jobs:
-  build:
-    runs-on: windows-2019
-
+  prepare:
+    name: Build, test and stage unsigned NuGet packages
+    runs-on: windows-2025
+    timeout-minutes: 90
     steps:
-    - uses: actions/checkout@v2
-      with:
-        fetch-depth: 50
-        lfs: 'true'
-    # We do not need to fetch tags, as we're already at a tagged build - it should be available automatically
+      - name: Check out the exact source revision
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
 
-    - name: Setup .NET Core 7.0
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: '7.0.x'
+      - name: Validate publication tag
+        if: github.event_name == 'push'
+        shell: pwsh
+        run: |
+          if ($env:GITHUB_REF -notlike 'refs/tags/publish/*') {
+            throw 'Only publish/* tags may prepare release artifacts.'
+          }
+          git fetch --no-tags origin '+refs/heads/LTRData.DiscUtils-initial:refs/remotes/origin/LTRData.DiscUtils-initial'
+          if ($LASTEXITCODE -ne 0) { throw 'Failed to retrieve the default branch.' }
+          git merge-base --is-ancestor HEAD origin/LTRData.DiscUtils-initial
+          if ($LASTEXITCODE -ne 0) {
+            throw 'The publication tag must reference a commit reachable from the default branch.'
+          }
 
-    - name: Pack
-      run: dotnet pack -c Release -o ${{ github.workspace }}/build
+      - name: Install supported .NET SDKs
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+            10.0.x
+            11.0.x
 
-    - name: NuGet push 
-      run: dotnet nuget push *.nupkg --skip-duplicate -k ${{secrets.NUGET_KEY}} -s https://api.nuget.org/v3/index.json
-      working-directory: ${{ github.workspace }}/build
+      - name: Restore solution
+        run: dotnet restore DiscUtils.slnx
+
+      # Release builds already package each library/integration with FileVersion.
+      # Do not derive or override the NuGet version from the publication tag.
+      - name: Build release and collect packages
+        shell: pwsh
+        run: |
+          $packageDir = Join-Path $env:GITHUB_WORKSPACE 'artifacts/nuget'
+          New-Item -ItemType Directory -Force -Path $packageDir | Out-Null
+          dotnet build DiscUtils.slnx -c Release --no-restore "-p:LocalNuGetPath=$packageDir"
+          if ($LASTEXITCODE -ne 0) { throw 'Release build failed.' }
+
+      - name: Test (.NET 11)
+        timeout-minutes: 30
+        run: dotnet test DiscUtils.slnx -c Release --no-build --no-restore -f net11.0 --logger "console;verbosity=normal" --blame-hang --blame-hang-timeout 2m
+
+      - name: Validate package READMEs and descriptions
+        shell: pwsh
+        run: |
+          ./tools/Verify-PackageReadmes.ps1 -PackageDirectory (Join-Path $env:GITHUB_WORKSPACE 'artifacts/nuget')
+
+      - name: Create release inventory and SHA-256 manifest
+        shell: pwsh
+        run: |
+          $packageDir = Join-Path $env:GITHUB_WORKSPACE 'artifacts/nuget'
+          ./tools/New-NuGetReleaseManifest.ps1 -PackageDirectory $packageDir -SourceCommit $env:GITHUB_SHA -SourceRef $env:GITHUB_REF
+
+      - name: Upload unsigned packages for offline hardware signing
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-unsigned
+          path: |
+            artifacts/nuget/*.nupkg
+            artifacts/nuget/*.snupkg
+            artifacts/nuget/nuget-release-manifest.json
+          if-no-files-found: error
+          retention-days: 30
+
+# Intentionally no NuGet.org push job. The package owner requires an author
+# signature from a hardware-protected EV certificate, which stays off GitHub.
+# Signed-asset staging and OIDC publication will be separate, reviewed work.
