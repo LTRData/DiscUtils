@@ -303,6 +303,8 @@ staging and OIDC upload workflow is intentionally outside this change.
 
 ## Repository layout and documentation
 
+Contributors implementing new filesystems or virtual disk formats should read the [implementation guidelines](IMPLEMENTATION_GUIDELINES.md) before starting. They cover the shared architecture, standard interfaces, format registration, compatibility and testing expectations for both human and AI-assisted contributions.
+
 | Directory | Contents |
 | --- | --- |
 | [Library](Library) | Reusable storage implementations, infrastructure and meta-packages |
