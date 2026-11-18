@@ -164,7 +164,7 @@ Treat every field in an image as untrusted, even if the format is usually used o
 
 Detection is a lightweight, non-mutating probe. Return no match for ordinary unrelated or too-short streams; avoid hiding unrelated I/O failures. Opening performs deeper validation. Reject unknown incompatible features and unsupported write-critical features before exposing unsafe operations. Distinguish a corrupt/truncated image, an unsupported format feature, an access failure and an invalid caller argument using appropriate existing exception conventions. Never silently return zero data or an incomplete directory because parsing failed.
 
-Do not execute external programs, access host paths, contact networks or use OS mounts based on data in an image. Explicitly requested external fixtures/tools belong in tests, not normal format parsing.
+Do not execute external programs, mount filesystems, or follow arbitrary host paths or network locations based on image metadata. Formats with parents, external extents or companion files should use the existing FileLocator abstraction and caller-authorized resolution policy; document the trust boundary and do not allow image metadata to bypass it. Explicitly requested external fixtures/tools belong in tests, not normal format parsing.
 
 ## 7. Discovery, packaging and compatibility (required)
 
