@@ -204,12 +204,18 @@ public sealed class LZNT1 : IBlockCompressor
         return CompressionResult.AllZeros;
     }
 
+    /// <summary>
+    /// Decompresses LZNT1 data ([MS-XCA] 2.5): a sequence of chunks, each with a 16-bit header, that decompress to 4096 bytes each except the
+    /// last. A compressed chunk that decompresses to less than 4096 bytes and is followed by another chunk is padded with zeros, as Windows
+    /// does. Decoding stops at a zero header, at the end of <paramref name="source"/> or when <paramref name="decompressed"/> is full.
+    /// </summary>
+    /// <returns><see langword="false"/> when the data is malformed (a chunk that runs past the input, or a back reference before the start of its chunk).</returns>
     public bool TryDecompress(ReadOnlySpan<byte> source, Span<byte> decompressed, out int decompressedSize)
     {
         var sourceIdx = 0;
         decompressedSize = 0;
 
-        while (sourceIdx < source.Length)
+        while (sourceIdx + 2 <= source.Length && decompressedSize < decompressed.Length)
         {
             var header = EndianUtilities.ToUInt16LittleEndian(source[sourceIdx..]);
             sourceIdx += 2;
@@ -220,78 +226,83 @@ public sealed class LZNT1 : IBlockCompressor
                 break;
             }
 
+            var chunkLength = (header & SubBlockSizeMask) + 1;
+            if (chunkLength > source.Length - sourceIdx)
+            {
+                return false;
+            }
+
+            var chunkEnd = sourceIdx + chunkLength;
+            var destSubBlockStart = decompressedSize;
+
             if ((header & SubBlockIsCompressedFlag) == 0)
             {
-                var blockSize = (header & SubBlockSizeMask) + 1;
-                source.Slice(sourceIdx, blockSize).CopyTo(decompressed[decompressedSize..]);
-                sourceIdx += blockSize;
-                decompressedSize += blockSize;
+                var count = Math.Min(chunkLength, decompressed.Length - decompressedSize);
+                source.Slice(sourceIdx, count).CopyTo(decompressed[decompressedSize..]);
+                sourceIdx = chunkEnd;
+                decompressedSize += count;
+                continue;
             }
-            else
+
+            while (sourceIdx < chunkEnd)
             {
-                // compressed
-                var destSubBlockStart = decompressedSize;
-                var srcSubBlockEnd = sourceIdx + (header & SubBlockSizeMask) + 1;
-                while (sourceIdx < srcSubBlockEnd)
+                var tag = source[sourceIdx];
+                ++sourceIdx;
+
+                for (var token = 0; token < 8 && sourceIdx < chunkEnd; ++token, tag >>= 1)
                 {
-                    var tag = source[sourceIdx];
-                    ++sourceIdx;
-
-                    for (var token = 0; token < 8; ++token)
+                    if (decompressedSize >= decompressed.Length || decompressedSize - destSubBlockStart >= FixedBlockSize)
                     {
-                        // We might have hit the end of the sub block whilst still working though
-                        // a tag - abort if we have...
-                        if (sourceIdx >= srcSubBlockEnd)
-                        {
-                            break;
-                        }
+                        // The output is full, or the chunk holds more than one chunk's worth of data: stop at its end.
+                        sourceIdx = chunkEnd;
+                        break;
+                    }
 
-                        if ((tag & 1) == 0)
-                        {
-                            if (decompressedSize >= decompressed.Length)
-                            {
-                                return true;
-                            }
+                    if ((tag & 1) == 0)
+                    {
+                        decompressed[decompressedSize++] = source[sourceIdx++];
+                        continue;
+                    }
 
-                            decompressed[decompressedSize] = source[sourceIdx];
-                            ++decompressedSize;
-                            ++sourceIdx;
-                        }
-                        else
-                        {
-                            var lengthBits = (ushort)(16 - _compressionBits[decompressedSize - destSubBlockStart]);
-                            var lengthMask = (ushort)((1 << lengthBits) - 1);
+                    if (sourceIdx + 2 > chunkEnd)
+                    {
+                        return false;
+                    }
 
-                            var phraseToken = EndianUtilities.ToUInt16LittleEndian(source[sourceIdx..]);
-                            sourceIdx += 2;
+                    var lengthBits = 16 - _compressionBits[decompressedSize - destSubBlockStart];
+                    var lengthMask = (1 << lengthBits) - 1;
 
-                            var destBackAddr = decompressedSize - (phraseToken >> lengthBits) - 1;
-                            var length = (phraseToken & lengthMask) + 3;
+                    var phraseToken = EndianUtilities.ToUInt16LittleEndian(source[sourceIdx..]);
+                    sourceIdx += 2;
 
-                            for (var i = 0; i < length; ++i)
-                            {
-                                decompressed[decompressedSize++] =
-                                    decompressed[destBackAddr++];
-                            }
-                        }
+                    var destBackAddr = decompressedSize - (phraseToken >> lengthBits) - 1;
+                    if (destBackAddr < destSubBlockStart)
+                    {
+                        return false;
+                    }
 
-                        tag >>= 1;
+                    var length = Math.Min((phraseToken & lengthMask) + 3, decompressed.Length - decompressedSize);
+                    for (var i = 0; i < length; ++i)
+                    {
+                        decompressed[decompressedSize++] = decompressed[destBackAddr++];
                     }
                 }
+            }
 
-                // Bug-compatible - if we decompressed less than 4KB, jump to next 4KB boundary.  If
-                // that would leave less than a 4KB remaining, abort with data decompressed so far.
-                if (decompressedSize + FixedBlockSize > decompressed.Length)
+            // A compressed chunk that is followed by another one stands for a full 4096 bytes: pad the rest with zeros, as Windows does.
+            // When the next chunk would start at or past the end of the output, Windows stops without padding; so does this. (Earlier
+            // versions also stopped whenever less than 4096 bytes of output were left, which lost a short last chunk.)
+            var nextHeader = sourceIdx + 2 <= source.Length ? EndianUtilities.ToUInt16LittleEndian(source[sourceIdx..]) : 0;
+            var nextStart = destSubBlockStart + FixedBlockSize;
+            if (nextHeader != 0 && decompressedSize < nextStart)
+            {
+                if (nextStart >= decompressed.Length)
                 {
-                    return true;
+                    break;
                 }
 
-                if (decompressedSize < destSubBlockStart + FixedBlockSize)
-                {
-                    var skip = destSubBlockStart + FixedBlockSize - decompressedSize;
-                    decompressed.Slice(decompressedSize, skip).Clear();
-                    decompressedSize += skip;
-                }
+                decompressed[decompressedSize..nextStart].Clear();
+                decompressedSize = nextStart;
             }
         }
 
