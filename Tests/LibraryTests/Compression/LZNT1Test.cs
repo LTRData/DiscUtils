@@ -277,4 +277,23 @@ public class LZNT1Test
 
         Assert.Equal(_uncompressedData, decompressed);
     }
+
+    [WindowsOnlyTheory]
+    [MemberData(nameof(RoundTripSamples), MemberType = typeof(NativeCompression))]
+    public void DecompressMatchesWindowsCompressor(string kind, int length)
+    {
+        var original = Sample(kind, length);
+        foreach (var engine in new ushort[] { 0, EngineMaximum })
+        {
+            if (TryNativeCompress(original, 0, original.Length, 4096, CompressionFormat.Lznt1, engine) is not { } compressed)
+            {
+                continue;
+            }
+
+            var decompressed = new byte[original.Length];
+            Assert.True(LZNT1.Default.TryDecompress(compressed, decompressed, out var written), $"engine 0x{engine:X}: decoding failed");
+            Assert.Equal(original.Length, written);
+            Assert.Equal(original, decompressed);
+        }
+    }
 }
