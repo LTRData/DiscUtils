@@ -24,6 +24,7 @@ Direct package dependencies are listed below; their own dependencies are restore
 | [LTRData.DiscUtils.HfsPlus](https://www.nuget.org/packages/LTRData.DiscUtils.HfsPlus) | Managed .NET support for reading HFS+ filesystems, including file contents and filesystem metadata. |
 | [LTRData.DiscUtils.Ntfs](https://www.nuget.org/packages/LTRData.DiscUtils.Ntfs) | Managed .NET implementation for reading, formatting and modifying NTFS filesystems, including NTFS-specific file metadata. |
 | [LTRData.DiscUtils.OpticalDisk](https://www.nuget.org/packages/LTRData.DiscUtils.OpticalDisk) | Managed .NET optical-disc image access and automatic detection of ISO 9660 and UDF filesystems. |
+| [LTRData.DiscUtils.ReFs](https://www.nuget.org/packages/LTRData.DiscUtils.ReFs) | Managed .NET support for reading ReFS 3.x filesystems (experimental, read-only). |
 | [LTRData.DiscUtils.SquashFs](https://www.nuget.org/packages/LTRData.DiscUtils.SquashFs) | Managed .NET support for reading SquashFS filesystems and building new compressed SquashFS images. |
 | [LTRData.DiscUtils.Swap](https://www.nuget.org/packages/LTRData.DiscUtils.Swap) | Managed .NET detection and header inspection for Linux swap areas through DiscUtils filesystem discovery. |
 | [LTRData.DiscUtils.VirtualFileSystem](https://www.nuget.org/packages/LTRData.DiscUtils.VirtualFileSystem) | Composable .NET virtual filesystem trees, TAR and ZIP filesystem readers, and a TAR image builder through DiscUtils abstractions. |
@@ -35,7 +36,7 @@ Direct package dependencies are listed below; their own dependencies are restore
 DiscUtils.FileSystems.SetupHelper.SetupFileSystems();
 ```
 
-This helper explicitly registers providers from: `Core`, `Btrfs`, `Ext`, `Fat`, `ExFat`, `HfsPlus`, `Ntfs`, `OpticalDisk`, `SquashFs`, `Swap`, `Xfs`, `VirtualFileSystem`. It is safe to repeat and supports trimming and Native AOT registration. Referencing the package alone does not register providers.
+This helper explicitly registers providers from: `Core`, `Btrfs`, `Ext`, `Fat`, `ExFat`, `HfsPlus`, `Ntfs`, `OpticalDisk`, `SquashFs`, `Swap`, `ReFs`, `Xfs`, `VirtualFileSystem`. It is safe to repeat and supports trimming and Native AOT registration. Referencing the package alone does not register providers.
 
 Package dependencies and registration scope are distinct. ISO 9660 and UDF have no separate discovery providers; their detection is supplied by OpticalDisk, which this helper registers.
 

@@ -56,6 +56,7 @@ Filesystem constructors normally expect a stream beginning at the filesystem, su
 | [HFS+](Library/DiscUtils.HfsPlus/README.md) | Yes | No | No | Unix metadata and allocation extents; not APFS |
 | [ISO 9660 / Joliet](Library/DiscUtils.Iso9660/README.md) | Yes | Yes | No | CDReader also supports Rock Ridge; CDBuilder builds new images, including bootable-image scenarios |
 | [NTFS](Library/DiscUtils.Ntfs/README.md) | Yes | Yes | Yes | Alternate data streams, security metadata and guarded `$LogFile` journal recovery |
+| [ReFS 3.x](Library/DiscUtils.ReFs/README.md) | Yes (experimental) | No | No | Alternate data streams, Windows metadata, extended attributes, LZ4/Zstandard compression, checksum verification and opt-in in-memory log replay; no free-space accounting |
 | [SquashFS](Library/DiscUtils.SquashFs/README.md) | Yes | Yes | No | Separate reader and builder; zlib included, other codecs require callbacks |
 | [UDF](Library/DiscUtils.Udf/README.md) | Yes | UDF 2.01 | No | Virtual image builder; size/used/free-space reader properties are not implemented |
 | [XFS](Library/DiscUtils.Xfs/README.md) | Yes | No | No | Unix metadata and allocation extents |

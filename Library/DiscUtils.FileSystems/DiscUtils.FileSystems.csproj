@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Description>DiscUtils meta-package for filesystem readers, supported filesystem writers and virtual filesystem abstractions.</Description>
     
-    <PackageTags>DiscUtils;Filesystem;NTFS;FAT;exFAT;Ext;Btrfs;SquashFS;XFS</PackageTags>
+    <PackageTags>DiscUtils;Filesystem;NTFS;ReFS;FAT;exFAT;Ext;Btrfs;SquashFS;XFS;HFSPlus;UDF;ISO9660;Swap;VirtualFileSystem</PackageTags>
 
     <Nullable>enable</Nullable>
   </PropertyGroup>
@@ -19,6 +19,7 @@
     <ProjectReference Include="..\DiscUtils.SquashFs\DiscUtils.SquashFs.csproj" />
     <ProjectReference Include="..\DiscUtils.Swap\DiscUtils.Swap.csproj" />
     <ProjectReference Include="..\DiscUtils.VirtualFileSystem\DiscUtils.VirtualFileSystem.csproj" />
+    <ProjectReference Include="..\DiscUtils.ReFs\DiscUtils.ReFs.csproj" />
     <ProjectReference Include="..\DiscUtils.Xfs\DiscUtils.Xfs.csproj" />
   </ItemGroup>
 
