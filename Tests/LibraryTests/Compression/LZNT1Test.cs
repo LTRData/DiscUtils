@@ -122,38 +122,45 @@ public class LZNT1Test
     [WindowsOnlyFact]
     public void Compress1KBlockSize()
     {
-        var instance = LZNT1.Default;
-        var compressor = instance;
+        // LZNT1 chunks are always 4096 bytes: the requested size is ignored, as Windows ignores it.
+        var compressor = new LZNT1 { BlockSize = 1024 };
+        Assert.Equal(4096, compressor.BlockSize);
 
-        var compressedLength = 16 * 4096;
-        var compressedData = new byte[compressedLength];
-
-        // Double-check, make sure native code round-trips
-        var nativeCompressed = NativeCompress(_uncompressedData, 0, _uncompressedData.Length, 1024, CompressionFormat.Lznt1);
-        Assert.Equal(_uncompressedData, NativeDecompress(nativeCompressed, 0, nativeCompressed.Length, CompressionFormat.Lznt1));
-
-        compressor.BlockSize = 1024;
-        var r = compressor.TryCompress(_uncompressedData, compressedData, out compressedLength);
+        var compressedData = new byte[16 * 4096];
+        var r = compressor.TryCompress(_uncompressedData, compressedData, out var compressedLength);
         Assert.Equal(CompressionResult.Compressed, r);
 
-        var duDecompressed = new byte[_uncompressedData.Length];
-        var rc = compressor.TryDecompress(compressedData.AsSpan(0, compressedLength), duDecompressed, out var numDuDecompressed);
+        Assert.Equal(_uncompressedData, NativeDecompress(compressedData, 0, compressedLength, CompressionFormat.Lznt1));
 
-        Assert.True(rc);
+        var decompressed = new byte[_uncompressedData.Length];
+        Assert.True(compressor.TryDecompress(compressedData.AsSpan(0, compressedLength), decompressed, out var numDecompressed));
+        Assert.Equal(_uncompressedData.Length, numDecompressed);
+        Assert.Equal(_uncompressedData, decompressed);
+    }
 
-        var rightSizedDuDecompressed = new byte[numDuDecompressed];
-        Buffer.BlockCopy(duDecompressed, 0, rightSizedDuDecompressed, 0, numDuDecompressed);
+    /// <summary>
+    /// A compressed chunk that decompresses to less than 4096 bytes and is followed by another chunk is padded with zeros to 4096 bytes,
+    /// as Windows' decompressor does (data written in chunks smaller than 4096 by older versions of this class reads back this way).
+    /// </summary>
+    [WindowsOnlyFact]
+    public void DecompressPadsShortChunksLikeWindows()
+    {
+        // Two compressed chunks of three literals each: header 0xB003 (compressed, signature 3, 6 bytes), flag byte 0, the literals.
+        byte[] compressed = [0x03, 0xB0, 0x00, (byte)'a', (byte)'b', (byte)'c', 0x03, 0xB0, 0x00, (byte)'d', (byte)'e', (byte)'f'];
 
-        // Note: Due to bug in Windows LZNT1, we compare against native decompression, not the original data, since
-        // Windows LZNT1 corrupts data on decompression when block size != 4096.
-        Assert.Equal(rightSizedDuDecompressed, NativeDecompress(compressedData, 0, compressedLength, CompressionFormat.Lznt1));
+        var expected = NativeDecompress(compressed, 0, compressed.Length, CompressionFormat.Lznt1);
+        Assert.Equal(4099, expected.Length);
+
+        var decompressed = new byte[expected.Length];
+        Assert.True(LZNT1.Default.TryDecompress(compressed, decompressed, out var numDecompressed));
+        Assert.Equal(expected.Length, numDecompressed);
+        Assert.Equal(expected, decompressed);
     }
 
     [WindowsOnlyFact]
     public void Compress1KBlock()
     {
-        var instance = LZNT1.Default;
-        var compressor = instance;
+        var compressor = new LZNT1();
 
         var uncompressed1K = new byte[1024];
         Buffer.BlockCopy(_uncompressedData, 0, uncompressed1K, 0, 1024);

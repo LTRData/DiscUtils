@@ -39,24 +39,32 @@ namespace DiscUtils.Compression;
 /// Implementation of the LZNT1 algorithm used for compressing NTFS files.
 /// </summary>
 /// <remarks>
-/// Due to apparent bugs in Window's LZNT1 decompressor, it is <b>strongly</b> recommended that
-/// only the block size of 4096 is used.  Other block sizes corrupt data on decompression.
+/// LZNT1 data is a sequence of chunks of 4096 uncompressed bytes each (the last one may be shorter). Windows works the same
+/// way: <c>RtlCompressBuffer</c> ignores its chunk-size argument for LZNT1, and <c>RtlDecompressBuffer</c> treats every
+/// compressed chunk as 4096 bytes, padding a shorter one with zeros. <see cref="BlockSize"/> is therefore fixed at 4096.
 /// </remarks>
 public sealed class LZNT1 : IBlockCompressor
 {
     private const ushort SubBlockIsCompressedFlag = 0x8000;
     private const ushort SubBlockSizeMask = 0x0fff;
 
-    // LZNT1 appears to ignore the actual block size requested, most likely due to
-    // a bug in the decompressor, which assumes 4KB block size.  To be bug-compatible,
-    // we assume each block is 4KB on decode also.
+    // The uncompressed size of an LZNT1 chunk. The offset/length split of a back reference depends on the position within
+    // the chunk (see CalcCompressionBits), which only covers 4096 positions.
     private const int FixedBlockSize = 0x1000;
 
     public static LZNT1 Default => field ??= new();
 
     private static ImmutableArray<byte> _compressionBits => field.IsDefault ? field = CalcCompressionBits() : field;
 
-    public int BlockSize { get; set; } = 4096;
+    /// <summary>
+    /// The uncompressed chunk size: always 4096. A value set is ignored, as Windows ignores the chunk size for LZNT1; data
+    /// compressed in smaller chunks would decompress wrongly in Windows (each short compressed chunk is padded to 4096 bytes).
+    /// </summary>
+    public int BlockSize
+    {
+        get => FixedBlockSize;
+        set { }
+    }
 
     public CompressionResult TryCompress(ReadOnlySpan<byte> source, Span<byte> compressed, out int compressedLength)
     {
@@ -68,12 +76,12 @@ public sealed class LZNT1 : IBlockCompressor
         var lzDictionary = new LzWindowDictionary();
         var nonZeroDataFound = false;
 
-        for (var subBlock = 0; subBlock < source.Length; subBlock += BlockSize)
+        for (var subBlock = 0; subBlock < source.Length; subBlock += FixedBlockSize)
         {
             lzDictionary.MinMatchAmount = 3;
             var sourceCurrentBlock = sourcePointer;
 
-            var decompressedSize = (uint)Math.Min(source.Length - subBlock, BlockSize);
+            var decompressedSize = (uint)Math.Min(source.Length - subBlock, FixedBlockSize);
             uint compressedSize = 0;
 
             // Start compression 
@@ -100,7 +108,7 @@ public sealed class LZNT1 : IBlockCompressor
                     var lengthBits = 16 - _compressionBits[sourcePointer - subBlock];
                     var lengthMask = (ushort)((1 << _compressionBits[sourcePointer - subBlock]) - 1);
 
-                    lzDictionary.MaxMatchAmount = Math.Min(1 << lengthBits, BlockSize - 1);
+                    lzDictionary.MaxMatchAmount = Math.Min(1 << lengthBits, FixedBlockSize - 1);
 
                     var lzSearchMatch = lzDictionary.Search(source[subBlock..],
                         sourcePointer - subBlock, decompressedSize);
@@ -164,14 +172,14 @@ public sealed class LZNT1 : IBlockCompressor
             }
 
             // If compressed size >= block size just store block
-            if (compressedSize >= BlockSize)
+            if (compressedSize >= FixedBlockSize)
             {
                 // Set the header to indicate non-compressed block
-                EndianUtilities.WriteBytesLittleEndian((ushort)(0x3000 | (BlockSize - 1)), compressed[
+                EndianUtilities.WriteBytesLittleEndian((ushort)(0x3000 | (FixedBlockSize - 1)), compressed[
                     headerPosition..]);
 
-                source.Slice(sourceCurrentBlock, BlockSize).CopyTo(compressed[(headerPosition + 2)..]);
-                destPointer = headerPosition + 2 + BlockSize;
+                source.Slice(sourceCurrentBlock, FixedBlockSize).CopyTo(compressed[(headerPosition + 2)..]);
+                destPointer = headerPosition + 2 + FixedBlockSize;
 
                 // Make sure decompression stops by setting the next two bytes to null, prevents us from having to 
                 // clear the rest of the array.
@@ -289,9 +297,8 @@ public sealed class LZNT1 : IBlockCompressor
                 }
             }
 
-            // A compressed chunk that is followed by another one stands for a full 4096 bytes: pad the rest with zeros, as Windows does.
-            // When the next chunk would start at or past the end of the output, Windows stops without padding; so does this. (Earlier
-            // versions also stopped whenever less than 4096 bytes of output were left, which lost a short last chunk.)
+            // A compressed chunk that is followed by another one stands for a full 4096 bytes: pad the rest with zeros, as Windows
+            // does. When the next chunk would start at or past the end of the output, Windows stops without padding; so does this.
             var nextHeader = sourceIdx + 2 <= source.Length ? EndianUtilities.ToUInt16LittleEndian(source[sourceIdx..]) : 0;
             var nextStart = destSubBlockStart + FixedBlockSize;
             if (nextHeader != 0 && decompressedSize < nextStart)
