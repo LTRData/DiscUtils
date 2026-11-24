@@ -178,6 +178,48 @@ public class LZNT1Test
         Assert.Equal(uncompressed1K, NativeDecompress(compressedData, 0, compressedLength, CompressionFormat.Lznt1));
     }
 
+    /// <summary>
+    /// A last chunk shorter than 4096 bytes that does not compress is stored uncompressed with its own length
+    /// (it used to be stored as a full 4096 bytes, reading past the end of the input).
+    /// </summary>
+    [Theory]
+    [InlineData(1)]
+    [InlineData(100)]
+    [InlineData(3000)]
+    [InlineData(4095)]
+    public void CompressStoresShortIncompressibleLastChunk(int tailLength)
+    {
+        var data = new byte[8192 + tailLength];
+        System.Text.Encoding.ASCII.GetBytes(new string('a', 8192)).CopyTo(data, 0);
+        var tail = new byte[tailLength];
+        new Random(tailLength).NextBytes(tail);
+        tail.CopyTo(data, 8192);
+
+        var compressed = new byte[data.Length * 2];
+        Assert.Equal(CompressionResult.Compressed, new LZNT1().TryCompress(data, compressed, out var compressedLength));
+
+        var decompressed = new byte[data.Length];
+        Assert.True(LZNT1.Default.TryDecompress(compressed.AsSpan(0, compressedLength), decompressed, out var numDecompressed));
+        Assert.Equal(data.Length, numDecompressed);
+        Assert.Equal(data, decompressed);
+
+        if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
+        {
+            Assert.Equal(data, NativeDecompress(compressed, 0, compressedLength, CompressionFormat.Lznt1));
+        }
+    }
+
+    [Fact]
+    public void CompressIncompressibleShortInputDoesNotThrow()
+    {
+        foreach (var length in new[] { 3000, 4000, 8000 })
+        {
+            var data = new byte[length];
+            new Random(length).NextBytes(data);
+            Assert.Equal(CompressionResult.Incompressible, new LZNT1().TryCompress(data, new byte[length * 2], out _));
+        }
+    }
+
     [Fact]
     public void CompressAllZeros()
     {

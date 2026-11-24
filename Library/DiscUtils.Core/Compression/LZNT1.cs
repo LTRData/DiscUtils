@@ -171,20 +171,31 @@ public sealed class LZNT1 : IBlockCompressor
                 compressed[flagPosition] = bitFlag;
             }
 
-            // If compressed size >= block size just store block
-            if (compressedSize >= FixedBlockSize)
+            // If the chunk did not shrink, store it uncompressed. The last chunk can be shorter than 4096 bytes, so the
+            // stored length is the chunk's own length.
+            if (compressedSize >= decompressedSize)
             {
+                var storedLength = (int)decompressedSize;
+                if (headerPosition + 2 + storedLength > compressed.Length)
+                {
+                    compressedLength = 0;
+                    return CompressionResult.Incompressible;
+                }
+
                 // Set the header to indicate non-compressed block
-                EndianUtilities.WriteBytesLittleEndian((ushort)(0x3000 | (FixedBlockSize - 1)), compressed[
+                EndianUtilities.WriteBytesLittleEndian((ushort)(0x3000 | (storedLength - 1)), compressed[
                     headerPosition..]);
 
-                source.Slice(sourceCurrentBlock, FixedBlockSize).CopyTo(compressed[(headerPosition + 2)..]);
-                destPointer = headerPosition + 2 + FixedBlockSize;
+                source.Slice(sourceCurrentBlock, storedLength).CopyTo(compressed[(headerPosition + 2)..]);
+                destPointer = headerPosition + 2 + storedLength;
 
-                // Make sure decompression stops by setting the next two bytes to null, prevents us from having to 
+                // Make sure decompression stops by setting the next two bytes to null, prevents us from having to
                 // clear the rest of the array.
-                compressed[destPointer] = 0;
-                compressed[destPointer + 1] = 0;
+                if (destPointer + 2 <= compressed.Length)
+                {
+                    compressed[destPointer] = 0;
+                    compressed[destPointer + 1] = 0;
+                }
             }
             else
             {
