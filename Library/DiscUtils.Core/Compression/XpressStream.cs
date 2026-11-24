@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) 2008-2011, Kenneth Bell
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -31,12 +31,11 @@ namespace DiscUtils.Compression;
 /// <summary>
 /// Implements the XPRESS Huffman decompression algorithm.
 /// </summary>
-/// <remarks>This class is optimized for the case where the entire stream contents
-/// fit into memory, it is not suitable for unbounded streams.</remarks>
+/// <remarks>The whole compressed stream is read to its end and decoded into memory when the instance is created
+/// (with <see cref="XpressHuffman.TryDecompress"/>), so it is not suitable for unbounded streams.</remarks>
 public class XpressStream : ReadOnlyCompatibilityStream
 {
     private readonly byte[] _buffer;
-    private readonly BufferedStream _compressedStream;
     private long _position;
 
     /// <summary>
@@ -44,10 +43,10 @@ public class XpressStream : ReadOnlyCompatibilityStream
     /// </summary>
     /// <param name="compressed">The stream of compressed data.</param>
     /// <param name="count">The length of this stream (in uncompressed bytes).</param>
+    /// <exception cref="InvalidDataException">The compressed data is truncated or invalid.</exception>
     public XpressStream(Stream compressed, int count)
     {
-        _compressedStream = new BufferedStream(compressed);
-        _buffer = Buffer(count);
+        _buffer = Decompress(compressed, count);
     }
 
     public override bool CanRead => true;
@@ -120,98 +119,22 @@ public class XpressStream : ReadOnlyCompatibilityStream
         throw new NotSupportedException();
     }
 
-    private HuffmanTree ReadHuffmanTree()
+    /// <summary>Reads the compressed stream to its end and decodes it with <see cref="XpressHuffman.TryDecompress"/>.</summary>
+    private static byte[] Decompress(Stream compressed, int count)
     {
-        var lengths = new uint[256 + 16 * 16];
-
-        for (var i = 0; i < lengths.Length; i += 2)
+        byte[] input;
+        using (var all = new MemoryStream())
         {
-            var b = ReadCompressedByte();
-
-            lengths[i] = (uint)(b & 0xF);
-            lengths[i + 1] = (uint)(b >> 4);
+            compressed.CopyTo(all);
+            input = all.ToArray();
         }
 
-        return new HuffmanTree(lengths);
-    }
-
-    private byte[] Buffer(int count)
-    {
         var buffer = new byte[count];
-        var numRead = 0;
-
-        var tree = ReadHuffmanTree();
-        var bitStream = new XpressBitStream(_compressedStream);
-
-        while (numRead < count)
+        if (!XpressHuffman.TryDecompress(input, buffer, out _, out var written) || written != count)
         {
-            var symbol = tree.NextSymbol(bitStream);
-            if (symbol < 256)
-            {
-                // The first 256 symbols are literal byte values
-                buffer[numRead] = (byte)symbol;
-                numRead++;
-            }
-            else
-            {
-                // The next 256 symbols are 4 bits each for offset and length.
-                var offsetBits = (int)((symbol - 256) / 16);
-                var len = (int)((symbol - 256) % 16);
-
-                // The actual offset
-                var offset = (int)((1 << offsetBits) - 1 + bitStream.Read(offsetBits));
-
-                // Lengths up to 15 bytes are stored directly in the symbol bits, beyond that
-                // the length is stored in the compression stream.
-                if (len == 15)
-                {
-                    // Note this access is directly to the underlying stream - we're not going
-                    // through the bit stream.  This makes the precise behaviour of the bit stream,
-                    // in terms of read-ahead critical.
-                    var b = ReadCompressedByte();
-
-                    if (b == 0xFF)
-                    {
-                        // Again, note this access is directly to the underlying stream - we're not going
-                        // through the bit stream.
-                        len = ReadCompressedUShort();
-                    }
-                    else
-                    {
-                        len += b;
-                    }
-                }
-
-                // Minimum length for a match is 3 bytes, so all lengths are stored as an offset
-                // from 3.
-                len += 3;
-
-                // Simply do the copy
-                for (var i = 0; i < len && numRead < count; ++i)
-                {
-                    buffer[numRead] = buffer[numRead - offset - 1];
-                    numRead++;
-                }
-            }
+            throw new InvalidDataException("Truncated or invalid XPRESS Huffman stream");
         }
 
         return buffer;
-    }
-
-    private int ReadCompressedByte()
-    {
-        var b = _compressedStream.ReadByte();
-        if (b < 0)
-        {
-            throw new InvalidDataException("Truncated stream");
-        }
-
-        return b;
-    }
-
-    private int ReadCompressedUShort()
-    {
-        var result = ReadCompressedByte();
-        return result | ReadCompressedByte() << 8;
     }
 }
