@@ -202,11 +202,12 @@ public class LZNT1Test
         Assert.True(LZNT1.Default.TryDecompress(compressed.AsSpan(0, compressedLength), decompressed, out var numDecompressed));
         Assert.Equal(data.Length, numDecompressed);
         Assert.Equal(data, decompressed);
-
+#if NET7_0_OR_GREATER
         if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
         {
             Assert.Equal(data, NativeDecompress(compressed, 0, compressedLength, CompressionFormat.Lznt1));
         }
+#endif
     }
 
     [Fact]
@@ -332,6 +333,7 @@ public class LZNT1Test
     public void DecompressMatchesWindowsCompressor(string kind, int length)
     {
         var original = Sample(kind, length);
+
         foreach (var engine in new ushort[] { 0, EngineMaximum })
         {
             if (TryNativeCompress(original, 0, original.Length, 4096, CompressionFormat.Lznt1, engine) is not { } compressed)
