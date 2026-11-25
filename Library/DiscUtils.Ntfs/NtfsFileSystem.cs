@@ -108,6 +108,9 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
             ReadOnly = !stream.CanWrite
         };
 
+        // Reads the chunk store only when a deduplicated file is opened (see NtfsOptions.ReadDeduplicatedFiles).
+        _context.Deduplication = new DeduplicationRole.DedupReader(new DeduplicationRole.DiscFileSystemDedupSource(this));
+
         _fileCache = new ObjectCache<long, File>();
 
         stream.Position = 0;
@@ -2192,6 +2195,12 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
     /// <param name="disposing">Whether called from Dispose or from a finalizer.</param>
     protected override void Dispose(bool disposing)
     {
+        if (disposing && _context?.Deduplication is { } deduplication)
+        {
+            deduplication.Dispose();
+            _context.Deduplication = null;
+        }
+
         if (_context != null && _context.Mft != null)
         {
             if (disposing)
@@ -2722,7 +2731,8 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
     /// </summary>
     internal static ConcurrentDictionary<uint, NtfsReparsePluginHandler> ReparsePlugins => field ??= new()
     {
-        [Wof.ReparsePointTagWofCompressed] = Wof.OpenWofReparsePoint
+        [Wof.ReparsePointTagWofCompressed] = Wof.OpenWofReparsePoint,
+        [Deduplication.ReparsePointTagDedup] = Deduplication.OpenDedupReparsePoint
     };
 
     /// <summary>
