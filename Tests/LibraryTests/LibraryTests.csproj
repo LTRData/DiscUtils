@@ -34,6 +34,7 @@
     <ProjectReference Include="..\..\Utilities\ISOCreate\ISOCreate.csproj" />
     <ProjectReference Include="..\..\Library\DiscUtils.Core\DiscUtils.Core.csproj" />
     <ProjectReference Include="..\..\Library\DiscUtils\DiscUtils.csproj" />
+    <ProjectReference Include="..\..\Library\DiscUtils.ReFs\DiscUtils.ReFs.csproj" />
   </ItemGroup>
 
   <ItemGroup Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'netstandard2.0'))">

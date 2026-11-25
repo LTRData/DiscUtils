@@ -20,21 +20,21 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
+using DiscUtils.Windows;
 using Microsoft.Win32.SafeHandles;
 
 namespace DiskClone;
 
-internal sealed class VolumeStream : UnbufferedNativeStream
+/// <summary>An NTFS volume's bytes, as long as its file system reports; the handle stays owned by <see cref="Volume"/>.</summary>
+internal sealed class VolumeStream : DeviceStream
 {
-    private long _length;
-
     public VolumeStream(SafeFileHandle handle)
-        : base(handle)
+        : this(handle, Win32Wrapper.GetNtfsVolumeData(handle))
     {
-        var volInfo = Win32Wrapper.GetNtfsVolumeData(handle);
-        _length = volInfo.TotalClusters * volInfo.BytesPerCluster;
     }
 
-    public override long Length => _length;
-
+    private VolumeStream(SafeFileHandle handle, NativeMethods.NtfsVolumeData volume)
+        : base(handle, volume.TotalClusters * volume.BytesPerCluster, (int)volume.BytesPerSector, ownsHandle: false)
+    {
+    }
 }
