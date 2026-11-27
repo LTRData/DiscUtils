@@ -520,7 +520,9 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
             }
 
             var dirEntry = GetDirectoryEntry(path);
-            return dirEntry != null && (dirEntry.Value.Details.FileAttributes & FileAttributes.Directory) != 0;
+            return dirEntry != null
+                && (dirEntry.Value.Details.FileAttributes & FileAttributes.Directory) != 0
+                && GetDirectory(dirEntry.Value.Reference) != null;
         }
     }
 
