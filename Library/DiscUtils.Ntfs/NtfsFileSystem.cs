@@ -615,7 +615,8 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
             var parentDirEntry = GetDirectoryEntry(path)
                 ?? throw new DirectoryNotFoundException($"The directory '{path}' does not exist");
 
-            var parentDir = GetDirectory(parentDirEntry.Reference);
+            var parentDir = GetDirectory(parentDirEntry.Reference)
+                ?? throw new DirectoryNotFoundException($"The directory '{path}' could not be resolved");
 
             foreach (var entry in parentDir
                 .GetAllEntries(FilterEntry)
@@ -656,7 +657,8 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
             var parentDirEntry = GetDirectoryEntry(path)
                 ?? throw new DirectoryNotFoundException($"The directory '{path}' does not exist");
 
-            var parentDir = GetDirectory(parentDirEntry.Reference);
+            var parentDir = GetDirectory(parentDirEntry.Reference)
+                ?? throw new DirectoryNotFoundException($"The directory '{path}' could not be resolved");
 
             var results = parentDir.GetAllEntries(FilterEntry)
                 .Where(dirEntry => filter is null || filter(dirEntry.Details.SearchName))
