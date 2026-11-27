@@ -520,7 +520,9 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
             }
 
             var dirEntry = GetDirectoryEntry(path);
-            return dirEntry != null && (dirEntry.Value.Details.FileAttributes & FileAttributes.Directory) != 0;
+            return dirEntry != null
+                && (dirEntry.Value.Details.FileAttributes & FileAttributes.Directory) != 0
+                && GetDirectory(dirEntry.Value.Reference) != null;
         }
     }
 
@@ -544,6 +546,11 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
             // Check that requested named attribute or default data attribute
             // exists
             var file = GetFile(dirEntry.Value.Reference);
+            if (file == null)
+            {
+                return false;
+            }
+
             var attr = file.GetAttribute(attributeType, attributeName);
             if (attr == null)
             {
@@ -608,7 +615,8 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
             var parentDirEntry = GetDirectoryEntry(path)
                 ?? throw new DirectoryNotFoundException($"The directory '{path}' does not exist");
 
-            var parentDir = GetDirectory(parentDirEntry.Reference);
+            var parentDir = GetDirectory(parentDirEntry.Reference)
+                ?? throw new DirectoryNotFoundException($"The directory '{path}' could not be resolved");
 
             foreach (var entry in parentDir
                 .GetAllEntries(FilterEntry)
@@ -649,7 +657,8 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
             var parentDirEntry = GetDirectoryEntry(path)
                 ?? throw new DirectoryNotFoundException($"The directory '{path}' does not exist");
 
-            var parentDir = GetDirectory(parentDirEntry.Reference);
+            var parentDir = GetDirectory(parentDirEntry.Reference)
+                ?? throw new DirectoryNotFoundException($"The directory '{path}' could not be resolved");
 
             var results = parentDir.GetAllEntries(FilterEntry)
                 .Where(dirEntry => filter is null || filter(dirEntry.Details.SearchName))
