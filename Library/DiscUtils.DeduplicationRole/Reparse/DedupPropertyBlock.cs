@@ -40,9 +40,8 @@ internal sealed class DedupPropertyBlock
         _properties = new DedupProperty[count];
         for (int i = 0; i < count; i++)
         {
-            ReadOnlySpan<byte> item = block.Slice(HeaderLength + i * PropertyLength, PropertyLength);
-            DedupProperty property = new DedupProperty((DedupPropertyType)item.U16(0), item.U16(2), (int)item.U32(4));
-            if (property.Size != 0 && (property.Offset < HeaderLength || property.Offset + (long)property.Size > size))
+            DedupProperty property = new DedupProperty(block.Slice(HeaderLength + i * PropertyLength, PropertyLength));
+            if (property.Size != 0 && (property.Offset < HeaderLength || property.Offset + (ulong)property.Size > size))
                 throw new DedupFormatException($"Data Deduplication {name} property {i} lies outside its block.");
 
             _properties[i] = property;
@@ -63,6 +62,7 @@ internal sealed class DedupPropertyBlock
         if (index >= _properties.Length || _properties[index].Type != type || (size is { } expected && _properties[index].Size != expected))
             throw new DedupFormatException($"Data Deduplication reparse property {index} is missing or is not a {(size is null ? string.Empty : $"{size}-byte ")}{type}.");
 
-        return _bytes.Slice(_properties[index].Offset, _properties[index].Size);
+        DedupProperty property = _properties[index];
+        return property.Size == 0 ? ReadOnlyMemory<byte>.Empty : _bytes.Slice((int)property.Offset, property.Size);
     }
 }

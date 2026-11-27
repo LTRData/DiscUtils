@@ -1,3 +1,5 @@
+using DiscUtils.Internal;
+
 namespace DiscUtils.DeduplicationRole.ChunkStore;
 
 /// <summary>
@@ -20,6 +22,7 @@ internal sealed class DedupRedirectionTable
 
     private const uint Signature = 0x6C747252; // "Rrtl"
     private const int ItemLength = 8;
+    private const int HeaderCrcOffset = 0x18;
     private readonly Dictionary<uint, uint> _offsets = [];
 
     /// <summary>Parses the items that follow a valid header (<see cref="TryGetItemsLength" />).</summary>
@@ -34,10 +37,14 @@ internal sealed class DedupRedirectionTable
         }
     }
 
-    /// <summary>The length of the items after the header; false when the bytes are not a redirection table.</summary>
-    public static bool TryGetItemsLength(ReadOnlySpan<byte> header, out int length)
+    /// <summary>
+    /// The length of the items after the header; false when the bytes are not a valid redirection table. With <c>verify</c> the header's
+    /// CRC-64 is checked too (the NVMe polynomial from 0, as the chunk store's records).
+    /// </summary>
+    public static bool TryGetItemsLength(ReadOnlySpan<byte> header, out int length, bool verify = false)
     {
-        bool table = header.Length >= HeaderLength && header.U32(0) == Signature && header.U32(0xC) == ItemLength && header.U32(8) <= int.MaxValue / ItemLength;
+        bool table = header.Length >= HeaderLength && header.U32(0) == Signature && header.U32(0xC) == ItemLength && header.U32(8) <= int.MaxValue / ItemLength
+                     && (!verify || Crc64LittleEndian.Compute(Crc64Algorithm.Nvme, 0, header.Slice(0, HeaderCrcOffset)) == header.U64(HeaderCrcOffset));
         length = table ? (int)header.U32(8) * ItemLength : 0;
         return table;
     }

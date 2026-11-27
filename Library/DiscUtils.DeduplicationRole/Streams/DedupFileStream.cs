@@ -139,16 +139,17 @@ internal sealed class DedupFileStream : SparseStream.ReadOnlySparseStream
 
     private int FindChunk(long position)
     {
-        var low = 0;
-        var high = _chunks.Length - 1;
+        ulong pos = (ulong)position;
+        int low = 0;
+        int high = _chunks.Length - 1;
         while (low <= high)
         {
-            var middle = (low + high) / 2;
-            if ((long)_chunks[middle].End <= position)
+            int middle = low + ((high - low) >> 1);
+            if (_chunks[middle].End <= pos)
             {
                 low = middle + 1;
             }
-            else if ((long)_chunks[middle].Start > position)
+            else if (_chunks[middle].Start > pos)
             {
                 high = middle - 1;
             }

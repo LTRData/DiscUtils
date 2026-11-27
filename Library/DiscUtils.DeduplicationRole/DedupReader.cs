@@ -17,6 +17,7 @@ public sealed class DedupReader(IDedupSource source, bool verify = true) : IDisp
     /// <summary>The reparse tag of a deduplicated file (IO_REPARSE_TAG_DEDUP).</summary>
     public const uint ReparseTag = DedupReparseData.Tag;
 
+    private readonly IDedupSource _source = source ?? throw new ArgumentNullException(nameof(source));
     private readonly Dictionary<Guid, DedupChunkStore> _stores = [];
     private bool _disposed;
 
@@ -58,7 +59,7 @@ public sealed class DedupReader(IDedupSource source, bool verify = true) : IDisp
 
             DedupReparseData data = new DedupReparseData(reparseData);
             if (!_stores.TryGetValue(data.StoreId, out DedupChunkStore? store))
-                _stores[data.StoreId] = store = new DedupChunkStore(data.StoreId, source.ListFiles, source.OpenFile, verify);
+                _stores[data.StoreId] = store = new DedupChunkStore(data.StoreId, _source, verify);
 
             List<DedupChunk> chunks = [.. data.Ranges.SelectMany(store.ReadStreamMap)];
             return new DedupFileStream(stored, store, chunks, stored.Length);

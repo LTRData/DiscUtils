@@ -18,20 +18,24 @@ namespace DiscUtils.DeduplicationRole.ChunkStore;
 ///     </list>
 ///     Not thread-safe; container files stay open until the store is disposed.
 /// </summary>
-internal sealed class DedupChunkStore(Guid id, Func<string, IReadOnlyList<string>?> list, Func<string, Stream> open, bool verify) : IDisposable
+internal sealed class DedupChunkStore(Guid id, IDedupSource source, bool verify) : IDisposable
 {
     private const int FirstRecordOffset = 0x5000;
 
     private readonly Dictionary<DedupContainerName, Stream> _containers = [];
+    private readonly Dictionary<string, Stream> _openFiles = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<Stream, DedupRedirectionTable?> _redirectionTables = [];
     private readonly Dictionary<string, IReadOnlyList<string>> _listings = new(StringComparer.OrdinalIgnoreCase);
     private readonly string _root = $@"System Volume Information\Dedup\ChunkStore\{{{id.ToString().ToUpperInvariant()}}}.ddp";
 
     public void Dispose()
     {
-        foreach (Stream stream in _containers.Values)
+        foreach (Stream stream in _openFiles.Values)
             stream.Dispose();
 
+        _openFiles.Clear();
         _containers.Clear();
+        _redirectionTables.Clear();
     }
 
     /// <summary>The chunks of one file range, in file order.</summary>
@@ -118,7 +122,7 @@ internal sealed class DedupChunkStore(Guid id, Func<string, IReadOnlyList<string
         if (header.Id != recordId || header.Type != type)
             return null;
 
-        if (offset + headerLength + header.PayloadLength > container.Length)
+        if (header.PayloadLength > int.MaxValue || offset + headerLength + header.PayloadLength > container.Length)
             throw new DedupFormatException($"Data Deduplication record {recordId} at {offset} runs past its container.");
 
         byte[] payload = ReadAt(container, offset + headerLength, (int)header.PayloadLength);
@@ -129,17 +133,24 @@ internal sealed class DedupChunkStore(Guid id, Func<string, IReadOnlyList<string
     }
 
     /// <summary>The offset the redirection table (or its backup) gives the record; null when neither lists it.</summary>
-    private static uint? Redirected(Stream container, uint recordId)
+    private uint? Redirected(Stream container, uint recordId)
     {
-        foreach (long table in DedupRedirectionTable.Offsets)
+        if (!_redirectionTables.TryGetValue(container, out DedupRedirectionTable? table))
+            _redirectionTables[container] = table = LoadRedirectionTable(container);
+
+        return table?.Find(recordId);
+    }
+
+    private DedupRedirectionTable? LoadRedirectionTable(Stream container)
+    {
+        foreach (long tableOffset in DedupRedirectionTable.Offsets)
         {
-            if (table + DedupRedirectionTable.HeaderLength > container.Length
-                || !DedupRedirectionTable.TryGetItemsLength(ReadAt(container, table, DedupRedirectionTable.HeaderLength), out int itemsLength)
-                || table + DedupRedirectionTable.HeaderLength + itemsLength > container.Length)
+            if (tableOffset + DedupRedirectionTable.HeaderLength > container.Length
+                || !DedupRedirectionTable.TryGetItemsLength(ReadAt(container, tableOffset, DedupRedirectionTable.HeaderLength), out int itemsLength, verify)
+                || tableOffset + DedupRedirectionTable.HeaderLength + itemsLength > container.Length)
                 continue;
 
-            if (new DedupRedirectionTable(ReadAt(container, table + DedupRedirectionTable.HeaderLength, itemsLength)).Find(recordId) is { } offset)
-                return offset;
+            return new DedupRedirectionTable(ReadAt(container, tableOffset + DedupRedirectionTable.HeaderLength, itemsLength));
         }
 
         return null;
@@ -159,7 +170,13 @@ internal sealed class DedupChunkStore(Guid id, Func<string, IReadOnlyList<string
         string[] folders = name.Kind == DedupContainerKind.Stream ? ["Stream"] : ["Data", "Hotspot"];
         foreach (string folder in folders)
             if (FindContainerFile(Listing(folder), name) is { } fileName)
-                return open($@"{_root}\{folder}\{fileName}");
+            {
+                string path = $@"{_root}\{folder}\{fileName}";
+                if (!_openFiles.TryGetValue(path, out Stream? stream))
+                    _openFiles[path] = stream = source.OpenFile(path);
+
+                return stream;
+            }
 
         throw new DedupFormatException($"Data Deduplication {name.Kind} container {name.FileName} is missing.");
     }
@@ -186,7 +203,7 @@ internal sealed class DedupChunkStore(Guid id, Func<string, IReadOnlyList<string
     private IReadOnlyList<string> Listing(string folder)
     {
         if (!_listings.TryGetValue(folder, out IReadOnlyList<string>? names))
-            _listings[folder] = names = list($@"{_root}\{folder}") ?? [];
+            _listings[folder] = names = source.ListFiles($@"{_root}\{folder}") ?? [];
 
         return names;
     }
