@@ -46,6 +46,8 @@ namespace DiscUtils.Compression;
 public sealed class LZNT1 : IBlockCompressor
 {
     private const ushort SubBlockIsCompressedFlag = 0x8000;
+    private const ushort SubBlockSignatureMask = 0x7000;
+    private const ushort SubBlockSignature = 0x3000;
     private const ushort SubBlockSizeMask = 0x0fff;
 
     // The uncompressed size of an LZNT1 chunk. The offset/length split of a back reference depends on the position within
@@ -243,6 +245,12 @@ public sealed class LZNT1 : IBlockCompressor
             if (header == 0)
             {
                 break;
+            }
+
+            // Bits 12 to 14 are the chunk signature, which must be 3 ([MS-XCA] 2.5.1.1).
+            if ((header & SubBlockSignatureMask) != SubBlockSignature)
+            {
+                return false;
             }
 
             var chunkLength = (header & SubBlockSizeMask) + 1;

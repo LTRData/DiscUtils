@@ -142,6 +142,22 @@ public class LZNT1Test
     /// A compressed chunk that decompresses to less than 4096 bytes and is followed by another chunk is padded with zeros to 4096 bytes,
     /// as Windows' decompressor does (data written in chunks smaller than 4096 by older versions of this class reads back this way).
     /// </summary>
+    [Theory]
+    [InlineData(0x10)] // signature 1, uncompressed
+    [InlineData(0x00)] // signature 0
+    [InlineData(0xF0)] // signature 7, compressed
+    public void DecompressRejectsAChunkHeaderWithAnInvalidSignature(byte headerHigh)
+    {
+        // Header 0x?003: a 4-byte chunk whose signature bits (12 to 14) are not 3.
+        byte[] compressed = [0x03, headerHigh, 0x01, 0x02, 0x03, 0x04];
+
+        Assert.False(LZNT1.Default.TryDecompress(compressed, new byte[4], out _));
+
+        compressed[1] = 0x30; // the same chunk with signature 3 is valid
+        Assert.True(LZNT1.Default.TryDecompress(compressed, new byte[4], out var written));
+        Assert.Equal(4, written);
+    }
+
     [WindowsOnlyFact]
     public void DecompressPadsShortChunksLikeWindows()
     {
