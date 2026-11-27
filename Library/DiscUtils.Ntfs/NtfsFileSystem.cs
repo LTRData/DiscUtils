@@ -546,6 +546,11 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
             // Check that requested named attribute or default data attribute
             // exists
             var file = GetFile(dirEntry.Value.Reference);
+            if (file == null)
+            {
+                return false;
+            }
+
             var attr = file.GetAttribute(attributeType, attributeName);
             if (attr == null)
             {
