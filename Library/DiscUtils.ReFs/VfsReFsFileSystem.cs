@@ -33,6 +33,9 @@ internal sealed class VfsReFsFileSystem : VfsReadOnlyFileSystem<ReFsDirEntry, Re
 
     private readonly ReFsDedupReader? _dedup;
 
+    /// <summary>Whether optimized files are read from the chunk store (<see cref="ReFsFileSystemOptions.ReadDeduplicatedFiles"/>).</summary>
+    internal bool ReadsDeduplicatedFiles => _dedup is not null;
+
     protected override void Dispose(bool disposing)
     {
         if (disposing)

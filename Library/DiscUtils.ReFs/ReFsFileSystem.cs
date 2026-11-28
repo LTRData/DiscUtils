@@ -9,7 +9,7 @@ namespace DiscUtils.ReFs;
 /// Read-only access to ReFS 3.x volumes: files, directories, alternate data streams, security descriptors, reparse points,
 /// extended attributes, checksum verification, volume compression (LZ4 and Zstandard) and, optionally, in-memory redo-log replay.
 /// </summary>
-public sealed class ReFsFileSystem : VfsFileSystemFacade, IWindowsFileSystem
+public sealed class ReFsFileSystem : VfsFileSystemFacade, IWindowsFileSystem, DeduplicationRole.IDedupAwareFileSystem
 {
     /// <summary>
     /// Initializes a new instance of the ReFsFileSystem class.
@@ -41,6 +41,9 @@ public sealed class ReFsFileSystem : VfsFileSystemFacade, IWindowsFileSystem
     public bool ReplayEnabled => Real.Volume.ReplayEnabled;
 
     private VfsReFsFileSystem Real => GetRealFileSystem<VfsReFsFileSystem>();
+
+    /// <inheritdoc cref="DeduplicationRole.IDedupAwareFileSystem.ReadsDeduplicatedFiles"/>
+    bool DeduplicationRole.IDedupAwareFileSystem.ReadsDeduplicatedFiles => Real.ReadsDeduplicatedFiles;
 
     /// <summary>The parsed volume; for tests.</summary>
     internal ReFsVolume Volume => Real.Volume;

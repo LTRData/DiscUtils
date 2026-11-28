@@ -43,7 +43,7 @@ namespace DiscUtils.Ntfs;
 /// Class for accessing NTFS file systems.
 /// </summary>
 public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
-    IFileSystemWithClusterMap, IWindowsFileSystem, IDiagnosticTraceable
+    IFileSystemWithClusterMap, IWindowsFileSystem, IDiagnosticTraceable, DeduplicationRole.IDedupAwareFileSystem
 {
     private const FileAttributes NonSettableFileAttributes =
         FileAttributes.Directory | FileAttributes.Offline | FileAttributes.ReparsePoint;
@@ -244,6 +244,9 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
     /// Gets the options that control how the file system is interpreted.
     /// </summary>
     public NtfsOptions NtfsOptions => (NtfsOptions)Options;
+
+    /// <inheritdoc cref="DeduplicationRole.IDedupAwareFileSystem.ReadsDeduplicatedFiles"/>
+    bool DeduplicationRole.IDedupAwareFileSystem.ReadsDeduplicatedFiles => NtfsOptions.ReadDeduplicatedFiles;
 
     /// <summary>
     /// Gets the volume label.

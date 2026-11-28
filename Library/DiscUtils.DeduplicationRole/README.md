@@ -27,7 +27,8 @@ apart from ranges written after the optimization. This library reads the file th
 
 **NTFS and ReFS read optimized files by themselves**: `NtfsFileSystem` and `ReFsFileSystem` use this library when a deduplicated file is
 opened for reading (`NtfsOptions.ReadDeduplicatedFiles` and `ReFsFileSystemOptions.ReadDeduplicatedFiles`, both on by default). With the
-option off they return the stub, holding only the ranges written since the optimization.
+option off they return the stub, holding only the ranges written since the optimization. Both implement `IDedupAwareFileSystem`, so
+`DedupFileSystemReader` returns what they open as it is when the option is on, and reads the chunk store itself when it is off.
 
 For other file systems with reparse points (`IWindowsFileSystem`), or to read deduplicated files explicitly:
 

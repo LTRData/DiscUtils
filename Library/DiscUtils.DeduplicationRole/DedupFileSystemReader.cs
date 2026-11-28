@@ -3,7 +3,8 @@ namespace DiscUtils.DeduplicationRole;
 /// <summary>
 /// Reads the files of a volume as Windows does with the Data Deduplication filter loaded: a file optimized by the role (reparse tag
 /// <see cref="DedupReader.ReparseTag"/>) is read from the volume's chunk store, any other file as the file system gives it. The file system must
-/// expose reparse points (<see cref="IWindowsFileSystem"/>: NTFS, ReFS); on any other file system every file is read as stored. Use one reader per
+/// expose reparse points (<see cref="IWindowsFileSystem"/>: NTFS, ReFS); on any other file system every file is read as stored. When the file system reads deduplicated files by itself
+/// (<see cref="IDedupAwareFileSystem"/>), <see cref="OpenRead"/> returns what it opens. Use one reader per
 /// volume: it keeps the chunk store's container files open until disposed. Not thread-safe.
 /// </summary>
 public sealed class DedupFileSystemReader : IDisposable
@@ -34,11 +35,18 @@ public sealed class DedupFileSystemReader : IDisposable
     public Stream OpenRead(string path)
     {
         var stored = FileSystem.OpenFile(path, FileMode.Open, FileAccess.Read);
-        byte[]? data;
+
+        // The file system has already read a deduplicated file from the chunk store.
+        if (FileSystem is IDedupAwareFileSystem { ReadsDeduplicatedFiles: true })
+        {
+            return stored;
+        }
+
+        byte[]? reparseData;
 
         try
         {
-            data = ReparseData(path);
+            reparseData = ReparseData(path);
         }
         catch
         {
@@ -46,7 +54,12 @@ public sealed class DedupFileSystemReader : IDisposable
             throw;
         }
 
-        return data is null ? stored : _reader.Open(data, stored);
+        if (reparseData is not null)
+        {
+            return _reader.Open(reparseData, stored);
+        }
+
+        return stored;
     }
 
     public void Dispose() => _reader.Dispose();
