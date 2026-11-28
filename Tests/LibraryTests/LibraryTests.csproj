@@ -35,6 +35,7 @@
     <ProjectReference Include="..\..\Library\DiscUtils.Core\DiscUtils.Core.csproj" />
     <ProjectReference Include="..\..\Library\DiscUtils\DiscUtils.csproj" />
     <ProjectReference Include="..\..\Library\DiscUtils.ReFs\DiscUtils.ReFs.csproj" />
+    <ProjectReference Include="..\..\Library\DiscUtils.DeduplicationRole\DiscUtils.DeduplicationRole.csproj" />
   </ItemGroup>
 
   <ItemGroup Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'netstandard2.0'))">
