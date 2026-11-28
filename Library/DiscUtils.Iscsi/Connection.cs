@@ -167,9 +167,10 @@ internal sealed class Connection : IDisposable
     }
 
     /// <summary>
-    /// Timer callback: sends a NOP-Out to keep the iSCSI session alive.
-    /// Uses ITT=0xFFFFFFFF and TTT=0xFFFFFFFF so the target does not send a NOP-In response
-    /// (RFC 3720 §10.18), avoiding read-side contention with the main Send path.
+    /// Timer callback: answers any target NOP-In that arrived while the session was idle, then
+    /// sends a NOP-Out to keep the iSCSI session alive.
+    /// The NOP-Out uses ITT=0xFFFFFFFF and TTT=0xFFFFFFFF so the target does not send a NOP-In
+    /// response (RFC 3720 §10.18), avoiding read-side contention with the main Send path.
     /// </summary>
     private async void KeepAliveCallback(object _)
     {
@@ -181,11 +182,17 @@ internal sealed class Connection : IDisposable
 
         try
         {
+            ReplyToIdleNopIns();
+
 #if DEBUG
             Trace.WriteLine("Sending keep-alive...");
 #endif
 
             await SendNopOutAsync().ConfigureAwait(false);
+        }
+        catch (EndOfStreamException)
+        {
+            // Target closed the connection — the next Send will surface the error.
         }
         catch (IOException)
         {
@@ -198,6 +205,44 @@ internal sealed class Connection : IDisposable
         finally
         {
             _streamSemaphore.Release();
+        }
+    }
+
+    /// <summary>
+    /// Answers target-initiated NOP-Ins (pings) that arrived while no command was in flight.
+    /// <para>
+    /// Target pings are otherwise only answered by <see cref="ReadPdu"/>, which runs only while a command
+    /// waits for its response. A target such as Linux LIO pings an idle session (by default after 15 s
+    /// without traffic) with a NOP-In carrying a real Target Transfer Tag and drops the connection when no
+    /// NOP-Out echoing that tag arrives in time (by default 30 s): "Did not receive response to NOPIN ...
+    /// failing connection". Our own NOP-Out ping (TTT=0xFFFFFFFF) is not an answer to it. So a caller that
+    /// keeps the session open but idle for more than ~45 s (e.g. CPU-heavy work between disk reads and
+    /// writes) got "Broken pipe" on its next command.
+    /// </para>
+    /// <para>
+    /// Must be called with <see cref="_streamSemaphore"/> held. With the semaphore held no command is in
+    /// flight, so any PDU waiting on the socket is unsolicited: a NOP-In is answered, anything else
+    /// (e.g. an asynchronous message) is discarded, as it would have no command to belong to.
+    /// </para>
+    /// </summary>
+    private void ReplyToIdleNopIns()
+    {
+        while (_stream.DataAvailable)
+        {
+            var pdu = ProtocolDataUnit.ReadFrom(_stream, HeaderDigest != Digest.None, DataDigest != Digest.None);
+            if (pdu.OpCode == OpCode.NopIn)
+            {
+#if DEBUG
+                Trace.WriteLine("Answering NOP-In received while idle...");
+#endif
+                HandleNopIn(pdu);
+            }
+#if DEBUG
+            else
+            {
+                Trace.WriteLine($"Discarding unsolicited {pdu.OpCode} PDU received while idle.");
+            }
+#endif
         }
     }
 
