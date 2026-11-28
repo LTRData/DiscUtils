@@ -459,9 +459,15 @@ public class RegistryHive : IDisposable
 
     internal void FreeCell(int index)
     {
-        var bin = GetBin(index);
+        var binIndex = FindBinIndex(index);
+        if (binIndex < 0)
+        {
+            return;
+        }
 
-        bin?.FreeCell(index);
+        var bin = LoadBin(_bins[binIndex]);
+        bin.FreeCell(index);
+        SetLargestFreeCell(binIndex, bin.LargestFreeCell);
     }
 
     internal int UpdateCell(Cell cell, bool canRelocate)
@@ -530,11 +536,21 @@ public class RegistryHive : IDisposable
     {
         var minSize = MathUtilities.RoundUp(capacity + 4, 8); // Allow for size header and ensure multiple of 8
 
-        // Incredibly inefficient algorithm...
-        foreach (var binHeader in _bins)
+        // First fit in file order, as before, but the free-space tree jumps straight to the first bin that can
+        // hold the cell (or that isn't loaded yet, so its free space is unknown) instead of trying every full
+        // bin in front of it. The bin chosen, and the cell within it, are the same as the linear scan's.
+        EnsureFreeSpaceTree();
+        while (true)
         {
-            var bin = LoadBin(binHeader);
+            var binIndex = FirstBinWithFreeCell(minSize);
+            if (binIndex < 0)
+            {
+                break;
+            }
+
+            var bin = LoadBin(_bins[binIndex]);
             var cellIndex = bin.AllocateCell(minSize);
+            SetLargestFreeCell(binIndex, bin.LargestFreeCell);
 
             if (cellIndex >= 0)
             {
@@ -544,14 +560,114 @@ public class RegistryHive : IDisposable
 
         var newBinHeader = AllocateBin(minSize);
         var newBin = LoadBin(newBinHeader);
-        return newBin.AllocateCell(minSize);
+        var newCellIndex = newBin.AllocateCell(minSize);
+        EnsureFreeSpaceTree();
+        SetLargestFreeCell(_bins.Count - 1, newBin.LargestFreeCell);
+        return newCellIndex;
+    }
+
+    /// <summary>
+    /// Max segment tree over <see cref="_bins"/> (leaves at [_freeSpaceLeaves + i]): for each bin, the size of its
+    /// largest free cell, <see cref="int.MaxValue"/> while the bin hasn't been loaded (unknown, so it must be
+    /// looked at), and -1 for padding leaves past the last bin. Lets <see cref="AllocateRawCell"/> find the first
+    /// bin that can satisfy a request in O(log n) instead of trying every bin from the start.
+    /// </summary>
+    private int[] _freeSpaceTree;
+
+    private int _freeSpaceLeaves;
+
+    /// <summary>How many of <see cref="_bins"/> the tree has leaves for (bins appended later are padding until added).</summary>
+    private int _freeSpaceBins;
+
+    private void EnsureFreeSpaceTree()
+    {
+        if (_freeSpaceTree is not null && _freeSpaceLeaves >= _bins.Count)
+        {
+            // Bins appended by AllocateBin since the last call are still padding: mark them "unknown".
+            while (_freeSpaceBins < _bins.Count)
+            {
+                SetLargestFreeCell(_freeSpaceBins++, int.MaxValue);
+            }
+
+            return;
+        }
+
+        var leaves = 1;
+        while (leaves < _bins.Count)
+        {
+            leaves <<= 1;
+        }
+
+        var tree = new int[2 * leaves];
+        for (var i = 0; i < leaves; i++)
+        {
+            tree[leaves + i] = i >= _bins.Count
+                ? -1
+                : _freeSpaceTree is not null && i < _freeSpaceLeaves && _freeSpaceTree[_freeSpaceLeaves + i] >= 0
+                    ? _freeSpaceTree[_freeSpaceLeaves + i]
+                    : int.MaxValue;
+        }
+
+        for (var i = leaves - 1; i >= 1; i--)
+        {
+            tree[i] = Math.Max(tree[2 * i], tree[2 * i + 1]);
+        }
+
+        _freeSpaceTree = tree;
+        _freeSpaceLeaves = leaves;
+        _freeSpaceBins = _bins.Count;
+    }
+
+    private void SetLargestFreeCell(int binIndex, int largestFreeCell)
+    {
+        if (_freeSpaceTree is null)
+        {
+            // Not built yet: built on the first allocation, from the bins loaded by then.
+            return;
+        }
+
+        if (binIndex >= _freeSpaceBins)
+        {
+            // A bin the tree doesn't cover yet (appended since): grow/mark first, then store the real value.
+            EnsureFreeSpaceTree();
+        }
+
+        var i = _freeSpaceLeaves + binIndex;
+        _freeSpaceTree[i] = largestFreeCell;
+        for (i >>= 1; i >= 1; i >>= 1)
+        {
+            _freeSpaceTree[i] = Math.Max(_freeSpaceTree[2 * i], _freeSpaceTree[2 * i + 1]);
+        }
+    }
+
+    /// <summary>The lowest bin index whose largest free cell is at least <paramref name="size"/> (or unknown), or -1.</summary>
+    private int FirstBinWithFreeCell(int size)
+    {
+        if (_freeSpaceTree[1] < size)
+        {
+            return -1;
+        }
+
+        var i = 1;
+        while (i < _freeSpaceLeaves)
+        {
+            i = _freeSpaceTree[2 * i] >= size ? 2 * i : 2 * i + 1;
+        }
+
+        return i - _freeSpaceLeaves;
     }
 
     private BinHeader? FindBin(int index)
     {
+        var binIndex = FindBinIndex(index);
+        return binIndex < 0 ? null : _bins[binIndex];
+    }
+
+    private int FindBinIndex(int index)
+    {
         if (index < 0)
         {
-            return null;
+            return -1;
         }
 
         // Bins are contiguous and sorted by FileOffset. Binary search for the first bin whose end
@@ -575,10 +691,10 @@ public class RegistryHive : IDisposable
 
         if (found < 0 || _bins[found].FileOffset > index)
         {
-            return null;
+            return -1;
         }
 
-        return _bins[found];
+        return found;
     }
 
     private Bin GetBin(int cellIndex)

@@ -73,6 +73,24 @@ internal sealed class Bin
         }
     }
 
+    /// <summary>
+    /// The size of the largest free cell in this bin (0 if none): <see cref="AllocateCell"/> succeeds
+    /// exactly when the requested size is at most this.
+    /// </summary>
+    public int LargestFreeCell
+    {
+        get
+        {
+            var largest = 0;
+            foreach (var freeCell in _freeCells)
+            {
+                largest = Math.Max(largest, freeCell.Count);
+            }
+
+            return largest;
+        }
+    }
+
     public Cell TryGetCell(int index)
     {
         var size = EndianUtilities.ToInt32LittleEndian(_buffer, index - _header.FileOffset);
