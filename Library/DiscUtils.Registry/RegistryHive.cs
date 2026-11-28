@@ -39,6 +39,9 @@ public class RegistryHive : IDisposable
     internal const int BinStart = 4 * Sizes.OneKiB;
     private readonly List<BinHeader> _bins;
 
+    /// <summary>Loaded bins by <see cref="BinHeader.FileOffset"/>; see <see cref="LoadBin"/>.</summary>
+    private readonly Dictionary<int, Bin> _binCache = [];
+
     internal Stream FileStream { get; private set; }
 
     private readonly HiveHeader _header;
@@ -551,12 +554,31 @@ public class RegistryHive : IDisposable
             return null;
         }
 
-        var bin = _bins
-            .TakeWhile(bin => bin.FileOffset <= index)
-            .Select(bin => new BinHeader?(bin))
-            .FirstOrDefault(bin => bin.Value.FileOffset + bin.Value.BinSize >= index);
+        // Bins are contiguous and sorted by FileOffset. Binary search for the first bin whose end
+        // (FileOffset + BinSize) is >= index, then require that it starts at or before index - the same
+        // bin the previous linear TakeWhile/FirstOrDefault scan returned, in O(log n) instead of O(n).
+        int lo = 0, hi = _bins.Count - 1, found = -1;
+        while (lo <= hi)
+        {
+            var mid = lo + ((hi - lo) >> 1);
+            var bin = _bins[mid];
+            if (bin.FileOffset + bin.BinSize >= index)
+            {
+                found = mid;
+                hi = mid - 1;
+            }
+            else
+            {
+                lo = mid + 1;
+            }
+        }
 
-        return bin;
+        if (found < 0 || _bins[found].FileOffset > index)
+        {
+            return null;
+        }
+
+        return _bins[found];
     }
 
     private Bin GetBin(int cellIndex)
@@ -571,10 +593,29 @@ public class RegistryHive : IDisposable
         return null;
     }
 
+    /// <summary>
+    /// Returns the <see cref="Bin"/> for a bin, reading and parsing it only the first time.
+    /// <para>
+    /// Every cell read, write and allocation goes through a Bin, and loading one reads the whole bin
+    /// from the stream and scans all its cells for free space. Building a fresh Bin on every access
+    /// made writes to large hives very slow: <see cref="AllocateRawCell"/> walks the bins from the start,
+    /// so one allocation in a 16 MiB hive whose early bins are full re-read megabytes. Caching is safe
+    /// because after construction all changes to bin contents go through the cached Bin, which keeps its
+    /// buffer, its free-cell list and the stream in step; the only other writes are to the hive header
+    /// and to a new bin in <see cref="AllocateBin"/> before it is first loaded.
+    /// </para>
+    /// </summary>
     private Bin LoadBin(BinHeader binHeader)
     {
+        if (_binCache.TryGetValue(binHeader.FileOffset, out var cached))
+        {
+            return cached;
+        }
+
         FileStream.Position = BinStart + binHeader.FileOffset;
-        return new Bin(this, FileStream);
+        var bin = new Bin(this, FileStream);
+        _binCache.Add(binHeader.FileOffset, bin);
+        return bin;
     }
 
     private BinHeader AllocateBin(int minSize)
