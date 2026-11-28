@@ -22,7 +22,8 @@ Part of the [LTRData DiscUtils fork](https://github.com/LTRData/DiscUtils). Pack
 | Diagnostics: volume and entry details, streams and snapshots (`OpenStream`), per-file data verification, redo-log scan (`GetVolumeDetails`, `GetEntryDetails`, `VerifyData`, `ReadRedoLog`) | Yes, experimental: shapes may change |
 | Create a filesystem / modify an existing one | No |
 | ReFS 1.x (Server 2012 / 2012 R2) | No: refused on open |
-| Free-space accounting, DOS short names | No: `SupportsUsedAvailableSpace` is `false`; short names are `null` |
+| Used and available space (`UsedSpace`, `AvailableSpace`) | Yes, from the volume allocator's summary as of the mounted checkpoint (see the notes below) |
+| DOS short names | No: short names are `null` |
 | Symbolic links | Listed as ordinary entries with the `ReparsePoint` attribute; targets are not followed |
 | Allocation extents, cluster map | Not exposed yet |
 | Async I/O, thread safety | Synchronous reads; instances are not thread safe |
@@ -30,6 +31,16 @@ Part of the [LTRData DiscUtils fork](https://github.com/LTRData/DiscUtils). Pack
 The target is ReFS 3.x. Behaviour is verified against Windows-created images of ReFS 3.1, 3.4, 3.5, 3.10 and 3.14 (native and upgraded),
 with 4 KiB and 64 KiB clusters, including Windows Server 2025 and Insider build 29683 images (see Tests/LibraryTests/ReFs). The
 full-content checks use 3.14 images.
+
+Used and available space come from the summary in the root page of the volume allocator (checkpoint root 1):
+
+- `AvailableSpace` does not subtract Windows' runtime reserve ("Total Reserved" in `fsutil fsinfo refsinfo`), which is not stored on the
+  volume, so it exceeds the free space Windows reports by that amount. Used plus available matches Windows' used + free + reserved on the
+  test images.
+- The figures are those of the mounted checkpoint. On a volume with an unreplayed redo log they can trail Windows' by a few dozen clusters,
+  and `ReplayLog` does not update them.
+- Compressed containers count their stored (packed) clusters.
+- A malformed summary makes both properties throw; reading files is not affected.
 
 ## Registration
 
