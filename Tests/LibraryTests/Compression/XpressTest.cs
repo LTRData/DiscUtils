@@ -127,8 +127,9 @@ public class XpressTest
     [Fact]
     public void DecodesLiteralsMatchesAndTheSharedLengthHalfByte()
     {
-        // Flags 0b0001_1...: "abc", a match {offset 3, length 7 -> half-byte 15 -> byte 5: 30}, a match {offset 3, length from the other half-byte: 10}.
-        byte[] input = [0x00, 0x00, 0x00, 0x18, (byte)'a', (byte)'b', (byte)'c', 0x17, 0x00, 0x0F, 0x05, 0x17, 0x00];
+        // Flags 0b0001_1111...: "abc", a match {offset 3, length 7 -> half-byte 15 -> byte 5: 30}, a match {offset 3, length from the
+        // other half-byte: 10}, then the end-of-stream marker (a match flag at the end of the input).
+        byte[] input = [0xFF, 0xFF, 0xFF, 0x1F, (byte)'a', (byte)'b', (byte)'c', 0x17, 0x00, 0x0F, 0x05, 0x17, 0x00];
         var output = new byte[43];
         Assert.True(XpressLz77.TryDecompress(input, output, out var written));
         Assert.Equal(43, written);

@@ -168,9 +168,12 @@ public class LZNT1Test
         Assert.Equal(4099, expected.Length);
 
         var decompressed = new byte[expected.Length];
-        Assert.True(LZNT1.Default.TryDecompress(compressed, decompressed, out var numDecompressed));
+        Assert.True(LZNT1.WindowsCompatible.TryDecompress(compressed, decompressed, out var numDecompressed));
         Assert.Equal(expected.Length, numDecompressed);
         Assert.Equal(expected, decompressed);
+
+        // A chunk followed by another must hold 4096 bytes in strict mode.
+        Assert.False(LZNT1.Default.TryDecompress(compressed, decompressed, out _));
     }
 
     [WindowsOnlyFact]

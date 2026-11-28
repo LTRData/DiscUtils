@@ -7,6 +7,11 @@ namespace DiscUtils.Compression;
 /// <summary>
 /// XPRESS Huffman decompressor that operates directly on spans.
 /// </summary>
+/// <remarks>
+/// How data outside the specification decodes is chosen by <see cref="XpressHuffmanMode"/>: <see cref="Default"/> and the static
+/// <see cref="TryDecompress(ReadOnlySpan{byte}, Span{byte}, out int, out int)"/> use <see cref="XpressHuffmanMode.Strict"/>, and
+/// <see cref="WindowsCompatible"/> uses <see cref="XpressHuffmanMode.Windows"/>.
+/// </remarks>
 public class XpressHuffman : IBlockDecompressor
 {
     private const int SymbolCount = 512;
@@ -15,9 +20,45 @@ public class XpressHuffman : IBlockDecompressor
     private const int TableLength = SymbolCount / 2;
     private const int BlockLength = 65536;
 
+    /// <summary>A shared instance that decodes in <see cref="XpressHuffmanMode.Strict"/> mode.</summary>
     public static XpressHuffman Default => field ??= new();
 
+    /// <summary>A shared instance that decodes in <see cref="XpressHuffmanMode.Windows"/> mode, as <c>RtlDecompressBufferEx</c> does.</summary>
+    public static XpressHuffman WindowsCompatible => field ??= new(XpressHuffmanMode.Windows);
+
+    /// <summary>Creates an instance that decodes in <see cref="XpressHuffmanMode.Strict"/> mode.</summary>
+    public XpressHuffman()
+        : this(XpressHuffmanMode.Strict)
+    {
+    }
+
+    /// <summary>Creates an instance that decodes in the given mode.</summary>
+    public XpressHuffman(XpressHuffmanMode mode)
+    {
+        if (mode is not (XpressHuffmanMode.Strict or XpressHuffmanMode.Windows))
+        {
+            throw new ArgumentOutOfRangeException(nameof(mode), mode, "Unknown XPRESS Huffman mode.");
+        }
+
+        Mode = mode;
+    }
+
+    /// <summary>How data outside the specification decodes.</summary>
+    public XpressHuffmanMode Mode { get; }
+
     int IBlockDecompressor.BlockSize { get; set; }
+
+    /// <summary>
+    /// Decompresses XPRESS Huffman (LZ77+Huffman, [MS-XCA] 2.1 and 2.2) data into a caller-provided destination buffer, in
+    /// <see cref="XpressHuffmanMode.Strict"/> mode.
+    /// </summary>
+    /// <inheritdoc cref="TryDecompress(ReadOnlySpan{byte}, Span{byte}, XpressHuffmanMode, out int, out int)"/>
+    public static bool TryDecompress(
+        ReadOnlySpan<byte> source,
+        Span<byte> destination,
+        out int bytesConsumed,
+        out int bytesWritten)
+        => TryDecompress(source, destination, XpressHuffmanMode.Strict, out bytesConsumed, out bytesWritten);
 
     /// <summary>
     /// Decompresses XPRESS Huffman (LZ77+Huffman, [MS-XCA] 2.1 and 2.2) data into a caller-provided destination buffer.
@@ -28,12 +69,14 @@ public class XpressHuffman : IBlockDecompressor
     /// </remarks>
     /// <param name="source">Compressed data.</param>
     /// <param name="destination">Destination buffer. Its full length is treated as the expected uncompressed size.</param>
+    /// <param name="mode">How data outside the specification decodes (see <see cref="XpressHuffmanMode"/>).</param>
     /// <param name="bytesConsumed">Number of source bytes consumed or read ahead by the decoder.</param>
     /// <param name="bytesWritten">Number of bytes written to destination.</param>
     /// <returns><see langword="true"/> on success, otherwise <see langword="false"/>.</returns>
     public static bool TryDecompress(
         ReadOnlySpan<byte> source,
         Span<byte> destination,
+        XpressHuffmanMode mode,
         out int bytesConsumed,
         out int bytesWritten)
     {
@@ -50,10 +93,28 @@ public class XpressHuffman : IBlockDecompressor
         var outPos = 0;
         var ok = false;
 
-        while (outPos < destination.Length)
+        while (true)
         {
-            if (!reader.TryReadCodeLengths(codeLengths)
-                || !BuildDecoder(codeLengths, sortedSymbols, lengthCounts, firstCode, firstSymbol, nextSymbol, fastSymbol, fastLength))
+            // [MS-XCA] 2.2.4 starts each block by checking for room for a table: without it, decoding succeeds if the output is
+            // full and fails otherwise. Strict decoding stops as soon as the output is full. Windows goes on through the outer loop:
+            // while there is room for a table (and its first two words), it reads and checks the table, and skips it.
+            var outputFull = outPos >= destination.Length;
+            if (outputFull && mode != XpressHuffmanMode.Windows)
+            {
+                break;
+            }
+
+            if (!reader.TryReadCodeLengths(codeLengths))
+            {
+                if (outputFull)
+                {
+                    break;
+                }
+
+                goto done;
+            }
+
+            if (!BuildDecoder(codeLengths, mode, sortedSymbols, lengthCounts, firstCode, firstSymbol, nextSymbol, fastSymbol, fastLength))
             {
                 goto done;
             }
@@ -68,7 +129,10 @@ public class XpressHuffman : IBlockDecompressor
                     goto done;
                 }
 
-                reader.Consume(symbolLength);
+                if (!reader.TryConsume(symbolLength))
+                {
+                    goto done;
+                }
 
                 if (symbol < 256)
                 {
@@ -77,10 +141,12 @@ public class XpressHuffman : IBlockDecompressor
                 }
 
                 symbol -= 256;
-                var length = symbol & 0x0F;
+                long length = symbol & 0x0F;
                 var offsetBits = symbol >> 4;
 
-                // The extended length is read from the byte stream before the offset bits.
+                // The extended length is read from the byte stream before the offset bits: a byte (the length minus 18), or 255 and a
+                // 16-bit word (the length minus 3), or 255, a zero word and a 32-bit value (the length minus 3). The decoder pseudocode
+                // of [MS-XCA] omits the 32-bit form, but its encoder writes it for lengths above 65538. Kept as a long, it cannot overflow.
                 if (length == 15)
                 {
                     if (!reader.TryReadRawByte(out var lengthByte))
@@ -88,8 +154,7 @@ public class XpressHuffman : IBlockDecompressor
                         goto done;
                     }
 
-                    length = lengthByte;
-                    if (length == 255)
+                    if (lengthByte == 255)
                     {
                         if (!reader.TryReadRawUInt16(out var lengthWord))
                         {
@@ -99,36 +164,45 @@ public class XpressHuffman : IBlockDecompressor
                         length = lengthWord;
                         if (length == 0)
                         {
-                            if (!reader.TryReadRawUInt32(out var longLength) || longLength > int.MaxValue)
+                            if (!reader.TryReadRawUInt32(out var longLength))
                             {
                                 goto done;
                             }
 
-                            length = (int)longLength;
+                            length = longLength;
                         }
 
                         if (length < 15)
                         {
                             goto done;
                         }
-
-                        length -= 15;
                     }
-
-                    length += 15;
+                    else
+                    {
+                        length = lengthByte + 15;
+                    }
                 }
 
                 length += 3;
 
                 var offset = (int)reader.PeekBits(offsetBits) + (1 << offsetBits);
-                reader.Consume(offsetBits);
-
-                if (offset > outPos)
+                if (!reader.TryConsume(offsetBits) || offset > outPos)
                 {
                     goto done;
                 }
 
-                length = Math.Min(length, destination.Length - outPos);
+                var remaining = destination.Length - outPos;
+                if (length > remaining)
+                {
+                    // Windows fails a match that does not fit the output; strict decoding fills the output and stops.
+                    if (mode == XpressHuffmanMode.Windows)
+                    {
+                        goto done;
+                    }
+
+                    length = remaining;
+                }
+
                 var from = outPos - offset;
                 for (var i = 0; i < length; i++)
                 {
@@ -177,8 +251,14 @@ public class XpressHuffman : IBlockDecompressor
         return -1;
     }
 
+    /// <summary>
+    /// Builds the canonical decoder for a table of code lengths: false when the lengths are not a complete prefix code ([MS-XCA] 2.2.4
+    /// requires the decoding table to be filled exactly). In <see cref="XpressHuffmanMode.Windows"/> mode, a single symbol with a 1-bit
+    /// code is also accepted and decodes from either bit value, as Windows does.
+    /// </summary>
     private static bool BuildDecoder(
         ReadOnlySpan<byte> codeLengths,
+        XpressHuffmanMode mode,
         Span<ushort> sortedSymbols,
         Span<ushort> lengthCounts,
         Span<int> firstCode,
@@ -228,6 +308,20 @@ public class XpressHuffman : IBlockDecompressor
             }
         }
 
+        // Incomplete tree: some bit sequences would decode to no symbol.
+        if (code != 1 << MaxCodeLength)
+        {
+            if (mode != XpressHuffmanMode.Windows || code != 1 << (MaxCodeLength - 1) || lengthCounts[1] != 1)
+            {
+                return false;
+            }
+
+            var single = codeLengths.IndexOf((byte)1);
+            fastSymbol.Fill((ushort)single);
+            fastLength.Fill(1);
+            return true;
+        }
+
         for (int symbol = 0; symbol < codeLengths.Length; symbol++)
         {
             int len = codeLengths[symbol];
@@ -269,12 +363,14 @@ public class XpressHuffman : IBlockDecompressor
     }
 
     bool IBlockDecompressor.TryDecompress(ReadOnlySpan<byte> source, Span<byte> decompressed, out int decompressedSize)
-        => TryDecompress(source, decompressed, out _, out decompressedSize);
+        => TryDecompress(source, decompressed, Mode, out _, out decompressedSize);
 
     /// <summary>
     /// The input of an XPRESS Huffman stream as [MS-XCA] 2.2.4 reads it: a byte position, and a bit buffer that always holds the next 32 bits
     /// (16 plus <c>_extraBits</c> of them valid) taken as little-endian 16-bit words, the first word in the more significant half. Raw bytes
-    /// (extended match lengths, code-length tables) are read at the byte position, which is past the words already in the buffer.
+    /// (extended match lengths, code-length tables) are read at the byte position, which is past the words already in the buffer. A word
+    /// that the buffer needs but the input does not hold in full is an error, as in Windows; the encoder ends each stream with a zero word
+    /// for this read-ahead.
     /// </summary>
     private ref struct XpressBitReader
     {
@@ -292,15 +388,15 @@ public class XpressHuffman : IBlockDecompressor
         }
 
         /// <summary>Bytes read from the input, including the words the bit buffer has read ahead.</summary>
-        public readonly int BytesConsumed => Math.Min(_position, _source.Length);
+        public readonly int BytesConsumed => _position;
 
         /// <summary>
         /// Reads a block's 256-byte table of 4-bit code lengths (the low half of a byte first) at the byte position, then fills the bit buffer
-        /// with the next 32 bits. False when fewer than 256 bytes are left.
+        /// with the next 32 bits. False when fewer than 260 bytes are left.
         /// </summary>
         public bool TryReadCodeLengths(scoped Span<byte> codeLengths)
         {
-            if (_source.Length - _position < TableLength)
+            if (_source.Length - _position < TableLength + 4)
             {
                 return false;
             }
@@ -327,23 +423,28 @@ public class XpressHuffman : IBlockDecompressor
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly uint PeekBits(int count) => count == 0 ? 0 : _nextBits >> (32 - count);
 
-        /// <summary>Drops <paramref name="count"/> bits (0 to 16) and reads the next word as soon as fewer than 16 spare bits remain.</summary>
+        /// <summary>
+        /// Drops <paramref name="count"/> bits (0 to 16) and reads the next word as soon as fewer than 16 spare bits remain. False when that
+        /// word is not in the input.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Consume(int count)
+        public bool TryConsume(int count)
         {
-            if (count == 0)
-            {
-                return;
-            }
-
             _nextBits <<= count;
             _extraBits -= count;
             if (_extraBits < 0)
             {
+                if (_position + 2 > _source.Length)
+                {
+                    return false;
+                }
+
                 _nextBits |= (uint)ReadWord(_position) << -_extraBits;
                 _extraBits += 16;
                 _position += 2;
             }
+
+            return true;
         }
 
         public bool TryReadRawByte(out byte value)
@@ -384,16 +485,8 @@ public class XpressHuffman : IBlockDecompressor
             return true;
         }
 
-        /// <summary>A little-endian word; bytes past the end of the input read as zero (the bit buffer reads ahead of the data).</summary>
+        /// <summary>A little-endian word at a position the caller has checked.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private readonly ushort ReadWord(int position)
-        {
-            if (position + 2 <= _source.Length)
-            {
-                return BinaryPrimitives.ReadUInt16LittleEndian(_source.Slice(position, 2));
-            }
-
-            return position < _source.Length ? _source[position] : (ushort)0;
-        }
+        private readonly ushort ReadWord(int position) => BinaryPrimitives.ReadUInt16LittleEndian(_source.Slice(position, 2));
     }
 }

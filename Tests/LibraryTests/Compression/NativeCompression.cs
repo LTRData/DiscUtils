@@ -197,6 +197,60 @@ internal static partial class NativeCompression
         }
     }
 
+    /// <summary>
+    /// Decompresses <paramref name="data"/> with Windows' decompressor into an output buffer of <paramref name="outputSize"/> bytes
+    /// and returns its NTSTATUS, so malformed input and short outputs can be compared too. LZNT1 uses <c>RtlDecompressBuffer</c>;
+    /// the XPRESS formats use <c>RtlDecompressBufferEx</c> with a workspace, since <c>RtlDecompressBuffer</c> refuses them with
+    /// STATUS_INVALID_USER_BUFFER.
+    /// </summary>
+    public static int NativeDecompressStatus(byte[] data, int outputSize, CompressionFormat compressionFormat, out byte[] output)
+    {
+        var compressedBuffer = IntPtr.Zero;
+        var uncompressedBuffer = IntPtr.Zero;
+        var workspaceBuffer = IntPtr.Zero;
+        try
+        {
+            compressedBuffer = Marshal.AllocHGlobal(Math.Max(1, data.Length));
+            Marshal.Copy(data, 0, compressedBuffer, data.Length);
+            uncompressedBuffer = Marshal.AllocHGlobal(Math.Max(1, outputSize));
+
+            int ntStatus;
+            uint uncompressedSize;
+            if (compressionFormat == CompressionFormat.Lznt1)
+            {
+                ntStatus = RtlDecompressBuffer(compressionFormat, uncompressedBuffer, (uint)outputSize, compressedBuffer, (uint)data.Length, out uncompressedSize);
+            }
+            else
+            {
+                ntStatus = RtlGetCompressionWorkSpaceSize(compressionFormat, out var bufferWorkspaceSize, out var fragmentWorkspaceSize);
+                Assert.Equal(0, ntStatus);
+                workspaceBuffer = Marshal.AllocHGlobal((int)Math.Max(1, Math.Max(bufferWorkspaceSize, fragmentWorkspaceSize)));
+                ntStatus = RtlDecompressBufferEx(compressionFormat, uncompressedBuffer, (uint)outputSize, compressedBuffer, (uint)data.Length, out uncompressedSize, workspaceBuffer);
+            }
+
+            output = new byte[ntStatus == 0 ? uncompressedSize : 0];
+            Marshal.Copy(uncompressedBuffer, output, 0, output.Length);
+            return ntStatus;
+        }
+        finally
+        {
+            if (compressedBuffer != IntPtr.Zero)
+            {
+                Marshal.FreeHGlobal(compressedBuffer);
+            }
+
+            if (uncompressedBuffer != IntPtr.Zero)
+            {
+                Marshal.FreeHGlobal(uncompressedBuffer);
+            }
+
+            if (workspaceBuffer != IntPtr.Zero)
+            {
+                Marshal.FreeHGlobal(workspaceBuffer);
+            }
+        }
+    }
+
 #if NET7_0_OR_GREATER
     [LibraryImport("ntdll")]
     private static partial int RtlGetCompressionWorkSpaceSize(CompressionFormat formatAndEngine, out uint bufferWorkspaceSize, out uint fragmentWorkspaceSize);
@@ -206,6 +260,9 @@ internal static partial class NativeCompression
 
     [LibraryImport("ntdll")]
     private static partial int RtlDecompressBuffer(CompressionFormat formatAndEngine, IntPtr uncompressedBuffer, uint uncompressedBufferSize, IntPtr compressedBuffer, uint compressedBufferSize, out uint finalUncompressedSize);
+
+    [LibraryImport("ntdll")]
+    private static partial int RtlDecompressBufferEx(CompressionFormat format, IntPtr uncompressedBuffer, uint uncompressedBufferSize, IntPtr compressedBuffer, uint compressedBufferSize, out uint finalUncompressedSize, IntPtr workspace);
 #else
     [DllImport("ntdll")]
     private static extern int RtlGetCompressionWorkSpaceSize(CompressionFormat formatAndEngine, out uint bufferWorkspaceSize, out uint fragmentWorkspaceSize);
@@ -215,5 +272,8 @@ internal static partial class NativeCompression
 
     [DllImport("ntdll")]
     private static extern int RtlDecompressBuffer(CompressionFormat formatAndEngine, IntPtr uncompressedBuffer, uint uncompressedBufferSize, IntPtr compressedBuffer, uint compressedBufferSize, out uint finalUncompressedSize);
+
+    [DllImport("ntdll")]
+    private static extern int RtlDecompressBufferEx(CompressionFormat format, IntPtr uncompressedBuffer, uint uncompressedBufferSize, IntPtr compressedBuffer, uint compressedBufferSize, out uint finalUncompressedSize, IntPtr workspace);
 #endif
 }

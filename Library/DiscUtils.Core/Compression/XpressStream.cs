@@ -32,7 +32,7 @@ namespace DiscUtils.Compression;
 /// Implements the XPRESS Huffman decompression algorithm.
 /// </summary>
 /// <remarks>The whole compressed stream is read to its end and decoded into memory when the instance is created
-/// (with <see cref="XpressHuffman.TryDecompress"/>), so it is not suitable for unbounded streams.</remarks>
+/// (with <see cref="XpressHuffman.TryDecompress(System.ReadOnlySpan{byte}, System.Span{byte}, out int, out int)"/>), so it is not suitable for unbounded streams.</remarks>
 public class XpressStream : ReadOnlyCompatibilityStream
 {
     private readonly byte[] _buffer;
@@ -119,7 +119,7 @@ public class XpressStream : ReadOnlyCompatibilityStream
         throw new NotSupportedException();
     }
 
-    /// <summary>Reads the compressed stream to its end and decodes it with <see cref="XpressHuffman.TryDecompress"/>.</summary>
+    /// <summary>Reads the compressed stream to its end and decodes it with <see cref="XpressHuffman.TryDecompress(System.ReadOnlySpan{byte}, System.Span{byte}, out int, out int)"/>.</summary>
     private static byte[] Decompress(Stream compressed, int count)
     {
         byte[] input;

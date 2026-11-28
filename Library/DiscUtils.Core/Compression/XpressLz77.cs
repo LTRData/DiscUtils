@@ -6,31 +6,54 @@ namespace DiscUtils.Compression;
 
 public sealed class XpressLz77 : IBlockDecompressor
 {
-    public static XpressLz77 Default => field ??= new();
+    /// <summary>A decompressor in <see cref="XpressLz77Mode.Windows"/> mode.</summary>
+    public static XpressLz77 WindowsCompatible => field ??= new();
+
+    /// <summary>A decompressor in <see cref="XpressLz77Mode.Strict"/> mode.</summary>
+    public static XpressLz77 Default => field ??= new(XpressLz77Mode.Strict);
+
+    public XpressLz77(XpressLz77Mode mode = XpressLz77Mode.Windows)
+    {
+        Mode = mode;
+    }
+
+    /// <summary>How this instance treats input on which Windows and [MS-XCA] disagree.</summary>
+    public XpressLz77Mode Mode { get; }
 
     int IBlockDecompressor.BlockSize { get; set; }
 
     bool IBlockDecompressor.TryDecompress(ReadOnlySpan<byte> compressed, Span<byte> output, out int decompressedSize)
-        => TryDecompress(compressed, output, out decompressedSize);
+        => TryDecompress(compressed, output, out decompressedSize, Mode);
+
+    /// <summary>
+    /// Decompress XPRESS (Plain LZ77) stream into <paramref name="output"/>, as Windows does.
+    /// </summary>
+    /// <param name="compressed">Entire XPRESS block (no container header)</param>
+    /// <param name="output">Buffer at least as large as the decompressed data</param>
+    /// <param name="decompressedSize">The number of bytes written to <paramref name="output"/></param>
+    /// <returns><see langword="false"/> if the data is malformed or does not fit <paramref name="output"/>.</returns>
+    public static bool TryDecompress(ReadOnlySpan<byte> compressed, Span<byte> output, out int decompressedSize)
+        => TryDecompress(compressed, output, out decompressedSize, XpressLz77Mode.Windows);
 
     /// <summary>
     /// Decompress XPRESS (Plain LZ77) stream into <paramref name="output"/>.
     /// </summary>
     /// <param name="compressed">Entire XPRESS block (no container header)</param>
-    /// <param name="output">Buffer with expected decompressed size</param>
-    /// <param name="decompressedSize"></param>
-    /// <exception cref="InvalidDataException">On malformed input</exception>
-    public static bool TryDecompress(ReadOnlySpan<byte> compressed, Span<byte> output, out int decompressedSize)
+    /// <param name="output">Buffer at least as large as the decompressed data</param>
+    /// <param name="decompressedSize">The number of bytes written to <paramref name="output"/></param>
+    /// <param name="mode">How to treat input on which Windows and [MS-XCA] disagree</param>
+    /// <returns><see langword="false"/> if the data is malformed or does not fit <paramref name="output"/>.</returns>
+    public static bool TryDecompress(ReadOnlySpan<byte> compressed, Span<byte> output, out int decompressedSize, XpressLz77Mode mode)
     {
-        // We implement the MS-XCA “fastest variant / Plain LZ77” decoder.
-        // Ref: MS-XCA §2.3.4 Processing (literal/match flags in 32-bit chunks; 16-bit match token). :contentReference[oaicite:3]{index=3}
+        // MS-XCA 2.4 Plain LZ77 Decompression: literal/match flags in 32-bit words, used from the top bit; 16-bit match token.
+        // As in the specification and Windows, decoding runs until a match flag finds the input at its end.
 
         var expectedSize = output.Length;
         var src = 0;
         decompressedSize = 0;
         var cachedLenNibble = -1; // -1 = empty; otherwise 0..15
 
-        while (decompressedSize < expectedSize)
+        while (true)
         {
             if (src + 4 > compressed.Length)
             {
@@ -43,18 +66,13 @@ public sealed class XpressLz77 : IBlockDecompressor
 
             for (var i = 0; i < 32; i++)
             {
-                if (decompressedSize >= expectedSize)
-                {
-                    break; // Done
-                }
-
                 var isMatch = (flags & 0x8000_0000u) != 0;
                 flags <<= 1;
 
                 if (!isMatch)
                 {
                     // Literal
-                    if (src >= compressed.Length)
+                    if (src >= compressed.Length || decompressedSize >= expectedSize)
                     {
                         return false;
                     }
@@ -66,7 +84,8 @@ public sealed class XpressLz77 : IBlockDecompressor
 
                 if (src == compressed.Length)
                 {
-                    return true;
+                    // End-of-stream marker. Windows rejects a stream without data.
+                    return mode == XpressLz77Mode.Strict || decompressedSize > 0;
                 }
 
                 // Match: first 2 bytes are the primary token
@@ -80,7 +99,7 @@ public sealed class XpressLz77 : IBlockDecompressor
 
                 var matchOffset = ((token >> 3) & 0x1FFF) + 1;   // 13 bits + bias
                 var lenMinus3 = (token & 0x7);                 // 3 low bits
-                int matchLen;
+                long matchLen;
 
                 if (lenMinus3 < 7)
                 {
@@ -132,25 +151,28 @@ public sealed class XpressLz77 : IBlockDecompressor
                                 return false;
                             }
 
-                            var len16 = BinaryPrimitives.ReadUInt16LittleEndian(compressed.Slice(src, 2));
+                            // A 16-bit length minus 3, or if that is 0, a 32-bit one. Both are unsigned and hold the whole
+                            // length, so [MS-XCA] 2.4 (and Windows) rejects values below 15 + 7, which the shorter forms cover.
+                            uint extendedLength = BinaryPrimitives.ReadUInt16LittleEndian(compressed.Slice(src, 2));
                             src += 2;
 
-                            if (len16 != 0)
-                            {
-                                // For XPRESS, this is effectively "length minus 3" in many emitters.
-                                matchLen = len16 + 3;
-                            }
-                            else
+                            if (extendedLength == 0)
                             {
                                 if (src + 4 > compressed.Length)
                                 {
                                     return false;
                                 }
 
-                                var len32 = BinaryPrimitives.ReadInt32LittleEndian(compressed.Slice(src, 4));
+                                extendedLength = BinaryPrimitives.ReadUInt32LittleEndian(compressed.Slice(src, 4));
                                 src += 4;
-                                matchLen = len32 + 3;
                             }
+
+                            if (extendedLength < 15 + 7)
+                            {
+                                return false;
+                            }
+
+                            matchLen = extendedLength + 3L;
                         }
                     }
                 }
@@ -167,11 +189,12 @@ public sealed class XpressLz77 : IBlockDecompressor
                 }
 
                 // Bounds check (stream might claim more than remaining output)
-                var toCopy = matchLen;
-                if (decompressedSize + toCopy > expectedSize)
+                if (matchLen > expectedSize - decompressedSize)
                 {
                     return false;
                 }
+
+                var toCopy = (int)matchLen;
 
                 var srcPos = decompressedSize - matchOffset;
                 // Overlap-safe copy
@@ -181,8 +204,6 @@ public sealed class XpressLz77 : IBlockDecompressor
                 }
             }
         }
-
-        return true;
     }
 
     /// <summary>
@@ -190,10 +211,11 @@ public sealed class XpressLz77 : IBlockDecompressor
     /// </summary>
     /// <param name="compressed">Entire XPRESS block (no container header)</param>
     /// <param name="output">Buffer with decompressed size</param>
-    /// <exception cref="InvalidDataException">On malformed input</exception>
-    public static void Decompress(ReadOnlySpan<byte> compressed, Span<byte> output)
+    /// <param name="mode">How to treat input on which Windows and [MS-XCA] disagree</param>
+    /// <exception cref="InvalidDataException">On malformed input, or data that does not fill <paramref name="output"/></exception>
+    public static void Decompress(ReadOnlySpan<byte> compressed, Span<byte> output, XpressLz77Mode mode = XpressLz77Mode.Windows)
     {
-        if (!TryDecompress(compressed, output, out var decompressedSize) || decompressedSize != output.Length)
+        if (!TryDecompress(compressed, output, out var decompressedSize, mode) || decompressedSize != output.Length)
         {
             throw new InvalidDataException("Malformed XPRESS compressed data");
         }
