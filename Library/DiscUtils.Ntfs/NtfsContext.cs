@@ -28,6 +28,8 @@ internal sealed class NtfsContext : INtfsContext
 {
     public Stream RawStream { get; set; }
 
+    public DeduplicationRole.DedupReader Deduplication { get; set; }
+
     public AttributeDefinitions AttributeDefinitions { get; set; }
 
     public UpperCase UpperCase { get; set; }

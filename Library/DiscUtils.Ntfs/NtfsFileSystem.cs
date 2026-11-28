@@ -43,7 +43,7 @@ namespace DiscUtils.Ntfs;
 /// Class for accessing NTFS file systems.
 /// </summary>
 public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
-    IFileSystemWithClusterMap, IWindowsFileSystem, IDiagnosticTraceable
+    IFileSystemWithClusterMap, IWindowsFileSystem, IDiagnosticTraceable, DeduplicationRole.IDedupAwareFileSystem
 {
     private const FileAttributes NonSettableFileAttributes =
         FileAttributes.Directory | FileAttributes.Offline | FileAttributes.ReparsePoint;
@@ -107,6 +107,9 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
             ForgetFile = ForgetFile,
             ReadOnly = !stream.CanWrite
         };
+
+        // Reads the chunk store only when a deduplicated file is opened (see NtfsOptions.ReadDeduplicatedFiles).
+        _context.Deduplication = new DeduplicationRole.DedupReader(new DeduplicationRole.DiscFileSystemDedupSource(this));
 
         _fileCache = new ObjectCache<long, File>();
 
@@ -241,6 +244,9 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
     /// Gets the options that control how the file system is interpreted.
     /// </summary>
     public NtfsOptions NtfsOptions => (NtfsOptions)Options;
+
+    /// <inheritdoc cref="DeduplicationRole.IDedupAwareFileSystem.ReadsDeduplicatedFiles"/>
+    bool DeduplicationRole.IDedupAwareFileSystem.ReadsDeduplicatedFiles => NtfsOptions.ReadDeduplicatedFiles;
 
     /// <summary>
     /// Gets the volume label.
@@ -2201,6 +2207,12 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
     /// <param name="disposing">Whether called from Dispose or from a finalizer.</param>
     protected override void Dispose(bool disposing)
     {
+        if (disposing && _context?.Deduplication is { } deduplication)
+        {
+            deduplication.Dispose();
+            _context.Deduplication = null;
+        }
+
         if (_context != null && _context.Mft != null)
         {
             if (disposing)
@@ -2731,7 +2743,8 @@ public class NtfsFileSystem : DiscFileSystem, IClusterBasedFileSystem,
     /// </summary>
     internal static ConcurrentDictionary<uint, NtfsReparsePluginHandler> ReparsePlugins => field ??= new()
     {
-        [Wof.ReparsePointTagWofCompressed] = Wof.OpenWofReparsePoint
+        [Wof.ReparsePointTagWofCompressed] = Wof.OpenWofReparsePoint,
+        [Deduplication.ReparsePointTagDedup] = Deduplication.OpenDedupReparsePoint
     };
 
     /// <summary>

@@ -18,6 +18,8 @@ dotnet add package LTRData.DiscUtils.Ntfs
 | Create / format a filesystem | Yes |
 | Modify files and directories | Yes, with a writable backing stream |
 | NTFS `$LogFile` journal analysis and recovery | Yes, for supported records and safe recovery states |
+| WOF-compressed files (`compact /exe`: XPRESS 4K/8K/16K, LZX) | Read, decompressed transparently; WIM-backed (WIMBoot) files read as their stubs |
+| Files optimized by Windows Server Data Deduplication | Read from the chunk store transparently (`NtfsOptions.ReadDeduplicatedFiles`, on by default; via `LTRData.DiscUtils.DeduplicationRole`); opened for writing they are stubs |
 
 ## Usage notes
 

@@ -24,6 +24,7 @@ public static class SetupHelper
         Vhdx.Formats.Register();
         Vmdk.Formats.Register();
         VirtualFileSystem.Formats.Register();
+        ReFs.Formats.Register();
         Xfs.Formats.Register();
         Xva.Formats.Register();
         Lvm.Formats.Register();

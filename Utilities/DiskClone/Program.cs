@@ -30,6 +30,7 @@ using System.Security.Principal;
 using DiscUtils;
 using DiscUtils.Common;
 using DiscUtils.Ntfs;
+using DiscUtils.Windows;
 using DiscUtils.Partitions;
 using DiscUtils.Streams;
 
@@ -104,7 +105,7 @@ class Program : ProgramBase
         Geometry biosGeometry;
         Geometry ideGeometry;
         long capacity;
-        using (var disk = new Disk(diskNumber))
+        using (var disk = new DeviceDisk($@"\\.\PhysicalDrive{diskNumber}"))
         {
             contentBuilder = new BiosPartitionedDiskBuilder(disk);
             biosGeometry = disk.BiosGeometry;

@@ -386,3 +386,9 @@ artifacts-dotnet-releaser/
 # Verify
 *.received.*
 *#
+
+# Per-TFM build output directories
+/Library/net*/
+/Tests/net*/
+/Utilities/net*/
+/Integrations/net*/

@@ -15,6 +15,7 @@ public static class SetupHelper
         OpticalDisk.Formats.Register();
         SquashFs.Formats.Register();
         Swap.Formats.Register();
+        ReFs.Formats.Register();
         Xfs.Formats.Register();
         VirtualFileSystem.Formats.Register();
     }

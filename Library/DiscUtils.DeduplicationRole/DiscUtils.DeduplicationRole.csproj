@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Reads files optimized by the Windows Server Data Deduplication role from their chunk store, on any DiscUtils file system with reparse points (NTFS, ReFS).</Description>
+    <PackageTags>DiscUtils;Deduplication;NTFS;ReFS</PackageTags>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="LibraryTests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DiscUtils.Core\DiscUtils.Core.csproj" />
+  </ItemGroup>
+
+</Project>

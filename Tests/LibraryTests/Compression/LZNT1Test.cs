@@ -122,38 +122,64 @@ public class LZNT1Test
     [WindowsOnlyFact]
     public void Compress1KBlockSize()
     {
-        var instance = LZNT1.Default;
-        var compressor = instance;
+        // LZNT1 chunks are always 4096 bytes: the requested size is ignored, as Windows ignores it.
+        var compressor = new LZNT1 { BlockSize = 1024 };
+        Assert.Equal(4096, compressor.BlockSize);
 
-        var compressedLength = 16 * 4096;
-        var compressedData = new byte[compressedLength];
-
-        // Double-check, make sure native code round-trips
-        var nativeCompressed = NativeCompress(_uncompressedData, 0, _uncompressedData.Length, 1024, CompressionFormat.Lznt1);
-        Assert.Equal(_uncompressedData, NativeDecompress(nativeCompressed, 0, nativeCompressed.Length, CompressionFormat.Lznt1));
-
-        compressor.BlockSize = 1024;
-        var r = compressor.TryCompress(_uncompressedData, compressedData, out compressedLength);
+        var compressedData = new byte[16 * 4096];
+        var r = compressor.TryCompress(_uncompressedData, compressedData, out var compressedLength);
         Assert.Equal(CompressionResult.Compressed, r);
 
-        var duDecompressed = new byte[_uncompressedData.Length];
-        var rc = compressor.TryDecompress(compressedData.AsSpan(0, compressedLength), duDecompressed, out var numDuDecompressed);
+        Assert.Equal(_uncompressedData, NativeDecompress(compressedData, 0, compressedLength, CompressionFormat.Lznt1));
 
-        Assert.True(rc);
+        var decompressed = new byte[_uncompressedData.Length];
+        Assert.True(compressor.TryDecompress(compressedData.AsSpan(0, compressedLength), decompressed, out var numDecompressed));
+        Assert.Equal(_uncompressedData.Length, numDecompressed);
+        Assert.Equal(_uncompressedData, decompressed);
+    }
 
-        var rightSizedDuDecompressed = new byte[numDuDecompressed];
-        Buffer.BlockCopy(duDecompressed, 0, rightSizedDuDecompressed, 0, numDuDecompressed);
+    /// <summary>
+    /// A compressed chunk that decompresses to less than 4096 bytes and is followed by another chunk is padded with zeros to 4096 bytes,
+    /// as Windows' decompressor does (data written in chunks smaller than 4096 by older versions of this class reads back this way).
+    /// </summary>
+    [Theory]
+    [InlineData(0x10)] // signature 1, uncompressed
+    [InlineData(0x00)] // signature 0
+    [InlineData(0xF0)] // signature 7, compressed
+    public void DecompressRejectsAChunkHeaderWithAnInvalidSignature(byte headerHigh)
+    {
+        // Header 0x?003: a 4-byte chunk whose signature bits (12 to 14) are not 3.
+        byte[] compressed = [0x03, headerHigh, 0x01, 0x02, 0x03, 0x04];
 
-        // Note: Due to bug in Windows LZNT1, we compare against native decompression, not the original data, since
-        // Windows LZNT1 corrupts data on decompression when block size != 4096.
-        Assert.Equal(rightSizedDuDecompressed, NativeDecompress(compressedData, 0, compressedLength, CompressionFormat.Lznt1));
+        Assert.False(LZNT1.Default.TryDecompress(compressed, new byte[4], out _));
+
+        compressed[1] = 0x30; // the same chunk with signature 3 is valid
+        Assert.True(LZNT1.Default.TryDecompress(compressed, new byte[4], out var written));
+        Assert.Equal(4, written);
+    }
+
+    [WindowsOnlyFact]
+    public void DecompressPadsShortChunksLikeWindows()
+    {
+        // Two compressed chunks of three literals each: header 0xB003 (compressed, signature 3, 6 bytes), flag byte 0, the literals.
+        byte[] compressed = [0x03, 0xB0, 0x00, (byte)'a', (byte)'b', (byte)'c', 0x03, 0xB0, 0x00, (byte)'d', (byte)'e', (byte)'f'];
+
+        var expected = NativeDecompress(compressed, 0, compressed.Length, CompressionFormat.Lznt1);
+        Assert.Equal(4099, expected.Length);
+
+        var decompressed = new byte[expected.Length];
+        Assert.True(LZNT1.WindowsCompatible.TryDecompress(compressed, decompressed, out var numDecompressed));
+        Assert.Equal(expected.Length, numDecompressed);
+        Assert.Equal(expected, decompressed);
+
+        // A chunk followed by another must hold 4096 bytes in strict mode.
+        Assert.False(LZNT1.Default.TryDecompress(compressed, decompressed, out _));
     }
 
     [WindowsOnlyFact]
     public void Compress1KBlock()
     {
-        var instance = LZNT1.Default;
-        var compressor = instance;
+        var compressor = new LZNT1();
 
         var uncompressed1K = new byte[1024];
         Buffer.BlockCopy(_uncompressedData, 0, uncompressed1K, 0, 1024);
@@ -169,6 +195,49 @@ public class LZNT1Test
         var r = compressor.TryCompress(uncompressed1K, compressedData, out compressedLength);
         Assert.Equal(CompressionResult.Compressed, r);
         Assert.Equal(uncompressed1K, NativeDecompress(compressedData, 0, compressedLength, CompressionFormat.Lznt1));
+    }
+
+    /// <summary>
+    /// A last chunk shorter than 4096 bytes that does not compress is stored uncompressed with its own length
+    /// (it used to be stored as a full 4096 bytes, reading past the end of the input).
+    /// </summary>
+    [Theory]
+    [InlineData(1)]
+    [InlineData(100)]
+    [InlineData(3000)]
+    [InlineData(4095)]
+    public void CompressStoresShortIncompressibleLastChunk(int tailLength)
+    {
+        var data = new byte[8192 + tailLength];
+        System.Text.Encoding.ASCII.GetBytes(new string('a', 8192)).CopyTo(data, 0);
+        var tail = new byte[tailLength];
+        new Random(tailLength).NextBytes(tail);
+        tail.CopyTo(data, 8192);
+
+        var compressed = new byte[data.Length * 2];
+        Assert.Equal(CompressionResult.Compressed, new LZNT1().TryCompress(data, compressed, out var compressedLength));
+
+        var decompressed = new byte[data.Length];
+        Assert.True(LZNT1.Default.TryDecompress(compressed.AsSpan(0, compressedLength), decompressed, out var numDecompressed));
+        Assert.Equal(data.Length, numDecompressed);
+        Assert.Equal(data, decompressed);
+#if NET7_0_OR_GREATER
+        if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
+        {
+            Assert.Equal(data, NativeDecompress(compressed, 0, compressedLength, CompressionFormat.Lznt1));
+        }
+#endif
+    }
+
+    [Fact]
+    public void CompressIncompressibleShortInputDoesNotThrow()
+    {
+        foreach (var length in new[] { 3000, 4000, 8000 })
+        {
+            var data = new byte[length];
+            new Random(length).NextBytes(data);
+            Assert.Equal(CompressionResult.Incompressible, new LZNT1().TryCompress(data, new byte[length * 2], out _));
+        }
     }
 
     [Fact]
@@ -276,5 +345,25 @@ public class LZNT1Test
         Assert.Equal(numDecompressed, _uncompressedData.Length);
 
         Assert.Equal(_uncompressedData, decompressed);
+    }
+
+    [WindowsOnlyTheory]
+    [MemberData(nameof(RoundTripSamples), MemberType = typeof(NativeCompression))]
+    public void DecompressMatchesWindowsCompressor(string kind, int length)
+    {
+        var original = Sample(kind, length);
+
+        foreach (var engine in new ushort[] { 0, EngineMaximum })
+        {
+            if (TryNativeCompress(original, 0, original.Length, 4096, CompressionFormat.Lznt1, engine) is not { } compressed)
+            {
+                continue;
+            }
+
+            var decompressed = new byte[original.Length];
+            Assert.True(LZNT1.Default.TryDecompress(compressed, decompressed, out var written), $"engine 0x{engine:X}: decoding failed");
+            Assert.Equal(original.Length, written);
+            Assert.Equal(original, decompressed);
+        }
     }
 }

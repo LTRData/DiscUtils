@@ -104,4 +104,42 @@ public class XpressTest
 
         Assert.Equal(_uncompressedData, decompressed);
     }
+
+    [WindowsOnlyTheory]
+    [MemberData(nameof(RoundTripSamples), MemberType = typeof(NativeCompression))]
+    public void DecompressMatchesWindowsCompressor(string kind, int length)
+    {
+        var original = Sample(kind, length);
+        foreach (var engine in new ushort[] { 0, EngineMaximum })
+        {
+            if (TryNativeCompress(original, 0, original.Length, 4096, CompressionFormat.Xpress, engine) is not { } compressed)
+            {
+                continue;
+            }
+
+            var decompressed = new byte[original.Length];
+            Assert.True(XpressLz77.TryDecompress(compressed, decompressed, out var written), $"engine 0x{engine:X}: decoding failed");
+            Assert.Equal(original.Length, written);
+            Assert.Equal(original, decompressed);
+        }
+    }
+
+    [Fact]
+    public void DecodesLiteralsMatchesAndTheSharedLengthHalfByte()
+    {
+        // Flags 0b0001_1111...: "abc", a match {offset 3, length 7 -> half-byte 15 -> byte 5: 30}, a match {offset 3, length from the
+        // other half-byte: 10}, then the end-of-stream marker (a match flag at the end of the input).
+        byte[] input = [0xFF, 0xFF, 0xFF, 0x1F, (byte)'a', (byte)'b', (byte)'c', 0x17, 0x00, 0x0F, 0x05, 0x17, 0x00];
+        var output = new byte[43];
+        Assert.True(XpressLz77.TryDecompress(input, output, out var written));
+        Assert.Equal(43, written);
+        Assert.Equal(string.Concat(System.Linq.Enumerable.Repeat("abc", 15)).Substring(0, 43), System.Text.Encoding.ASCII.GetString(output));
+    }
+
+    [Fact]
+    public void RejectsAMatchBeforeTheStartOfTheOutput()
+    {
+        byte[] input = [0x00, 0x00, 0x00, 0x80, 0x10, 0x00];
+        Assert.False(XpressLz77.TryDecompress(input, new byte[8], out _));
+    }
 }

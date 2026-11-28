@@ -1,4 +1,4 @@
-<Solution>
+﻿<Solution>
   <Folder Name="/Common/">
     <File Path=".editorconfig" />
     <File Path=".gitattributes" />
@@ -35,6 +35,8 @@
     <Project Path="Library/DiscUtils.Ntfs/DiscUtils.Ntfs.csproj" />
     <Project Path="Library/DiscUtils.OpticalDiscSharing/DiscUtils.OpticalDiscSharing.csproj" />
     <Project Path="Library/DiscUtils.OpticalDisk/DiscUtils.OpticalDisk.csproj" />
+    <Project Path="Library/DiscUtils.DeduplicationRole/DiscUtils.DeduplicationRole.csproj" />
+    <Project Path="Library/DiscUtils.ReFs/DiscUtils.ReFs.csproj" />
     <Project Path="Library/DiscUtils.Registry/DiscUtils.Registry.csproj" />
     <Project Path="Library/DiscUtils.Sdi/DiscUtils.Sdi.csproj" />
     <Project Path="Library/DiscUtils.SquashFs/DiscUtils.SquashFs.csproj" />
@@ -76,8 +78,10 @@
     <File Path="Utilities/Directory.Build.props" />
     <Project Path="Utilities/BCDDump/BCDDump.csproj" />
     <Project Path="Utilities/DiscUtils.Common/DiscUtils.Common.csproj" />
+    <Project Path="Utilities/DiscUtilsCli/DiscUtilsCli.csproj" />
     <Project Path="Utilities/DiscUtils.Diagnostics/DiscUtils.Diagnostics.csproj" />
     <Project Path="Utilities/DiscUtils.PowerShell/DiscUtils.PowerShell.csproj" />
+    <Project Path="Utilities/DiscUtils.Windows/DiscUtils.Windows.csproj" />
     <Project Path="Utilities/DiskClone/DiskClone.csproj" />
     <Project Path="Utilities/DiskDump/DiskDump.csproj" />
     <Project Path="Utilities/DmgExtract/DmgExtract.csproj" />

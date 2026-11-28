@@ -30,6 +30,7 @@ Direct package dependencies are listed below; their own dependencies are restore
 | [LTRData.DiscUtils.Nfs](https://www.nuget.org/packages/LTRData.DiscUtils.Nfs) | Managed .NET NFS v3 client for remote file and directory operations and NFS-backed DiscUtils disk access. |
 | [LTRData.DiscUtils.Ntfs](https://www.nuget.org/packages/LTRData.DiscUtils.Ntfs) | Managed .NET implementation for reading, formatting and modifying NTFS filesystems, including NTFS-specific file metadata. |
 | [LTRData.DiscUtils.OpticalDisk](https://www.nuget.org/packages/LTRData.DiscUtils.OpticalDisk) | Managed .NET optical-disc image access and automatic detection of ISO 9660 and UDF filesystems. |
+| [LTRData.DiscUtils.ReFs](https://www.nuget.org/packages/LTRData.DiscUtils.ReFs) | Managed .NET support for reading ReFS 3.x filesystems (experimental, read-only). |
 | [LTRData.DiscUtils.Registry](https://www.nuget.org/packages/LTRData.DiscUtils.Registry) | Managed .NET support for reading, creating and modifying Windows Registry hive files and applying pending registry transaction-log changes. |
 | [LTRData.DiscUtils.Sdi](https://www.nuget.org/packages/LTRData.DiscUtils.Sdi) | Managed .NET reader for Microsoft Simple Deployment Image (SDI) headers, section metadata and section content streams. |
 | [LTRData.DiscUtils.SquashFs](https://www.nuget.org/packages/LTRData.DiscUtils.SquashFs) | Managed .NET support for reading SquashFS filesystems and building new compressed SquashFS images. |
@@ -52,7 +53,7 @@ Direct package dependencies are listed below; their own dependencies are restore
 DiscUtils.Complete.SetupHelper.SetupComplete();
 ```
 
-This helper explicitly registers providers from: `Core`, `Dmg`, `Btrfs`, `Ext`, `Fat`, `ExFat`, `HfsPlus`, `Iscsi`, `Nfs`, `Ntfs`, `OpticalDiscSharing`, `OpticalDisk`, `SquashFs`, `Swap`, `Vdi`, `Vhd`, `Vhdx`, `Vmdk`, `VirtualFileSystem`, `Xfs`, `Xva`, `Lvm`. It is safe to repeat and supports trimming and Native AOT registration. Referencing the package alone does not register providers.
+This helper explicitly registers providers from: `Core`, `Dmg`, `Btrfs`, `Ext`, `Fat`, `ExFat`, `HfsPlus`, `Iscsi`, `Nfs`, `Ntfs`, `OpticalDiscSharing`, `OpticalDisk`, `ReFs`, `SquashFs`, `Swap`, `Vdi`, `Vhd`, `Vhdx`, `Vmdk`, `VirtualFileSystem`, `Xfs`, `Xva`, `Lvm`. It is safe to repeat and supports trimming and Native AOT registration. Referencing the package alone does not register providers.
 
 Package dependencies and registration scope are distinct. Libraries without discovery providers, such as WIM and Registry, are used through their direct APIs. ISO/UDF detection is supplied by OpticalDisk.
 

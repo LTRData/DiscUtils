@@ -28,6 +28,9 @@ internal interface INtfsContext
 
     NtfsOptions Options { get; }
 
+    /// <summary>Reads files optimized by Data Deduplication from this volume's chunk store; null when the context has no file system.</summary>
+    DeduplicationRole.DedupReader Deduplication { get; }
+
     Quotas Quotas { get; }
     Stream RawStream { get; }
 

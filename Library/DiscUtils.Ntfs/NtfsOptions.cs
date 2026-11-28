@@ -38,7 +38,16 @@ public sealed class NtfsOptions : DiscFileSystemOptions
         Compressor = LZNT1.Default;
         ReadCacheEnabled = true;
         FileLengthFromDirectoryEntries = false;
+        ReadDeduplicatedFiles = true;
     }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether a file optimized by the Windows Server Data Deduplication role (reparse tag 0x80000013) is read
+    /// as Windows reads it, from the volume's chunk store under <c>System Volume Information\Dedup</c> (default: <c>true</c>). When <c>false</c>,
+    /// or when the file is opened for writing, such a file reads as its sparse stub, holding only the ranges written since the optimization.
+    /// See <c>LTRData.DiscUtils.DeduplicationRole</c>.
+    /// </summary>
+    public bool ReadDeduplicatedFiles { get; set; }
 
     /// <summary>
     /// Gets or sets the compression algorithm used for compressing files.

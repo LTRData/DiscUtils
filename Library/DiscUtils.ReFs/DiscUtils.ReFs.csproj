@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Managed .NET support for reading ReFS 3.x filesystems (experimental, read-only).</Description>
+    <PackageTags>DiscUtils;Filesystem;ReFS</PackageTags>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="LibraryTests" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0' Or '$(TargetFramework)' == 'net48'">
+    <PackageReference Include="Microsoft.Bcl.HashCode" Version="*" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' != 'net46'">
+    <PackageReference Include="ZstdSharp.Port" Version="*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DiscUtils.Core\DiscUtils.Core.csproj" />
+    <ProjectReference Include="..\DiscUtils.DeduplicationRole\DiscUtils.DeduplicationRole.csproj" />
+  </ItemGroup>
+
+</Project>
