@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <!-- Spectre.Console needs .NET Framework 4.6.2 or later, so net46 and netstandard2.1 from Utilities/Directory.Build.props are left out. -->
+    <TargetFrameworks>net48;net10.0;net11.0</TargetFrameworks>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Description>Command line tool: list, read, extract and inspect files in disk images (ReFS first; more file systems to follow).</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Spectre.Console" Version="0.57.2"/>
+    <PackageReference Include="Spectre.Console.Cli" Version="0.57.2"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Not the DiscUtils meta-package: its DiscUtils.dll and this tool's discutils.dll are the same file name on Windows. -->
+    <ProjectReference Include="..\..\Library\DiscUtils.Core\DiscUtils.Core.csproj"/>
+    <ProjectReference Include="..\..\Library\DiscUtils.Containers\DiscUtils.Containers.csproj"/>
+    <ProjectReference Include="..\..\Library\DiscUtils.FileSystems\DiscUtils.FileSystems.csproj"/>
+    <ProjectReference Include="..\..\Library\DiscUtils.Transports\DiscUtils.Transports.csproj"/>
+    <ProjectReference Include="..\DiscUtils.Windows\DiscUtils.Windows.csproj"/>
+  </ItemGroup>
+
+</Project>

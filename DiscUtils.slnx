@@ -78,6 +78,7 @@
     <File Path="Utilities/Directory.Build.props" />
     <Project Path="Utilities/BCDDump/BCDDump.csproj" />
     <Project Path="Utilities/DiscUtils.Common/DiscUtils.Common.csproj" />
+    <Project Path="Utilities/DiscUtilsCli/DiscUtilsCli.csproj" />
     <Project Path="Utilities/DiscUtils.Diagnostics/DiscUtils.Diagnostics.csproj" />
     <Project Path="Utilities/DiscUtils.PowerShell/DiscUtils.PowerShell.csproj" />
     <Project Path="Utilities/DiscUtils.Windows/DiscUtils.Windows.csproj" />

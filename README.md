@@ -144,6 +144,7 @@ The mounted view is constrained by the underlying filesystem, backing-stream acc
 | [DiskDump](Utilities/DiskDump) | Inspect disks, partitioning and detected filesystems | Depends on the selected format and transport |
 | [FileExtract](Utilities/FileExtract) | Extract files from supported disk/filesystem images | Depends on the selected format and transport |
 | [ISOCreate](Utilities/ISOCreate) | Build an ISO or UDF image from source files | ISO 9660 by default; `-udf` selects UDF 2.01 |
+| [DiscUtilsCli](Utilities/DiscUtilsCli) (`discutils`) | List, inspect, read and extract files, or browse an image interactively | Read-only; .NET Framework 4.8 or .NET 10+; Windows devices (`\\.\PhysicalDriveN`, `\\.\X:`) need administrator rights; `validate`, `log` and redo-log stepping are ReFS only |
 
 The source tree contains further tools, including BCD, NTFS, VHD and VHDX diagnostics. Consult each utility's help for arguments and restrictions.
 
