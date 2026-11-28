@@ -39,6 +39,9 @@ public class RegistryHive : IDisposable
     internal const int BinStart = 4 * Sizes.OneKiB;
     private readonly List<BinHeader> _bins;
 
+    /// <summary>Loaded bins by <see cref="BinHeader.FileOffset"/>; see <see cref="LoadBin"/>.</summary>
+    private readonly Dictionary<int, Bin> _binCache = [];
+
     internal Stream FileStream { get; private set; }
 
     private readonly HiveHeader _header;
@@ -456,9 +459,15 @@ public class RegistryHive : IDisposable
 
     internal void FreeCell(int index)
     {
-        var bin = GetBin(index);
+        var binIndex = FindBinIndex(index);
+        if (binIndex < 0)
+        {
+            return;
+        }
 
-        bin?.FreeCell(index);
+        var bin = LoadBin(_bins[binIndex]);
+        bin.FreeCell(index);
+        SetLargestFreeCell(binIndex, bin.LargestFreeCell);
     }
 
     internal int UpdateCell(Cell cell, bool canRelocate)
@@ -527,11 +536,21 @@ public class RegistryHive : IDisposable
     {
         var minSize = MathUtilities.RoundUp(capacity + 4, 8); // Allow for size header and ensure multiple of 8
 
-        // Incredibly inefficient algorithm...
-        foreach (var binHeader in _bins)
+        // First fit in file order, as before, but the free-space tree jumps straight to the first bin that can
+        // hold the cell (or that isn't loaded yet, so its free space is unknown) instead of trying every full
+        // bin in front of it. The bin chosen, and the cell within it, are the same as the linear scan's.
+        EnsureFreeSpaceTree();
+        while (true)
         {
-            var bin = LoadBin(binHeader);
+            var binIndex = FirstBinWithFreeCell(minSize);
+            if (binIndex < 0)
+            {
+                break;
+            }
+
+            var bin = LoadBin(_bins[binIndex]);
             var cellIndex = bin.AllocateCell(minSize);
+            SetLargestFreeCell(binIndex, bin.LargestFreeCell);
 
             if (cellIndex >= 0)
             {
@@ -541,22 +560,141 @@ public class RegistryHive : IDisposable
 
         var newBinHeader = AllocateBin(minSize);
         var newBin = LoadBin(newBinHeader);
-        return newBin.AllocateCell(minSize);
+        var newCellIndex = newBin.AllocateCell(minSize);
+        EnsureFreeSpaceTree();
+        SetLargestFreeCell(_bins.Count - 1, newBin.LargestFreeCell);
+        return newCellIndex;
+    }
+
+    /// <summary>
+    /// Max segment tree over <see cref="_bins"/> (leaves at [_freeSpaceLeaves + i]): for each bin, the size of its
+    /// largest free cell, <see cref="int.MaxValue"/> while the bin hasn't been loaded (unknown, so it must be
+    /// looked at), and -1 for padding leaves past the last bin. Lets <see cref="AllocateRawCell"/> find the first
+    /// bin that can satisfy a request in O(log n) instead of trying every bin from the start.
+    /// </summary>
+    private int[] _freeSpaceTree;
+
+    private int _freeSpaceLeaves;
+
+    /// <summary>How many of <see cref="_bins"/> the tree has leaves for (bins appended later are padding until added).</summary>
+    private int _freeSpaceBins;
+
+    private void EnsureFreeSpaceTree()
+    {
+        if (_freeSpaceTree is not null && _freeSpaceLeaves >= _bins.Count)
+        {
+            // Bins appended by AllocateBin since the last call are still padding: mark them "unknown".
+            while (_freeSpaceBins < _bins.Count)
+            {
+                SetLargestFreeCell(_freeSpaceBins++, int.MaxValue);
+            }
+
+            return;
+        }
+
+        var leaves = 1;
+        while (leaves < _bins.Count)
+        {
+            leaves <<= 1;
+        }
+
+        var tree = new int[2 * leaves];
+        for (var i = 0; i < leaves; i++)
+        {
+            tree[leaves + i] = i >= _bins.Count
+                ? -1
+                : _freeSpaceTree is not null && i < _freeSpaceLeaves && _freeSpaceTree[_freeSpaceLeaves + i] >= 0
+                    ? _freeSpaceTree[_freeSpaceLeaves + i]
+                    : int.MaxValue;
+        }
+
+        for (var i = leaves - 1; i >= 1; i--)
+        {
+            tree[i] = Math.Max(tree[2 * i], tree[2 * i + 1]);
+        }
+
+        _freeSpaceTree = tree;
+        _freeSpaceLeaves = leaves;
+        _freeSpaceBins = _bins.Count;
+    }
+
+    private void SetLargestFreeCell(int binIndex, int largestFreeCell)
+    {
+        if (_freeSpaceTree is null)
+        {
+            // Not built yet: built on the first allocation, from the bins loaded by then.
+            return;
+        }
+
+        if (binIndex >= _freeSpaceBins)
+        {
+            // A bin the tree doesn't cover yet (appended since): grow/mark first, then store the real value.
+            EnsureFreeSpaceTree();
+        }
+
+        var i = _freeSpaceLeaves + binIndex;
+        _freeSpaceTree[i] = largestFreeCell;
+        for (i >>= 1; i >= 1; i >>= 1)
+        {
+            _freeSpaceTree[i] = Math.Max(_freeSpaceTree[2 * i], _freeSpaceTree[2 * i + 1]);
+        }
+    }
+
+    /// <summary>The lowest bin index whose largest free cell is at least <paramref name="size"/> (or unknown), or -1.</summary>
+    private int FirstBinWithFreeCell(int size)
+    {
+        if (_freeSpaceTree[1] < size)
+        {
+            return -1;
+        }
+
+        var i = 1;
+        while (i < _freeSpaceLeaves)
+        {
+            i = _freeSpaceTree[2 * i] >= size ? 2 * i : 2 * i + 1;
+        }
+
+        return i - _freeSpaceLeaves;
     }
 
     private BinHeader? FindBin(int index)
     {
+        var binIndex = FindBinIndex(index);
+        return binIndex < 0 ? null : _bins[binIndex];
+    }
+
+    private int FindBinIndex(int index)
+    {
         if (index < 0)
         {
-            return null;
+            return -1;
         }
 
-        var bin = _bins
-            .TakeWhile(bin => bin.FileOffset <= index)
-            .Select(bin => new BinHeader?(bin))
-            .FirstOrDefault(bin => bin.Value.FileOffset + bin.Value.BinSize >= index);
+        // Bins are contiguous and sorted by FileOffset. Binary search for the first bin whose end
+        // (FileOffset + BinSize) is >= index, then require that it starts at or before index - the same
+        // bin the previous linear TakeWhile/FirstOrDefault scan returned, in O(log n) instead of O(n).
+        int lo = 0, hi = _bins.Count - 1, found = -1;
+        while (lo <= hi)
+        {
+            var mid = lo + ((hi - lo) >> 1);
+            var bin = _bins[mid];
+            if (bin.FileOffset + bin.BinSize >= index)
+            {
+                found = mid;
+                hi = mid - 1;
+            }
+            else
+            {
+                lo = mid + 1;
+            }
+        }
 
-        return bin;
+        if (found < 0 || _bins[found].FileOffset > index)
+        {
+            return -1;
+        }
+
+        return found;
     }
 
     private Bin GetBin(int cellIndex)
@@ -571,10 +709,29 @@ public class RegistryHive : IDisposable
         return null;
     }
 
+    /// <summary>
+    /// Returns the <see cref="Bin"/> for a bin, reading and parsing it only the first time.
+    /// <para>
+    /// Every cell read, write and allocation goes through a Bin, and loading one reads the whole bin
+    /// from the stream and scans all its cells for free space. Building a fresh Bin on every access
+    /// made writes to large hives very slow: <see cref="AllocateRawCell"/> walks the bins from the start,
+    /// so one allocation in a 16 MiB hive whose early bins are full re-read megabytes. Caching is safe
+    /// because after construction all changes to bin contents go through the cached Bin, which keeps its
+    /// buffer, its free-cell list and the stream in step; the only other writes are to the hive header
+    /// and to a new bin in <see cref="AllocateBin"/> before it is first loaded.
+    /// </para>
+    /// </summary>
     private Bin LoadBin(BinHeader binHeader)
     {
+        if (_binCache.TryGetValue(binHeader.FileOffset, out var cached))
+        {
+            return cached;
+        }
+
         FileStream.Position = BinStart + binHeader.FileOffset;
-        return new Bin(this, FileStream);
+        var bin = new Bin(this, FileStream);
+        _binCache.Add(binHeader.FileOffset, bin);
+        return bin;
     }
 
     private BinHeader AllocateBin(int minSize)
